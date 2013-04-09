@@ -15,7 +15,7 @@
         <option name="GEN_FOLDER_RELATIVE_PATH_AIDL" value="/../android/target/gen" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/../android/src/main/AndroidManifest.xml" />
         <option name="RES_FOLDER_RELATIVE_PATH" value="/../android/src/main/res" />
-        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/../android/src/main/assets" />
+        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/../common/src/main/resources" />
         <option name="LIBS_FOLDER_RELATIVE_PATH" value="/../android/src/main/libs" />
         <option name="USE_CUSTOM_APK_RESOURCE_FOLDER" value="false" />
         <option name="CUSTOM_APK_RESOURCE_FOLDER" value="" />
