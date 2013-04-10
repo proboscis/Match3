@@ -45,9 +45,9 @@ class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
       game.entityContainer.addEntity(e)
     }
     game.eventManager += callback
-    def callback(i:Int)={true}
-    game.eventManager <= 4
-
+    def callback(i:Int)={
+      true
+    }
 
     /**
      * render system
