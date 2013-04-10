@@ -1,0 +1,12 @@
+update-gdx
+l;
+android:start-device
+"project common" gen-idea
+sbt "project common" gen-idea
+exit
+android:start-device
+run
+exit
+android:start-device
+exit
+android:start-device

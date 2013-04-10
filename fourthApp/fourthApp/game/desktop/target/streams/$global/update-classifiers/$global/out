@@ -1,0 +1,143 @@
+[debug] :: resolving dependencies :: desktop#desktop$sources_javadoc_2.10;0.1
+[debug] 	confs: [compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom]
+[debug] 	validate = true
+[debug] 	refresh = false
+[debug] resolving dependencies for configuration 'compile'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [compile->default(compile)]
+[info] Resolving common#common_2.10;0.1 ...
+[debug] sbt-chain: Checking cache for: sbt.ivyint.MergedDescriptors@2a5457ea
+[debug] 	found common#common_2.10;0.1 in inter-project
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->default(compile)]
+[info] Resolving org.scala-lang#scala-library;2.10.0 ...
+[debug] sbt-chain: Checking cache for: sbt.ivyint.MergedDescriptors@187f2ac8
+[debug] sbt-chain: module revision found in cache: org.scala-lang#scala-library;2.10.0
+[debug] 	local: revision in cache: org.scala-lang#scala-library;2.10.0
+[debug] 	found org.scala-lang#scala-library;2.10.0 in sbt-chain
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->master]
+[debug] resolving dependencies for configuration 'runtime'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [runtime]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->master]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [runtime->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->master]
+[debug] resolving dependencies for configuration 'test'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [test]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [runtime]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->master]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [runtime->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->master]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [test->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test->master]
+[debug] resolving dependencies for configuration 'provided'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [provided]
+[debug] resolving dependencies for configuration 'optional'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [optional]
+[debug] resolving dependencies for configuration 'compile-internal'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [compile-internal]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->master]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [optional]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [provided]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [compile-internal->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile-internal->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile-internal->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile-internal->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile-internal->master]
+[debug] resolving dependencies for configuration 'runtime-internal'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [runtime-internal]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [runtime]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->master]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [runtime->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->master]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [optional]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [runtime-internal->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime-internal->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime-internal->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime-internal->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime-internal->master]
+[debug] resolving dependencies for configuration 'test-internal'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [test-internal]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [test]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [runtime]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [compile->master]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [runtime->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [runtime->master]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [test->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test->master]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [optional]
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [provided]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->common#common_2.10;0.1 [test-internal->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test-internal->default(compile)]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test-internal->runtime]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test-internal->compile]
+[debug] == resolving dependencies desktop#desktop$sources_javadoc_2.10;0.1->org.scala-lang#scala-library;2.10.0 [test-internal->master]
+[debug] resolving dependencies for configuration 'plugin'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [plugin]
+[debug] resolving dependencies for configuration 'sources'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [sources]
+[debug] resolving dependencies for configuration 'docs'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [docs]
+[debug] resolving dependencies for configuration 'pom'
+[debug] == resolving dependencies for desktop#desktop$sources_javadoc_2.10;0.1 [pom]
+[debug] 	resolved ivy file produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\desktop\desktop$sources_javadoc_2.10\0.1\resolved.xml.xml
+[debug] :: downloading artifacts ::
+[debug] 	[NOT REQUIRED] org.scala-lang#scala-library;2.10.0!scala-library.jar(doc)
+[debug] 	[NOT REQUIRED] org.scala-lang#scala-library;2.10.0!scala-library.jar(src)
+[debug] :: resolution report :: resolve 56ms :: artifacts dl 15ms
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 compile produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-compile.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 runtime produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-runtime.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 test produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-test.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 provided produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-provided.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 optional produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-optional.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 compile-internal produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-compile-internal.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 runtime-internal produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-runtime-internal.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 test-internal produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-test-internal.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 plugin produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-plugin.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 sources produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-sources.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 docs produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-docs.xml
+[debug] 	report for desktop#desktop$sources_javadoc_2.10;0.1 pom produced in C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\resolution-cache\reports\desktop-desktop$sources_javadoc_2.10-pom.xml
+[debug] 	resolve done (56ms resolve - 15ms download)

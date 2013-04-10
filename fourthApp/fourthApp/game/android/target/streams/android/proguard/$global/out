@@ -1,0 +1,31 @@
+[debug] executing proguard: -injars
+[debug] "C:\Documents and Settings\glyph\Documents\sbt\first\gitRepo\fourthApp\fourthApp\game\android\target\scala-2.10\classes";"C:\Documents and Settings\glyph\Documents\sbt\first\gitRepo\fourthApp\fourthApp\game\common\target\scala-2.10\classes"(!META-INF/MANIFEST.MF,!**/R.class,!**/R$*.class,!**/TR.class,!**/TR$.class,!**/library.properties);"C:\Documents and Settings\glyph\Documents\sbt\first\gitRepo\fourthApp\fourthApp\game\android\src\main\libs\gdx-backend-android.jar"(!META-INF/MANIFEST.MF,!**/R.class,!**/R$*.class,!**/TR.class,!**/TR$.class,!**/library.properties);"C:\Documents and Settings\glyph\Documents\sbt\first\gitRepo\fourthApp\fourthApp\game\common\lib\gdx.jar"(!META-INF/MANIFEST.MF,!**/R.class,!**/R$*.class,!**/TR.class,!**/TR$.class,!**/library.properties);"C:\Users\glyph\.sbt\boot\scala-2.10.0\lib\scala-library.jar"(!META-INF/MANIFEST.MF,!**/R.class,!**/R$*.class,!**/TR.class,!**/TR$.class,!**/library.properties)
+[debug] -outjars
+[debug] "C:\Documents and Settings\glyph\Documents\sbt\first\gitRepo\fourthApp\fourthApp\game\android\target\classes.min.jar"
+[debug] -libraryjars
+[debug] "C:\Program Files (x86)\Android\android-sdk\platforms\android-10\android.jar"
+[debug] -dontoptimize
+[debug] -dontwarn
+[debug] -dontobfuscate
+[debug] -dontnote scala.Enumeration
+[debug] -dontnote org.xml.sax.EntityResolver
+[debug] -keep public class * extends android.app.Activity
+[debug] -keep public class * extends android.app.Service
+[debug] -keep public class * extends android.app.backup.BackupAgent
+[debug] -keep public class * extends android.appwidget.AppWidgetProvider
+[debug] -keep public class * extends android.content.BroadcastReceiver
+[debug] -keep public class * extends android.content.ContentProvider
+[debug] -keep public class * extends android.view.View
+[debug] -keep public class * extends android.app.Application
+[debug] -keep public class com.glyph.** { public protected *; }
+[debug] -keep public class * implements junit.framework.Test { public void test*(); }
+[debug] 
+[debug]                   -keepclassmembers class * implements java.io.Serializable {
+[debug]                     private static final java.io.ObjectStreamField[] serialPersistentFields;
+[debug]                     private void writeObject(java.io.ObjectOutputStream);
+[debug]                     private void readObject(java.io.ObjectInputStream);
+[debug]                     java.lang.Object writeReplace();
+[debug]                     java.lang.Object readResolve();
+[debug]                    }
+[debug]                    
+[debug] -keep class com.badlogic.gdx.backends.android.** { *; }

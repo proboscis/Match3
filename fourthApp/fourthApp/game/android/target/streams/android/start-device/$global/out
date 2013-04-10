@@ -1,0 +1,2 @@
+[debug] C:\Program Files (x86)\Android\android-sdk\platform-tools\adb -d shell am start -a android.intent.action.MAIN -n com.glyph/.Main
+[info] Starting: Intent { act=android.intent.action.MAIN cmp=xxxx }

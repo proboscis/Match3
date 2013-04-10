@@ -1,0 +1,32 @@
+[debug] 
+[debug] Initial source changes: 
+[debug] 	removed:Set()
+[debug] 	added: Set(C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\src\main\scala\Main.scala)
+[debug] 	modified: Set()
+[debug] Removed products: Set()
+[debug] Modified external sources: Set()
+[debug] Modified binary dependencies: Set()
+[debug] Initial directly invalidated sources: Set(C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\src\main\scala\Main.scala)
+[debug] 
+[debug] Sources indirectly invalidated by:
+[debug] 	product: Set()
+[debug] 	binary dep: Set()
+[debug] 	external source: Set()
+[debug] All initially invalidated sources: Set(C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\src\main\scala\Main.scala)
+[debug] Recompiling all 1 sources: invalidated sources (1) exceeded 50.0% of all sources
+[info] Compiling 1 Scala source to C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\scala-2.10\classes...
+[debug] Running cached compiler 196257ee, interfacing (CompilerInterface) with Scala compiler version 2.10.0
+[debug] Calling Scala compiler with arguments  (CompilerInterface):
+[debug] 	-d
+[debug] 	C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\scala-2.10\classes
+[debug] 	-bootclasspath
+[debug] 	C:\Program Files\Java\jre7\lib\resources.jar;C:\Program Files\Java\jre7\lib\rt.jar;C:\Program Files\Java\jre7\lib\sunrsasign.jar;C:\Program Files\Java\jre7\lib\jsse.jar;C:\Program Files\Java\jre7\lib\jce.jar;C:\Program Files\Java\jre7\lib\charsets.jar;C:\Program Files\Java\jre7\lib\jfr.jar;C:\Program Files\Java\jre7\classes;C:\Users\glyph\.sbt\boot\scala-2.10.0\lib\scala-library.jar
+[debug] 	-classpath
+[debug] 	C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\target\scala-2.10\classes;C:\Users\glyph\Documents\sbt\first\fourthApp\game\common\target\scala-2.10\classes;C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\lib\gdx-backend-lwjgl-natives.jar;C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\lib\gdx-backend-lwjgl.jar;C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\lib\gdx-natives.jar;C:\Users\glyph\Documents\sbt\first\fourthApp\game\common\lib\gdx.jar
+[debug] Scala compilation took 2.68459991 s
+[debug] Step 2 changed sources and immdediate dependencies:
+[debug] 	Set(C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\src\main\scala\Main.scala)
+[debug] Non-trivial strongly connected components: 
+[debug] 	
+[debug] Step 2 invalidated sources:
+[debug] 	Set(C:\Users\glyph\Documents\sbt\first\fourthApp\game\desktop\src\main\scala\Main.scala)
