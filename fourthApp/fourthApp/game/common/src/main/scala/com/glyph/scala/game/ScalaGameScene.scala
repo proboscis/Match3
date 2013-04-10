@@ -14,11 +14,7 @@ import com.glyph.scala.lib.entity_component_system.math.Vec2
 import com.glyph.libgdx.Engine
 
 /**
- * Created with IntelliJ IDEA.
- * User: glyph
- * Date: 13/04/03
- * Time: 0:06
- * To change this template use File | Settings | File Templates.
+ * a gamescene written in cala
  */
 class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
   val game = new GameContext
@@ -44,10 +40,13 @@ class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
       e.initialize()
       game.entityContainer.addEntity(e)
     }
+
+
     game.eventManager += callback
     def callback(i:Int)={
       true
     }
+    game.eventManager <= 3
 
     /**
      * render system
