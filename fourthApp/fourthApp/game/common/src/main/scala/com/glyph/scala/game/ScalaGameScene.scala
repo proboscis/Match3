@@ -12,6 +12,7 @@ import com.glyph.scala.surface.GameRenderer
 import com.badlogic.gdx.math.{MathUtils, Vector2}
 import com.glyph.scala.lib.entity_component_system.math.Vec2
 import com.glyph.libgdx.Engine
+import com.glyph.scala.Glyph
 
 /**
  * a gamescene written in cala
@@ -28,7 +29,7 @@ class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
       val e = new Entity
       e.register({
         val t = new Transform
-        t.position.set(Vec2.random.mul(MathUtils.random(Engine.VIRTUAL_WIDTH)))
+        t.position.set(Vec2.random * MathUtils.random(Engine.VIRTUAL_WIDTH))
         t
       })
       e.register({
@@ -44,6 +45,7 @@ class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
 
     game.eventManager += callback
     def callback(i:Int)={
+      Glyph.log("handle")
       true
     }
     game.eventManager <= 3

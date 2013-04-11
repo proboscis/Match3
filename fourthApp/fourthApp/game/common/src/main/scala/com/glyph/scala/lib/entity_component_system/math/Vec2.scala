@@ -12,36 +12,46 @@ import com.badlogic.gdx.Gdx
  */
 class Vec2( a:Float,b:Float) extends Vector2(a,b){
   def this () = this(0,0)
-  def -= = (t:Vector2) =>{
+  def this(v:Vector2) = this (v.x,v.y)
+
+  def -=(t:Vector2){
     x = x - t.x
     y = y - t.y
     this
   }
+  def -=(f: Float){x -= f; y-= f; this}
   def += = (t:Vector2) => {
     x = x + t.x
     y = y + t.y
     this
   }
+  def +=(f:Float){x += f; y+=f; this}
   def *= (t:Vector2){
     x = x * t.x
     y = y * t.y
     this
   }
+  def *=(f:Float){ x *= f; y *= f; this}
   def /= (t:Vector2){
     x = x / t.x
     y = y / t.y
     this
   }
+  def /=(f:Float){ x/=f; y /= f; this}
 
   def + (t:Vector2)= new Vec2(x+t.x, y+t.y)
   def - (t:Vector2)= new Vec2(x-t.x,y-t.y)
   def * (t:Vector2)= new Vec2(x*t.x,y*t.y)
   def / (t:Vector2)= new Vec2(x/t.x, y/t.y)
+  def +(f:Float) = new Vec2(x+f,y+f)
+  def -(f:Float) = new Vec2(x-f,y-f)
+  def *(f:Float) = new Vec2(x*f,y*f)
+  def /(f:Float) = new Vec2(x/f,y/f)
 }
 object Vec2{
   /**
    * creates a new normalized vector with random direction
    * @return
    */
-  def random = new Vec2(1,0).rotate(MathUtils.random(360))
+  def random = new Vec2(new Vector2(1,0).rotate(MathUtils.random(360)))
 }
