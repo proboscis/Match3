@@ -1,14 +1,8 @@
 package com.glyph.scala.lib.entity_component_system
 
+import com.badlogic.gdx.Gdx
 import com.glyph.scala.Glyph
 
-/**
- * Created with IntelliJ IDEA.
- * User: glyph
- * Date: 13/04/02
- * Time: 15:22
- * To change this template use File | Settings | File Templates.
- */
 class Entity {
   val mComponentMap = scala.collection.mutable.Map.empty[Manifest[_],Component]
 
@@ -35,8 +29,14 @@ class Entity {
    */
   def initialize() = mComponentMap.foreach(_._2.initialize(this))
   def get[T](implicit componentType : Manifest[T]):T = {
+    Glyph.log("get call")
     mComponentMap get componentType match{
       case Some(x) => x.asInstanceOf[T]
     }
+  }
+  def mayBeGet[T](implicit componentType : Manifest[T]):Option[T] = {
+    Glyph.log("maybe get call")
+    val res = mComponentMap get componentType
+    res.asInstanceOf[Option[T]]
   }
 }

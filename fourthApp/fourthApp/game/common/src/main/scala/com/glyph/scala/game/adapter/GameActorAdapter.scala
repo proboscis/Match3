@@ -5,7 +5,7 @@ import com.glyph.scala.lib.entity_component_system.{Entity, Adapter, Receptor}
 
 /**
  */
-class ActorAdapter(e:Entity) extends Adapter(e:Entity){
+class GameActorAdapter(e:Entity) extends Adapter(e:Entity){
   @Receptor
   val actor:GameActor = null
 }

@@ -1,7 +1,5 @@
 package com.glyph.scala.game
 
-import card.CardContext
-import dungeon.DungeonContext
 import com.glyph.scala.lib.entity_component_system.EntityContainer
 import com.glyph.scala.event.EventManager
 
@@ -15,6 +13,4 @@ import com.glyph.scala.event.EventManager
 class GameContext {
   val eventManager = new EventManager
   val entityContainer = new EntityContainer
-  val cardContext = new CardContext
-  val dungeonContext = new DungeonContext
 }

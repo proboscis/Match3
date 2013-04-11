@@ -1,18 +1,18 @@
 package com.glyph.libgdx.surface;
 
-import java.util.LinkedList;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.glyph.libgdx.surface.drawable.SurfaceDrawable;
 
-public class Surface extends Actor {
+import java.util.LinkedList;
+
+public class Surface extends Group {
     private Camera mCamera;
     private SpriteBatch mBatch;
 
@@ -99,7 +99,6 @@ public class Surface extends Actor {
          */
         batch.begin();
     }
-
     private void processRequest() {
         mDrawables.removeAll(mRemoveRequests);
         mDrawables.addAll(mAddRequests);

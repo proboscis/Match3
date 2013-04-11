@@ -57,7 +57,7 @@ public class GameScene extends Scene {
 
         Table t = mGameTable;
         t.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT);
-        t.top();
+        t.row();
         t.add(mGameSurface).expandX().height(Engine.VIRTUAL_HEIGHT / 2).fill()
                 .colspan(3);
         t.row();
