@@ -1,14 +1,11 @@
 package com.glyph.scala.lib.entity_component_system.math
 
 import com.badlogic.gdx.math.{MathUtils, Vector2}
-import com.badlogic.gdx.Gdx
 
 /**
- * Created with IntelliJ IDEA.
- * User: glyph
- * Date: 13/04/02
- * Time: 14:55
- * To change this template use File | Settings | File Templates.
+ * Vector2 in scala
+ * @param a x
+ * @param b y
  */
 class Vec2( a:Float,b:Float) extends Vector2(a,b){
   def this () = this(0,0)

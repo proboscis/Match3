@@ -7,17 +7,15 @@ import com.glyph.scala.game.renderer.SimpleRenderer
 /**
  * @author glyph
  */
-class GameActorRenderer extends Component{
-  private var actor :GameActor = null;
+class Renderer extends Component{
+  private var transform: Transform = null
   private val renderer = new SimpleRenderer
   override def initialize(owner: Entity) {
     super.initialize(owner)
-    actor = owner.get[GameActor]
+    transform = owner.get[Transform]
   }
 
   def draw(batch:SpriteBatch,alpha:Float){
-    if (actor != null){
-      renderer.draw(actor,batch,alpha)
-    }
+    renderer.draw(transform,batch,alpha)
   }
 }

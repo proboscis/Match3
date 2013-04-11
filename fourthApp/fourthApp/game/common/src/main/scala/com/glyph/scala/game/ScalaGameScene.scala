@@ -1,12 +1,12 @@
 package com.glyph.scala.game
-import com.glyph.scala.game.adapter.GameActorAdapter
+import adapter.RendererAdapter
 import com.glyph.game.GameScene
 import com.badlogic.gdx.graphics.g2d.{Sprite, SpriteBatch}
 import com.glyph.scala.Glyph
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Actor}
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.graphics.Texture
-import system.ActorManageSystem
+import system.RenderSystem
 
 /**
  * a gamescene written in scala
@@ -18,12 +18,11 @@ class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
    */
   Glyph.printExecTime("init",{
 
-
-    game.entityContainer.addAdapter[GameActorAdapter]
-    game.entityContainer.addSystem(new ActorManageSystem(mGameSurface))
+    game.entityContainer.addAdapter[RendererAdapter]
     for (i <- 1 to 1000) {
       game.entityContainer.addEntity(EntityFactory.createNewCharacter)
     }
+    game.entityContainer.addEntity(EntityFactory.dungeon)
 
     /**
      * event manager test
@@ -34,7 +33,7 @@ class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
       true
     }
     game.eventManager <= 3
-
+    mGameSurface.add(new RenderSystem(game.entityContainer))
   })
   val testActor = new Actor(){
     val sprite = new Sprite(AM.instance().get[Texture]("data/card1.png"))
