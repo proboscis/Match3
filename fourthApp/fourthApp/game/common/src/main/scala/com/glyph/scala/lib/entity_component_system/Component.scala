@@ -9,7 +9,7 @@ import com.glyph.scala.Glyph
  * Time: 15:26
  * To change this template use File | Settings | File Templates.
  */
-class Component {
+trait Component {
   def initialize (owner: Entity){
 
   }

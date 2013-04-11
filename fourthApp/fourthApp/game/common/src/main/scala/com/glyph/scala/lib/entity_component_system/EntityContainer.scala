@@ -4,6 +4,7 @@ import collection.mutable.{ListBuffer, HashMap}
 import com.badlogic.gdx.Gdx
 import collection.mutable
 import java.lang.reflect.{Field, Method}
+import com.glyph.scala.Glyph
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,8 +17,9 @@ class EntityContainer {
   private val DEBUG = false
   private val TAG = "EntityContainer"
   private val adapterToFilterMap = HashMap.empty[Manifest[_], Filter]
-  private val AdapterListMap = HashMap.empty[Manifest[_], mutable.ListBuffer[Any]]
+  private val adapterListMap = HashMap.empty[Manifest[_], mutable.ListBuffer[Adapter]]
   private val entities = ListBuffer.empty[Entity]
+  private val mSystems = ListBuffer.empty[GameSystem]
 
   /**
    * add an entity
@@ -29,15 +31,15 @@ class EntityContainer {
       if (DEBUG) Gdx.app.log(TAG, "acceptCheck")
       if (e.contains(filter.receptors.map(t => t._2))) {
         if (DEBUG) Gdx.app.log(TAG, "accept->" + adapterManifest.runtimeClass.getSimpleName)
-        val list: mutable.ListBuffer[Any] = AdapterListMap get adapterManifest match {
+        val list: mutable.ListBuffer[Adapter] = adapterListMap get adapterManifest match {
           case Some(x) => x
           case None => {
-            val newList = ListBuffer.empty[Any]
-            AdapterListMap(adapterManifest) = newList
+            val newList = ListBuffer.empty[Adapter]
+            adapterListMap(adapterManifest) = newList
             newList
           }
         }
-        val adapter = adapterManifest.runtimeClass.newInstance()
+        val adapter = adapterManifest.runtimeClass.getConstructor(classOf[Entity]).newInstance(e).asInstanceOf[Adapter]
         if (DEBUG) Gdx.app.log(TAG, "new Adapter->" + adapter.getClass.getSimpleName)
         for (receptor <- filter.receptors) {
           if (DEBUG) Gdx.app.log(TAG, "\t" + receptor._1.getName)
@@ -45,6 +47,17 @@ class EntityContainer {
           receptor._1.set(adapter, e.get(receptor._2))
         }
         list += adapter
+      }
+    }
+    mSystems.foreach(_.onAddEntity(this,e))
+  }
+  def removeEntity(e:Entity){
+    entities -= e
+    for((adapterManifest,adapterList) <- adapterListMap){
+      for (adapter <- adapterList){
+        if (adapter.consistsOf(e)){
+          adapterList -= adapter
+        }
       }
     }
   }
@@ -59,16 +72,30 @@ class EntityContainer {
     case None => adapterToFilterMap(typ) = new Filter(typ)
   }
 
+  /**
+   * add GameSystem
+   * @param s
+   */
+  def addSystem(s:GameSystem){ mSystems += s}
 
+  /**
+   * remove GameSystem
+   * @param s
+   */
+  def removeSystem(s:GameSystem){ mSystems -= s}
   /**
    * retrieve adapters from entities. this may return Unit
    * @param typ
    * @tparam T
    * @return
    */
-  def getAdapters[T](implicit typ: Manifest[T]):Seq[T] = AdapterListMap get typ match {
+  def getAdapters[T](implicit typ: Manifest[T]):Seq[T] = adapterListMap get typ match {
     case Some(x) => x.asInstanceOf[Seq[T]]
     case None => null
+  }
+
+  def update(){
+    mSystems.foreach(_.update(this))
   }
 
   /**

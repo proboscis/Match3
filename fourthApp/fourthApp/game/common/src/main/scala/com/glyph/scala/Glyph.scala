@@ -17,4 +17,10 @@ object Glyph {
   def log(tag: String , str: String) ={
     Gdx.app.log(TAG+tag,str)
   }
+  def printExecTime(tag:String,func: =>Unit){
+    val prev = System.nanoTime();
+    Glyph.log(tag,"=> start")
+    func
+    Glyph.log(tag,"<= "+(System.nanoTime()-prev)/1000/1000)+"ms";
+  }
 }
