@@ -20,9 +20,9 @@ class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
 
     game.entityContainer.addAdapter[RendererAdapter]
     for (i <- 1 to 1000) {
-      game.entityContainer.addEntity(EntityFactory.createNewCharacter)
+      game.entityContainer.addEntity(EntityFactory.createNewCharacter(game))
     }
-    game.entityContainer.addEntity(EntityFactory.dungeon)
+    game.entityContainer.addEntity(EntityFactory.dungeon(game))
 
     /**
      * event manager test
@@ -59,7 +59,7 @@ class ScalaGameScene(x: Int, y: Int) extends GameScene(x, y) {
       result
     }
   })
-  //mGameSurface.addActor(testActor)
+  mGameSurface.addActor(testActor)
 
   override def render(delta: Float) {
     super.render(delta)

@@ -1,11 +1,11 @@
 package com.glyph.scala.lib.entity_component_system
 
-import com.badlogic.gdx.Gdx
 import com.glyph.scala.Glyph
+import com.glyph.scala.game.GameContext
 
 class Entity {
   val mComponentMap = scala.collection.mutable.Map.empty[Manifest[_],Component]
-
+  var game:GameContext = null
   def contains (components :Seq[Manifest[_]]) = {
     var result = true
     if (components.isEmpty) result = false
@@ -27,7 +27,10 @@ class Entity {
   /**
    * initialize all components
    */
-  def initialize() = mComponentMap.foreach(_._2.initialize(this))
+  def initialize(g:GameContext) = {
+    game = g
+    mComponentMap.foreach(_._2.initialize(this))
+  }
   def get[T](implicit componentType : Manifest[T]):T = {
     Glyph.log("get call:"+componentType.runtimeClass.getSimpleName)
     mComponentMap get componentType match{

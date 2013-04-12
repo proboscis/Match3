@@ -8,5 +8,5 @@ import com.glyph.scala.lib.entity_component_system.math.Vec2
  */
 class Transform extends Component{
   val position = new Vec2()
-  val direction = new Vec2 ()
+  val direction = new Vec2()
 }
