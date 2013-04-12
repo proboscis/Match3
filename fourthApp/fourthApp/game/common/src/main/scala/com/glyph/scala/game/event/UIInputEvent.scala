@@ -3,9 +3,9 @@ package com.glyph.scala.game.event
 /**
  * @author glyph
  */
-class InputEvent(val typ:String)
-object InputEvent{
+class UIInputEvent(val typ:String)
+object UIInputEvent{
   val RIGHT_BUTTON = "rightButton"
   val LEFT_BUTTON = "leftButton"
-  val EXEC_BUTTOn = "execButton"
+  val EXEC_BUTTON = "execButton"
 }

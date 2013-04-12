@@ -5,6 +5,8 @@ import com.glyph.scala.Glyph
 import com.badlogic.gdx.scenes.scene2d.{Stage, InputEvent, InputListener, Actor}
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.graphics.{FPSLogger, Texture}
+import component.Controller
+import event.UIInputEvent
 import system.RenderSystem
 import com.glyph.libgdx.{Scene, Engine}
 import com.glyph.libgdx.surface.Surface
@@ -52,10 +54,30 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
      * init buttons
      */
     val right = new Button(skin.getDrawable("right"));
+    right.addListener(new InputListener(){
+      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
+        super.touchDown(event,x,y,pointer,button)
+        game.eventManager dispatch new UIInputEvent(UIInputEvent.RIGHT_BUTTON)
+        true
+      }
+    })
 
     val left = new Button(skin.getDrawable("left"));
-
+    left.addListener(new InputListener(){
+      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
+        super.touchDown(event,x,y,pointer,button)
+        game.eventManager dispatch new UIInputEvent(UIInputEvent.LEFT_BUTTON)
+        true
+      }
+    })
     val exec = new Button(skin.getDrawable("exec"));
+    exec.addListener(new InputListener(){
+      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
+        super.touchDown(event,x,y,pointer,button)
+        game.eventManager dispatch new UIInputEvent(UIInputEvent.EXEC_BUTTON)
+        true
+      }
+    })
     val t = mGameTable;
     t.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT);
     t.row();
@@ -75,9 +97,17 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
      */
     game.entityContainer.addAdapter[RendererAdapter]
     for (i <- 1 to 1000) {
-      game.entityContainer.addEntity(EntityFactory.createNewCharacter(game))
+      val e = EntityFactory.createNewCharacter
+      e.initialize(game)
+      game.entityContainer.addEntity(e)
     }
-    game.entityContainer.addEntity(EntityFactory.dungeon(game))
+    val dungeon = EntityFactory.dungeon
+    dungeon.initialize(game)
+    game.entityContainer.addEntity(dungeon)
+    val player = EntityFactory.createNewCharacter
+    player.register(new Controller)
+    player.initialize(game)
+    game.entityContainer.addEntity(player)
 
     /**
      * event manager test
@@ -87,7 +117,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       Glyph.log("handle")
       true
     }
-    game.eventManager <= 3
+    game.eventManager dispatch 3
     mGameSurface.add(new RenderSystem(game.entityContainer))
   })
   val testActor = new Actor(){

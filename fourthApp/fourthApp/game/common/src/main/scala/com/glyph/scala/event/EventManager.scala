@@ -4,11 +4,7 @@ import collection.mutable.ListBuffer
 import com.glyph.scala.Glyph
 
 /**
- * Created with IntelliJ IDEA.
- * User: glyph
- * Date: 13/04/07
- * Time: 20:27
- * To change this template use File | Settings | File Templates.
+ * eventmanager with function registers
  */
 class EventManager {
   private val TAG = "EventManager"
@@ -59,7 +55,7 @@ class EventManager {
    * @tparam T
    * @return
    */
-  def <= [T](event: T)(implicit typ:Manifest[T]){
+  def dispatch [T](event: T)(implicit typ:Manifest[T]){
     listenerMap get typ match {
       case Some(listeners) => {
         listeners.foreach(_.asInstanceOf[(T)=>Boolean](event))

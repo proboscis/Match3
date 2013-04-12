@@ -7,19 +7,17 @@ import component.{DungeonGame, Renderer, Transform, DungeonActor}
  * @author glyph
  */
 object EntityFactory {
-  def dungeon(g:GameContext): Entity = {
+  def dungeon: Entity = {
     val e = new Entity
     e.register(new DungeonGame)
-    e.initialize(g)
     e
   }
 
-  def createNewCharacter(g:GameContext): Entity = {
+  def createNewCharacter: Entity = {
     val e = new Entity
     e.register(new DungeonActor)
     e.register(new Transform)
     e.register(new Renderer)
-    e.initialize(g)
     e
   }
 }

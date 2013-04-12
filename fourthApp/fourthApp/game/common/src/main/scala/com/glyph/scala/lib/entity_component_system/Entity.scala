@@ -32,13 +32,13 @@ class Entity {
     mComponentMap.foreach(_._2.initialize(this))
   }
   def get[T](implicit componentType : Manifest[T]):T = {
-    Glyph.log("get call:"+componentType.runtimeClass.getSimpleName)
+    //Glyph.log("get call:"+componentType.runtimeClass.getSimpleName)
     mComponentMap get componentType match{
       case Some(x) => x.asInstanceOf[T]
     }
   }
   def mayBeGet[T](implicit componentType : Manifest[T]):Option[T] = {
-    Glyph.log("mayBeGet call:"+componentType.runtimeClass.getSimpleName)
+    //Glyph.log("mayBeGet call:"+componentType.runtimeClass.getSimpleName)
     val res = mComponentMap get componentType
     res.asInstanceOf[Option[T]]
   }
