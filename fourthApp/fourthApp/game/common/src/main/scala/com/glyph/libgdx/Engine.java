@@ -4,7 +4,6 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.glyph.game.GameScene;
 import com.glyph.libgdx.asset.AM;
 import com.glyph.scala.game.ScalaGameScene;
 
