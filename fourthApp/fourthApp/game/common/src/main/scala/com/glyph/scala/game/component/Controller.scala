@@ -10,12 +10,14 @@ import com.glyph.scala.Glyph
 class Controller extends Component{
   var transform :Transform = null
   var dungeonActor: DungeonActor = null
+
   override def initialize(owner: Entity) {
     super.initialize(owner)
     transform = owner.get[Transform]
     dungeonActor = owner.get[DungeonActor]
     owner.game.eventManager += inputCallback
   }
+
   def inputCallback(event:UIInputEvent):Boolean = {
     transform.position += 1
     Glyph.log("handle button event")
