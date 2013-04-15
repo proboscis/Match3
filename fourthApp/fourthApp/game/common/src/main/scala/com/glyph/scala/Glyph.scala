@@ -70,6 +70,7 @@ object Glyph {
         timer = interval*1000*1000
       }
     }
+    
   }
 
 }
