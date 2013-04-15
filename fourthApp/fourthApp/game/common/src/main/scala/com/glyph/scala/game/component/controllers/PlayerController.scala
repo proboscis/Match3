@@ -14,6 +14,7 @@ class PlayerController extends AbstractController {
   }
 
 
+
   override def dispose(owner: Entity) {
     super.dispose(owner)
     owner.game.eventManager -= inputCallback

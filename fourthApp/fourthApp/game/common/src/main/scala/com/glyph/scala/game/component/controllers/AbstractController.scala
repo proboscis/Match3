@@ -26,3 +26,4 @@ class AbstractController {
     dungeonActor = null
   }
 }
+

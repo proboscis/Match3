@@ -158,6 +158,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
 
   val timer = new Timer(1000)
 
+
   override def render(delta: Float) {
     super.render(delta)
     val et = Glyph.execTime {

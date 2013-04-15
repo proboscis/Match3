@@ -16,3 +16,4 @@ class Controller(val controller: AbstractController) extends Component {
     controller.dispose(owner)
   }
 }
+

@@ -31,6 +31,7 @@ class TagSystem extends GameSystem {
     false
   }
 
+
   def findEntity(tag: String): Option[Entity] = {
     val list = entityMap(tag)
     if (list != null) {

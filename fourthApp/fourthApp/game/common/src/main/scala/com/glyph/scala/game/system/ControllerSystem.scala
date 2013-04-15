@@ -24,6 +24,7 @@ class ControllerSystem(game: GameContext) extends GameSystem {
   }
 }
 
+
 class ControllerAdapter(e: Entity) extends Adapter(e) {
   @Receptor
   val controller: Controller = null
