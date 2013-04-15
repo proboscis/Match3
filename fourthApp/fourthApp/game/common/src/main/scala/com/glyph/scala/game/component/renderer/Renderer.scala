@@ -1,8 +1,9 @@
-package com.glyph.scala.game.component
+package com.glyph.scala.game.component.renderer
 
 import com.glyph.scala.lib.entity_component_system.{Entity, Component}
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.glyph.scala.game.renderer.SimpleRenderer
+import com.glyph.scala.game.component.Transform
+import com.glyph.scala.game.component.renderer.SimpleRenderer
 
 /**
  * @author glyph

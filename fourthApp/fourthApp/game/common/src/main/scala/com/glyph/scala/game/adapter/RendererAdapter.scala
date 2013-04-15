@@ -1,7 +1,7 @@
 package com.glyph.scala.game.adapter
 
 import com.glyph.scala.lib.entity_component_system.{Entity, Adapter, Receptor}
-import com.glyph.scala.game.component.Renderer
+import com.glyph.scala.game.component.renderer.Renderer
 
 /**
  * @author glyph

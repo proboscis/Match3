@@ -1,4 +1,4 @@
-package com.glyph.scala.game.renderer
+package com.glyph.scala.game.component.renderer
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.glyph.scala.game.component.Transform

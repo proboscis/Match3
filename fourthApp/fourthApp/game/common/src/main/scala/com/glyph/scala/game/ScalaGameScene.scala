@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.{Stage, InputEvent, InputListener}
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.graphics.{FPSLogger, Texture}
 import event.UIInputEvent
-import system.{TagSystem, PlayerControlSystem, RenderSystem}
+import system.{DungeonSystem, TagSystem, ControllerSystem, RenderSystem}
 import com.glyph.libgdx.{Scene, Engine}
 import com.glyph.libgdx.surface.Surface
 import com.badlogic.gdx.scenes.scene2d.ui.{Button, Skin, Table}
@@ -35,8 +35,9 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     /**
      * init systems
      */
-    game.systemManager.addSystem(new PlayerControlSystem(game))
+    game.systemManager.addSystem(new ControllerSystem(game))
     game.systemManager.addSystem(new TagSystem)
+    game.systemManager.addSystem(new DungeonSystem(game))
 
     /**
      * init entities
@@ -153,9 +154,6 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
         }
       }
     })
-
-    new Test();
-
   }
 
   val timer = new Timer(1000)
@@ -171,7 +169,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       mGameSurface.resize()
     }
     timer.repeat {
-      val fps: Double = 1.0 / (et*0.000000001)
+      val fps: Double = 1.0 / (et * 0.000000001)
       Glyph.log("fps", "%.2f".format(fps));
     }
   }

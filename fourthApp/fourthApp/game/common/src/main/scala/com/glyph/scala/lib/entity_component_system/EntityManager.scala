@@ -13,12 +13,13 @@ import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
  * Time: 17:25
  * To change this template use File | Settings | File Templates.
  */
-class EntityManager (val game: GameContext){
+class EntityManager(val game: GameContext) {
   private val DEBUG = false
   private val TAG = "EntityManager"
   private val adapterToFilterMap = HashMap.empty[Manifest[_], Filter]
   private val adapterListMap = HashMap.empty[Manifest[_], mutable.ListBuffer[Adapter]]
   val entities = ListBuffer.empty[Entity]
+
   /**
    * add an entity
    * @param e
@@ -50,12 +51,13 @@ class EntityManager (val game: GameContext){
     }
     game.eventManager dispatch new EntityAdded(e)
   }
-  def removeEntity(e:Entity){
+
+  def removeEntity(e: Entity) {
     entities -= e
     e.finish()
-    for((adapterManifest,adapterList) <- adapterListMap){
-      for (adapter <- adapterList){
-        if (adapter.consistsOf(e)){
+    for ((adapterManifest, adapterList) <- adapterListMap) {
+      for (adapter <- adapterList) {
+        if (adapter.consistsOf(e)) {
           adapterList -= adapter
         }
       }
@@ -73,13 +75,22 @@ class EntityManager (val game: GameContext){
     case None => adapterToFilterMap(typ) = new Filter(typ)
   }
 
+  def removeAdapter[T](implicit typ: Manifest[T]) = adapterToFilterMap get typ match {
+    case Some(x) => {
+      adapterToFilterMap -= typ
+      adapterListMap(typ).clear()
+      adapterListMap -= typ
+    }
+    case None =>
+  }
+
   /**
    * retrieve adapters from entities. this may return Unit
    * @param typ
    * @tparam T
    * @return
    */
-  def getAdapters[T](implicit typ: Manifest[T]):Seq[T] = adapterListMap get typ match {
+  def getAdapters[T](implicit typ: Manifest[T]): Seq[T] = adapterListMap get typ match {
     case Some(x) => x.asInstanceOf[Seq[T]]
     case None => null
   }
@@ -97,4 +108,5 @@ class EntityManager (val game: GameContext){
       receptors += ((field, Manifest.classType(field.getType)))
     }
   }
+
 }

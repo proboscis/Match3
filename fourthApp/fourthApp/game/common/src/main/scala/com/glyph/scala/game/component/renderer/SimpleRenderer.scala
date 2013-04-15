@@ -1,4 +1,4 @@
-package com.glyph.scala.game.renderer
+package com.glyph.scala.game.component.renderer
 
 import com.badlogic.gdx.graphics.g2d.{Sprite, SpriteBatch}
 import com.glyph.libgdx.asset.AM
