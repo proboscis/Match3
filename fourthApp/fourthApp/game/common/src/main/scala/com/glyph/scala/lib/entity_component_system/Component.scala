@@ -1,16 +1,17 @@
 package com.glyph.scala.lib.entity_component_system
 
-import com.glyph.scala.Glyph
 
 /**
- * Created with IntelliJ IDEA.
- * User: glyph
- * Date: 13/04/02
- * Time: 15:26
- * To change this template use File | Settings | File Templates.
+ * Componet of Entity
  */
-trait Component {
-  def initialize (owner: Entity){
+class Component {
+  var owner: Entity = null
 
+  def initialize(owner: Entity) {
+    this.owner = owner
+  }
+
+  def finish(owner: Entity) {
+    this.owner = null
   }
 }

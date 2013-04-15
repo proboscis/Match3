@@ -1,7 +1,7 @@
 package com.glyph.scala.game.component
 
 import com.glyph.scala.lib.entity_component_system.Component
-import com.glyph.scala.lib.entity_component_system.math.Vec2
+import com.glyph.scala.lib.math.Vec2
 
 /**
  * @author glyph

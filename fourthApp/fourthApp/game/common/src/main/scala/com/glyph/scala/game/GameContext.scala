@@ -1,6 +1,6 @@
 package com.glyph.scala.game
 
-import com.glyph.scala.lib.entity_component_system.EntityContainer
+import com.glyph.scala.lib.entity_component_system.EntityManager
 import com.glyph.scala.event.EventManager
 
 /**
@@ -12,5 +12,5 @@ import com.glyph.scala.event.EventManager
  */
 class GameContext {
   val eventManager = new EventManager
-  val entityContainer = new EntityContainer
+  val entityContainer = new EntityManager(this)
 }

@@ -1,6 +1,5 @@
 package com.glyph.scala.lib.entity_component_system
 
-import com.glyph.scala.Glyph
 import com.glyph.scala.game.GameContext
 
 class Entity {
@@ -31,6 +30,15 @@ class Entity {
     game = g
     mComponentMap.foreach(_._2.initialize(this))
   }
+
+  /**
+   * finish all components
+   */
+  def finish() = {
+    mComponentMap.foreach(_._2.finish(this))
+  }
+
+
   def get[T](implicit componentType : Manifest[T]):T = {
     //Glyph.log("get call:"+componentType.runtimeClass.getSimpleName)
     mComponentMap get componentType match{

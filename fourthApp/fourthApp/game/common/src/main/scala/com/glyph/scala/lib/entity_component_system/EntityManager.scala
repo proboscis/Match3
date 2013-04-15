@@ -5,6 +5,9 @@ import com.badlogic.gdx.Gdx
 import collection.mutable
 import java.lang.reflect.{Field, Method}
 import com.glyph.scala.Glyph
+import com.glyph.scala.event.EventManager
+import com.glyph.scala.game.GameContext
+import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,20 +16,19 @@ import com.glyph.scala.Glyph
  * Time: 17:25
  * To change this template use File | Settings | File Templates.
  */
-class EntityContainer {
+class EntityManager (val game: GameContext){
   private val DEBUG = false
-  private val TAG = "EntityContainer"
+  private val TAG = "EntityManager"
   private val adapterToFilterMap = HashMap.empty[Manifest[_], Filter]
   private val adapterListMap = HashMap.empty[Manifest[_], mutable.ListBuffer[Adapter]]
-  private val entities = ListBuffer.empty[Entity]
-  private val mSystems = ListBuffer.empty[GameSystem]
-
+  val entities = ListBuffer.empty[Entity]
   /**
    * add an entity
    * @param e
    */
   def addEntity(e: Entity) = {
     entities += e
+    e.initialize(game);
     for ((adapterManifest, filter) <- adapterToFilterMap) {
       if (DEBUG) Gdx.app.log(TAG, "acceptCheck")
       if (e.contains(filter.receptors.map(t => t._2))) {
@@ -49,10 +51,11 @@ class EntityContainer {
         list += adapter
       }
     }
-    mSystems.foreach(_.onAddEntity(this,e))
+    game.eventManager dispatch new EntityAdded(e)
   }
   def removeEntity(e:Entity){
     entities -= e
+    e.finish()
     for((adapterManifest,adapterList) <- adapterListMap){
       for (adapter <- adapterList){
         if (adapter.consistsOf(e)){
@@ -60,6 +63,7 @@ class EntityContainer {
         }
       }
     }
+    game.eventManager dispatch new EntityRemoved(e)
   }
 
   /**
@@ -73,17 +77,6 @@ class EntityContainer {
   }
 
   /**
-   * add GameSystem
-   * @param s
-   */
-  def addSystem(s:GameSystem){ mSystems += s}
-
-  /**
-   * remove GameSystem
-   * @param s
-   */
-  def removeSystem(s:GameSystem){ mSystems -= s}
-  /**
    * retrieve adapters from entities. this may return Unit
    * @param typ
    * @tparam T
@@ -92,10 +85,6 @@ class EntityContainer {
   def getAdapters[T](implicit typ: Manifest[T]):Seq[T] = adapterListMap get typ match {
     case Some(x) => x.asInstanceOf[Seq[T]]
     case None => null
-  }
-
-  def update(){
-    mSystems.foreach(_.update(this))
   }
 
   /**

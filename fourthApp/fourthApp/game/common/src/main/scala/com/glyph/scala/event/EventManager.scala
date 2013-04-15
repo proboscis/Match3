@@ -2,13 +2,15 @@ package com.glyph.scala.event
 
 import collection.mutable.ListBuffer
 import com.glyph.scala.Glyph
+import annotation.tailrec
 
 /**
  * eventmanager with function registers
  */
 class EventManager {
   private val TAG = "EventManager"
-  val listenerMap = collection.mutable.HashMap.empty[Manifest[_],ListBuffer[Any]]
+  val listenerMap = collection.mutable.HashMap.empty[Manifest[_], ListBuffer[Any]]
+  var callDepth = 0
 
   /**
    * add callback
@@ -17,17 +19,17 @@ class EventManager {
    * @tparam T
    * @return
    */
-  def +=[T](func: (T)=>Boolean )(implicit typ: Manifest[T]){
-    val list = listenerMap get typ match{
+  def +=[T](func: (T) => Boolean)(implicit typ: Manifest[T]) {
+    val list = listenerMap get typ match {
       case Some(x) => x
       case None => {
-        Glyph.log(TAG,"create new list for:"+typ)
+        Glyph.log(TAG, "create new list for:" + typeStr[T])
         val newList = ListBuffer.empty[Any]
         listenerMap(typ) = newList
         newList
       }
     }
-    Glyph.log(TAG,"attached callback to:"+typ)
+    Glyph.log(TAG, "attached callback to:" + typeStr[T])
     list += func
   }
 
@@ -38,13 +40,13 @@ class EventManager {
    * @tparam T
    * @return
    */
-  def -=[T](func: (T) => Boolean)(implicit typ: Manifest[T]){
-    listenerMap get typ match{
-      case Some(list) =>{
+  def -=[T](func: (T) => Boolean)(implicit typ: Manifest[T]) {
+    listenerMap get typ match {
+      case Some(list) => {
         list -= func
-        Glyph.log(TAG,"successfully removed callback from:"+typ)
+        Glyph.log(TAG, "successfully removed callback from:" + typeStr[T])
       }
-      case _ =>Glyph.log(TAG,"failed to remove callback from:"+typ)
+      case _ => Glyph.log(TAG, "failed to remove callback from:" + typeStr[T])
     }
   }
 
@@ -55,17 +57,43 @@ class EventManager {
    * @tparam T
    * @return
    */
-  def dispatch [T](event: T)(implicit typ:Manifest[T]){
+  def dispatch[T](event: T)(implicit typ: Manifest[T]) {
+    callDepth += 1
+    var depth = ""
+    (1 to callDepth) foreach {
+      _ =>
+        depth += "*"
+    }
+    // depth = ("=" * callDepth) + ">"
+    Glyph.log(TAG, depth + typeStr[T])
     listenerMap get typ match {
       case Some(listeners) => {
-        listeners.foreach(_.asInstanceOf[(T)=>Boolean](event))
-        Glyph.log(TAG,"dispatch event:"+typ)
+        @tailrec
+        def loop(it: Iterator[Any]) {
+          if (it.hasNext) {
+            val next = it.next()
+            val callback = next.asInstanceOf[(T) => Boolean]
+            val proceed = callback(event)
+            val funcType = Manifest.classType(callback.getClass)
+            if (proceed) {
+              Glyph.log(TAG, depth + "event handled by:" + funcType.runtimeClass)
+              return
+            } else {
+              Glyph.log(TAG, depth + "event not handled by:" + funcType.runtimeClass)
+              loop(it)
+            }
+          } else {
+            Glyph.log(TAG, depth + "event is passed to all listeners:" + typeStr[T])
+          }
+        }
+        loop(listeners.iterator)
       }
-      case None => Glyph.log(TAG,"no listener:"+typ)
+      case None => Glyph.log(TAG, depth + "no listener:" + typeStr[T])
     }
+    callDepth -= 1
   }
 
-  implicit def type2String[T](typ :Manifest[T]){
+  def typeStr[T](implicit typ: Manifest[T]): String = {
     typ.runtimeClass.getSimpleName
   }
 }

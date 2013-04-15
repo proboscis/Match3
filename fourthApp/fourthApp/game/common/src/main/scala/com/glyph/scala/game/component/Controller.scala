@@ -1,7 +1,7 @@
 package com.glyph.scala.game.component
 
 import com.glyph.scala.lib.entity_component_system.{Entity, Component}
-import com.glyph.scala.game.event.UIInputEvent
+import com.glyph.scala.game.event.{ProcessTurn, UIInputEvent}
 import com.glyph.scala.Glyph
 
 /**
@@ -19,8 +19,13 @@ class Controller extends Component{
   }
 
   def inputCallback(event:UIInputEvent):Boolean = {
-    transform.position += 1
-    Glyph.log("handle button event")
+    event.typ match{
+      case UIInputEvent.RIGHT_BUTTON =>
+      case UIInputEvent.LEFT_BUTTON=>
+        transform.position += 1
+      case UIInputEvent.EXEC_BUTTON=>
+        owner.game.eventManager dispatch new ProcessTurn
+    }
     true
   }
 }
