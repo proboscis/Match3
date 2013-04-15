@@ -12,6 +12,9 @@ import com.glyph.libgdx.surface.drawable.SurfaceDrawable;
 
 import java.util.LinkedList;
 
+/**
+ * surface to draw game object
+ */
 public class Surface extends Group {
     private Camera mCamera;
     private SpriteBatch mBatch;

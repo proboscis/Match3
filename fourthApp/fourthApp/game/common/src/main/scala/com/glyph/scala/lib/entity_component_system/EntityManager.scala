@@ -3,10 +3,7 @@ package com.glyph.scala.lib.entity_component_system
 import collection.mutable.{ListBuffer, HashMap}
 import com.badlogic.gdx.Gdx
 import collection.mutable
-import java.lang.reflect.{Field, Method}
-import com.glyph.scala.Glyph
-import com.glyph.scala.event.EventManager
-import com.glyph.scala.game.GameContext
+import java.lang.reflect.Field
 import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
 
 /**

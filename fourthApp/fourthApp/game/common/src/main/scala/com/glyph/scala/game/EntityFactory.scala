@@ -23,7 +23,7 @@ object EntityFactory {
 
   def createPlayer: Entity = {
     val e = createNewCharacter
-    e.register(new Controller)
+    e.register(new Tag("player"))
     e
   }
 }

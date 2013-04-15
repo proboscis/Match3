@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.entity_component_system
 
-import com.glyph.scala.game.GameContext
+import com.glyph.scala.lib.entity_component_system.GameContext
 
 class Entity {
   val mComponentMap = scala.collection.mutable.Map.empty[Manifest[_],Component]

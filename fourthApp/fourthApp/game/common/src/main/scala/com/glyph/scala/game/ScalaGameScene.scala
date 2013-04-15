@@ -1,17 +1,19 @@
 package com.glyph.scala.game
 
 import adapter.RendererAdapter
-import com.badlogic.gdx.graphics.g2d.{Sprite, SpriteBatch}
 import com.glyph.scala.Glyph
-import com.badlogic.gdx.scenes.scene2d.{Stage, InputEvent, InputListener, Actor}
+import com.badlogic.gdx.scenes.scene2d.{Stage, InputEvent, InputListener}
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.graphics.{FPSLogger, Texture}
 import event.UIInputEvent
-import system.RenderSystem
+import system.{TagSystem, PlayerControlSystem, RenderSystem}
 import com.glyph.libgdx.{Scene, Engine}
 import com.glyph.libgdx.surface.Surface
 import com.badlogic.gdx.scenes.scene2d.ui.{Button, Skin, Table}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
+import com.glyph.scala.lib.entity_component_system.GameContext
+import ui.UIButton
+import com.glyph.scala.Glyph.Timer
 
 /**
  * a gamescene written in scala
@@ -28,6 +30,37 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
    * initializer
    */
   Glyph.printExecTime("init", {
+    initViews
+
+    /**
+     * init systems
+     */
+    game.systemManager.addSystem(new PlayerControlSystem(game))
+    game.systemManager.addSystem(new TagSystem)
+
+    /**
+     * init entities
+     */
+    Glyph.printExecTime("initEntity", {
+      val dungeon = EntityFactory.createDungeon
+      game.entityManager.addEntity(dungeon)
+
+      game.entityManager.addAdapter[RendererAdapter]
+      for (i <- 1 to 1000) {
+        val e = EntityFactory.createNewCharacter
+        game.entityManager.addEntity(e)
+      }
+      val player = EntityFactory.createPlayer
+      game.entityManager.addEntity(player)
+    })
+
+    /**
+     * add renderer
+     */
+    mGameSurface.add(new RenderSystem(game.entityManager))
+  })
+
+  def initViews {
     /**
      * init processors
      */
@@ -53,31 +86,19 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     /**
      * init buttons
      */
-    val right = new Button(skin.getDrawable("right"));
-    right.addListener(new InputListener() {
-      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-        super.touchDown(event, x, y, pointer, button)
-        game.eventManager dispatch new UIInputEvent(UIInputEvent.RIGHT_BUTTON)
-        true
-      }
-    })
+    val right = new UIButton(skin.getDrawable("right"));
+    right.onPressing = () => {
+      game.eventManager dispatch new UIInputEvent(UIInputEvent.RIGHT_BUTTON)
+    }
+    val left = new UIButton(skin.getDrawable("left"));
+    left.onPressing = () => {
+      game.eventManager dispatch new UIInputEvent(UIInputEvent.LEFT_BUTTON)
+    }
+    val exec = new UIButton(skin.getDrawable("exec"));
+    exec.onPressing = () => {
+      game.eventManager dispatch new UIInputEvent(UIInputEvent.EXEC_BUTTON)
+    }
 
-    val left = new Button(skin.getDrawable("left"));
-    left.addListener(new InputListener() {
-      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-        super.touchDown(event, x, y, pointer, button)
-        game.eventManager dispatch new UIInputEvent(UIInputEvent.LEFT_BUTTON)
-        true
-      }
-    })
-    val exec = new Button(skin.getDrawable("exec"));
-    exec.addListener(new InputListener() {
-      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-        super.touchDown(event, x, y, pointer, button)
-        game.eventManager dispatch new UIInputEvent(UIInputEvent.EXEC_BUTTON)
-        true
-      }
-    })
     val t = mGameTable;
     t.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT);
     t.row();
@@ -92,59 +113,66 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     t.debug();
     mUIStage.addActor(t);
     mGameTable.layout();
-    /**
-     * init entities
-     */
 
-    val dungeon = EntityFactory.createDungeon
-    game.entityContainer.addEntity(dungeon)
+    val opt = Option(1)
 
-    game.entityContainer.addAdapter[RendererAdapter]
-    for (i <- 1 to 1000) {
-      val e = EntityFactory.createNewCharacter
-      game.entityContainer.addEntity(e)
-    }
-    val player = EntityFactory.createPlayer
-    game.entityContainer.addEntity(player)
+    Glyph.printExecTime("while loop", {
+      var ii = 10000
+      while (ii > 0) {
+        ii = ii - 1
+      }
+    })
+    Glyph.printExecTime("opt match", {
+      var ii = 10000
+      while (ii > 0) {
+        ii = ii - 1
+        opt match {
+          case Some(x) =>
+          case None =>
+        }
+      }
+    })
+    val opt2 = 1
+    Glyph.printExecTime("opt match2", {
+      var ii = 10000
+      while (ii > 0) {
+        ii = ii - 1
+        opt2 match {
+          case 2 =>
+          case _ =>
+        }
+      }
+    })
+    val n = null
+    Glyph.printExecTime("null check", {
+      var ii = 10000
+      while (ii > 0) {
+        ii = ii - 1
+        if (n == null) {
+        } else {
+        }
+      }
+    })
 
-    /**
-     * add renderer
-     */
-    mGameSurface.add(new RenderSystem(game.entityContainer))
-  })
-  val testActor = new Actor() {
-    val sprite = new Sprite(AM.instance().get[Texture]("data/card1.png"))
-    this.setWidth(100)
-    this.setHeight(100)
-    this.setX(-50)
-    this.setRotation(45)
-    this.setOrigin(getWidth / 2, getHeight / 2)
+    new Test();
 
-    override def draw(batch: SpriteBatch, alpha: Float) {
-      super.draw(batch, alpha)
-      sprite.setOrigin(getOriginX, getOriginY)
-      sprite.setPosition(this.getX, this.getY)
-      sprite.setSize(getWidth, getHeight)
-      sprite.setRotation(this.getRotation)
-      sprite.draw(batch, alpha)
-    }
   }
-  testActor.addListener(new InputListener() {
-    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-      val result = super.touchDown(event, x, y, pointer, button)
-      Glyph.log("touch!")
-      result
-    }
-  })
-  mGameSurface.addActor(testActor)
+
+  val timer = new Timer(1000)
 
   override def render(delta: Float) {
     super.render(delta)
-
-
-    mFpsLogger.log();
-    Table.drawDebug(mGameStage);
-    Table.drawDebug(mUIStage);
-    mGameSurface.resize()
+    val et = Glyph.execTime {
+      mFpsLogger.log();
+      mGameStage.act(delta)
+      Table.drawDebug(mGameStage);
+      Table.drawDebug(mUIStage);
+      game.update(delta)
+      mGameSurface.resize()
+    }
+    timer.repeat {
+      val fps: Double = 1.0 / (et*0.000000001)
+      Glyph.log("fps", "%.2f".format(fps));
+    }
   }
 }
