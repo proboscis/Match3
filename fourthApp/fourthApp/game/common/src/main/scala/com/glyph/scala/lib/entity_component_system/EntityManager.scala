@@ -44,7 +44,7 @@ class EntityManager(val game: GameContext) {
         for (receptor <- filter.receptors) {
           if (DEBUG) Gdx.app.log(TAG, "\t" + receptor._1.getName)
           receptor._1.setAccessible(true)
-          receptor._1.set(adapter, e.get(receptor._2))
+          receptor._1.set(adapter, e.directGet(receptor._2))
         }
         list += adapter
       }

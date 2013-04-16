@@ -116,4 +116,8 @@ public class Surface extends Group {
     public void remove(SurfaceDrawable drawable) {
         mRemoveRequests.add(drawable);
     }
+
+    public Camera getCamera(){
+        return mCamera;
+    }
 }

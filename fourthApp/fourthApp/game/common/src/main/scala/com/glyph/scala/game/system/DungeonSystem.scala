@@ -6,7 +6,7 @@ import com.glyph.scala.game.event.ProcessTurn
 /**
  * @author glyph
  */
-class DungeonSystem(game: GameContext) extends GameSystem {
+class DungeonSystem(game: GameContext) extends GameSystem(game) {
   game.eventManager += processTurn
   def processTurn(event: ProcessTurn): Boolean = {
     true

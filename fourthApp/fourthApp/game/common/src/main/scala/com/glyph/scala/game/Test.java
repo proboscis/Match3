@@ -14,7 +14,8 @@ public class Test {
 //        test1();
 //        test2();
 //        test3();
-        test5();
+//        test5();
+       test4();
     }
 
     private void test5() {
@@ -81,6 +82,20 @@ public class Test {
         {
             for (int i : list) {
 
+            }
+        }
+        long et = System.nanoTime() - time;
+        printTime(tag, et);
+    }
+    private void test4() {
+        String tag = "1sec";
+        Glyph.log(tag, "=> start");
+        long time = System.nanoTime();
+        {
+            try{
+                Thread.sleep(100);
+            }catch(Exception e){
+                e.printStackTrace();
             }
         }
         long et = System.nanoTime() - time;

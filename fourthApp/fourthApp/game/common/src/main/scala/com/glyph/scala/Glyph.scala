@@ -70,7 +70,20 @@ object Glyph {
         timer = interval*1000*1000
       }
     }
-
   }
+
+  /**
+   * use this method instead of for loop
+   * @param n
+   * @param f
+   */
+  def loop(n:Int,f:Int=>Unit):Unit={
+    var i = 0
+    while(i < n){
+      f(i)
+      i = i+1
+    }
+  }
+
 
 }

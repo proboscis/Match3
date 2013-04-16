@@ -4,7 +4,7 @@ package com.glyph.scala.lib.entity_component_system
 /**
  * Componet of Entity
  */
-class Component {
+class Component{
   var owner: Entity = null
 
   def initialize(owner: Entity) {

@@ -8,6 +8,6 @@ import com.glyph.scala.game.traits.EntityEventReceiver
  */
 class DungeonGame extends Component with EntityEventReceiver{
   //this component should have its state or something like that
-  val dungeonMap = List(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+  val dungeonMap = Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
 }

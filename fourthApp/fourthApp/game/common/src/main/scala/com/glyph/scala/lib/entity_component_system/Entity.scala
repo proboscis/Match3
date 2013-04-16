@@ -38,16 +38,23 @@ class Entity {
     mComponentMap.foreach(_._2.finish(this))
   }
 
-
-  def get[T](implicit componentType : Manifest[T]):T = {
-    //Glyph.log("get call:"+componentType.runtimeClass.getSimpleName)
-    mComponentMap get componentType match{
-      case Some(x) => x.asInstanceOf[T]
-    }
+  def has[T](implicit componentType:Manifest[T]):Boolean={
+    mComponentMap.contains(componentType)
   }
-  def mayBeGet[T](implicit componentType : Manifest[T]):Option[T] = {
+
+  /**
+   * use this when you need performance,
+   * @param componentType
+   * @tparam T
+   * @return
+   */
+  def directGet[T](implicit componentType : Manifest[T]):T = {
+    //Glyph.log("get call:"+componentType.runtimeClass.getSimpleName)
+    mComponentMap(componentType).asInstanceOf[T]
+  }
+
+  def safeGet[T](implicit componentType : Manifest[T]):Option[T] = {
     //Glyph.log("mayBeGet call:"+componentType.runtimeClass.getSimpleName)
-    val res = mComponentMap get componentType
-    res.asInstanceOf[Option[T]]
+    mComponentMap.get(componentType).asInstanceOf[Option[T]]
   }
 }

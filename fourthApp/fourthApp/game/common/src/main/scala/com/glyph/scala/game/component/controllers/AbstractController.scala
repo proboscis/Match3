@@ -16,8 +16,8 @@ class AbstractController {
 
   def initialize(owner: Entity) {
     this.owner = owner
-    transform = owner.get[Transform]
-    dungeonActor = owner.get[DungeonActor]
+    transform = owner.directGet[Transform]
+    dungeonActor = owner.directGet[DungeonActor]
   }
 
   def dispose(owner: Entity) {

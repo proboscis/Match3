@@ -8,7 +8,7 @@ import com.glyph.scala.game.component.controllers.Controller
 /**
  * @author glyph
  */
-class ControllerSystem(game: GameContext) extends GameSystem {
+class ControllerSystem(game: GameContext) extends GameSystem (game){
   game.entityManager.addAdapter[ControllerAdapter]
 
   override def update(delta: Float) {

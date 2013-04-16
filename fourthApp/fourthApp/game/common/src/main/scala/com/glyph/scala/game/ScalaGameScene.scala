@@ -6,14 +6,17 @@ import com.badlogic.gdx.scenes.scene2d.{Stage, InputEvent, InputListener}
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.graphics.{FPSLogger, Texture}
 import event.UIInputEvent
-import system.{DungeonSystem, TagSystem, ControllerSystem, RenderSystem}
+import system._
 import com.glyph.libgdx.{Scene, Engine}
 import com.glyph.libgdx.surface.Surface
 import com.badlogic.gdx.scenes.scene2d.ui.{Button, Skin, Table}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.glyph.scala.lib.entity_component_system.GameContext
 import ui.UIButton
-import com.glyph.scala.Glyph.Timer
+import com.glyph.scala.Glyph.{Timer}
+import annotation.tailrec
+import scala.Some
+import com.glyph.scala.lib.util.Maybe
 
 /**
  * a gamescene written in scala
@@ -30,14 +33,27 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
    * initializer
    */
   Glyph.printExecTime("init", {
-    initViews
+    initViews()
 
     /**
      * init systems
      */
+
     game.systemManager.addSystem(new ControllerSystem(game))
-    game.systemManager.addSystem(new TagSystem)
+    game.systemManager.addSystem(new TagSystem(game))
     game.systemManager.addSystem(new DungeonSystem(game))
+    game.systemManager.addSystem(new PlayerCameraSystem(game,mGameSurface.getCamera))
+
+
+    /**
+     * init renderer
+     */
+    mGameSurface.add(new RenderSystem(game.entityManager))
+
+    /**
+     * add adapters
+     */
+    game.entityManager.addAdapter[RendererAdapter]
 
     /**
      * init entities
@@ -46,22 +62,17 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       val dungeon = EntityFactory.createDungeon
       game.entityManager.addEntity(dungeon)
 
-      game.entityManager.addAdapter[RendererAdapter]
       for (i <- 1 to 1000) {
         val e = EntityFactory.createNewCharacter
-        game.entityManager.addEntity(e)
+       // game.entityManager.addEntity(e)
       }
       val player = EntityFactory.createPlayer
       game.entityManager.addEntity(player)
     })
 
-    /**
-     * add renderer
-     */
-    mGameSurface.add(new RenderSystem(game.entityManager))
   })
 
-  def initViews {
+  def initViews (){
     /**
      * init processors
      */
@@ -117,11 +128,30 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
 
     val opt = Option(1)
 
+    Glyph.printExecTime("for loop", {
+      for( i<- 1 to 10000){
+
+      }
+    })
     Glyph.printExecTime("while loop", {
       var ii = 10000
       while (ii > 0) {
         ii = ii - 1
       }
+    })
+    Glyph.printExecTime("glyph loop", {
+      Glyph.loop(10000,{
+        _=>
+      })
+    })
+    Glyph.printExecTime("tail loop", {
+      @tailrec
+      def loop(n:Int):Unit={
+        if(n < 10000){
+          loop(n+1)
+        }
+      }
+      loop(0)
     })
     Glyph.printExecTime("opt match", {
       var ii = 10000
@@ -133,8 +163,46 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
         }
       }
     })
+    Glyph.printExecTime("if", {
+      var ii = 10000
+      while (ii > 0) {
+        ii = ii - 1
+        val a = 1 == 2
+        if(a){}
+      }
+    })
+    val maybe = new Maybe(3)
+    Glyph.printExecTime("maybe isNull", {
+      var ii = 10000
+      while (ii > 0){
+        ii = ii - 1
+        maybe.isNull
+      }
+    })
+    Glyph.printExecTime("maybe checkNull", {
+      var ii = 10000
+      while (ii > 0){
+        ii = ii - 1
+        maybe.checkNull
+      }
+    })
+    Glyph.printExecTime("maybe ?", {
+      var ii = 10000
+      while (ii > 0){
+        ii = ii - 1
+        maybe.?{i=>i}
+      }
+    })
+    Glyph.printExecTime("opt defined", {
+      var ii = 10000
+      while (ii > 0) {
+        ii = ii - 1
+        if(opt.isDefined){
+        }
+      }
+    })
     val opt2 = 1
-    Glyph.printExecTime("opt match2", {
+    Glyph.printExecTime("match2", {
       var ii = 10000
       while (ii > 0) {
         ii = ii - 1
@@ -154,6 +222,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
         }
       }
     })
+    new Test
   }
 
   val timer = new Timer(1000)
