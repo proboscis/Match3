@@ -10,3 +10,4 @@ class TagAdapter(e:Entity) extends Adapter(e){
   @Receptor
   val tag :Tag = null
 }
+

@@ -7,3 +7,4 @@ trait GameSystem {
   def dispose(){}
   def update(delta:Float){}
 }
+

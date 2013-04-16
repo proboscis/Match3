@@ -10,3 +10,4 @@ class RendererAdapter(e:Entity) extends Adapter(e){
   @Receptor
   val renderer:Renderer = null
 }
+

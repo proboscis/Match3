@@ -193,17 +193,6 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="Renderer.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/renderer/Renderer.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state line="14" column="27" selection-start="495" selection-end="495" vertical-scroll-proportion="0.0">
-                  <folding>
-                    <element signature="e#49#119#0" expanded="false" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
           <file leaf-file-name="Controller.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/Controller.scala">
               <provider selected="true" editor-type-id="text-editor">
@@ -213,13 +202,22 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="AbstractController.scala" pinned="false" current="true" current-in-tab="true">
+          <file leaf-file-name="AbstractController.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/AbstractController.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="29" column="0" selection-start="610" selection-end="610" vertical-scroll-proportion="0.5267094">
+                <state line="8" column="6" selection-start="206" selection-end="206" vertical-scroll-proportion="0.0">
                   <folding>
                     <element signature="e#52#109#0" expanded="true" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="Glyph.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="41" column="31" selection-start="918" selection-end="918" vertical-scroll-proportion="0.0">
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -235,10 +233,10 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="EntityFactory.scala" pinned="false" current="false" current-in-tab="false">
+          <file leaf-file-name="EntityFactory.scala" pinned="false" current="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/EntityFactory.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="32" column="0" selection-start="680" selection-end="680" vertical-scroll-proportion="0.0">
+                <state line="33" column="0" selection-start="681" selection-end="681" vertical-scroll-proportion="0.5448718">
                   <folding />
                 </state>
               </provider>
@@ -247,7 +245,7 @@
           <file leaf-file-name="ControllerSystem.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/ControllerSystem.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="30" column="1" selection-start="765" selection-end="765" vertical-scroll-proportion="0.0">
+                <state line="31" column="0" selection-start="766" selection-end="766" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
@@ -265,7 +263,7 @@
           <file leaf-file-name="TagSystem.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/TagSystem.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="33" column="0" selection-start="864" selection-end="864" vertical-scroll-proportion="0.0">
+                <state line="48" column="0" selection-start="1104" selection-end="1104" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
@@ -314,7 +312,7 @@
           <file leaf-file-name="RendererAdapter.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/RendererAdapter.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="8" column="6" selection-start="205" selection-end="205" vertical-scroll-proportion="0.0">
+                <state line="13" column="0" selection-start="297" selection-end="297" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
@@ -323,20 +321,47 @@
           <file leaf-file-name="TagAdapter.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/TagAdapter.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="9" column="11" selection-start="243" selection-end="243" vertical-scroll-proportion="0.0">
+                <state line="13" column="0" selection-start="269" selection-end="269" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="ScalaGameScene.scala" pinned="false" current="false" current-in-tab="true">
+          <file leaf-file-name="ScalaGameScene.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="156" column="3" selection-start="4233" selection-end="4233" vertical-scroll-proportion="0.5376569">
+                <state line="156" column="3" selection-start="4233" selection-end="4233" vertical-scroll-proportion="0.0">
                   <folding>
                     <element signature="e#30#60#0" expanded="true" />
                     <element signature="method#initViews#0" expanded="false" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="GameContext.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameContext.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="19" column="0" selection-start="368" selection-end="368" vertical-scroll-proportion="0.0">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="GameSystem.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameSystem.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="10" column="0" selection-start="146" selection-end="146" vertical-scroll-proportion="0.0">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="SystemManager.scala" pinned="false" current="true" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/SystemManager.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="34" column="0" selection-start="668" selection-end="668" vertical-scroll-proportion="0.61752135">
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -353,22 +378,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/event/EventManager.scala" />
-        <option value="$PROJECT_DIR$/project/build.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/ActorController.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/Controller.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/EntityFactory.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/PlayerControllSystem.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/EntityManager.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/TagAdapter.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/ControllerSystem.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/DungeonSystem.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/RenderSystem.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/TagSystem.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/PlayerController.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/Controller.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/AbstractController.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/TagAdapter.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/RendererAdapter.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/ControllerSystem.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/TagSystem.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/EntityFactory.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameContext.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameSystem.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/SystemManager.scala" />
       </list>
     </option>
   </component>
@@ -1498,7 +1523,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="54" y="-8" width="2514" height="1616" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1515,7 +1540,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1193969" sideWeight="0.6719178" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1193969" sideWeight="0.6719178" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3280822" sideWeight="0.4380603" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1584,81 +1609,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/math/Vec2.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="26" selection-start="799" selection-end="799" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/EntityFactory.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="0" selection-start="680" selection-end="680" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.0-sources.jar!/scala/collection/immutable/StringLike.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="70" column="0" selection-start="2162" selection-end="2162" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/RendererAdapter.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="6" selection-start="205" selection-end="205" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/TagAdapter.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="11" selection-start="243" selection-end="243" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/EntityManager.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="52" column="3" selection-start="1895" selection-end="1895" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="156" column="3" selection-start="4233" selection-end="4233" vertical-scroll-proportion="0.5376569">
-          <folding>
-            <element signature="e#30#60#0" expanded="true" />
-            <element signature="method#initViews#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/ControllerSystem.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="1" selection-start="765" selection-end="765" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/DungeonSystem.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="0" selection-start="436" selection-end="436" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#37#113#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="8" selection-start="683" selection-end="683" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/Transform.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="8" column="6" selection-start="170" selection-end="170" vertical-scroll-proportion="0.0">
@@ -1669,13 +1619,6 @@
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/RenderSystem.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="17" column="0" selection-start="524" selection-end="524" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/TagSystem.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="0" selection-start="864" selection-end="864" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1696,12 +1639,94 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/renderer/Renderer.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="27" selection-start="495" selection-end="495" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#49#119#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/TagAdapter.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="269" selection-end="269" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="31" selection-start="918" selection-end="918" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/AbstractController.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="0" selection-start="610" selection-end="610" vertical-scroll-proportion="0.5267094">
+        <state line="8" column="6" selection-start="206" selection-end="206" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="e#52#109#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/ControllerSystem.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="31" column="0" selection-start="766" selection-end="766" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/RendererAdapter.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="297" selection-end="297" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/TagSystem.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="0" selection-start="1104" selection-end="1104" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/EntityFactory.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="33" column="0" selection-start="681" selection-end="681" vertical-scroll-proportion="0.5448718">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="156" column="3" selection-start="4233" selection-end="4233" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#30#60#0" expanded="true" />
+            <element signature="method#initViews#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameContext.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="0" selection-start="368" selection-end="368" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameSystem.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="0" selection-start="146" selection-end="146" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/SystemManager.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="34" column="0" selection-start="668" selection-end="668" vertical-scroll-proportion="0.61752135">
+          <folding />
         </state>
       </provider>
     </entry>
