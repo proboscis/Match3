@@ -1,5 +1,6 @@
 package com.glyph.scala.lib.entity_property_system
 import com.glyph.scala.lib.util.Indexer
+import com.glyph.scala.Glyph
 
 /**
  * @author glyph
@@ -12,10 +13,16 @@ class ComponentManager {
 
 
   def getComponentIndex[T<:Component](implicit typ: Manifest[T]):Int ={
-    componentToIndex get typ match {
+    val result = componentToIndex get typ match {
       case Some(cIndex)   => cIndex
-      case None           => componentIndexer.getNext()
+      case None           =>{
+        val index = componentIndexer.getNext()
+        componentToIndex(typ) = index
+        index
+      }
     }
+   // Glyph.log("getCIndex",typ.runtimeClass.getSimpleName+":"+result)
+    result
   }
 
   def getComponent[T<:Component](e:Entity)(implicit typ:Manifest[T]):T={
@@ -41,21 +48,23 @@ class ComponentManager {
     componentBag.set(e.index,c)
   }
 
-  def addComponent[T<:Component](e:Entity,c:Component)(implicit typ: Manifest[T]){
+  def addComponent[T<:Component](e:Entity,c:T)(implicit typ: Manifest[T]){
     val cIndex = getComponentIndex[T]
     addComponent(e,cIndex,c)
   }
-  def removeComponent[T<:Component](e:Entity,c:Component)(implicit typ: Manifest[T]){
+  def removeComponent[T<:Component](e:Entity,c:T)(implicit typ: Manifest[T]){
     val cIndex = getComponentIndex[T]
     addComponent(e,cIndex,c)
   }
-  def removeComponent(e:Entity,cIndex:Int, c:Component){
+  def removeComponent[T<:Component](e:Entity,cIndex:Int, c:T)(implicit typ:Manifest[T]){
+
     components.get(cIndex).set(e.index,null)
   }
 
   def removeAllComponent(e:Entity){
     var cIndex = 0
     while(cIndex < components.size){
+     // Glyph.log("cIndex",""+cIndex)
       val componentBag = components.get(cIndex)
       if (componentBag != null){
         componentBag.set(e.index,null)

@@ -6,7 +6,7 @@ import com.glyph.scala.lib.event.EventManager
  * @author glyph
  */
 class World {
+  val entityManager = new EntityManager(this)
   val eventManager = new EventManager
-  val componentManager = new ComponentManager
   val poolManager = new PoolManager
 }

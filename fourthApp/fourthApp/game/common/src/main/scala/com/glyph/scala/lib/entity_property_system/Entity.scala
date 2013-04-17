@@ -11,6 +11,7 @@ class Entity extends Poolable{
     this.mIndex = index
   }
   def free() {
+    removeAllComponent()
     mIndex = -1
     mWorld = null
   }
@@ -18,13 +19,16 @@ class Entity extends Poolable{
   def index = mIndex
   def world = mWorld
 
-  def addComponent[T<:Component](component:T){
-    mWorld.componentManager.addComponent(this,component)
+  def addComponent[T<:Component](component:T)(implicit typ:Manifest[T])={
+    mWorld.entityManager.componentManager.addComponent(this,component)
   }
-  def removeComponent[T<:Component](component:T){
-    mWorld.componentManager.removeComponent(this,component)
+  def removeComponent[T<:Component](component:T)(implicit typ:Manifest[T])={
+    mWorld.entityManager.componentManager.removeComponent(this,component)
   }
   def notifyChanged(){
-    mWorld.componentManager.notifyChanged(this)
+    mWorld.entityManager.componentManager.notifyChanged(this)
+  }
+  def removeAllComponent(){
+    mWorld.entityManager.componentManager.removeAllComponent(this)
   }
 }

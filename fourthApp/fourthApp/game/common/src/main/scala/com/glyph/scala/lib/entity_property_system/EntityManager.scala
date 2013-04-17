@@ -5,12 +5,13 @@ import com.glyph.scala.lib.util.Indexer
 /**
  * @author glyph
  */
-class EntityManager {
-  val entityIndexer = new Indexer(64)
+class EntityManager(world:World) {
+  val entityIndexer = new Indexer(1024)
   val entityPool = new Pool[Entity]
   val entities = new collection.mutable.ListBuffer[Entity]
+  val componentManager = new ComponentManager
 
-  def createEntity(world :World):Entity={
+  def createEntity():Entity={
     val entity = entityPool.obtain()
     entity.init(entityIndexer.getNext(),world)
     entity

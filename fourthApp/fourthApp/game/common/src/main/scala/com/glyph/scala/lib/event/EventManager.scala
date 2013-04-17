@@ -24,13 +24,13 @@ class EventManager {
     val list = listenerMap get typ match {
       case Some(x) => x
       case None => {
-        Glyph.log(TAG, "create new list for:" + typeStr[T])
+        if(DEBUG)Glyph.log(TAG, "create new list for:" + typeStr[T])
         val newList = ListBuffer.empty[Any]
         listenerMap(typ) = newList
         newList
       }
     }
-    Glyph.log(TAG, "attached callback to:" + typeStr[T])
+    if(DEBUG) Glyph.log(TAG, "attached callback to:" + typeStr[T])
     list += func
   }
 
@@ -45,9 +45,9 @@ class EventManager {
     listenerMap get typ match {
       case Some(list) => {
         list -= func
-        Glyph.log(TAG, "successfully removed callback from:" + typeStr[T])
+        if(DEBUG) Glyph.log(TAG, "successfully removed callback from:" + typeStr[T])
       }
-      case _ => Glyph.log(TAG, "failed to remove callback from:" + typeStr[T])
+      case _ => if(DEBUG) Glyph.log(TAG, "failed to remove callback from:" + typeStr[T])
     }
   }
 

@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.glyph.scala.lib.entity_component_system.GameContext
 import ui.UIButton
 import com.glyph.scala.Glyph.Timer
-import com.glyph.scala.lib.entity_property_system.Test
+import com.glyph.scala.lib.entity_property_system.test.Test
 
 /**
  * a gamescene written in scala
@@ -62,10 +62,12 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       val player = EntityFactory.createPlayer
       game.entityManager.addEntity(player)
     })
-    Glyph.printExecTime("add 10 Entity", {
-      for (i <- 1 to 10) {
-        //EntityFactory.createNewCharacter
-        game.entityManager.addEntity(EntityFactory.createNewCharacter)
+    Glyph.printExecTime("new 1000 Entity", {
+      var i = 0;
+      while ( i < 1000){
+        i += 1
+        EntityFactory.createNewCharacter
+      //  game.entityManager.addEntity(EntityFactory.createNewCharacter)
       }
     })
   })
@@ -147,6 +149,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       Table.drawDebug(mGameStage);
       Table.drawDebug(mUIStage);
       game.update(delta)
+      test.update()
       mGameSurface.resize()
     }
     timer.repeat {
