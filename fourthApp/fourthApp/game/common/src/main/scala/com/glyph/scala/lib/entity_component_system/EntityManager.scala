@@ -101,7 +101,7 @@ class EntityManager(val game: GameContext) {
    */
   class Filter(val typ: Manifest[_]) {
     if (DEBUG) Gdx.app.log(TAG, "new filter for" + typ.getClass.getSimpleName)
-    val receptors = ListBuffer.empty[(Field, Manifest[_])]
+    val receptors = ListBuffer.empty[(Field, Manifest[_<:Component])]
     for (field <- typ.runtimeClass.getDeclaredFields
          if field.isAnnotationPresent(classOf[Receptor])) {
       if (DEBUG) Gdx.app.log(TAG, "\tfound receptor! ->" + field.getName)

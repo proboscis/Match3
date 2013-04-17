@@ -16,11 +16,12 @@ class TagSystem(game:GameContext) extends GameSystem (game){
   game.eventManager += onEntityRemoved
 
   def onEntityAdd(event: EntityAdded): Boolean = {
-    val tag = event.entity.directGet[Tag]
-    if (tag != null) {
-      entityMap get tag.tag match {
-        case Some(x) => x += event.entity
-        case None => entityMap(tag.tag) = ListBuffer[Entity](event.entity)
+    event.entity.get[Tag].map {
+      tag => {
+        entityMap get tag.tag match {
+          case Some(x) => x += event.entity
+          case None => entityMap(tag.tag) = ListBuffer[Entity](event.entity)
+        }
       }
     }
     false
@@ -30,7 +31,13 @@ class TagSystem(game:GameContext) extends GameSystem (game){
     val tag = event.entity.directGet[Tag]
     if (tag != null) {
       entityMap get tag.tag match{
-        case Some(x) => x -= event.entity
+        case Some(x) =>{
+          x -= event.entity
+          if(x.size == 0){
+            //make list garbage
+            entityMap -= tag.tag
+          }
+        }
         case None =>
       }
     }

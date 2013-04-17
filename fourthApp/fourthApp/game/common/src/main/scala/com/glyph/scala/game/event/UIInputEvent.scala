@@ -5,7 +5,6 @@ import com.glyph.scala.lib.event.DebugEvent
 /**
  * @author glyph
  */
-@DebugEvent
 class UIInputEvent(val typ:Int)
 object UIInputEvent{
   val RIGHT_BUTTON = 0

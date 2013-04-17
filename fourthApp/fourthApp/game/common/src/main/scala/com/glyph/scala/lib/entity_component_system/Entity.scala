@@ -1,7 +1,5 @@
 package com.glyph.scala.lib.entity_component_system
 
-import com.glyph.scala.lib.entity_component_system.GameContext
-
 class Entity {
   val mComponentMap = scala.collection.mutable.Map.empty[Manifest[_],Component]
   var game:GameContext = null
@@ -38,23 +36,22 @@ class Entity {
     mComponentMap.foreach(_._2.finish(this))
   }
 
-  def has[T](implicit componentType:Manifest[T]):Boolean={
+  def has[T<:Component](implicit componentType:Manifest[T]):Boolean={
     mComponentMap.contains(componentType)
   }
 
   /**
-   * use this when you need performance,
+   * use this when you need performance, <br>
+   * and completely sure that this entity have such component
    * @param componentType
    * @tparam T
    * @return
    */
-  def directGet[T](implicit componentType : Manifest[T]):T = {
-    //Glyph.log("get call:"+componentType.runtimeClass.getSimpleName)
+  def directGet[T<:Component](implicit componentType : Manifest[T]):T = {
     mComponentMap(componentType).asInstanceOf[T]
   }
 
-  def safeGet[T](implicit componentType : Manifest[T]):Option[T] = {
-    //Glyph.log("mayBeGet call:"+componentType.runtimeClass.getSimpleName)
+  def get[T<:Component](implicit componentType : Manifest[T]):Option[T] = {
     mComponentMap.get(componentType).asInstanceOf[Option[T]]
   }
 }
