@@ -36,7 +36,7 @@ class Bag [T](initialSize: Int)(implicit manifest:Manifest[T]){
       val prevSize = array.size
       array = array ++ new Array[T](array.size)
       nextQueue ++= prevSize to (array.size -1)
-      Glyph.log("size",array.size+"");
+      Glyph.log("Bag size",array.size+"");
     }
   }
 }

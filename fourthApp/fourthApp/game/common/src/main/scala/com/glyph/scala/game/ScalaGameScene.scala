@@ -15,6 +15,7 @@ import com.glyph.scala.lib.entity_component_system.GameContext
 import ui.UIButton
 import com.glyph.scala.Glyph.Timer
 import com.glyph.scala.lib.entity_property_system.test.Test
+import com.glyph.scala.lib.math.Vec2
 
 /**
  * a gamescene written in scala
@@ -38,9 +39,9 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
      */
 
     game.systemManager.addSystem(new ControllerSystem(game))
-    game.systemManager.addSystem(new TagSystem(game))
+  //  game.systemManager.addSystem(new TagSystem(game))
     game.systemManager.addSystem(new DungeonSystem(game))
-    game.systemManager.addSystem(new PlayerCameraSystem(game,mGameSurface.getCamera))
+  //  game.systemManager.addSystem(new PlayerCameraSystem(game,mGameSurface.getCamera))
 
 
     /**
@@ -67,7 +68,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       while ( i < 1000){
         i += 1
         EntityFactory.createNewCharacter
-      //  game.entityManager.addEntity(EntityFactory.createNewCharacter)
+       // game.entityManager.addEntity(EntityFactory.createNewCharacter)
       }
     })
   })
@@ -126,7 +127,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     mUIStage.addActor(t);
     mGameTable.layout();
 
-    Glyph.printExecTime("new handler",{
+    Glyph.printExecTime("new thousand handler",{
       var i = 0
       while ( i < 1000){
         i += 1
@@ -135,7 +136,13 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     })
   }
 
-  class Handler(val value:Int){}
+  class Handler(val value:Int){
+    val a = new Vec2
+    val b = new Vec2
+    val c = new Vec2
+    val d = new Vec2
+    val e = new Vec2
+  }
 
   val timer = new Timer(1000)
 

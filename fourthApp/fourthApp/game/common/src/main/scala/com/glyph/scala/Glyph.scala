@@ -2,13 +2,7 @@ package com.glyph.scala
 
 import com.badlogic.gdx.Gdx
 
-/**
- * Created with IntelliJ IDEA.
- * User: glyph
- * Date: 13/04/07
- * Time: 0:40
- * To change this template use File | Settings | File Templates.
- */
+
 object Glyph {
   val TAG = "com.glyph:"
 
@@ -52,6 +46,24 @@ object Glyph {
     (System.nanoTime() - prev)
   }
 
+  def memoryDiff(func: => Unit) = {
+    val prevMem:Long =  allocation()
+    func
+    val currMem:Long = allocation()
+    currMem - prevMem
+  }:Long
+
+  def printMemoryDiff(tag:String)(f: => Unit){
+    log(tag+":memory diff",""+memoryDiff{
+      f
+    })
+    log(tag+":memory",""+allocation());
+  }
+
+  def allocation():Long = {
+    Runtime.getRuntime.totalMemory()-Runtime.getRuntime.freeMemory()
+  }
+
   /**
    * interval in millis
    * @param interval
@@ -84,6 +96,4 @@ object Glyph {
       i = i+1
     }
   }
-
-
 }

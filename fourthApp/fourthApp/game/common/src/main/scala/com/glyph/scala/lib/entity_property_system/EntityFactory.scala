@@ -5,11 +5,10 @@ import com.glyph.scala.lib.util.Indexer
 /**
  * @author glyph
  */
-class EntityManager(world:World) {
-  val entityIndexer = new Indexer(1024)
+class EntityFactory(world:World) {
+  val entityIndexer = new Indexer(world.INITIAL_NUMBER_OF_ENTITY)
   val entityPool = new Pool[Entity]
-  val entities = new collection.mutable.ListBuffer[Entity]
-  val componentManager = new ComponentManager
+  val componentManager = new ComponentManager(world.INITIAL_NUMBER_OF_ENTITY)
 
   def createEntity():Entity={
     val entity = entityPool.obtain()
@@ -19,14 +18,7 @@ class EntityManager(world:World) {
 
   def deleteEntity(e:Entity){
     entityIndexer.addNext(e.index)
+    componentManager.freeAllComponent(e);
     entityPool.free(e)
-  }
-
-  def addEntity(e: Entity){
-    entities += e
-  }
-
-  def removeEntity(e:Entity){
-    entities -= e
   }
 }
