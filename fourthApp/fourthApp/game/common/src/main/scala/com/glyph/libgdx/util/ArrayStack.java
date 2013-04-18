@@ -25,6 +25,21 @@ public class ArrayStack<T> extends ArrayBag<T> {
         return (T)elements[--currentIndex];
     }
 
+    /**
+     * removes all the elements returned true with( == )operator
+     * @param e
+     */
+    public void remove(T e){
+        for(int i = 0; i < currentIndex;i++){
+            if(e == elements[i]){
+                remove(i);
+            }
+        }
+    }
+    public void remove(int index){
+        elements[index] = elements[--currentIndex];
+    }
+
     public boolean isEmpty(){
         return currentIndex <= 0;
     }

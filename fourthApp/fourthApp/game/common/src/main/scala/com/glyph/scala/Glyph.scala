@@ -6,11 +6,9 @@ import com.badlogic.gdx.Gdx
 object Glyph {
   val TAG = "com.glyph:"
 
-  def log(str: String) = {
-    Gdx.app.log(TAG, str)
-  }
+  val log:(String)=>Unit = log(TAG,_:String)
 
-  def log(tag: String, str: String) = {
+  def log(tag: String, str: String):Unit = {
     Gdx.app.log(TAG + tag, str)
   }
 
@@ -96,4 +94,5 @@ object Glyph {
       i = i+1
     }
   }
+
 }

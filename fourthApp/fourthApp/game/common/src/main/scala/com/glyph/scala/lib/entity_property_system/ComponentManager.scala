@@ -1,7 +1,8 @@
 package com.glyph.scala.lib.entity_property_system
-import com.glyph.scala.lib.util.Indexer
+import com.glyph.scala.lib.util.{Pool, Poolable, Indexer}
 import com.glyph.libgdx.util.ArrayBag
 import com.glyph.scala.Glyph
+import java.util
 
 /**
  * @author glyph
@@ -13,8 +14,12 @@ class ComponentManager(initialSize:Int){
   val componentIndexer = new Indexer(NUMBER_OF_INITIAL_COMPONENT_TYPE)
   val componentPools = new ArrayBag[(Manifest[_<:Poolable],Pool[Poolable])](NUMBER_OF_INITIAL_COMPONENT_TYPE)
 
-  def getComponentPool[T<:Component](implicit typ: Manifest[T]):Pool[T] = {
-    val cIndex = getComponentIndex[T]
+  def getComponentMapper[T<:Component](implicit typ:Manifest[T]):ComponentMapper[T]={
+    new ComponentMapper[T](components.get(componentIndex[T]).asInstanceOf[ArrayBag[T]])
+  }
+
+  def componentPool[T<:Component](implicit typ: Manifest[T]):Pool[T] = {
+    val cIndex = componentIndex[T]
     var pool = componentPools.get(cIndex)
     val result = if (pool != null){
       pool
@@ -27,13 +32,13 @@ class ComponentManager(initialSize:Int){
     result._2.asInstanceOf[Pool[T]]
   }
   def obtainComponent[T<:Component:Manifest]:T={
-    getComponentPool[T].obtain()
+    componentPool[T].obtain()
   }
   def freeComponent[T<:Component:Manifest](component:T){
-    getComponentPool[T].free(component)
+    componentPool[T].free(component)
   }
 
-  def getComponentIndex[T<:Component](implicit typ: Manifest[T]):Int ={
+  def componentIndex[T<:Component](implicit typ: Manifest[T]):Int ={
     val result = componentToIndex get typ match {
       case Some(cIndex)   => cIndex
       case None           =>{
@@ -47,7 +52,7 @@ class ComponentManager(initialSize:Int){
   }
 
   def getComponent[T<:Component](e:Entity)(implicit typ:Manifest[T]):T={
-    val cIndex = getComponentIndex[T]
+    val cIndex = componentIndex[T]
     getComponent[T](e,cIndex)
   }
 
@@ -71,11 +76,11 @@ class ComponentManager(initialSize:Int){
   }
 
   def addComponent[T<:Component](e:Entity,c:T)(implicit typ: Manifest[T]){
-    val cIndex = getComponentIndex[T]
+    val cIndex = componentIndex[T]
     addComponent(e,cIndex,c)
   }
   def removeComponent[T<:Component](e:Entity,c:T)(implicit typ: Manifest[T]){
-    val cIndex = getComponentIndex[T]
+    val cIndex = componentIndex[T]
     addComponent(e,cIndex,c)
   }
   def removeComponent[T<:Component](e:Entity,cIndex:Int, c:T)(implicit typ:Manifest[T]){
@@ -127,5 +132,14 @@ class ComponentManager(initialSize:Int){
       }
       cIndex += 1
     }
+  }
+  def getFilter(interests: Seq[Manifest[_<:Component]]):util.BitSet={
+    Glyph.log("create filter")
+    val result = new util.BitSet()
+    interests.foreach {
+      i=>result.set(componentIndex(i))
+        Glyph.log("Filter for:",i.runtimeClass.getSimpleName)
+    }
+    result
   }
 }

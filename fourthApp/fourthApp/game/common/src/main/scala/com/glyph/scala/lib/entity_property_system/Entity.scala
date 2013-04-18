@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.entity_property_system
 
 import java.util
-import com.glyph.scala.lib.util.Chainable
+import com.glyph.scala.lib.util.{Poolable, Chainable}
 
 /**
  * @author glyph

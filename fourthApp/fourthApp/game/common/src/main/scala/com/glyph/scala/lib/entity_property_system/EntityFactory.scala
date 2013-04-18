@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.entity_property_system
 
-import com.glyph.scala.lib.util.Indexer
+import com.glyph.scala.lib.util.{Pool, Indexer}
 
 /**
  * @author glyph

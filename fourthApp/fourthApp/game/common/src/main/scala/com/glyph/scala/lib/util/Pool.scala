@@ -1,5 +1,7 @@
-package com.glyph.scala.lib.entity_property_system
+package com.glyph.scala.lib.util
+
 import com.glyph.libgdx.util.ArrayStack
+import com.glyph.scala.lib.util.Poolable
 
 /**
  * @author glyph
