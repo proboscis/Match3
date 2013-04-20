@@ -1,17 +1,14 @@
 package com.glyph.scala.game
 
-import adapter.RendererAdapter
 import com.glyph.scala.Glyph
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.graphics.{FPSLogger, Texture}
 import event.UIInputEvent
-import system._
 import com.glyph.libgdx.{Scene, Engine}
 import com.glyph.libgdx.surface.Surface
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Table}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
-import com.glyph.scala.lib.entity_component_system.GameContext
 import ui.UIButton
 import com.glyph.scala.Glyph.Timer
 import com.glyph.scala.lib.entity_property_system.test.Test
@@ -21,7 +18,7 @@ import com.glyph.scala.lib.math.Vec2
  * a gamescene written in scala
  */
 class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
-  val game = new GameContext
+  val game = new ScalaGameWorld
   val mFpsLogger = new FPSLogger
   val mGameTable = new Table
   val mGameSurface = new Surface(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT / 2)
@@ -38,42 +35,15 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
      * init systems
      */
 
-    game.systemManager.addSystem(new ControllerSystem(game))
-  //  game.systemManager.addSystem(new TagSystem(game))
-    game.systemManager.addSystem(new DungeonSystem(game))
-  //  game.systemManager.addSystem(new PlayerCameraSystem(game,mGameSurface.getCamera))
-
 
     /**
      * init renderer
      */
-    mGameSurface.add(new RenderSystem(game.entityManager))
 
-    /**
-     * add adapters
-     */
-    game.entityManager.addAdapter[RendererAdapter]
 
-    /**
-     * init entities
-     */
-    Glyph.printExecTime("initEntity", {
-      val dungeon = EntityFactory.createDungeon
-      game.entityManager.addEntity(dungeon)
-      val player = EntityFactory.createPlayer
-      game.entityManager.addEntity(player)
-    })
-    Glyph.printExecTime("new 1000 Entity", {
-      var i = 0;
-      while ( i < 1000){
-        i += 1
-        EntityFactory.createNewCharacter
-       // game.entityManager.addEntity(EntityFactory.createNewCharacter)
-      }
-    })
   })
 
-  def initViews (){
+  def initViews() {
     /**
      * init processors
      */
@@ -126,22 +96,6 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     t.debug();
     mUIStage.addActor(t);
     mGameTable.layout();
-
-    Glyph.printExecTime("new thousand handler",{
-      var i = 0
-      while ( i < 1000){
-        i += 1
-        new Handler(i)
-      }
-    })
-  }
-
-  class Handler(val value:Int){
-    val a = new Vec2
-    val b = new Vec2
-    val c = new Vec2
-    val d = new Vec2
-    val e = new Vec2
   }
 
   val timer = new Timer(1000)
@@ -149,19 +103,20 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   val test = new Test
 
   override def render(delta: Float) {
-    super.render(delta)
     val et = Glyph.execTime {
+      super.render(delta)
       mFpsLogger.log();
       mGameStage.act(delta)
       Table.drawDebug(mGameStage);
       Table.drawDebug(mUIStage);
-      game.update(delta)
       test.update()
       mGameSurface.resize()
     }
     timer.repeat {
       val fps: Double = 1.0 / (et * 0.000000001)
+      Glyph.printTime("elapsed:", et)
       Glyph.log("fps", "%.2f".format(fps));
     }
+
   }
 }

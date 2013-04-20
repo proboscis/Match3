@@ -74,6 +74,15 @@ class ComponentManager(initialSize:Int){
     componentBag.set(e.index,c)
     e.componentBits.set(cIndex)
   }
+  def removeComponent[T<:Component](e:Entity,cIndex:Int){
+    var componentBag = components.get(cIndex)
+    if (componentBag == null){
+      components.set(cIndex,new ArrayBag[Component](initialSize))
+      componentBag = components.get(cIndex)
+    }
+    componentBag.set(e.index,null)
+    e.componentBits.clear(cIndex)
+  }
 
   def addComponent[T<:Component](e:Entity,c:T)(implicit typ: Manifest[T]){
     val cIndex = componentIndex[T]
@@ -81,7 +90,7 @@ class ComponentManager(initialSize:Int){
   }
   def removeComponent[T<:Component](e:Entity,c:T)(implicit typ: Manifest[T]){
     val cIndex = componentIndex[T]
-    addComponent(e,cIndex,c)
+    removeComponent(e,cIndex)
   }
   def removeComponent[T<:Component](e:Entity,cIndex:Int, c:T)(implicit typ:Manifest[T]){
     components.get(cIndex).set(e.index,null.asInstanceOf[T])

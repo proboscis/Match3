@@ -34,6 +34,21 @@ class Entity extends Poolable with Chainable{
     this
   }
 
+  def hasAllComponents(filter:util.BitSet):Boolean={
+    val bits = componentBits
+    var i = filter.nextSetBit(0)
+    var hasAllComponent = true// check this is not true
+    while (i >= 0) {
+      if (bits.get(i)){
+        hasAllComponent = hasAllComponent && true
+      }else{
+        hasAllComponent = false
+      }
+      i = filter.nextSetBit(i + 1)
+    }
+    hasAllComponent
+  }
+
   def addComponent[T<:Component](component:T)(implicit typ:Manifest[T])={
     mWorld.entityFactory.componentManager.addComponent(this,component)
   }

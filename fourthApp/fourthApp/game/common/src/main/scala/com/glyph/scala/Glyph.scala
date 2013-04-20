@@ -12,7 +12,7 @@ object Glyph {
     Gdx.app.log(TAG + tag, str)
   }
 
-  def printExecTime(tag: String, func: => Unit) {
+  def printExecTime(tag: String, func: => Unit):Unit={
     Glyph.log(tag, "=> start")
     val prev = System.nanoTime();
     func
@@ -20,7 +20,7 @@ object Glyph {
     printTime(tag, time);
   }
 
-  def printExecTime(func: => Unit) {
+  def printExecTime(func: => Unit) :Unit={
     Glyph.log("=> start")
     val prev = System.nanoTime();
     func

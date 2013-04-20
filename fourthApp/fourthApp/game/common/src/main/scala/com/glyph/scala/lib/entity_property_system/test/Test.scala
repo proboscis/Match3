@@ -11,8 +11,12 @@ import com.glyph.scala.lib.math.Vec2
  */
 class Test {
   val world = new World
-  world.systemManager.addSystem(new S1)
-  world.systemManager.addSystem(new S2)
+  world.systemManager.registerSystem(new S1)
+  world.systemManager.registerSystem(new S2)
+  world.systemManager.registerSystem(new S3)
+  world.systemManager.registerSystem(new S4)
+  world.systemManager.registerSystem(new S5)
+  world.systemManager.registerSystem(new S6)
   val q = new ArrayStack[Int]
   val eq = new ArrayStack[Entity]
   val printMemory = Glyph.printMemoryDiff("Test") _
@@ -82,21 +86,60 @@ class Test {
       val size = entities.size()
       var i = 0;
       while (i < size) {
-        entities.get(i)
+        val e = entities.get(i)
         i += 1
       }
     })
-
+    Glyph.printExecTime("test update",{
+      world.updateSystems(0.016f)
+    })
   }
 
+
+
   def update() {
-    world.updateSystems(0.016f)
+
   }
 }
 
-class S1 extends GameSystem(manifest[C1], manifest[C2])
-
-class S2 extends GameSystem(manifest[C2], manifest[C3])
+class S4 extends S2
+class S5 extends S3
+class S6 extends S1
+class S1 extends GameSystem(manifest[C1], manifest[C2]){
+  override def update(delta: Float) {
+    super.update(delta)
+    Glyph.log("entities to process:"+entities.size())
+    val mapper = world.componentManager.getComponentMapper[C1]
+    var i =0
+    while ( i < entities.size()){
+      i+=1
+    }
+  }
+}
+class S2 extends GameSystem(manifest[C2], manifest[C3]){
+  override def update(delta: Float) {
+    Glyph.log("entities to process:"+entities.size())
+    super.update(delta)
+    val mapper = world.componentManager.getComponentMapper[C2]
+    var i = 0;
+    while ( i < entities.size()){
+      val c2 = mapper.get(entities.get(i))
+      i+= 1
+    }
+  }
+}
+class S3 extends GameSystem(manifest[C3], manifest[C1]){
+  override def update(delta: Float) {
+    Glyph.log("entities to process:"+entities.size())
+    super.update(delta)
+    val mapper = world.componentManager.getComponentMapper[C3]
+    var i = 0;
+    while ( i < entities.size()){
+      mapper.get(entities.get(i))
+      i+= 1
+    }
+  }
+}
 
 class C1 extends Component {
   val v = Vec2

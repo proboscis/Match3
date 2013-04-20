@@ -24,6 +24,15 @@ public class ArrayBag<T> {
         elements[index] = e;
     }
 
+    /**
+     * fills all elements with null
+     */
+    public void clear(){
+        for(int i = 0; i < elements.length; i++){
+            elements[i] = null;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public T get(int index){
         if( index < elements.length){

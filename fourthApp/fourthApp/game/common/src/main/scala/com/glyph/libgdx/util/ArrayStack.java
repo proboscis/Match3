@@ -13,10 +13,16 @@ public class ArrayStack<T> extends ArrayBag<T> {
         super(size);
     }
 
-    public void push(T e){
+    /**
+     * push an element and return an index where the element is put
+     * @param e
+     * @return index of e in the stack
+     */
+    public int push(T e){
        // Glyph.log("ArrayQueue","push"+currentIndex);
         ensureCapacity(currentIndex);
-        elements[currentIndex++] = e;
+        elements[currentIndex] = e;
+        return currentIndex++;
     }
     @SuppressWarnings("unchecked")
     public T pop(){
@@ -32,12 +38,37 @@ public class ArrayStack<T> extends ArrayBag<T> {
     public void remove(T e){
         for(int i = 0; i < currentIndex;i++){
             if(e == elements[i]){
-                remove(i);
+                nonOrderedRemoveIndex(i);
             }
         }
     }
-    public void remove(int index){
+    public void nonOrderedRemoveIndex(int index){
         elements[index] = elements[--currentIndex];
+        elements[currentIndex +1] = 0;
+    }
+    @Override
+    public void clear(){
+        super.clear();
+        currentIndex = 0;
+    }
+
+    public void clearStack(){
+        for(int i =0 ; i < currentIndex;i ++){
+            elements[i] = null;
+        }
+        currentIndex = 0;
+    }
+
+    /**
+     * check whether this stack contains element or not
+     * @param e
+     * @return
+     */
+    public boolean contains(T e){
+        for(int i =0 ; i < currentIndex;i ++){
+            if(elements[i] == e) return true;
+        }
+        return false;
     }
 
     public boolean isEmpty(){
