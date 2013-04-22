@@ -115,6 +115,7 @@ class S1 extends GameSystem(manifest[C1], manifest[C2]){
     while ( i < entities.size()){
       i+=1
     }
+    
   }
 }
 class S2 extends GameSystem(manifest[C2], manifest[C3]){

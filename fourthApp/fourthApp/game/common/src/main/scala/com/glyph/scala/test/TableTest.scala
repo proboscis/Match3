@@ -7,6 +7,7 @@ import java.util
 import com.glyph.libgdx.util.ArrayStack
 import com.glyph.libgdx.util.LinkedList
 
+
 /**
  * @author glyph
  */
@@ -30,6 +31,7 @@ class TableTest {
     var i = 0
     while (i < 1000){
       map.put(manifest[TableTest], i)
+
       i+=1
     }
   })

@@ -99,6 +99,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     mGameTable.layout();
   }
 
+
   val timer = new Timer(1000)
 
   //val test = new Test
