@@ -19,15 +19,15 @@
     </filters>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="fps" />
+    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="glyph" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dbad918f-dc98-4008-8276-c25d313602b0" name="Default" comment="" />
     <ignored path="game.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/fragment.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365952493569" ignored="false" />
+    <file path="/fragment.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366472476640" ignored="false" />
     <file path="/MyGame.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365258403504" ignored="false" />
-    <file path="/Dummy.txt" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365420409719" ignored="false" />
+    <file path="/Dummy.txt" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366467997901" ignored="false" />
     <file path="$PROJECT_DIR$/common/src/libgdx/entity_component_system/EntityContainer.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365251937530" ignored="false" />
     <file path="$PROJECT_DIR$/common/src/main/libgdx/entity_component_system/EntityContainer.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365252074557" ignored="false" />
     <file path="/AM.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365251999689" ignored="false" />
@@ -83,17 +83,17 @@
     <file path="/Main.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365936322452" ignored="false" />
     <file path="/Engine.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365255283988" ignored="false" />
     <file path="$PROJECT_DIR$/android/target/java/com/glyph/Manifest.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365260581936" ignored="false" />
-    <file path="/SBT" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365993110533" ignored="false" />
+    <file path="/SBT" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366517387126" ignored="false" />
     <file path="/Util.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365263163530" ignored="false" />
-    <file path="/ScalaGameScene.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366035191323" ignored="false" />
-    <file path="/a.dummy" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365953914567" ignored="false" />
-    <file path="/EventManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365992163685" ignored="false" />
+    <file path="/ScalaGameScene.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366534279145" ignored="false" />
+    <file path="/a.dummy" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366463073561" ignored="false" />
+    <file path="/EventManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366207669550" ignored="false" />
     <file path="/EntityContainer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365954063786" ignored="false" />
     <file path="/DungeonActor.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365340115583" ignored="false" />
     <file path="/GameContext.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365952258643" ignored="false" />
     <file path="/Renderer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365419391694" ignored="false" />
-    <file path="/Entity.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365953905280" ignored="false" />
-    <file path="/Component.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365953947871" ignored="false" />
+    <file path="/Entity.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366564133877" ignored="false" />
+    <file path="/Component.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366210429281" ignored="false" />
     <file path="/Transform.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365342770246" ignored="false" />
     <file path="/GameScene.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365420541637" ignored="false" />
     <file path="/RendererComponent.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365419381906" ignored="false" />
@@ -119,8 +119,24 @@
     <file path="/AbstractController.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366038778960" ignored="false" />
     <file path="/PlayerController.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366039036940" ignored="false" />
     <file path="/ControllerSystem.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366039804523" ignored="false" />
-    <file path="/EntityManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366039499366" ignored="false" />
+    <file path="/EntityManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366207374046" ignored="false" />
     <file path="/TagAdapter.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366039579967" ignored="false" />
+    <file path="/Test.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366473570301" ignored="false" />
+    <file path="/World.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366207074733" ignored="false" />
+    <file path="/testComponent.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366207942034" ignored="false" />
+    <file path="/Bag.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366208633941" ignored="false" />
+    <file path="/ComponentManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366210322398" ignored="false" />
+    <file path="/Poolable.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366210110857" ignored="false" />
+    <file path="/Column.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366460929369" ignored="false" />
+    <file path="/Table.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366467278415" ignored="false" />
+    <file path="/ArrayBag.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366464706588" ignored="false" />
+    <file path="/DataTable.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366536751161" ignored="false" />
+    <file path="/EngineTest.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366472088595" ignored="false" />
+    <file path="/MacroTest.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366532243658" ignored="false" />
+    <file path="/Macros.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366473533853" ignored="false" />
+    <file path="C:/Documents and Settings/glyph/Documents/sbt/first/gitRepo/fourthApp/fourthApp/game/common/src/main/scala/com/glyph/scala/test/MacroTest.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366517378055" ignored="false" />
+    <file path="/TableTest.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366561808713" ignored="false" />
+    <file path="/LinkedList.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366561141034" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,7 +151,6 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
@@ -171,6 +186,7 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -182,33 +198,29 @@
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf>
-          <file leaf-file-name="DungeonSystem.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/DungeonSystem.scala">
+          <file leaf-file-name="ScalaGameScene.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="19" column="0" selection-start="436" selection-end="436" vertical-scroll-proportion="0.0">
-                  <folding>
-                    <element signature="e#37#113#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="Controller.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/Controller.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state line="19" column="0" selection-start="431" selection-end="431" vertical-scroll-proportion="0.0">
+                <state line="104" column="26" selection-start="2849" selection-end="2849" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="AbstractController.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/AbstractController.scala">
+          <file leaf-file-name="Test2.java" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/Test2.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="8" column="6" selection-start="206" selection-end="206" vertical-scroll-proportion="0.0">
-                  <folding>
-                    <element signature="e#52#109#0" expanded="true" />
-                  </folding>
+                <state line="7" column="13" selection-start="99" selection-end="99" vertical-scroll-proportion="0.0">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="GameConstants.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/GameConstants.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="5" column="7" selection-start="62" selection-end="62" vertical-scroll-proportion="0.0">
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -216,63 +228,65 @@
           <file leaf-file-name="Glyph.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="41" column="31" selection-start="918" selection-end="918" vertical-scroll-proportion="0.0">
+                <state line="13" column="0" selection-start="223" selection-end="223" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="PlayerController.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/PlayerController.scala">
+          <file leaf-file-name="DataTable.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/table/DataTable.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="14" column="0" selection-start="392" selection-end="393" vertical-scroll-proportion="0.0">
+                <state line="39" column="7" selection-start="950" selection-end="950" vertical-scroll-proportion="0.0">
                   <folding>
-                    <element signature="e#52#109#0" expanded="true" />
+                    <element signature="e#40#91#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="EntityFactory.scala" pinned="false" current="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/EntityFactory.scala">
+          <file leaf-file-name="ScalaGameWorld.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameWorld.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="33" column="0" selection-start="681" selection-end="681" vertical-scroll-proportion="0.5448718">
+                <state line="7" column="6" selection-start="118" selection-end="118" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="ControllerSystem.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/ControllerSystem.scala">
+          <file leaf-file-name="TableTest.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/TableTest.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="31" column="0" selection-start="766" selection-end="766" vertical-scroll-proportion="0.0">
+                <state line="31" column="37" selection-start="773" selection-end="773" vertical-scroll-proportion="0.0">
+                  <folding>
+                    <element signature="e#30#58#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="Entity.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Entity.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="10" column="0" selection-start="172" selection-end="172" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="EntityManager.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/EntityManager.scala">
+          <file leaf-file-name="Interface.scala" pinned="false" current="true" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Interface.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="52" column="3" selection-start="1895" selection-end="1895" vertical-scroll-proportion="0.0">
+                <state line="9" column="0" selection-start="110" selection-end="110" vertical-scroll-proportion="0.16328709">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="TagSystem.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/TagSystem.scala">
+          <file leaf-file-name="Component.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Component.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="48" column="0" selection-start="1104" selection-end="1104" vertical-scroll-proportion="0.0">
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="RenderSystem.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/RenderSystem.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state line="17" column="0" selection-start="524" selection-end="524" vertical-scroll-proportion="0.0">
+                <state line="9" column="0" selection-start="110" selection-end="110" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
@@ -282,85 +296,77 @@
       </split-first>
       <split-second>
         <leaf>
-          <file leaf-file-name="DungeonGame.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/DungeonGame.scala">
+          <file leaf-file-name="Entity.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/Entity.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="8" column="6" selection-start="188" selection-end="188" vertical-scroll-proportion="0.0">
+                <state line="29" column="0" selection-start="588" selection-end="588" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="Tag.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/Tag.scala">
+          <file leaf-file-name="Test.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/Test.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="7" column="6" selection-start="133" selection-end="133" vertical-scroll-proportion="0.0">
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="DungeonActor.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/DungeonActor.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state line="11" column="6" selection-start="260" selection-end="260" vertical-scroll-proportion="0.0">
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="RendererAdapter.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/RendererAdapter.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state line="13" column="0" selection-start="297" selection-end="297" vertical-scroll-proportion="0.0">
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="TagAdapter.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/TagAdapter.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state line="13" column="0" selection-start="269" selection-end="269" vertical-scroll-proportion="0.0">
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="ScalaGameScene.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state line="156" column="3" selection-start="4233" selection-end="4233" vertical-scroll-proportion="0.0">
+                <state line="13" column="0" selection-start="376" selection-end="376" vertical-scroll-proportion="0.0">
                   <folding>
-                    <element signature="e#30#60#0" expanded="true" />
-                    <element signature="method#initViews#0" expanded="false" />
+                    <element signature="e#57#85#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="GameContext.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameContext.scala">
+          <file leaf-file-name="LinkedList.java" pinned="false" current="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/LinkedList.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="19" column="0" selection-start="368" selection-end="368" vertical-scroll-proportion="0.0">
+                <state line="17" column="26" selection-start="440" selection-end="440" vertical-scroll-proportion="0.30843115">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="GameSystem.scala" pinned="false" current="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameSystem.scala">
+          <file leaf-file-name="Main.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/desktop/src/main/scala/Main.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="10" column="0" selection-start="146" selection-end="146" vertical-scroll-proportion="0.0">
+                <state line="0" column="17" selection-start="17" selection-end="17" vertical-scroll-proportion="0.0">
+                  <folding>
+                    <element signature="e#19#59#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="EventManager.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/event/EventManager.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="98" column="10" selection-start="2341" selection-end="2341" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="SystemManager.scala" pinned="false" current="true" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/SystemManager.scala">
+          <file leaf-file-name="World.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/World.scala">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="34" column="0" selection-start="668" selection-end="668" vertical-scroll-proportion="0.61752135">
+                <state line="51" column="0" selection-start="1424" selection-end="1424" vertical-scroll-proportion="0.0">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="ComponentManager.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/ComponentManager.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="59" column="41" selection-start="2130" selection-end="2130" vertical-scroll-proportion="0.0">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="EntityFactory.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/EntityFactory.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="7" column="6" selection-start="132" selection-end="132" vertical-scroll-proportion="0.0">
                   <folding />
                 </state>
               </provider>
@@ -378,22 +384,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/EntityManager.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/ComponentManager.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/table/Column.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/ArrayBag.java" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/table/Table.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/test/Test.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/test/EngineTest.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/Macros.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/MacroTest.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/Test.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/DungeonSystem.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/RenderSystem.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/PlayerController.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/Controller.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/AbstractController.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/TagAdapter.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/RendererAdapter.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/ControllerSystem.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/TagSystem.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/EntityFactory.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameContext.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameSystem.scala" />
-        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/SystemManager.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/table/DataTable.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/LinkedList.java" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/TableTest.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Entity.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Component.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Interface.scala" />
       </list>
     </option>
   </component>
@@ -429,6 +435,16 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -443,38 +459,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="desktop" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="desktop" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="common" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -530,720 +514,108 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="common" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="glyph" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="entity_component_interface_system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="common" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="glyph" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="libgdx" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="common" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="glyph" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="libgdx" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="util" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="lib" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="math" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Vec2.scala" />
-              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="lib" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="event" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="lib" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="entity_component_system" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ui" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="traits" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="system" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="system" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ControllerSystem.scala" />
-              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="event" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="component" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="component" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="renderer" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="component" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="controllers" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="adapter" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libgdx" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libgdx" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="surface" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libgdx" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="surface" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="drawable" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libgdx" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="particle" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libgdx" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="camera" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libgdx" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="asset" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1278,25 +650,16 @@
         </subPane>
       </pane>
       <pane id="Scope" />
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_directory_selection" value="$PROJECT_DIR$/android/target/scala-2.10/src_managed/main/java/com/glyph" />
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="project.structure.last.edited" value="Modules" />
+    <property name="OverrideImplement.combined" value="false" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="options.lastSelected" value="fileTemplates" />
+    <property name="options.lastSelected" value="preferences.keymap" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="recentsLimit" value="5" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -1345,6 +708,26 @@
       <option name="NETWORK_SPEED" value="full" />
       <option name="NETWORK_LATENCY" value="none" />
       <option name="CLEAR_LOGCAT" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="ScalaScriptConsoleRunConfiguration" factoryName="Scala Console">
+      <module name="" />
+      <setting name="vmparams4" value="-Djline.terminal=NONE" />
+      <setting name="consoleArgs" value="" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Specs2RunConfiguration" factoryName="Specs2">
+      <module name="" />
+      <setting name="path" value="" />
+      <setting name="package" value="" />
+      <setting name="vmparams" value="" />
+      <setting name="params" value="" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <setting name="searchForTest" value="Across module dependencies" />
+      <setting name="testName" value="" />
+      <setting name="testKind" value="Class" />
+      <setting name="showProgressMessages" value="true" />
       <method />
     </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
@@ -1427,6 +810,28 @@
       </option>
       <envs />
       <patterns />
+      <method />
+    </configuration>
+    <configuration default="true" type="ScalaTestRunConfiguration" factoryName="ScalaTest">
+      <module name="" />
+      <setting name="path" value="" />
+      <setting name="package" value="" />
+      <setting name="vmparams" value="" />
+      <setting name="params" value="" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <setting name="searchForTest" value="Across module dependencies" />
+      <setting name="testName" value="" />
+      <setting name="testKind" value="Class" />
+      <setting name="showProgressMessages" value="true" />
+      <method />
+    </configuration>
+    <configuration default="true" type="ScalaScriptRunConfiguration" factoryName="Scala Script">
+      <module name="" />
+      <setting name="path" value="" />
+      <setting name="vmparams" value="" />
+      <setting name="consoleargs" value="" />
+      <setting name="params" value="" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
       <method />
     </configuration>
     <configuration default="true" type="AndroidRunConfigurationType" factoryName="Android Application">
@@ -1523,11 +928,12 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="54" y="-8" width="2514" height="1616" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32945207" sideWeight="0.49837002" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.48533008" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.49185005" order="3" side_tool="false" content_ui="tabs" />
@@ -1540,11 +946,10 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1193969" sideWeight="0.6719178" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3280822" sideWeight="0.4380603" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1193969" sideWeight="0.6726027" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32739726" sideWeight="0.4380603" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32945207" sideWeight="0.49837002" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -1609,123 +1014,122 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/Transform.scala">
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameWorld.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="6" selection-start="170" selection-end="170" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/RenderSystem.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="0" selection-start="524" selection-end="524" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/PlayerController.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="0" selection-start="392" selection-end="393" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#52#109#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/Controller.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="0" selection-start="431" selection-end="431" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/renderer/Renderer.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="27" selection-start="495" selection-end="495" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#49#119#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/TagAdapter.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="0" selection-start="269" selection-end="269" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="31" selection-start="918" selection-end="918" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/controllers/AbstractController.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="6" selection-start="206" selection-end="206" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#52#109#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/ControllerSystem.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="0" selection-start="766" selection-end="766" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/adapter/RendererAdapter.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="0" selection-start="297" selection-end="297" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/TagSystem.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="0" selection-start="1104" selection-end="1104" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/EntityFactory.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="0" selection-start="681" selection-end="681" vertical-scroll-proportion="0.5448718">
+        <state line="7" column="6" selection-start="118" selection-end="118" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="156" column="3" selection-start="4233" selection-end="4233" vertical-scroll-proportion="0.0">
+        <state line="104" column="26" selection-start="2849" selection-end="2849" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/table/DataTable.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="7" selection-start="950" selection-end="950" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#30#60#0" expanded="true" />
-            <element signature="method#initViews#0" expanded="false" />
+            <element signature="e#40#91#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameContext.scala">
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/ComponentManager.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="0" selection-start="368" selection-end="368" vertical-scroll-proportion="0.0">
+        <state line="59" column="41" selection-start="2130" selection-end="2130" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/GameSystem.scala">
+    <entry file="file://$PROJECT_DIR$/desktop/src/main/scala/Main.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="0" selection-start="146" selection-end="146" vertical-scroll-proportion="0.0">
+        <state line="0" column="17" selection-start="17" selection-end="17" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#19#59#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/Test.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="376" selection-end="376" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#57#85#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/Entity.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="29" column="0" selection-start="588" selection-end="588" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_system/SystemManager.scala">
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/ArrayStack.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="0" selection-start="668" selection-end="668" vertical-scroll-proportion="0.61752135">
+        <state line="23" column="35" selection-start="535" selection-end="535" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/LinkedList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="26" selection-start="440" selection-end="440" vertical-scroll-proportion="0.30843115">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/TableTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="31" column="37" selection-start="773" selection-end="773" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#30#58#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/Component.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="0" selection-start="487" selection-end="487" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/GameSystem.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="42" column="6" selection-start="933" selection-end="933" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/ArrayBag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="28" selection-start="960" selection-end="960" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Entity.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="0" selection-start="172" selection-end="172" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Component.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="0" selection-start="110" selection-end="110" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Interface.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="0" selection-start="110" selection-end="110" vertical-scroll-proportion="0.16328709">
           <folding />
         </state>
       </provider>

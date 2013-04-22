@@ -8,3 +8,4 @@ import java.util
 class Entity {
 //  private components = new util.HashMap[Str]()
 }
+
