@@ -13,6 +13,7 @@ import ui.UIButton
 import com.glyph.scala.Glyph.Timer
 import com.glyph.scala.lib.entity_property_system.test.Test
 import com.glyph.scala.lib.math.Vec2
+import com.glyph.scala.test.TableTest
 
 /**
  * a gamescene written in scala
@@ -100,16 +101,16 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
 
   val timer = new Timer(1000)
 
-  val test = new Test
+  //val test = new Test
+  val test = new TableTest
 
   override def render(delta: Float) {
     val et = Glyph.execTime {
       super.render(delta)
       mFpsLogger.log();
       mGameStage.act(delta)
-      Table.drawDebug(mGameStage);
-      Table.drawDebug(mUIStage);
-      test.update()
+     // Table.drawDebug(mGameStage);
+     // Table.drawDebug(mUIStage);
       mGameSurface.resize()
     }
     timer.repeat {

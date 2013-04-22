@@ -7,7 +7,8 @@ import org.scalasbt.androidplugin.AndroidKeys._
 object Settings {
   lazy val common = Defaults.defaultSettings ++ Seq (
     version := "0.1",
-    scalaVersion := "2.10.0",
+    scalaVersion := "2.10.1",
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.10.1",
     updateLibgdxTask
    )
 
@@ -22,7 +23,7 @@ object Settings {
       keyalias in Android := "change-me",
       mainAssetsPath in Android := file("common/src/main/resources"),
       unmanagedBase <<= baseDirectory( _ /"src/main/libs" ),
-      proguardOption in Android := "-keep class com.badlogic.gdx.backends.android.** { *; }"
+      proguardOption in Android := "-keep class com.badlogic.gdx.backends.android.** { *; } -keep class scala.collection.SeqLike {public protected *;}"
     )
 
   val updateLibgdx = TaskKey[Unit]("update-gdx", "Updates libgdx")

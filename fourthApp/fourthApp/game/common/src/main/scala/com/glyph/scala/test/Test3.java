@@ -1,4 +1,4 @@
-package com.glyph.scala.lib.entity_property_system.test;
+package com.glyph.scala.test;
 
 /**
  * @author glyph

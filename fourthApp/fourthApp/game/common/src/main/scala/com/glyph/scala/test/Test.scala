@@ -5,6 +5,7 @@ import com.glyph.scala.lib.entity_property_system.{GameSystem, Component, Entity
 import com.glyph.libgdx.util.ArrayStack
 import collection.mutable.ListBuffer
 import com.glyph.scala.lib.math.Vec2
+import com.glyph.scala.lib.util.table.DataTable
 
 /**
  * @author glyph

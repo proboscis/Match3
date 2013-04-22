@@ -19,6 +19,11 @@ public class ArrayBag<T> {
         }
     }
 
+    public T setWithResult(int index,T e){
+        ensureCapacity(index);
+        elements[index] = e;
+        return e;
+    }
     public void set(int index,T e){
         ensureCapacity(index);
         elements[index] = e;
