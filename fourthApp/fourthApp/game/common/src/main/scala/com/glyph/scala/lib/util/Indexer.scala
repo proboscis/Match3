@@ -1,23 +1,26 @@
 package com.glyph.scala.lib.util
 
-import com.glyph.libgdx.util.ArrayStack
+
 
 /**
  * @author glyph
  */
 class Indexer(var size:Int){
-  val indexQueue = new ArrayStack[Int]
+  val indexQueue = new collection.mutable.Queue[Integer]
+  def this(){
+    this(0)
+  }
   for(i <- 0 to size-1){
-    indexQueue.push(((size-1)-i))
+    indexQueue.enqueue(((size-1)-i))
   }
   def getNext():Int = {
     if (indexQueue.isEmpty){
       addNext(size)
       size += 1
     }
-    indexQueue.pop()
+    indexQueue.dequeue()
   }
   def addNext(index:Int){
-    indexQueue.push(index)
+    indexQueue.enqueue(index)
   }
 }

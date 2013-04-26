@@ -1,13 +1,13 @@
 package com.glyph.scala.lib.entity_property_system
 
-import com.glyph.scala.lib.util.{Pool, Indexer}
+import com.glyph.scala.lib.util.{DeprecatedPool, Indexer}
 
 /**
  * @author glyph
  */
 class EntityFactory(world:World) {
   val entityIndexer = new Indexer(world.INITIAL_NUMBER_OF_ENTITY)
-  val entityPool = new Pool[Entity]
+  val entityPool = new DeprecatedPool[Entity]
   val componentManager = new ComponentManager(world.INITIAL_NUMBER_OF_ENTITY)
 
   def createEntity():Entity={

@@ -1,12 +1,12 @@
 package com.glyph.scala.lib.entity_property_system
 
 import java.util
-import com.glyph.scala.lib.util.{Poolable, Chainable}
+import com.glyph.scala.lib.util.{DeprecatedPoolable, Chainable}
 
 /**
  * @author glyph
  */
-class Entity extends Poolable with Chainable{
+class Entity extends DeprecatedPoolable with Chainable{
   private var mIndex = -1
   private var mWorld :World = null
   val componentBits = new util.BitSet()

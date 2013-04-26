@@ -1,11 +1,11 @@
 package com.glyph.scala.lib.entity_property_system
 
-import com.glyph.scala.lib.util.{Poolable, Chainable}
+import com.glyph.scala.lib.util.{DeprecatedPoolable, Chainable}
 
 /**
  * @author glyph
  */
-class Component extends Poolable with Chainable{
+class Component extends DeprecatedPoolable with Chainable{
   @Deprecated
   var owner :Entity = null
 

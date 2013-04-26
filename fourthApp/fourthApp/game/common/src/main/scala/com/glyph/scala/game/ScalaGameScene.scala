@@ -11,8 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Table}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import ui.UIButton
 import com.glyph.scala.Glyph.Timer
-import com.glyph.scala.lib.entity_property_system.test.Test
-import com.glyph.scala.lib.math.Vec2
+import com.glyph.scala.lib.test.DynamicTypeTest
 
 /**
  * a gamescene written in scala
@@ -100,7 +99,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
 
   val timer = new Timer(1000)
 
-  val test = new Test
+  new DynamicTypeTest
 
   override def render(delta: Float) {
     val et = Glyph.execTime {
@@ -109,7 +108,6 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       mGameStage.act(delta)
       Table.drawDebug(mGameStage);
       Table.drawDebug(mUIStage);
-      test.update()
       mGameSurface.resize()
     }
     timer.repeat {

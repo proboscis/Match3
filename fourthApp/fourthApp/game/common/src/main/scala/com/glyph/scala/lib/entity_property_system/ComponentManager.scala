@@ -1,5 +1,5 @@
 package com.glyph.scala.lib.entity_property_system
-import com.glyph.scala.lib.util.{Pool, Poolable, Indexer}
+import com.glyph.scala.lib.util.{DeprecatedPool, DeprecatedPoolable, Indexer}
 import com.glyph.libgdx.util.ArrayBag
 import com.glyph.scala.Glyph
 import java.util
@@ -12,24 +12,24 @@ class ComponentManager(initialSize:Int){
   val components = new ArrayBag[ArrayBag[Component]](NUMBER_OF_INITIAL_COMPONENT_TYPE)
   val componentToIndex = collection.mutable.HashMap.empty[Manifest[_<:Component],Int]
   val componentIndexer = new Indexer(NUMBER_OF_INITIAL_COMPONENT_TYPE)
-  val componentPools = new ArrayBag[(Manifest[_<:Poolable],Pool[Poolable])](NUMBER_OF_INITIAL_COMPONENT_TYPE)
+  val componentPools = new ArrayBag[(Manifest[_<:DeprecatedPoolable],DeprecatedPool[DeprecatedPoolable])](NUMBER_OF_INITIAL_COMPONENT_TYPE)
 
   def getComponentMapper[T<:Component](implicit typ:Manifest[T]):ComponentMapper[T]={
     new ComponentMapper[T](components.get(componentIndex[T]).asInstanceOf[ArrayBag[T]])
   }
 
-  def componentPool[T<:Component](implicit typ: Manifest[T]):Pool[T] = {
+  def componentPool[T<:Component](implicit typ: Manifest[T]):DeprecatedPool[T] = {
     val cIndex = componentIndex[T]
     var pool = componentPools.get(cIndex)
     val result = if (pool != null){
       pool
     }else{
       Glyph.log("ComponentManager","new ComponentPool at "+cIndex+" for " + typ.runtimeClass.getSimpleName)
-      pool = (typ,new Pool[Poolable].setRuntimeClass(typ.runtimeClass))
+      pool = (typ,new DeprecatedPool[DeprecatedPoolable].setRuntimeClass(typ.runtimeClass))
       componentPools.set(cIndex,pool)
       pool
     }
-    result._2.asInstanceOf[Pool[T]]
+    result._2.asInstanceOf[DeprecatedPool[T]]
   }
   def obtainComponent[T<:Component:Manifest]:T={
     componentPool[T].obtain()
