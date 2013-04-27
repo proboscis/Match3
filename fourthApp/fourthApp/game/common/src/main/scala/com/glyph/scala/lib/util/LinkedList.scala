@@ -13,7 +13,7 @@ class LinkedList [T]{
 
   def foreach(proc:T =>Unit){
     var current = head.next
-    while(current.next != null){
+    while(current != null && current.next != null){
       proc(current.data)
       current = current.next
     }

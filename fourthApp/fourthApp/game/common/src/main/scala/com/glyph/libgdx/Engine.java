@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.glyph.libgdx.asset.AM;
-import com.glyph.scala.game.ScalaGameScene;
+import com.glyph.scala.game.scene.ScalaGameScene;
 
 public class Engine implements ApplicationListener {
     float mTimer = 0.0f;

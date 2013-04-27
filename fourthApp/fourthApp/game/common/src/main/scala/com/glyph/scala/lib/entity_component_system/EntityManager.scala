@@ -49,7 +49,7 @@ class EntityManager(val game: GameContext) {
         list += adapter
       }
     }
-    game.eventManager dispatch new EntityAdded(e)
+    //game.eventManager dispatch new EntityAdded(e)
   }
 
   def removeEntity(e: Entity) {
@@ -62,7 +62,7 @@ class EntityManager(val game: GameContext) {
         }
       }
     }
-    game.eventManager dispatch new EntityRemoved(e)
+    //game.eventManager dispatch new EntityRemoved(e)
   }
 
   /**
