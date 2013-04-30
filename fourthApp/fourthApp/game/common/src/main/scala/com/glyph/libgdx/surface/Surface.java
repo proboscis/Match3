@@ -62,8 +62,9 @@ public class Surface extends Group {
         //		mCamera.viewportWidth = mViewportWidth;
         mCamera.viewportWidth = mResX;
         mCamera.viewportHeight = mResY;
-        mCamera.position.set(leftBottom.add(rightTop).div(2));
-
+        //mCamera.position.add(1,0,0);
+        //mCamera.rotate(1,0,1,0);
+        //mCamera.position.set(leftBottom.add(rightTop).div(2));
     }
 
     @Override
@@ -78,7 +79,7 @@ public class Surface extends Group {
          * start own drawing
          */
         mCamera.update();
-        mBatch.setProjectionMatrix(mCamera.projection);
+        mBatch.setProjectionMatrix(mCamera.combined);
         Gdx.gl.glEnable(GL10.GL_SCISSOR_TEST);
         {
             // limit the drawing surface

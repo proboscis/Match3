@@ -6,23 +6,29 @@ import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.graphics.{FPSLogger, Texture}
 import com.glyph.libgdx.{Scene, Engine}
 import com.glyph.libgdx.surface.Surface
-import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Table}
+import com.badlogic.gdx.scenes.scene2d.ui.{Button, Skin, Table}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.glyph.scala.Glyph.Timer
-import com.glyph.scala.game.ui.UIButton
 import com.glyph.scala.game.event.UIInputEvent
 import com.glyph.scala.lib.engine.EntityPackage
 import com.glyph.scala.game.factory.EntityFactory
 import com.glyph.scala.game._
-import component.{DTransform, Transform}
-import com.glyph.scala.game.interface.renderer.{SimpleRenderer, Renderer}
-import com.glyph.scala.game.interface.{ActorController, DungeonActor}
-import system.{RenderSystem, DungeonSystem}
+import component.Transform
+import system.{CameraSystem, RenderSystem, DungeonSystem}
+import ui.{Touchable, CardTable}
+import com.glyph.libgdx.particle.{SpriteParticle, ParticlePool}
 
 /**
  * a gamescene written in scala
  */
 class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
+  /**
+   * 設計思想：ゲームに必要なモデルクラスはGameContextにまとめるが、
+   * 各モジュールには必要としている情報（インスタンス）のみ渡す様にする。
+   * 疎結合！
+   * GameContextのインスタンスを渡すことは極力避ける。
+   * 渡している場合はリファクタリングできないか検討
+   */
   val game = new GameContext
   val pkg = new EntityPackage("entity")
   val mFpsLogger = new FPSLogger
@@ -30,10 +36,12 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   val mGameSurface = new Surface(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT / 2)
   val mGameStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
   val mUIStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
-
+  val mSpritePool = new ParticlePool(classOf[SpriteParticle],1000)
+  val mCardTable = new CardTable(game.playerDeque,mSpritePool)
   lazy val renderSystem = new RenderSystem(game, pkg)
-  lazy val factory = new EntityFactory(game,pkg)
+  lazy val factory = new EntityFactory(game, pkg)
   lazy val dungeonSystem = new DungeonSystem(game, pkg)
+  lazy val cameraSystem = new CameraSystem(game, mGameSurface.getCamera)
   /**
    * initializer
    */
@@ -41,24 +49,32 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     initViews()
   })
   Glyph.printExecTime("init systems", {
-    renderSystem
-    dungeonSystem
+    game.systems.set(renderSystem)
+    game.systems.set(dungeonSystem)
+    game.systems.set(cameraSystem)
+    game.systems.set(factory)
     mGameSurface.add(renderSystem)
-    factory
   })
   Glyph.printExecTime("init characters", {
-    game.addEntity(factory.character())
+    val c = factory.character()
+    cameraSystem.setTarget(c.getMember[Transform].position)
+    game.addEntity(c)
     game.addEntity(factory.dungeon())
   })
+
+  /**
+   * draw one card
+   */
+  game.playerDeque.drawCard()
 
   def initViews() {
     /**
      * init processors
      */
-    addProcessor(mGameStage)
     addProcessor(mUIStage)
-    addStage(mGameStage)
+    addProcessor(mGameStage)
     addStage(mUIStage)
+    addStage(mGameStage)
 
     /**
      * init skins
@@ -78,15 +94,15 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
      * init buttons
      */
 
-    val right = new UIButton(skin.getDrawable("right"));
+    val right = new Button(skin.getDrawable("right")) with Touchable;
     right.onPressing = () => {
       game.eventManager dispatch new UIInputEvent(UIInputEvent.RIGHT_BUTTON)
     }
-    val left = new UIButton(skin.getDrawable("left"));
+    val left = new Button(skin.getDrawable("left")) with Touchable;
     left.onPressing = () => {
       game.eventManager dispatch new UIInputEvent(UIInputEvent.LEFT_BUTTON)
     }
-    val exec = new UIButton(skin.getDrawable("exec"));
+    val exec = new Button(skin.getDrawable("exec")) with Touchable;
     exec.onPressing = () => {
       game.eventManager dispatch new UIInputEvent(UIInputEvent.EXEC_BUTTON)
     }
@@ -96,12 +112,12 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     t.row();
     t.add(mGameSurface).expandX().height(Engine.VIRTUAL_HEIGHT / 2).fill()
       .colspan(3);
+    t.row().fill();
+    t.add(mCardTable).colspan(3).expand(1, 3);
     t.row();
-    t.add().colspan(3).expand(1, 3);
-    t.row();
-    t.add(left).expand(1, 1);
-    t.add(exec).expand(1, 1);
-    t.add(right).expand(1, 1);
+    t.add(left).expand(1, 1).height(100).fill()
+    t.add(exec).expand(1, 1).fill()
+    t.add(right).expand(1, 1).fill()
     t.debug();
     mUIStage.addActor(t);
     mGameTable.layout();
@@ -111,6 +127,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
 
   override def render(delta: Float) {
     val et = Glyph.execTime {
+      cameraSystem.onRenderFrame()
       super.render(delta)
       mFpsLogger.log();
       mGameStage.act(delta)
