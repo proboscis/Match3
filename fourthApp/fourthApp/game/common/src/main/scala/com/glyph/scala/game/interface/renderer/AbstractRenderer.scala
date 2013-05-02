@@ -1,14 +1,14 @@
 package com.glyph.scala.game.interface.renderer
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.scenes.scene2d.Actor
 
 /**
  * @author glyph
  */
-abstract class AbstractRenderer {
+abstract class AbstractRenderer extends Actor {
   var renderer: Renderer = null
-  def initialize(renderer:Renderer){
+
+  def initialize(renderer: Renderer) {
     this.renderer = renderer
   }
-  def draw(batch:SpriteBatch,parentAlpha:Float)
 }

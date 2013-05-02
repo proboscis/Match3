@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.glyph.libgdx.gl.GLUtil;
 import com.glyph.libgdx.surface.drawable.SurfaceDrawable;
 
 import java.util.LinkedList;
@@ -83,18 +84,21 @@ public class Surface extends Group {
         Gdx.gl.glEnable(GL10.GL_SCISSOR_TEST);
         {
             // limit the drawing surface
-            Gdx.gl.glScissor(mViewportX, mViewportY, mViewportWidth,
+            GLUtil.instance().save();
+            GLUtil.instance().glScissor(mViewportX, mViewportY, mViewportWidth,
                     mViewportHeight);
             Gdx.gl.glViewport(mViewportX, mViewportY, mViewportWidth, mViewportHeight);
             //Gdx.gl.glClearColor(0, 128, 128, 1);
             //Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
             mBatch.begin();
             {
+
                 for (SurfaceDrawable drawable : mDrawables) {
                     drawable.draw(mBatch, parentAlpha);
                 }
             }
             mBatch.end();
+            GLUtil.instance().restore();
             Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }
         Gdx.gl.glDisable(GL10.GL_SCISSOR_TEST);

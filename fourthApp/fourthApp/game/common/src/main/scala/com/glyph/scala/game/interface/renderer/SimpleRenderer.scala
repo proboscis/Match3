@@ -11,7 +11,8 @@ import com.glyph.scala.game.component.Transform
 class SimpleRenderer extends AbstractRenderer{
   lazy val sprite = new Sprite(AM.instance().get[Texture]("data/skeleton.png"))
   lazy val transform = renderer.owner.getMember[Transform]
-  def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+    super.draw(batch,parentAlpha)
     sprite.setPosition(transform.position.x,transform.position.y)
     sprite.setRotation(transform.direction.angle())
     sprite.draw(batch,parentAlpha)

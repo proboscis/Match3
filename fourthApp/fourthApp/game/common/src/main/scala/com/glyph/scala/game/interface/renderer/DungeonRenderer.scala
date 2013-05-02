@@ -13,7 +13,8 @@ class DungeonRenderer extends AbstractRenderer {
   val sprite = new Sprite(AM.instance().get[Texture]("data/tile.png"))
   sprite.setSize(GameConstants.CELL_WIDTH,GameConstants.CELL_HEIGHT)
   lazy val dungeonMap = renderer.owner.getMember[DungeonMap]
-  def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+    super.draw(batch,parentAlpha)
     var i = 0;
     while (i < dungeonMap.map.size) {
       sprite.setPosition(-i * sprite.getWidth, -sprite.getHeight)

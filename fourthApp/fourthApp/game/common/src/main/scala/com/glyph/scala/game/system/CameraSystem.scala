@@ -6,24 +6,27 @@ import com.glyph.scala.Glyph
 import com.glyph.scala.lib.util.Disposable
 import com.glyph.scala.lib.math.Vec2
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.scenes.scene2d.Group
 
 /**
  * @author glyph
  */
-class CameraSystem(context:GameContext,camera:Camera)extends Disposable{
+class CameraSystem(context:GameContext,group:Group)extends Disposable{
   Glyph.log("CameraSystem","construct")
+  var tmp = new Vec2
   var target:Vec2 = null
-  var targetTmp = new Vector3()
+  var pos:Vec2 = new Vec2(group.getX,group.getY)
   def setTarget(tgt:Vec2){
     target = tgt
   }
   def onRenderFrame(){
     if(target != null){
-      camera.position.set(camera.position.lerp(targetTmp.set(target.x,target.y,0),0.1f))
+      tmp.set(-target.x,-target.y).add(group.getWidth/2,group.getHeight/2)
+      pos.set(group.getX,group.getY).lerp(tmp,0.1f)
+      group.setPosition(pos.x,pos.y)
     }
   }
   def dispose() {
     target = null
-    targetTmp = null
   }
 }

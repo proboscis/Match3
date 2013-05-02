@@ -33,15 +33,14 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   val pkg = new EntityPackage("entity")
   val mFpsLogger = new FPSLogger
   val mGameTable = new Table
-  val mGameSurface = new Surface(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT / 2)
   val mGameStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
-  val mUIStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
-  val mSpritePool = new ParticlePool(classOf[SpriteParticle],1000)
-  val mCardTable = new CardTable(game.playerDeque,mSpritePool)
+  //val mUIStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
+  val mSpritePool = new ParticlePool(classOf[SpriteParticle], 1000)
+  val mCardTable = new CardTable(game.playerDeque, mSpritePool)
   lazy val renderSystem = new RenderSystem(game, pkg)
   lazy val factory = new EntityFactory(game, pkg)
   lazy val dungeonSystem = new DungeonSystem(game, pkg)
-  lazy val cameraSystem = new CameraSystem(game, mGameSurface.getCamera)
+  lazy val cameraSystem = new CameraSystem(game, renderSystem.root)
   /**
    * initializer
    */
@@ -49,11 +48,11 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     initViews()
   })
   Glyph.printExecTime("init systems", {
+    renderSystem.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT / 2)
     game.systems.set(renderSystem)
     game.systems.set(dungeonSystem)
     game.systems.set(cameraSystem)
     game.systems.set(factory)
-    mGameSurface.add(renderSystem)
   })
   Glyph.printExecTime("init characters", {
     val c = factory.character()
@@ -65,15 +64,17 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   /**
    * draw one card
    */
-  game.playerDeque.drawCard()
+  for (i <- 0 until 10) {
+    game.playerDeque.drawCard()
+  }
 
   def initViews() {
     /**
      * init processors
      */
-    addProcessor(mUIStage)
+    //addProcessor(mUIStage)
     addProcessor(mGameStage)
-    addStage(mUIStage)
+    //addStage(mUIStage)
     addStage(mGameStage)
 
     /**
@@ -107,20 +108,29 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       game.eventManager dispatch new UIInputEvent(UIInputEvent.EXEC_BUTTON)
     }
 
-    val t = mGameTable;
-    t.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT);
-    t.row();
-    t.add(mGameSurface).expandX().height(Engine.VIRTUAL_HEIGHT / 2).fill()
-      .colspan(3);
-    t.row().fill();
-    t.add(mCardTable).colspan(3).expand(1, 3);
-    t.row();
+
+    val root = new Table
+    root.setSize(Engine.VIRTUAL_WIDTH,Engine.VIRTUAL_HEIGHT)
+    val t = mGameTable
+    t.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT)
+    t.row()
+    t.add(renderSystem).expandX().height(Engine.VIRTUAL_HEIGHT / 2).fill()
+      .colspan(3)
+    t.row().fill()
+    t.add(mCardTable).colspan(3).height(Engine.VIRTUAL_WIDTH / 5 * 1.618f * 2).expand(1, 3)
+    t.row()
     t.add(left).expand(1, 1).height(100).fill()
     t.add(exec).expand(1, 1).fill()
     t.add(right).expand(1, 1).fill()
-    t.debug();
-    mUIStage.addActor(t);
-    mGameTable.layout();
+    t.debug()
+
+    root.debug()
+    root.top()
+    root.add(t)
+    mGameStage.addActor(root)
+
+
+    mGameTable.layout()
   }
 
   val timer = new Timer(1000)
@@ -130,10 +140,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       cameraSystem.onRenderFrame()
       super.render(delta)
       mFpsLogger.log();
-      mGameStage.act(delta)
       Table.drawDebug(mGameStage);
-      Table.drawDebug(mUIStage);
-      mGameSurface.resize()
     }
     timer.repeat {
       val fps: Double = 1.0 / (et * 0.000000001)
@@ -142,4 +149,5 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     }
 
   }
+
 }

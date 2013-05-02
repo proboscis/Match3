@@ -7,20 +7,23 @@ import com.badlogic.gdx.graphics.Texture
 import com.glyph.scala.lib.math.Vec2
 import com.glyph.libgdx.Engine
 import com.glyph.libgdx.particle.{SpriteExplosion, SpriteParticle, ParticlePool}
+import com.glyph.scala.game.card.Card
+import com.badlogic.gdx.math.MathUtils
 
 /**
  * @author glyph
  */
-class CardToken(pool:ParticlePool[SpriteParticle]) extends Actor with Touchable{
-  val sprite = new Sprite(AM.instance().get[Texture]("data/card1.png"))
-  sprite.setSize(Engine.VIRTUAL_WIDTH/5,Engine.VIRTUAL_WIDTH/5)
+class CardToken(val card:Card,pool:ParticlePool[SpriteParticle]) extends Actor with Touchable{
+  val sprite = new Sprite(AM.instance().get[Texture]("data/card"+MathUtils.random(1,10)+".png"))
+  //sprite.setSize(Engine.VIRTUAL_WIDTH/5,Engine.VIRTUAL_WIDTH/5)
   //you must set the actor's size in order to receive touch events
-  setSize(sprite.getWidth,sprite.getHeight)
+  //setSize(sprite.getWidth,sprite.getHeight)
   override def draw(batch: SpriteBatch, parentAlpha: Float){
     super.draw(batch, parentAlpha)
     sprite.setPosition(getX,getY)
     sprite.setRotation(getRotation)
     sprite.setScale(getScaleX,getScaleY)
+    sprite.setSize(getWidth,getHeight)
     sprite.draw(batch,parentAlpha)
   }
   onPressed = (pos:Vec2)=>{

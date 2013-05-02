@@ -1,46 +1,42 @@
 package com.glyph.scala.game.system
 
 import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
-import com.glyph.scala.lib.util.Disposable
-import com.glyph.libgdx.surface.drawable.SurfaceDrawable
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.glyph.scala.lib.util.{Scissor, Disposable}
 import java.util
 import com.glyph.scala.lib.engine.EntityPackage
 import com.glyph.scala.game.interface.renderer.Renderer
 import com.glyph.scala.Glyph
 import com.glyph.scala.game._
+import com.badlogic.gdx.scenes.scene2d.Group
 
 /**
  * @author glyph
  */
-class RenderSystem(context: GameContext, pkg: EntityPackage) extends SurfaceDrawable with Disposable {
+class RenderSystem(context: GameContext, pkg: EntityPackage) extends Group with Disposable with Scissor{
   final val TAG = "RenderSystem"
+  val root = new Group
+  addActor(root)
   context.eventManager += onAddEntity
   context.eventManager += onRemoveEntity
   lazy val entities = new util.LinkedList[Renderer]
   val iRenderer = pkg.getInterfaceIndex[Renderer]
 
-  def zOrder(): Float = 0
-
   Glyph.log("RenderSystem", "construct")
-
-  def draw(batch: SpriteBatch, parentAlpha: Float) {
-    val it = entities.iterator()
-    while (it.hasNext) {
-      it.next().draw(batch, parentAlpha)
-    }
-  }
 
   def onAddEntity(e: EntityAdded): Boolean = {
     if (e.entity.hasInterface(iRenderer)) {
-      entities.add(e.entity.getInterfaceI(iRenderer))
+      val renderer: Renderer = e.entity.getInterfaceI(iRenderer)
+      entities.add(renderer)
+      root.addActor(renderer.delegate)
     }
     false
   }
 
   def onRemoveEntity(e: EntityRemoved): Boolean = {
     if (e.entity.hasInterface(iRenderer)) {
-      entities.remove(e.entity.getInterfaceI(iRenderer))
+      val renderer: Renderer = e.entity.getInterfaceI(iRenderer)
+      entities.remove(renderer)
+      root.removeActor(renderer.delegate)
     }
     false
   }
@@ -48,5 +44,10 @@ class RenderSystem(context: GameContext, pkg: EntityPackage) extends SurfaceDraw
   def dispose() {
     context.eventManager -= onAddEntity
     context.eventManager -= onRemoveEntity
+  }
+
+  override def setSize(width: Float, height: Float) {
+    super.setSize(width, height)
+    root.setSize(width,height)
   }
 }
