@@ -34,7 +34,6 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   val mFpsLogger = new FPSLogger
   val mGameTable = new Table
   val mGameStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
-  //val mUIStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
   val mSpritePool = new ParticlePool(classOf[SpriteParticle], 1000)
   val mCardTable = new CardTable(game.playerDeque, mSpritePool)
   lazy val renderSystem = new RenderSystem(game, pkg)
@@ -59,6 +58,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     cameraSystem.setTarget(c.getMember[Transform].position)
     game.addEntity(c)
     game.addEntity(factory.dungeon())
+
   })
 
   /**
@@ -72,9 +72,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     /**
      * init processors
      */
-    //addProcessor(mUIStage)
     addProcessor(mGameStage)
-    //addStage(mUIStage)
     addStage(mGameStage)
 
     /**

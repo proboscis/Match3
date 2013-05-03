@@ -11,22 +11,28 @@ import com.glyph.scala.game.GameContext
  */
 class EntityFactory(game:GameContext,pkg:EntityPackage) {
   val iTransform = pkg.getMemberIndex[Transform]
+  val iDTransform = pkg.getMemberIndex[DTransform]
+  val iRenderer = pkg.getInterfaceIndex[Renderer]
+  val iDungeonActor = pkg.getInterfaceIndex[DungeonActor]
+  val iActorController = pkg.getInterfaceIndex[ActorController]
+  val iDungeonMap = pkg.getMemberIndex[DungeonMap]
+
   def empty():Entity = {
     pkg.obtain()
   }
   def character():Entity={
     val e = pkg.obtain()
-    e.setMember(new Transform)
-    e.setMember(new DTransform)
-    e.setInterface(new Renderer(new SimpleRenderer))
-    e.setInterface(new DungeonActor)
-    e.setInterface(new ActorController(game))
+    e.setMemberI(iTransform,new Transform)
+    e.setMemberI(iDTransform,new DTransform)
+    e.setInterfaceI(iRenderer, new Renderer(new SimpleRenderer))
+    e.setInterfaceI(iDungeonActor, new DungeonActor)
+    e.setInterfaceI(iActorController,new ActorController(game))
     e
   }
   def dungeon():Entity={
     val e = pkg.obtain()
-    e.setMember(new DungeonMap)
-    e.setInterface(new Renderer(new DungeonRenderer))
+    e.setMemberI(iDungeonMap,new DungeonMap)
+    e.setInterfaceI(iRenderer,new Renderer(new DungeonRenderer))
     e
   }
 }
