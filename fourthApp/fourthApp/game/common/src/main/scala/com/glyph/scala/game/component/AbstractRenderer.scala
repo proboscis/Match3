@@ -1,4 +1,4 @@
-package com.glyph.scala.game.interface.renderer
+package com.glyph.scala.game.component
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 

@@ -13,8 +13,9 @@ import com.glyph.scala.game.event.UIInputEvent
 import com.glyph.scala.lib.engine.EntityPackage
 import com.glyph.scala.game.factory.EntityFactory
 import com.glyph.scala.game._
-import component.Transform
-import system.{CameraSystem, RenderSystem, DungeonSystem}
+import component.{DTransform, Transform}
+import dungeon.DungeonManager
+import system.{CameraSystem, RenderSystem}
 import ui.{Touchable, CardTable}
 import com.glyph.libgdx.particle.{SpriteParticle, ParticlePool}
 
@@ -38,8 +39,9 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   val mCardTable = new CardTable(game.playerDeque, mSpritePool)
   lazy val renderSystem = new RenderSystem(game, pkg)
   lazy val factory = new EntityFactory(game, pkg)
-  lazy val dungeonSystem = new DungeonSystem(game, pkg)
+  lazy val dungeon = new DungeonManager(game, pkg)
   lazy val cameraSystem = new CameraSystem(game, renderSystem.root)
+
   /**
    * initializer
    */
@@ -48,17 +50,26 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   })
   Glyph.printExecTime("init systems", {
     renderSystem.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT / 2)
-    game.systems.set(renderSystem)
-    game.systems.set(dungeonSystem)
-    game.systems.set(cameraSystem)
-    game.systems.set(factory)
+    renderSystem.addRenderer(dungeon.renderer)
+    game.members.set(renderSystem)
+    game.members.set(dungeon)
+    game.members.set(cameraSystem)
+    game.members.set(factory)
   })
   Glyph.printExecTime("init characters", {
-    val c = factory.character()
-    cameraSystem.setTarget(c.getMember[Transform].position)
+    val c = factory.player()
+    cameraSystem.setTarget(c.get[Transform].position)
     game.addEntity(c)
-    game.addEntity(factory.dungeon())
-
+  })
+  Glyph.printExecTime("init", {
+    var i = 0
+    while (i < 20) {
+      val c = factory.character()
+      c.get[DTransform].position = - i * 5
+      c.get[Transform].position.set(- i * 5 * GameConstants.CELL_WIDTH, 0)
+      game.addEntity(c)
+      i += 1
+    }
   })
 
   /**
@@ -108,7 +119,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
 
 
     val root = new Table
-    root.setSize(Engine.VIRTUAL_WIDTH,Engine.VIRTUAL_HEIGHT)
+    root.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT)
     val t = mGameTable
     t.setSize(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT)
     t.row()
@@ -145,7 +156,5 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       Glyph.printTime("elapsed:", et)
       Glyph.log("fps", "%.2f".format(fps));
     }
-
   }
-
 }

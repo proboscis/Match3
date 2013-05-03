@@ -14,24 +14,13 @@ class EntityPackage(val name:String) extends AbstractPool[Entity]{
   val interfaceTable = new Table[Manifest[_],Any]
   protected def createNewInstance(): Entity = new Entity(this)
 
-  def getMemberIndex[T:Manifest]:Int={
+  def getIndex[T:Manifest]:Int={
     memberTable.getIndex(implicitly[Manifest[T]])
   }
-  def getInterfaceIndex[T<:Interface:Manifest]:Int={
-    interfaceTable.getIndex(implicitly[Manifest[T]])
-  }
-
-  def createInterfaceFilter(interests:Manifest[_<:Interface]*):java.util.BitSet={
+  def createFilter(interests:Manifest[_]*):util.BitSet={
     val result = new util.BitSet()
     interests.foreach {
-      man =>result.set(getInterfaceIndex(man))
-    }
-    result
-  }
-  def createMemberFilter(interests:Manifest[_]*):util.BitSet={
-    val result = new util.BitSet()
-    interests.foreach {
-      man =>result.set(getMemberIndex(man))
+      man =>result.set(getIndex(man))
     }
     result
   }

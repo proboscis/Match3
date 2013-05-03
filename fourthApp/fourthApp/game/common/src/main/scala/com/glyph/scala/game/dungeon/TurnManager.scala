@@ -43,6 +43,12 @@ class TurnManager {
   def enqueueReaction(p:TurnProcessor){
     REACTION.enqueueReaction(p)
   }
+  def addProcessor(p:TurnProcessor){
+    processors += p
+  }
+  def removeProcessor(p:TurnProcessor){
+    processors -= p
+  }
 
   /**
    * State classes

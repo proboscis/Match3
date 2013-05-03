@@ -1,4 +1,4 @@
-package com.glyph.scala.game.interface.renderer
+package com.glyph.scala.game.component
 
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
 import com.glyph.libgdx.asset.AM
@@ -10,7 +10,7 @@ import com.glyph.scala.game.component.Transform
  */
 class SimpleRenderer extends AbstractRenderer{
   lazy val sprite = new Sprite(AM.instance().get[Texture]("data/skeleton.png"))
-  lazy val transform = renderer.owner.getMember[Transform]
+  lazy val transform = renderer.owner.get[Transform]
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch,parentAlpha)
     sprite.setPosition(transform.position.x,transform.position.y)
