@@ -8,11 +8,11 @@ import com.glyph.scala.Glyph
 /**
  * @author glyph
  */
-abstract class EntitySystem(game: GameContext, pkg: EntityPackage) {
+abstract class EntitySystem(game: GameContext) {
   game.eventManager += onAddEntity
   game.eventManager += onRemoveEntity
 
-  Glyph.log(manifest[this.type].runtimeClass.getSimpleName,"construct")
+  Glyph.deprecatedLog(manifest[this.type].runtimeClass.getSimpleName,"construct")
   def onAddEntity(e: EntityAdded): Boolean
 
   def onRemoveEntity(e: EntityRemoved): Boolean

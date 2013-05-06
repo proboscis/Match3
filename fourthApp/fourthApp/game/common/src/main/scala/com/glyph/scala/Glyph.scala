@@ -6,21 +6,24 @@ import com.badlogic.gdx.Gdx
 object Glyph {
   val TAG = "com.glyph:"
 
-  val log: (String) => Unit = log(TAG, _: String)
+  val deprecatedLog2: (String) => Unit = deprecatedLog(TAG, _: String)
 
-  def log(tag: String, str: String): Unit = {
+  def deprecatedLog(tag: String, str: String): Unit = {
     Gdx.app.log(TAG + tag, str)
   }
 
+  def log(tag:String)(msg:String){
+    Gdx.app.log(TAG+tag,msg)
+  }
 
   def logTime(tag: String = TAG)(msg: String)(proc: => Unit){
-    log(tag+":"+msg,"=>")
+    deprecatedLog(tag+":"+msg,"=>")
     val time = execTime(proc)
     printTime(tag+":"+msg,time)
   }
 
   def printExecTime(tag: String, func: => Unit): Unit = {
-    Glyph.log(tag, "=> start")
+    Glyph.deprecatedLog(tag, "=> start")
     val prev = System.nanoTime();
     func
     val time = (System.nanoTime() - prev)
@@ -28,7 +31,7 @@ object Glyph {
   }
 
   def printExecTime(func: => Unit): Unit = {
-    Glyph.log("=> start")
+    Glyph.deprecatedLog2("=> start")
     val prev = System.nanoTime();
     func
     val time = (System.nanoTime() - prev)
@@ -37,11 +40,11 @@ object Glyph {
 
   def printTime(tag: String, time: Long) {
     if (time >= 10000000) {
-      Glyph.log(tag, "<= " + time / 1000 / 1000 + " millis");
+      Glyph.deprecatedLog(tag, "<= " + time / 1000 / 1000 + " millis");
     } else if (time >= 10000) {
-      Glyph.log(tag, "<= " + time / 1000 + " nanos");
+      Glyph.deprecatedLog(tag, "<= " + time / 1000 + " nanos");
     } else {
-      Glyph.log(tag, "<= " + time + " micros");
+      Glyph.deprecatedLog(tag, "<= " + time + " micros");
     }
   }
 
@@ -59,10 +62,10 @@ object Glyph {
   }: Long
 
   def printMemoryDiff(tag: String)(f: => Unit) {
-    log(tag + ":memory diff", "" + memoryDiff {
+    deprecatedLog(tag + ":memory diff", "" + memoryDiff {
       f
     })
-    log(tag + ":memory", "" + allocation());
+    deprecatedLog(tag + ":memory", "" + allocation());
   }
 
   def allocation(): Long = {

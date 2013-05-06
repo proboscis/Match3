@@ -11,9 +11,10 @@ import com.glyph.scala.lib.util.TypeInstanceMap
  */
 class GameContext{
   val eventManager = new EventManager()
-  val systems = new TypeInstanceMap
+  val members = new TypeInstanceMap
   val playerDeque = new CardDeque
   def addEntity(e:Entity){
+    e.initialize()
     eventManager.dispatch(new EntityAdded(e))
   }
 

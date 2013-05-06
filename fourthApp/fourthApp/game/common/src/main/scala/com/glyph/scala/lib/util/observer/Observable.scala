@@ -1,6 +1,5 @@
 package com.glyph.scala.lib.util.observer
-
-import collection.mutable.ListBuffer
+import com.glyph.scala.lib.util.LinkedList
 
 /**
  * @author glyph
@@ -8,14 +7,14 @@ import collection.mutable.ListBuffer
 trait Observable[T]{
   this:T=>
   type Callback = (T , Any) => Unit
-  val observers = ListBuffer.empty[Callback]
+  val observers = new LinkedList[Callback]
 
   def register(f: Callback) {
-    observers += f
+    observers push f
   }
 
   def unregister(f: Callback) {
-    observers -= f
+    observers remove f
   }
 
   protected def notifyObservers() {

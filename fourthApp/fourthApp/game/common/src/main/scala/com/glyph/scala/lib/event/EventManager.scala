@@ -4,6 +4,7 @@ import collection.mutable.ListBuffer
 import com.glyph.scala.Glyph
 import annotation.tailrec
 import com.glyph.scala.lib.util.LinkedList
+import collection.mutable
 
 /**
  * eventmanager with function registers
@@ -12,7 +13,7 @@ class EventManager(final val TAG:String = "EventManager") {
   private val DEBUG = false
   val listenerMap = collection.mutable.HashMap.empty[Manifest[_], ListBuffer[Any]]
   var callDepth = 0
-  private val children = new LinkedList[EventManager]
+  private val children = mutable.ListBuffer[EventManager]()
 
   /**
    * add callback
@@ -25,13 +26,13 @@ class EventManager(final val TAG:String = "EventManager") {
     val list = listenerMap get typ match {
       case Some(x) => x
       case None => {
-        if(DEBUG)Glyph.log(TAG, "create new list for:" + typeStr[T])
+        if(DEBUG)Glyph.deprecatedLog(TAG, "create new list for:" + typeStr[T])
         val newList = ListBuffer.empty[Any]
         listenerMap(typ) = newList
         newList
       }
     }
-    if(DEBUG) Glyph.log(TAG, "attached callback to:" + typeStr[T])
+    if(DEBUG) Glyph.deprecatedLog(TAG, "attached callback to:" + typeStr[T])
     list += func
   }
 
@@ -46,9 +47,9 @@ class EventManager(final val TAG:String = "EventManager") {
     listenerMap get typ match {
       case Some(list) => {
         list -= func
-        if(DEBUG) Glyph.log(TAG, "successfully removed callback from:" + typeStr[T])
+        if(DEBUG) Glyph.deprecatedLog(TAG, "successfully removed callback from:" + typeStr[T])
       }
-      case _ => if(DEBUG) Glyph.log(TAG, "failed to remove callback from:" + typeStr[T])
+      case _ => if(DEBUG) Glyph.deprecatedLog(TAG, "failed to remove callback from:" + typeStr[T])
     }
   }
 
@@ -105,7 +106,7 @@ class EventManager(final val TAG:String = "EventManager") {
     }
     depth += ">"
     // depth = ("=" * callDepth) + ">"
-    Glyph.log(TAG, depth + typeStr[T])
+    Glyph.deprecatedLog(TAG, depth + typeStr[T])
     listenerMap get typ match {
       case Some(listeners) => {
         @tailrec
@@ -116,19 +117,19 @@ class EventManager(final val TAG:String = "EventManager") {
             val proceed = callback(event)
             val funcType = Manifest.classType(callback.getClass)
             if (proceed) {
-              Glyph.log(TAG, depth + "event handled by:" + funcType.runtimeClass)
+              Glyph.deprecatedLog(TAG, depth + "event handled by:" + funcType.runtimeClass)
               return
             } else {
-              Glyph.log(TAG, depth + "event not handled by:" + funcType.runtimeClass)
+              Glyph.deprecatedLog(TAG, depth + "event not handled by:" + funcType.runtimeClass)
               loop(it)
             }
           } else {
-            Glyph.log(TAG, depth + "event is passed to all listeners:" + typeStr[T])
+            Glyph.deprecatedLog(TAG, depth + "event is passed to all listeners:" + typeStr[T])
           }
         }
         loop(listeners.iterator)
       }
-      case None => Glyph.log(TAG, depth + "no listener:" + typeStr[T])
+      case None => Glyph.deprecatedLog(TAG, depth + "no listener:" + typeStr[T])
     }
     callDepth -= 1
   }
@@ -137,9 +138,9 @@ class EventManager(final val TAG:String = "EventManager") {
     typ.runtimeClass.getSimpleName
   }
   def addChild(manager:EventManager){
-    children.push(manager)
+    children += manager
   }
   def removeChild(manager:EventManager){
-    children.remove(manager)
+    children -= manager
   }
 }

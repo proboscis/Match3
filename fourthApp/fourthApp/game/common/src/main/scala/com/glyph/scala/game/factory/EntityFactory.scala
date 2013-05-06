@@ -1,32 +1,38 @@
 package com.glyph.scala.game.factory
 
 import com.glyph.scala.lib.engine.{Entity, EntityPackage}
-import com.glyph.scala.game.component.{DungeonMap, DTransform, Transform}
-import com.glyph.scala.game.interface.renderer.{DungeonRenderer, SimpleRenderer, Renderer}
-import com.glyph.scala.game.interface.{ActorController, DungeonActor}
+import com.glyph.scala.game.component._
 import com.glyph.scala.game.GameContext
+import controller.ActorController
+import dungeon_actor.{BaseActor, DungeonActor}
+import renderer.{Renderer, SimpleRenderer}
+import update.Update
+import value.{Transform, DTransform}
 
 /**
  * @author glyph
  */
 class EntityFactory(game:GameContext,pkg:EntityPackage) {
-  val iTransform = pkg.getMemberIndex[Transform]
+  val iTransform = pkg.getIndex[Transform]
+  val iDTransform = pkg.getIndex[DTransform]
+  val iRenderer = pkg.getIndex[Renderer]
+  val iDungeonActor = pkg.getIndex[DungeonActor]
+  val iActorController = pkg.getIndex[ActorController]
+  val iUpdate = pkg.getIndex[Update]
+
   def empty():Entity = {
     pkg.obtain()
   }
   def character():Entity={
     val e = pkg.obtain()
-    e.setMember(new Transform)
-    e.setMember(new DTransform)
-    e.setInterface(new Renderer(new SimpleRenderer))
-    e.setInterface(new DungeonActor)
-    e.setInterface(new ActorController(game))
+    e.setI(iTransform,new Transform)
+    e.setI(iDTransform,new DTransform)
+    e.setI(iRenderer, new Renderer(e) with SimpleRenderer)
+    e.setI(iDungeonActor, new DungeonActor(e) with BaseActor)
     e
   }
-  def dungeon():Entity={
-    val e = pkg.obtain()
-    e.setMember(new DungeonMap)
-    e.setInterface(new Renderer(new DungeonRenderer))
+  def player():Entity= {
+    val e = character()
     e
   }
 }

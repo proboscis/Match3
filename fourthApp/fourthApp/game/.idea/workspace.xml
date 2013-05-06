@@ -82,6 +82,7 @@
     <file path="/SpriteExplosion.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365252517316" ignored="false" />
     <file path="/Main.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365936322452" ignored="false" />
     <file path="/Engine.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365255283988" ignored="false" />
+<<<<<<< HEAD
     <file path="$PROJECT_DIR$/android/target/java/com/glyph/Manifest.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365260581936" ignored="false" />
     <file path="/SBT" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366517387126" ignored="false" />
     <file path="/Util.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365263163530" ignored="false" />
@@ -94,33 +95,47 @@
     <file path="/Renderer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365419391694" ignored="false" />
     <file path="/Entity.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366564133877" ignored="false" />
     <file path="/Component.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366210429281" ignored="false" />
+=======
+    <file path="/SBT" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367844706109" ignored="false" />
+    <file path="/Util.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365263163530" ignored="false" />
+    <file path="/ScalaGameScene.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367853555749" ignored="false" />
+    <file path="/a.dummy" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367849108344" ignored="false" />
+    <file path="/EventManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367764104675" ignored="false" />
+    <file path="/EntityContainer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365954063786" ignored="false" />
+    <file path="/DungeonActor.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367848395783" ignored="false" />
+    <file path="/GameContext.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367769719705" ignored="false" />
+    <file path="/Renderer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367759427184" ignored="false" />
+    <file path="/Entity.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367832419436" ignored="false" />
+    <file path="/Component.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365953947871" ignored="false" />
+>>>>>>> 202899e
     <file path="/Transform.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365342770246" ignored="false" />
     <file path="/GameScene.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365420541637" ignored="false" />
     <file path="/RendererComponent.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365419381906" ignored="false" />
-    <file path="/RenderSystem.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365418662994" ignored="false" />
+    <file path="/RenderSystem.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367594760391" ignored="false" />
     <file path="/RendererAdapter.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365351188481" ignored="false" />
     <file path="/System.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365418673844" ignored="false" />
-    <file path="/SimpleRenderer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365419413265" ignored="false" />
+    <file path="/SimpleRenderer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367823152449" ignored="false" />
     <file path="/GameRenderer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365419347106" ignored="false" />
     <file path="/Vec2.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365991956152" ignored="false" />
     <file path="/Surface.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365940109130" ignored="false" />
     <file path="/UIInputEvent.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365945577970" ignored="false" />
     <file path="/GameInputEvent.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365943266655" ignored="false" />
     <file path="/Controller.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365946116560" ignored="false" />
-    <file path="/EntityFactory.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366039055362" ignored="false" />
+    <file path="/EntityFactory.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367745315940" ignored="false" />
     <file path="/DungeonEvents.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365946091133" ignored="false" />
     <file path="/EntityEvents.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365952129178" ignored="false" />
     <file path="/DungeonGame.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365954119084" ignored="false" />
     <file path="/EntityEventReceiver.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365953987460" ignored="false" />
-    <file path="/Glyph.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365990789267" ignored="false" />
+    <file path="/Glyph.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367843295609" ignored="false" />
     <file path="/build.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1365993044420" ignored="false" />
     <file path="/DungeonSystem.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366035270518" ignored="false" />
-    <file path="/ActorController.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366038839324" ignored="false" />
+    <file path="/ActorController.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367822337649" ignored="false" />
     <file path="/AbstractController.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366038778960" ignored="false" />
     <file path="/PlayerController.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366039036940" ignored="false" />
     <file path="/ControllerSystem.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366039804523" ignored="false" />
     <file path="/EntityManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366207374046" ignored="false" />
     <file path="/TagAdapter.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366039579967" ignored="false" />
+<<<<<<< HEAD
     <file path="/Test.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366473570301" ignored="false" />
     <file path="/World.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366207074733" ignored="false" />
     <file path="/testComponent.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366207942034" ignored="false" />
@@ -137,6 +152,36 @@
     <file path="C:/Documents and Settings/glyph/Documents/sbt/first/gitRepo/fourthApp/fourthApp/game/common/src/main/scala/com/glyph/scala/test/MacroTest.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366517378055" ignored="false" />
     <file path="/TableTest.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366561808713" ignored="false" />
     <file path="/LinkedList.java" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1366561141034" ignored="false" />
+=======
+    <file path="/DungeonManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367853504825" ignored="false" />
+    <file path="/TurnManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367856104672" ignored="false" />
+    <file path="/State.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367498419583" ignored="false" />
+    <file path="/TurnProcessor.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367848010543" ignored="false" />
+    <file path="/DTransform.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367589565890" ignored="false" />
+    <file path="/Dungeon.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367591418239" ignored="false" />
+    <file path="/DungeonData.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367591053145" ignored="false" />
+    <file path="/DungeonRenderer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367594808652" ignored="false" />
+    <file path="/Update.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367832618644" ignored="false" />
+    <file path="/AbstractActor.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367745637314" ignored="false" />
+    <file path="/AbstractRenderer.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367744007539" ignored="false" />
+    <file path="/ActorState.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367745826679" ignored="false" />
+    <file path="/BaseActor.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367853679801" ignored="false" />
+    <file path="/UpdateSystem.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367853586448" ignored="false" />
+    <file path="/LinkedList.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367851424096" ignored="false" />
+    <file path="/Scala Console" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367766099673" ignored="false" />
+    <file path="/Observable.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367854723481" ignored="false" />
+    <file path="/Dispatcher.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367837320227" ignored="false" />
+    <file path="/CardTable.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367824294166" ignored="false" />
+    <file path="/CardDeque.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367770130581" ignored="false" />
+    <file path="/Updatable.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367849010425" ignored="false" />
+    <file path="/UpdateQueue.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367849021971" ignored="false" />
+    <file path="/AI.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367832476019" ignored="false" />
+    <file path="/WorldSystem.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367833564269" ignored="false" />
+    <file path="/ArrayMap.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367834326879" ignored="false" />
+    <file path="/AnimationManager.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367853364641" ignored="false" />
+    <file path="/Callback.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367850170681" ignored="false" />
+    <file path="/Animation.scala" changelist="dbad918f-dc98-4008-8276-c25d313602b0" time="1367850905578" ignored="false" />
+>>>>>>> 202899e
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -144,6 +189,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="Commander">
+    <leftPanel url="file://$PROJECT_DIR$/android/src" />
+    <rightPanel />
+    <splitter proportion="0.58513933" />
+  </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
   </component>
@@ -151,7 +201,11 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
+<<<<<<< HEAD
     <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+=======
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+>>>>>>> 202899e
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -186,7 +240,11 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
+<<<<<<< HEAD
     <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+=======
+    <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+>>>>>>> 202899e
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -197,7 +255,119 @@
   <component name="FileEditorManager">
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
+        <splitter split-orientation="vertical" split-proportion="0.5">
+          <split-first>
+            <leaf>
+              <file leaf-file-name="CardTable.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ui/CardTable.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="25" column="43" selection-start="1045" selection-end="1045" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="Actable.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/actor/Actable.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="8" column="9" selection-start="163" selection-end="163" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="DungeonActor.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/dungeon_actor/DungeonActor.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="16" column="15" selection-start="657" selection-end="657" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="Dispatcher.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/event/Dispatcher.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="25" column="6" selection-start="685" selection-end="685" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="Glyph.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="20" column="29" selection-start="457" selection-end="457" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="TurnManager.scala" pinned="false" current="true" current-in-tab="true">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/TurnManager.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="9" column="18" selection-start="270" selection-end="270" vertical-scroll-proportion="0.23076923">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="DungeonRenderer.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/DungeonRenderer.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="11" column="6" selection-start="290" selection-end="290" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="TurnProcessor.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/TurnProcessor.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="5" column="21" selection-start="84" selection-end="84" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="Animation.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/animation/Animation.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="13" column="0" selection-start="259" selection-end="259" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+            </leaf>
+          </split-first>
+          <split-second>
+            <leaf>
+              <file leaf-file-name="EntityFactory.scala" pinned="false" current="false" current-in-tab="false">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/factory/EntityFactory.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="13" column="3" selection-start="383" selection-end="383" vertical-scroll-proportion="0.0">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+              <file leaf-file-name="Updatable.scala" pinned="false" current="false" current-in-tab="true">
+                <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/update/Updatable.scala">
+                  <provider selected="true" editor-type-id="text-editor">
+                    <state line="6" column="25" selection-start="109" selection-end="109" vertical-scroll-proportion="0.22030237">
+                      <folding />
+                    </state>
+                  </provider>
+                </entry>
+              </file>
+            </leaf>
+          </split-second>
+        </splitter>
+      </split-first>
+      <split-second>
         <leaf>
+<<<<<<< HEAD
           <file leaf-file-name="ScalaGameScene.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala">
               <provider selected="true" editor-type-id="text-editor">
@@ -229,22 +399,38 @@
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala">
               <provider selected="true" editor-type-id="text-editor">
                 <state line="13" column="0" selection-start="223" selection-end="223" vertical-scroll-proportion="0.0">
+=======
+          <file leaf-file-name="BaseActor.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/dungeon_actor/BaseActor.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="23" column="26" selection-start="595" selection-end="595" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
+<<<<<<< HEAD
           <file leaf-file-name="DataTable.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/table/DataTable.scala">
               <provider selected="true" editor-type-id="text-editor">
                 <state line="39" column="7" selection-start="950" selection-end="950" vertical-scroll-proportion="0.0">
                   <folding>
                     <element signature="e#40#91#0" expanded="true" />
+=======
+          <file leaf-file-name="DungeonManager.scala" pinned="false" current="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/DungeonManager.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="16" column="25" selection-start="624" selection-end="624" vertical-scroll-proportion="0.30289534">
+                  <folding>
+                    <element signature="e#38#71#0" expanded="true" />
+>>>>>>> 202899e
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
+<<<<<<< HEAD
           <file leaf-file-name="ScalaGameWorld.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameWorld.scala">
               <provider selected="true" editor-type-id="text-editor">
@@ -312,61 +498,112 @@
                   <folding>
                     <element signature="e#57#85#0" expanded="true" />
                   </folding>
+=======
+          <file leaf-file-name="ScalaGameScene.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/scene/ScalaGameScene.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="132" column="24" selection-start="4237" selection-end="4237" vertical-scroll-proportion="0.0">
+                  <folding />
+>>>>>>> 202899e
                 </state>
               </provider>
             </entry>
           </file>
+<<<<<<< HEAD
           <file leaf-file-name="LinkedList.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/LinkedList.java">
               <provider selected="true" editor-type-id="text-editor">
                 <state line="17" column="26" selection-start="440" selection-end="440" vertical-scroll-proportion="0.0">
+=======
+          <file leaf-file-name="UpdateSystem.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/UpdateSystem.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="11" column="16" selection-start="401" selection-end="401" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
+<<<<<<< HEAD
           <file leaf-file-name="Main.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/desktop/src/main/scala/Main.scala">
               <provider selected="true" editor-type-id="text-editor">
                 <state line="0" column="17" selection-start="17" selection-end="17" vertical-scroll-proportion="0.0">
                   <folding>
                     <element signature="e#19#59#0" expanded="true" />
+=======
+          <file leaf-file-name="AnimationManager.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/animation/AnimationManager.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="15" column="29" selection-start="485" selection-end="485" vertical-scroll-proportion="0.0">
+                  <folding>
+                    <element signature="e#48#99#0" expanded="true" />
+>>>>>>> 202899e
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
+<<<<<<< HEAD
           <file leaf-file-name="EventManager.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/event/EventManager.scala">
               <provider selected="true" editor-type-id="text-editor">
                 <state line="98" column="10" selection-start="2341" selection-end="2341" vertical-scroll-proportion="0.0">
+=======
+          <file leaf-file-name="LinkedList.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/LinkedList.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="5" column="16" selection-start="90" selection-end="90" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
+<<<<<<< HEAD
           <file leaf-file-name="World.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/World.scala">
               <provider selected="true" editor-type-id="text-editor">
                 <state line="51" column="0" selection-start="1424" selection-end="1424" vertical-scroll-proportion="0.0">
+=======
+          <file leaf-file-name="Observable.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/observer/Observable.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="18" column="0" selection-start="338" selection-end="338" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
+<<<<<<< HEAD
           <file leaf-file-name="ComponentManager.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/ComponentManager.scala">
               <provider selected="true" editor-type-id="text-editor">
                 <state line="59" column="41" selection-start="2130" selection-end="2130" vertical-scroll-proportion="0.0">
+=======
+          <file leaf-file-name="AbstractPool.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/pool/AbstractPool.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="7" column="15" selection-start="120" selection-end="120" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
+<<<<<<< HEAD
           <file leaf-file-name="EntityFactory.scala" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/EntityFactory.scala">
               <provider selected="true" editor-type-id="text-editor">
                 <state line="7" column="6" selection-start="132" selection-end="132" vertical-scroll-proportion="0.0">
+=======
+          <file leaf-file-name="UpdateQueue.scala" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/update/UpdateQueue.scala">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="24" column="1" selection-start="562" selection-end="562" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
                   <folding />
                 </state>
               </provider>
@@ -381,9 +618,17 @@
       <setting name="OPEN_NEW_TAB" value="false" />
     </FindUsagesManager>
   </component>
+  <component name="GradleLocalSettings">
+    <option name="expandStates">
+      <map>
+        <entry key="game" value="true" />
+      </map>
+    </option>
+  </component>
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/ComponentManager.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/table/Column.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/ArrayBag.java" />
@@ -400,8 +645,29 @@
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameScene.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/TableTest.scala" />
         <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/test/Test.scala" />
+=======
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/Glyph.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/TurnProcessor.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/dungeon_actor/DungeonActor.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/update/Updatable.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/update/UpdateQueue.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/actor/Actable.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/callback/Callback.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/LinkedList.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/animation/Animation.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/animation/AnimationManager.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/scene/ScalaGameScene.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/UpdateSystem.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/dungeon_actor/BaseActor.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/DungeonManager.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/observer/Observable.scala" />
+        <option value="$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/TurnManager.scala" />
+>>>>>>> 202899e
       </list>
     </option>
+  </component>
+  <component name="MavenProjectNavigator">
+    <treeState />
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="54" />
@@ -435,16 +701,14 @@
       <sortByType />
     </navigator>
     <panes>
+<<<<<<< HEAD
       <pane id="PackagesPane">
         <subPane>
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="game" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
+=======
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -459,6 +723,49 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="desktop" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="desktop" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+>>>>>>> 202899e
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+<<<<<<< HEAD
+=======
+            <PATH_ELEMENT>
               <option name="myItemId" value="common" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -482,6 +789,48 @@
               <option name="myItemId" value="scala" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+>>>>>>> 202899e
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="common" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="glyph" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+<<<<<<< HEAD
+=======
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="util" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+>>>>>>> 202899e
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -513,6 +862,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+<<<<<<< HEAD
               <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -553,6 +903,18 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="Test.scala" />
               <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+=======
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="util" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="update" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+>>>>>>> 202899e
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -586,6 +948,17 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="lib" />
+<<<<<<< HEAD
+=======
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="util" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="observer" />
+>>>>>>> 202899e
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -620,10 +993,21 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="lib" />
+<<<<<<< HEAD
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="entity_property_system" />
+=======
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="util" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="callback" />
+>>>>>>> 202899e
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -658,6 +1042,7 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="lib" />
+<<<<<<< HEAD
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -683,19 +1068,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="glyph" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="game" />
+=======
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -724,10 +1097,94 @@
               <option name="myItemId" value="glyph" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+>>>>>>> 202899e
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+<<<<<<< HEAD
+              <option name="myItemId" value="glyph" />
+=======
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="common" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+>>>>>>> 202899e
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+<<<<<<< HEAD
+              <option name="myItemId" value="game" />
+=======
+              <option name="myItemId" value="glyph" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scene" />
+>>>>>>> 202899e
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="common" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="glyph" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+<<<<<<< HEAD
             <PATH_ELEMENT>
               <option name="myItemId" value="libgdx" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+=======
+>>>>>>> 202899e
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -746,6 +1203,7 @@
               <option name="myItemId" value="main" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+<<<<<<< HEAD
             <PATH_ELEMENT>
               <option name="myItemId" value="scala" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
@@ -762,6 +1220,8 @@
               <option name="myItemId" value="util" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+=======
+>>>>>>> 202899e
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -772,14 +1232,6 @@
               <option name="myItemId" value="common" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -787,7 +1239,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
+              <option name="myItemId" value="android" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -803,7 +1255,11 @@
     <property name="OverrideImplement.combined" value="false" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
+<<<<<<< HEAD
     <property name="options.lastSelected" value="preferences.keymap" />
+=======
+    <property name="options.lastSelected" value="editor.preferences.import" />
+>>>>>>> 202899e
     <property name="MemberChooser.sorted" value="false" />
     <property name="recentsLimit" value="5" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -813,9 +1269,9 @@
     <property name="restartRequiresConfirmation" value="true" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.searchVisible" value="true" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -831,6 +1287,21 @@
     </key>
   </component>
   <component name="RunManager" selected="Application.Desktop">
+    <configuration default="false" name="Scala Console" type="ScalaScriptConsoleRunConfiguration" factoryName="Scala Console" temporary="true">
+      <module name="common" />
+      <setting name="vmparams4" value="-Djline.terminal=NONE" />
+      <setting name="consoleArgs" value="" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m" />
@@ -861,6 +1332,7 @@
       <setting name="workingDirectory" value="$PROJECT_DIR$" />
       <method />
     </configuration>
+<<<<<<< HEAD
     <configuration default="true" type="Specs2RunConfiguration" factoryName="Specs2">
       <module name="" />
       <setting name="path" value="" />
@@ -874,25 +1346,14 @@
       <setting name="showProgressMessages" value="true" />
       <method />
     </configuration>
+=======
+>>>>>>> 202899e
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
-      <method />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
@@ -920,6 +1381,19 @@
       <envs />
       <properties />
       <listeners />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -1015,9 +1489,15 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <list size="1">
+    <list size="2">
       <item index="0" class="java.lang.String" itemvalue="Application.Desktop" />
+      <item index="1" class="java.lang.String" itemvalue="Scala Console.Scala Console" />
     </list>
+    <recent_temporary>
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="Scala Console.Scala Console" />
+      </list>
+    </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
       <Port>5050</Port>
@@ -1075,26 +1555,39 @@
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32966584" sideWeight="0.6732877" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32945207" sideWeight="0.49837002" order="1" side_tool="false" content_ui="tabs" />
+<<<<<<< HEAD
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.48533008" order="12" side_tool="false" content_ui="tabs" />
+=======
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24979626" sideWeight="0.6712329" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.4820701" order="12" side_tool="false" content_ui="tabs" />
+>>>>>>> 202899e
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.49185005" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32945207" sideWeight="0.5590872" order="8" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.5150774" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32534248" sideWeight="0.41483292" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" weight="0.32945207" sideWeight="0.49348003" order="11" side_tool="false" content_ui="tabs" x="-1331" y="898" width="1211" height="481" />
+      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" weight="0.32945207" sideWeight="0.49348003" order="11" side_tool="false" content_ui="tabs" x="-1386" y="907" width="1300" height="696" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32945207" sideWeight="0.49674" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32966584" sideWeight="0.6732877" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+<<<<<<< HEAD
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1193969" sideWeight="0.6726027" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32739726" sideWeight="0.4380603" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+=======
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1193969" sideWeight="0.6732877" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24979626" sideWeight="0.6732877" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32671234" sideWeight="0.4364303" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+>>>>>>> 202899e
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -1158,29 +1651,57 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/ScalaGameWorld.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="7" column="6" selection-start="118" selection-end="118" vertical-scroll-proportion="0.0">
+=======
+    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.0-sources.jar!/scala/collection/TraversableOnce.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="102" column="6" selection-start="4378" selection-end="4378" vertical-scroll-proportion="0.3325967">
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/dungeon_actor/DungeonActor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="15" selection-start="657" selection-end="657" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
+          <folding />
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/table/DataTable.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="7" selection-start="950" selection-end="950" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="e#40#91#0" expanded="true" />
+=======
+    <entry file="file://$PROJECT_DIR$/android/src/main/scala/Main.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="36" selection-start="455" selection-end="455" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#19#43#0" expanded="true" />
+>>>>>>> 202899e
           </folding>
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/ComponentManager.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="59" column="41" selection-start="2130" selection-end="2130" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/UpdateSystem.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="16" selection-start="401" selection-end="401" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/desktop/src/main/scala/Main.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="17" selection-start="17" selection-end="17" vertical-scroll-proportion="0.0">
@@ -1193,52 +1714,101 @@
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/Entity.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="29" column="0" selection-start="588" selection-end="588" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/WorldSystem.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="34" selection-start="523" selection-end="523" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/system/CameraSystem.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="5" selection-start="814" selection-end="814" vertical-scroll-proportion="0.37037036">
+>>>>>>> 202899e
+          <folding />
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/ArrayStack.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="23" column="35" selection-start="535" selection-end="535" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/update/Updatable.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="25" selection-start="109" selection-end="109" vertical-scroll-proportion="0.22030237">
+>>>>>>> 202899e
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/Component.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="27" column="0" selection-start="487" selection-end="487" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/animation/Animation.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="259" selection-end="259" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_property_system/GameSystem.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="42" column="6" selection-start="933" selection-end="933" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/scene/ScalaGameScene.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="132" column="24" selection-start="4237" selection-end="4237" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/ArrayBag.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="41" column="28" selection-start="960" selection-end="960" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/component/dungeon_actor/BaseActor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="26" selection-start="595" selection-end="595" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Entity.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="10" column="0" selection-start="172" selection-end="172" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/DungeonRenderer.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="6" selection-start="290" selection-end="290" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Component.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="9" column="0" selection-start="110" selection-end="110" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/util/observer/Observable.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="18" column="0" selection-start="338" selection-end="338" vertical-scroll-proportion="0.0">
+>>>>>>> 202899e
           <folding />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/lib/entity_component_interface_system/Interface.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="9" column="0" selection-start="110" selection-end="110" vertical-scroll-proportion="0.0">
@@ -1265,6 +1835,36 @@
     <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/libgdx/util/LinkedList.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="17" column="26" selection-start="440" selection-end="440" vertical-scroll-proportion="0.0">
+=======
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/animation/AnimationManager.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="29" selection-start="485" selection-end="485" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#48#99#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/DungeonManager.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="25" selection-start="624" selection-end="624" vertical-scroll-proportion="0.30289534">
+          <folding>
+            <element signature="e#38#71#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/TurnProcessor.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="21" selection-start="84" selection-end="84" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/scala/com/glyph/scala/game/dungeon/TurnManager.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="18" selection-start="270" selection-end="270" vertical-scroll-proportion="0.23076923">
+>>>>>>> 202899e
           <folding />
         </state>
       </provider>

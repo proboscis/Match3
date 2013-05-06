@@ -9,6 +9,7 @@ import com.glyph.libgdx.Engine
 import com.glyph.libgdx.particle.{SpriteExplosion, SpriteParticle, ParticlePool}
 import com.glyph.scala.game.card.Card
 import com.badlogic.gdx.math.MathUtils
+import com.glyph.scala.lib.util.actor.Touchable
 
 /**
  * @author glyph
@@ -29,7 +30,6 @@ class CardToken(val card:Card,pool:ParticlePool[SpriteParticle]) extends Actor w
   onPressed = (pos:Vec2)=>{
     getParent.addActor(new SpriteExplosion(sprite,pool))
     remove()
-    println("removed")
     true
   }
 }
