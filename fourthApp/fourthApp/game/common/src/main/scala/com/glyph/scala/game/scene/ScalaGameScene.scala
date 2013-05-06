@@ -5,7 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.graphics.{FPSLogger, Texture}
 import com.glyph.libgdx.{Scene, Engine}
-import com.glyph.libgdx.surface.Surface
 import com.badlogic.gdx.scenes.scene2d.ui.{Button, Skin, Table}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.glyph.scala.Glyph.Timer
@@ -18,13 +17,14 @@ import component.dungeon_actor.DungeonActor
 import component.value.{Transform, DTransform}
 import dungeon.DungeonManager
 import system.{WorldSystem, UpdateSystem, CameraSystem, RenderSystem}
-import ui.{CardTable}
 import com.glyph.libgdx.particle.{SpriteParticle, ParticlePool}
 import com.glyph.scala.lib.util.actor.Touchable
+import ui.CardTable
 
 /**
  * a gamescene written in scala
  */
+
 class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   /**
    * 設計思想：ゲームに必要なモデルクラスはGameContextにまとめるが、
