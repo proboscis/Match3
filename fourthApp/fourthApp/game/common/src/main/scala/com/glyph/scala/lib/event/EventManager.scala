@@ -3,15 +3,16 @@ package com.glyph.scala.lib.event
 import collection.mutable.ListBuffer
 import com.glyph.scala.Glyph
 import annotation.tailrec
+import com.glyph.scala.lib.util.LinkedList
 
 /**
  * eventmanager with function registers
  */
-class EventManager {
+class EventManager(final val TAG:String = "EventManager") {
   private val DEBUG = false
-  private val TAG = "EventManager"
   val listenerMap = collection.mutable.HashMap.empty[Manifest[_], ListBuffer[Any]]
   var callDepth = 0
+  private val children = new LinkedList[EventManager]
 
   /**
    * add callback
@@ -67,6 +68,9 @@ class EventManager {
       } else {
         onlyDispatch(event)
       }
+    }
+    children.foreach{
+      _.dispatch[T](event)
     }
   }
 
@@ -131,5 +135,11 @@ class EventManager {
 
   def typeStr[T](implicit typ: Manifest[T]): String = {
     typ.runtimeClass.getSimpleName
+  }
+  def addChild(manager:EventManager){
+    children.push(manager)
+  }
+  def removeChild(manager:EventManager){
+    children.remove(manager)
   }
 }

@@ -6,13 +6,20 @@ import com.badlogic.gdx.Gdx
 object Glyph {
   val TAG = "com.glyph:"
 
-  val log:(String)=>Unit = log(TAG,_:String)
+  val log: (String) => Unit = log(TAG, _: String)
 
-  def log(tag: String, str: String):Unit = {
+  def log(tag: String, str: String): Unit = {
     Gdx.app.log(TAG + tag, str)
   }
 
-  def printExecTime(tag: String, func: => Unit):Unit={
+
+  def logTime(tag: String = TAG)(msg: String)(proc: => Unit){
+    log(tag+":"+msg,"=>")
+    val time = execTime(proc)
+    printTime(tag+":"+msg,time)
+  }
+
+  def printExecTime(tag: String, func: => Unit): Unit = {
     Glyph.log(tag, "=> start")
     val prev = System.nanoTime();
     func
@@ -20,7 +27,7 @@ object Glyph {
     printTime(tag, time);
   }
 
-  def printExecTime(func: => Unit) :Unit={
+  def printExecTime(func: => Unit): Unit = {
     Glyph.log("=> start")
     val prev = System.nanoTime();
     func
@@ -30,11 +37,11 @@ object Glyph {
 
   def printTime(tag: String, time: Long) {
     if (time >= 10000000) {
-      Glyph.log(tag, "<= " + time / 1000 / 1000 + "millis");
+      Glyph.log(tag, "<= " + time / 1000 / 1000 + " millis");
     } else if (time >= 10000) {
-      Glyph.log(tag, "<= " + time / 1000 + "nanos");
+      Glyph.log(tag, "<= " + time / 1000 + " nanos");
     } else {
-      Glyph.log(tag, "<= " + time + "micros");
+      Glyph.log(tag, "<= " + time + " micros");
     }
   }
 
@@ -45,21 +52,21 @@ object Glyph {
   }
 
   def memoryDiff(func: => Unit) = {
-    val prevMem:Long =  allocation()
+    val prevMem: Long = allocation()
     func
-    val currMem:Long = allocation()
+    val currMem: Long = allocation()
     currMem - prevMem
-  }:Long
+  }: Long
 
-  def printMemoryDiff(tag:String)(f: => Unit){
-    log(tag+":memory diff",""+memoryDiff{
+  def printMemoryDiff(tag: String)(f: => Unit) {
+    log(tag + ":memory diff", "" + memoryDiff {
       f
     })
-    log(tag+":memory",""+allocation());
+    log(tag + ":memory", "" + allocation());
   }
 
-  def allocation():Long = {
-    Runtime.getRuntime.totalMemory()-Runtime.getRuntime.freeMemory()
+  def allocation(): Long = {
+    Runtime.getRuntime.totalMemory() - Runtime.getRuntime.freeMemory()
   }
 
   /**
@@ -77,7 +84,7 @@ object Glyph {
       timer -= currentTime - prevTime
       if (timer <= 0) {
         func
-        timer = interval*1000*1000
+        timer = interval * 1000 * 1000
       }
     }
   }
@@ -87,12 +94,11 @@ object Glyph {
    * @param n
    * @param f
    */
-  def loop(n:Int,f:Int=>Unit):Unit={
+  def loop(n: Int, f: Int => Unit): Unit = {
     var i = 0
-    while(i < n){
+    while (i < n) {
       f(i)
-      i = i+1
+      i = i + 1
     }
   }
-
 }

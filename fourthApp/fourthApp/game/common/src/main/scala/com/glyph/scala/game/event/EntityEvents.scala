@@ -1,6 +1,7 @@
 package com.glyph.scala.game.event
 
-import com.glyph.scala.lib.entity_component_system.Entity
+import com.glyph.scala.lib.engine.Entity
+
 
 /**
  * @author glyph
