@@ -5,16 +5,14 @@ package com.glyph.scala.game.dungeon
  */
 trait TurnProcessor {
   /**
-   * call manager.turnEnd when you finished Moving
-   * @param manager
+   * this is called when you are to move
    */
-  def onMovePhase(manager:TurnManager)
+  def onMovePhase()
 
   /**
-   * call manager.turnEnd when you finished action
-   * @param manager
+   * this is called when you can do action
    */
-  def onActionPhase(manager:TurnManager)
+  def onActionPhase()
 
   /**
    * position in the dungeon

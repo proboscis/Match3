@@ -14,6 +14,7 @@ class GameContext{
   val members = new TypeInstanceMap
   val playerDeque = new CardDeque
   def addEntity(e:Entity){
+    e.initialize()
     eventManager.dispatch(new EntityAdded(e))
   }
 

@@ -13,11 +13,14 @@ import com.glyph.scala.game.event.UIInputEvent
 import com.glyph.scala.lib.engine.EntityPackage
 import com.glyph.scala.game.factory.EntityFactory
 import com.glyph.scala.game._
-import component.{DTransform, Transform}
+import component.controller.ActorController
+import component.dungeon_actor.DungeonActor
+import component.value.{Transform, DTransform}
 import dungeon.DungeonManager
-import system.{CameraSystem, RenderSystem}
-import ui.{Touchable, CardTable}
+import system.{WorldSystem, UpdateSystem, CameraSystem, RenderSystem}
+import ui.{CardTable}
 import com.glyph.libgdx.particle.{SpriteParticle, ParticlePool}
+import com.glyph.scala.lib.util.actor.Touchable
 
 /**
  * a gamescene written in scala
@@ -36,11 +39,16 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   val mGameTable = new Table
   val mGameStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
   val mSpritePool = new ParticlePool(classOf[SpriteParticle], 1000)
-  val mCardTable = new CardTable(game.playerDeque, mSpritePool)
+  val mCardTable = new CardTable(game.playerDeque, mSpritePool,dungeon)
+  val actorController = new ActorController(game)
   lazy val renderSystem = new RenderSystem(game, pkg)
   lazy val factory = new EntityFactory(game, pkg)
   lazy val dungeon = new DungeonManager(game, pkg)
   lazy val cameraSystem = new CameraSystem(game, renderSystem.root)
+  lazy val updateSystem = new UpdateSystem(world)
+  lazy val world = new WorldSystem(game,pkg)
+
+  val log = Glyph.log("ScalaGameScene")_
 
   /**
    * initializer
@@ -55,15 +63,19 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     game.members.set(dungeon)
     game.members.set(cameraSystem)
     game.members.set(factory)
+    game.members.set(updateSystem)
+    game.members.set(world)
   })
-  Glyph.printExecTime("init characters", {
+  Glyph.printExecTime("init player", {
     val c = factory.player()
     cameraSystem.setTarget(c.get[Transform].position)
+    actorController.setFocus(c)
+    dungeon.turnManager.setFocus(c.get[DungeonActor])
     game.addEntity(c)
   })
-  Glyph.printExecTime("init", {
+  Glyph.printExecTime("init characters", {
     var i = 0
-    while (i < 20) {
+    while (i < 100) {
       val c = factory.character()
       c.get[DTransform].position = - i * 5
       c.get[Transform].position.set(- i * 5 * GameConstants.CELL_WIDTH, 0)
@@ -142,19 +154,21 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     mGameTable.layout()
   }
 
-  val timer = new Timer(1000)
+  val timer = new Timer(5000)
 
   override def render(delta: Float) {
+    dungeon.update(delta)
+    updateSystem.update(delta)
     val et = Glyph.execTime {
       cameraSystem.onRenderFrame()
       super.render(delta)
-      mFpsLogger.log();
+      //mFpsLogger.log();
       Table.drawDebug(mGameStage);
     }
     timer.repeat {
       val fps: Double = 1.0 / (et * 0.000000001)
       Glyph.printTime("elapsed:", et)
-      Glyph.log("fps", "%.2f".format(fps));
+      Glyph.deprecatedLog("fps", "%.2f".format(fps));
     }
   }
 }

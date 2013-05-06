@@ -2,13 +2,19 @@ package com.glyph.scala.lib.engine
 
 import com.glyph.scala.lib.util.Foreach
 import com.glyph.libgdx.util.ArrayStack
+import com.glyph.scala.lib.event.Dispatcher
+import com.glyph.scala.lib.engine.Entity.OnInitialize
 
 /**
  * @author glyph
  */
-class Entity(val pkg: EntityPackage) {
+class Entity(val pkg: EntityPackage) extends Dispatcher{
   val members = pkg.memberTable.obtain()
   lazy val children = new ArrayStack[Entity] with Foreach[Entity]
+
+  def initialize(){
+    dispatch(new OnInitialize)
+  }
 
   def free() {
     members.clear()
@@ -25,7 +31,6 @@ class Entity(val pkg: EntityPackage) {
     members.get(implicitly[Manifest[T]]).asInstanceOf[T]
   }
 
-
   def setI(index: Int, value: Any) {
     members.set(index, value)
   }
@@ -33,7 +38,6 @@ class Entity(val pkg: EntityPackage) {
   def getI[T](index: Int): T = {
     members.get(index).asInstanceOf[T]
   }
-
 
   def addChild(child: Entity) {
     children.push(child)
@@ -45,5 +49,8 @@ class Entity(val pkg: EntityPackage) {
   def hasI(index:Int):Boolean={
     members.elementBits.get(index)
   }
+}
+object Entity{
+  class OnInitialize
 }
 

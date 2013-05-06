@@ -11,7 +11,6 @@ import com.glyph.scala.lib.event.EventManager
 class EntityPackage(val name:String) extends AbstractPool[Entity]{
   val id = EntityPackage.nextId
   val memberTable = new Table[Manifest[_],Any]
-  val interfaceTable = new Table[Manifest[_],Any]
   protected def createNewInstance(): Entity = new Entity(this)
 
   def getIndex[T:Manifest]:Int={

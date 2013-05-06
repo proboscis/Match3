@@ -1,16 +1,19 @@
 package com.glyph.scala.game.dungeon
 
+import animation.AnimationManager
 import com.glyph.scala.game.GameContext
 import com.glyph.scala.lib.engine.EntityPackage
 import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
 import collection.mutable.ListBuffer
 import com.glyph.scala.game.system.EntitySystem
-import com.glyph.scala.game.component.DungeonActor
+import com.glyph.scala.game.component.dungeon_actor.DungeonActor
+import com.glyph.scala.lib.util.update.Updatable
 
 /**
  * @author glyph
  */
-class DungeonManager(context:GameContext,pkg:EntityPackage)extends EntitySystem(context,pkg){
+class DungeonManager(context:GameContext,pkg:EntityPackage)extends EntitySystem(context) with Updatable{
+  val animationManager = new AnimationManager
   val turnManager = new TurnManager
   val renderer = new DungeonRenderer(this)
   val map = Seq.fill(100)(1)
@@ -28,14 +31,11 @@ class DungeonManager(context:GameContext,pkg:EntityPackage)extends EntitySystem(
   }
 
   def tryMove(actor:DungeonActor,next:Int):Boolean ={
-    if (map(next) == 0){
-      false
-    }else{
+      //println(next)
       //false を返したい
       actors.forall{
-        a => (a ne actor) &&  a.getPosition() != next
+        a => a.getPosition() != next
       }
-    }
   }
 
   def onRemoveEntity(e: EntityRemoved): Boolean = {
@@ -45,5 +45,9 @@ class DungeonManager(context:GameContext,pkg:EntityPackage)extends EntitySystem(
       turnManager.removeProcessor(actor)
     }
     false
+  }
+
+  def update(delta: Float) {
+    animationManager.update(delta)
   }
 }

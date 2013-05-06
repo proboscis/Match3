@@ -2,11 +2,16 @@ package com.glyph.scala.game.dungeon
 
 import collection.mutable.ListBuffer
 import collection.mutable
+import com.glyph.scala.Glyph
+import com.glyph.scala.lib.util.observer.Observable
 
 /**
+ * should turn manager know the animation manager? obviously no.
+ * this class do not know of any other classes...except the TurnProcessor
  * @author glyph
  */
-class TurnManager {
+class TurnManager extends Observable[TurnManager]{
+  //TODO let the animation manager know the time to start animation
   self =>
   private var focus:TurnProcessor = null
   val processors = ListBuffer[TurnProcessor]()
@@ -15,6 +20,8 @@ class TurnManager {
   private val IDLE = new Idle
   private val MOVE = new Move
   var state:State = IDLE
+
+  val log = Glyph.log("TurnManager")_
 
   def setFocus(f:TurnProcessor){
     focus = f
@@ -26,18 +33,22 @@ class TurnManager {
      * 次に移動処理
      * 次に行動処理...
      */
+    log("start")
     setState(REACTION)
   }
 
-
   private def setState(s:State){
+    log("set State:"+s.getClass.getSimpleName)
     state.onExit()
     state = s
     state.onEnter()
   }
 
-  def turnEnd(p:TurnProcessor){
-    state.onTurnEnd(p)
+  /**
+   * call this method when all the procedures are finished in order to proceed to next phase
+   */
+  def phaseEnd(){
+    state.onPhaseEnd()
   }
 
   def enqueueReaction(p:TurnProcessor){
@@ -54,8 +65,8 @@ class TurnManager {
    * State classes
    */
   class State{
-    def onEnter(){}
-    def onTurnEnd(p:TurnProcessor){}
+    def onEnter(){log("enter:"+this.getClass.getSimpleName)}
+    def onPhaseEnd(){}
     def onExit(){}
   }
 
@@ -72,15 +83,13 @@ class TurnManager {
     def enqueueReaction(p:TurnProcessor){reactions.enqueue(p)}
     override def onEnter() {
       super.onEnter()
-      reactions = reactions.sortBy(p=>focus.getPosition() - p.getPosition())
-      reactions.dequeue().onActionPhase(self)
+      reactions.foreach{_.onActionPhase()}
+      //TODO let animation manager start
     }
-    override def onTurnEnd(p: TurnProcessor) {
-      if (reactions.isEmpty){
-        setState(MOVE)
-      }else{
-        reactions.dequeue().onActionPhase(self)
-      }
+
+    override def onPhaseEnd() {
+      super.onPhaseEnd()
+      setState (MOVE)
     }
   }
 
@@ -88,47 +97,28 @@ class TurnManager {
    * 移動処理
    */
   class Move extends State{
-    def moves = mutable.Queue[TurnProcessor]()
-    var count = 0
     override def onEnter() {
       super.onEnter()
-      moves ++= processors.sortBy(focus.getPosition() - _.getPosition())
-      moves.foreach{
-        p=> p.onMovePhase(self)
-        count += 1
-      }
+      processors.sortBy(focus.getPosition() - _.getPosition()).foreach {_.onMovePhase()}
+      //TODO let the animation manager do its work
     }
-    override def onTurnEnd(p: TurnProcessor) {
-      super.onTurnEnd(p)
-      count -= 1
-      if (count < 0){
-        throw new RuntimeException("count < 0 is impossible since it means someone hase called onTurnEnd more than once ")
-      }else if (count == 0){
-        setState(ACTION)
-      }
+    override def onPhaseEnd() {
+      super.onPhaseEnd()
+      setState(ACTION)
     }
   }
-
   /**
    * 行動処理
    */
   class Action extends State{
-    var actions = mutable.Queue[TurnProcessor]()
-    def process(){
-      if (actions.isEmpty){
-        setState(IDLE)
-      }else{
-        actions.dequeue().onActionPhase(self)
-      }
-    }
     override def onEnter() {
       super.onEnter()
-      actions ++= processors.sortBy(p=>focus.getPosition() - p.getPosition())
-      process()
+      processors.sortBy(p=>focus.getPosition() - p.getPosition()).foreach {_.onActionPhase()}
+      //TODO let the animation manager do its work
     }
-    override def onTurnEnd(p: TurnProcessor) {
-      super.onTurnEnd(p)
-      process()
+    override def onPhaseEnd() {
+      super.onPhaseEnd()
+      setState(IDLE)
     }
   }
 

@@ -7,11 +7,11 @@ package com.glyph.scala
 package object game {
 
   def log(tag: String)(msg: String) {
-    Glyph.log(tag, msg)
+    Glyph.deprecatedLog(tag, msg)
   }
 
   def time(proc: => Unit): Long = {
-    Glyph.log("=> start")
+    Glyph.deprecatedLog2("=> start")
     val prev = System.nanoTime();
     proc
     val time = (System.nanoTime() - prev)

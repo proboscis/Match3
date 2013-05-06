@@ -1,32 +1,39 @@
 package com.glyph.scala.lib.util
 
+import com.badlogic.gdx.utils.Pool
+
 /**
  * @author glyph
  */
-class LinkedList [T]{
-  val head = new Element(null.asInstanceOf[T])
-  var tail = head
+class LinkedList [T]extends Traversable[T]{
+  val mHead = new Element
+  private val iteratorPool = new IteratorPool
+  private val elementPool = new ElementPool
+
+
   def push(e:T){
-    tail.next = new Element(e)
-    tail = tail.next
+    val next = elementPool.obtain()
+    next.data = e
+    next.next = mHead.next
+    mHead.next = next
+  }
+  def pop():T={
+    val result = mHead.next.data
+    mHead.next = mHead.next.next
+    result
   }
 
-  def foreach(proc:T =>Unit){
-    var current = head.next
-    while(current != null && current.next != null){
-      proc(current.data)
-      current = current.next
-    }
-  }
 
   def remove(t:T){
-    var current = head.next
-    var prev = head
+    var current = mHead.next
+    var prev = mHead
     var continue = current.next != null
     while(continue){
       if (current.data == t){
         prev.next = current.next
         current.next = null//let gc delete this entity
+        current.data = null.asInstanceOf[T]
+        elementPool.free(current)
         continue = false
       }else{
         prev = current
@@ -35,14 +42,23 @@ class LinkedList [T]{
     }
   }
 
-  class Element(val data:T){
+  def foreach[U](f: (T) => U) {
+    var current = mHead
+    while(current != null && current.next != null){
+      current = current.next
+      f(current.data)
+    }
+  }
+
+  class Element{
+    var data:T = null.asInstanceOf[T]
     var next:Element = null
   }
-  def iterator=new Iterator
+  def iterator=iteratorPool.obtain()
 
   class Iterator{
-    def init(){current = head.next}
     var current:Element = null
+    def init(){current = mHead.next}
     init()
     def hasNext():Boolean = current.next != null
     def next():T={
@@ -50,5 +66,17 @@ class LinkedList [T]{
       current = current.next
       data
     }
+  }
+
+
+  override def isEmpty: Boolean = {
+    mHead.next == null
+  }
+
+  class IteratorPool extends Pool[Iterator]{
+    def newObject() = new Iterator
+  }
+  class ElementPool extends Pool[Element]{
+    def newObject() = new Element
   }
 }

@@ -12,7 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Group
  * @author glyph
  */
 class CameraSystem(context:GameContext,group:Group)extends Disposable{
-  Glyph.log("CameraSystem","construct")
+  Glyph.deprecatedLog("CameraSystem","construct")
   var tmp = new Vec2
   var target:Vec2 = null
   var pos:Vec2 = new Vec2(group.getX,group.getY)
