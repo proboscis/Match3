@@ -1,7 +1,6 @@
 package com.glyph.scala.game.system
 
-import com.glyph.scala.game.GameContext
-import com.glyph.scala.lib.engine.{Entity, EntityPackage}
+import com.glyph.scala.lib.engine.{GameContext, Entity, EntityPackage}
 import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
 import com.glyph.scala.lib.util.LinkedList
 
@@ -12,17 +11,15 @@ import com.glyph.scala.lib.util.LinkedList
 class WorldSystem(context:GameContext,pkg:EntityPackage) extends EntitySystem(context){
   private val mEntities = new LinkedList[Entity]
   def entities:Traversable[Entity] = mEntities
-  def onAddEntity(e: EntityAdded): Boolean ={
+  def onAddEntity(e: EntityAdded){
     if (e.entity.pkg == pkg){
       mEntities.push(e.entity)
     }
-    false
   }
 
-  def onRemoveEntity(e: EntityRemoved): Boolean = {
+  def onRemoveEntity(e: EntityRemoved){
     if (e.entity.pkg == pkg){
       mEntities.remove(e.entity)
     }
-    false
   }
 }

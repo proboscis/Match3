@@ -1,20 +1,23 @@
 package com.glyph.scala.game.dungeon.animation
 
-import com.glyph.scala.lib.util.observer.Observable
 import com.glyph.scala.lib.util.update.Updatable
 import com.glyph.scala.lib.util.LinkedList
+import com.glyph.scala.lib.util.callback.Callback
+import com.glyph.scala.Glyph
 
 /**
  * @author glyph
  */
-class AnimationManager extends Observable[AnimationManager] with Updatable{
+class AnimationManager extends Callback with Updatable{
+  import AnimationManager._
   val animationQueue = new LinkedList[Animation]()
   val IDLE = new Idle
   val SEQUENTIAL = new Sequential
   val PARALLEL = new Parallel
   var state :State= IDLE
-  //TODO create sequential and parallel animation
+  val log = Glyph.log("AnimationManager")_
   def postAnimation(ani:Animation){
+    log("post"+ani)
     animationQueue push ani
   }
 
@@ -69,8 +72,8 @@ class AnimationManager extends Observable[AnimationManager] with Updatable{
    * state that represents nothing is being done
    */
   class Idle extends State{
-    override def startSequential() {}
-    override def startParallel() {}
+    override def startSequential() {log("startSequential");setState(SEQUENTIAL)}
+    override def startParallel() {log("startParallel");setState(PARALLEL)}
   }
 
   /**
@@ -81,6 +84,7 @@ class AnimationManager extends Observable[AnimationManager] with Updatable{
     def proceed(){
       if (animationQueue.isEmpty){
         setState(IDLE)
+        callback(SEQUENTIAL_DONE)
       }else{
         current = animationQueue.pop()
       }
@@ -93,6 +97,7 @@ class AnimationManager extends Observable[AnimationManager] with Updatable{
 
     override def update(delta: Float) {
       super.update(delta)
+      log("sequential update"+animationQueue.size)
       current.update(delta)
     }
 
@@ -110,7 +115,12 @@ class AnimationManager extends Observable[AnimationManager] with Updatable{
     override def enter() {
       super.enter()
       count = animationQueue.size
-      animationQueue.foreach(_.start())
+      if (count > 0){
+        animationQueue.foreach(_.start())
+      }else{
+        setState(IDLE)
+        callback(PARALLEL_DONE)
+      }
     }
 
     override def update(delta: Float) {
@@ -122,8 +132,14 @@ class AnimationManager extends Observable[AnimationManager] with Updatable{
       super.onAnimationEnd()
       count -= 1
       if (count == 0){
+        animationQueue.clear()
         setState(IDLE)
+        callback(PARALLEL_DONE)
       }
     }
   }
+}
+object AnimationManager{
+  final val SEQUENTIAL_DONE = 0
+  final val PARALLEL_DONE = 1
 }

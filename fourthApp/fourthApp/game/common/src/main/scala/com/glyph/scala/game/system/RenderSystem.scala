@@ -1,9 +1,8 @@
 package com.glyph.scala.game.system
 
 import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
-import com.glyph.scala.lib.util.{Disposable}
-import java.util
-import com.glyph.scala.lib.engine.EntityPackage
+import com.glyph.scala.lib.util.Disposable
+import com.glyph.scala.lib.engine.{GameContext, EntityPackage}
 import com.glyph.scala.Glyph
 import com.glyph.scala.game._
 import com.badlogic.gdx.scenes.scene2d.{Actor, Group}
@@ -17,26 +16,24 @@ class RenderSystem(context: GameContext, pkg: EntityPackage) extends Group with 
   final val TAG = "RenderSystem"
   val root = new Group
   addActor(root)
-  context.eventManager += onAddEntity
-  context.eventManager += onRemoveEntity
+  context  += onAddEntity
+  context += onRemoveEntity
   val iRenderer = pkg.getIndex[Renderer]
 
   Glyph.deprecatedLog("RenderSystem", "construct")
 
-  def onAddEntity(e: EntityAdded): Boolean = {
+  def onAddEntity(e: EntityAdded){
     if (e.entity.hasI(iRenderer)) {
       val renderer: Renderer = e.entity.getI(iRenderer)
       root.addActor(renderer)
     }
-    false
   }
 
-  def onRemoveEntity(e: EntityRemoved): Boolean = {
+  def onRemoveEntity(e: EntityRemoved){
     if (e.entity.hasI(iRenderer)) {
       val renderer: Renderer = e.entity.getI(iRenderer)
       root.removeActor(renderer)
     }
-    false
   }
 
   def addRenderer(renderer:Actor){
@@ -44,8 +41,8 @@ class RenderSystem(context: GameContext, pkg: EntityPackage) extends Group with 
   }
 
   def dispose() {
-    context.eventManager -= onAddEntity
-    context.eventManager -= onRemoveEntity
+    context-= onAddEntity
+    context-= onRemoveEntity
   }
 
   override def setSize(width: Float, height: Float) {

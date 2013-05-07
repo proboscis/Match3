@@ -1,33 +1,75 @@
 package com.glyph.scala.game.dungeon
 
 import animation.AnimationManager
-import com.glyph.scala.game.GameContext
-import com.glyph.scala.lib.engine.EntityPackage
+import com.glyph.scala.lib.engine.{GameContext, EntityPackage}
 import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
 import collection.mutable.ListBuffer
 import com.glyph.scala.game.system.EntitySystem
 import com.glyph.scala.game.component.dungeon_actor.DungeonActor
 import com.glyph.scala.lib.util.update.Updatable
+import com.glyph.scala.Glyph
 
 /**
  * @author glyph
  */
 class DungeonManager(context:GameContext,pkg:EntityPackage)extends EntitySystem(context) with Updatable{
   val animationManager = new AnimationManager
-  val turnManager = new TurnManager
+  private val turnManager = new TurnManager
   val renderer = new DungeonRenderer(this)
   val map = Seq.fill(100)(1)
   val actors = new ListBuffer[DungeonActor]
   val iActor = pkg.getIndex[DungeonActor]
+  val log = Glyph.log("DungeonManager")_
 
-  def onAddEntity(e: EntityAdded): Boolean ={
+  def setFocus(focus:DungeonActor){
+    turnManager.setFocus(focus)
+  }
+
+  def onActionEnd(){
+    log("focus action end")
+    animationManager.startSequential()
+  }
+  def onMoveEnd(){
+    log("focus move end")
+    //TODO ここが間違っていた!
+    turnManager.phaseEnd()
+  }
+
+  /**
+   * animationManagerとturnManagerの接続処理・・・これはここで書くべきか否か？
+   */
+  turnManager.addCallback(TurnManager.FOCUS_ACTION_DONE)(()=>{
+    log("focus done")
+    animationManager.startSequential()
+  })
+  turnManager.addCallback(TurnManager.REACTION_DONE)(()=>{
+    log("reaction done")
+    animationManager.startSequential()
+  })
+  turnManager.addCallback(TurnManager.ACTION_DONE)(()=>{
+    log("action done")
+    animationManager.startSequential()
+  })
+  turnManager.addCallback(TurnManager.MOVE_DONE)(()=>{
+    log("move done")
+    animationManager.startParallel()
+  })
+  animationManager.addCallback(AnimationManager.PARALLEL_DONE)(()=>{
+    log("parallel done")
+    turnManager.phaseEnd()
+  })
+  animationManager.addCallback(AnimationManager.SEQUENTIAL_DONE)(()=>{
+    log("sequential done")
+    turnManager.phaseEnd()
+  })
+
+  def onAddEntity(e: EntityAdded){
     if(e.entity.hasI(iActor)){
       val actor = e.entity.getI[DungeonActor](iActor)
       actor.setDungeon(this)
       actors += actor
       turnManager.addProcessor(actor)
     }
-    false
   }
 
   def tryMove(actor:DungeonActor,next:Int):Boolean ={
@@ -38,13 +80,12 @@ class DungeonManager(context:GameContext,pkg:EntityPackage)extends EntitySystem(
       }
   }
 
-  def onRemoveEntity(e: EntityRemoved): Boolean = {
+  def onRemoveEntity(e: EntityRemoved){
     if(e.entity.hasI(iActor)){
       val actor = e.entity.getI[DungeonActor](iActor)
       actors -= actor
       turnManager.removeProcessor(actor)
     }
-    false
   }
 
   def update(delta: Float) {

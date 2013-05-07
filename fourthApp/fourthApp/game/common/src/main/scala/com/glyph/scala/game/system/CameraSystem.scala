@@ -1,12 +1,12 @@
 package com.glyph.scala.game.system
 
-import com.glyph.scala.game.GameContext
 import com.badlogic.gdx.graphics.Camera
 import com.glyph.scala.Glyph
 import com.glyph.scala.lib.util.Disposable
 import com.glyph.scala.lib.math.Vec2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Group
+import com.glyph.scala.lib.engine.GameContext
 
 /**
  * @author glyph

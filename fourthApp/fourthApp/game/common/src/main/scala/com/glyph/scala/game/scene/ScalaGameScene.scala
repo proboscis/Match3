@@ -9,9 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.{Button, Skin, Table}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.glyph.scala.Glyph.Timer
 import com.glyph.scala.game.event.UIInputEvent
-import com.glyph.scala.lib.engine.EntityPackage
+import com.glyph.scala.lib.engine.{GameContext, EntityPackage}
 import com.glyph.scala.game.factory.EntityFactory
 import com.glyph.scala.game._
+import card.CardDeque
 import component.controller.ActorController
 import component.dungeon_actor.DungeonActor
 import component.value.{Transform, DTransform}
@@ -26,6 +27,8 @@ import ui.CardTable
  */
 
 class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
+
+  //TODO Scene加算による遷移
   /**
    * 設計思想：ゲームに必要なモデルクラスはGameContextにまとめるが、
    * 各モジュールには必要としている情報（インスタンス）のみ渡す様にする。
@@ -39,7 +42,8 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
   val mGameTable = new Table
   val mGameStage = new Stage(Engine.VIRTUAL_WIDTH, Engine.VIRTUAL_HEIGHT, true)
   val mSpritePool = new ParticlePool(classOf[SpriteParticle], 1000)
-  val mCardTable = new CardTable(game.playerDeque, mSpritePool,dungeon)
+  val mPlayerDeque = new CardDeque
+  val mCardTable = new CardTable(mPlayerDeque, mSpritePool,dungeon)
   val actorController = new ActorController(game)
   lazy val renderSystem = new RenderSystem(game, pkg)
   lazy val factory = new EntityFactory(game, pkg)
@@ -70,7 +74,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     val c = factory.player()
     cameraSystem.setTarget(c.get[Transform].position)
     actorController.setFocus(c)
-    dungeon.turnManager.setFocus(c.get[DungeonActor])
+    dungeon.setFocus(c.get[DungeonActor])
     game.addEntity(c)
   })
   Glyph.printExecTime("init characters", {
@@ -88,7 +92,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
    * draw one card
    */
   for (i <- 0 until 10) {
-    game.playerDeque.drawCard()
+    mPlayerDeque.drawCard()
   }
 
   def initViews() {
@@ -118,15 +122,15 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
 
     val right = new Button(skin.getDrawable("right")) with Touchable;
     right.onPressing = () => {
-      game.eventManager dispatch new UIInputEvent(UIInputEvent.RIGHT_BUTTON)
+      game dispatch new UIInputEvent(UIInputEvent.RIGHT_BUTTON)
     }
     val left = new Button(skin.getDrawable("left")) with Touchable;
     left.onPressing = () => {
-      game.eventManager dispatch new UIInputEvent(UIInputEvent.LEFT_BUTTON)
+      game dispatch new UIInputEvent(UIInputEvent.LEFT_BUTTON)
     }
     val exec = new Button(skin.getDrawable("exec")) with Touchable;
     exec.onPressing = () => {
-      game.eventManager dispatch new UIInputEvent(UIInputEvent.EXEC_BUTTON)
+      game  dispatch new UIInputEvent(UIInputEvent.EXEC_BUTTON)
     }
 
 
@@ -150,7 +154,6 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     root.add(t)
     mGameStage.addActor(root)
 
-
     mGameTable.layout()
   }
 
@@ -163,12 +166,12 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
       cameraSystem.onRenderFrame()
       super.render(delta)
       //mFpsLogger.log();
-      Table.drawDebug(mGameStage);
+      Table.drawDebug(mGameStage)
     }
     timer.repeat {
       val fps: Double = 1.0 / (et * 0.000000001)
       Glyph.printTime("elapsed:", et)
-      Glyph.deprecatedLog("fps", "%.2f".format(fps));
+      Glyph.deprecatedLog("fps", "%.2f".format(fps))
     }
   }
 }

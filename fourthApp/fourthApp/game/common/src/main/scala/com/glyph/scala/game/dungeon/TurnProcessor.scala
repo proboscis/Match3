@@ -1,9 +1,11 @@
 package com.glyph.scala.game.dungeon
 
+import com.glyph.scala.lib.util.callback.Callback
+
 /**
  * @author glyph
  */
-trait TurnProcessor {
+trait TurnProcessor extends Callback{
   /**
    * this is called when you are to move
    */
@@ -19,4 +21,9 @@ trait TurnProcessor {
    * @return
    */
   def getPosition():Int
+}
+
+object TurnProcessor{
+  final val ACTION_END = 0
+  final val MOVE_END = 1
 }
