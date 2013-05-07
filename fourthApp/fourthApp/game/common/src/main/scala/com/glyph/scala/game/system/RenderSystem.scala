@@ -1,13 +1,14 @@
 package com.glyph.scala.game.system
 
 import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
-import com.glyph.scala.lib.util.{Scissor, Disposable}
+import com.glyph.scala.lib.util.{Disposable}
 import java.util
 import com.glyph.scala.lib.engine.EntityPackage
-import com.glyph.scala.game.interface.renderer.Renderer
 import com.glyph.scala.Glyph
 import com.glyph.scala.game._
-import com.badlogic.gdx.scenes.scene2d.Group
+import com.badlogic.gdx.scenes.scene2d.{Actor, Group}
+import component.renderer.Renderer
+import com.glyph.scala.lib.util.actor.Scissor
 
 /**
  * @author glyph
@@ -18,27 +19,28 @@ class RenderSystem(context: GameContext, pkg: EntityPackage) extends Group with 
   addActor(root)
   context.eventManager += onAddEntity
   context.eventManager += onRemoveEntity
-  lazy val entities = new util.LinkedList[Renderer]
-  val iRenderer = pkg.getInterfaceIndex[Renderer]
+  val iRenderer = pkg.getIndex[Renderer]
 
-  Glyph.log("RenderSystem", "construct")
+  Glyph.deprecatedLog("RenderSystem", "construct")
 
   def onAddEntity(e: EntityAdded): Boolean = {
-    if (e.entity.hasInterface(iRenderer)) {
-      val renderer: Renderer = e.entity.getInterfaceI(iRenderer)
-      entities.add(renderer)
-      root.addActor(renderer.delegate)
+    if (e.entity.hasI(iRenderer)) {
+      val renderer: Renderer = e.entity.getI(iRenderer)
+      root.addActor(renderer)
     }
     false
   }
 
   def onRemoveEntity(e: EntityRemoved): Boolean = {
-    if (e.entity.hasInterface(iRenderer)) {
-      val renderer: Renderer = e.entity.getInterfaceI(iRenderer)
-      entities.remove(renderer)
-      root.removeActor(renderer.delegate)
+    if (e.entity.hasI(iRenderer)) {
+      val renderer: Renderer = e.entity.getI(iRenderer)
+      root.removeActor(renderer)
     }
     false
+  }
+
+  def addRenderer(renderer:Actor){
+    root.addActor(renderer)
   }
 
   def dispose() {

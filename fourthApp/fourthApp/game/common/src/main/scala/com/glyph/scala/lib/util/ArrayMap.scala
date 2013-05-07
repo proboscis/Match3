@@ -47,3 +47,9 @@ class ArrayMap[K, V] {
     }
   }
 }
+
+object ArrayMap{
+  def apply[K,V]():ArrayMap[K,V]={
+    new ArrayMap[K,V]
+  }
+}
