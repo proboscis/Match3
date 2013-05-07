@@ -1,8 +1,7 @@
 package com.glyph.scala.game.factory
 
-import com.glyph.scala.lib.engine.{Entity, EntityPackage}
+import com.glyph.scala.lib.engine.{GameContext, Entity, EntityPackage}
 import com.glyph.scala.game.component._
-import com.glyph.scala.game.GameContext
 import controller.ActorController
 import dungeon_actor.{BaseActor, DungeonActor}
 import renderer.{Renderer, SimpleRenderer}
@@ -13,6 +12,7 @@ import value.{Transform, DTransform}
  * @author glyph
  */
 class EntityFactory(game:GameContext,pkg:EntityPackage) {
+  val iGameContext = pkg.getIndex[GameContext]
   val iTransform = pkg.getIndex[Transform]
   val iDTransform = pkg.getIndex[DTransform]
   val iRenderer = pkg.getIndex[Renderer]

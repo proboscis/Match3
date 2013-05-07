@@ -48,7 +48,7 @@ class CardTable(deque: CardDeque, pool: ParticlePool[SpriteParticle],dungeon:Dun
       func(pos)
       tokens -= token
       deque.drawCard()
-      dungeon.turnManager.start()
+      dungeon.focus.doAction()
       true
     }
     addActor(token)

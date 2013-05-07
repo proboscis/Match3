@@ -18,9 +18,13 @@ class LinkedList [T]extends Traversable[T]{
     mHead.next = next
   }
   def pop():T={
-    val result = mHead.next.data
-    mHead.next = mHead.next.next
-    result
+
+    val result = mHead.next
+    mHead.next = result.next
+
+    val data = result.data
+    elementPool.free(result)
+    data
   }
 
 
@@ -31,8 +35,6 @@ class LinkedList [T]extends Traversable[T]{
     while(continue){
       if (current.data == t){
         prev.next = current.next
-        current.next = null//let gc delete this entity
-        current.data = null.asInstanceOf[T]
         elementPool.free(current)
         continue = false
       }else{
@@ -47,6 +49,17 @@ class LinkedList [T]extends Traversable[T]{
     while(current != null && current.next != null){
       current = current.next
       f(current.data)
+    }
+  }
+
+  def foreachPop[U](f:(T)=>U){
+    while (!isEmpty){
+      f(pop())
+    }
+  }
+  def clear(){
+    while(!isEmpty){
+      pop()
     }
   }
 
@@ -78,5 +91,11 @@ class LinkedList [T]extends Traversable[T]{
   }
   class ElementPool extends Pool[Element]{
     def newObject() = new Element
+
+    override def free(obj: Element) {
+      obj.data = null.asInstanceOf[T]
+      obj.next = null
+      super.free(obj)
+    }
   }
 }

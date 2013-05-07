@@ -4,37 +4,42 @@ import collection.mutable.ListBuffer
 import collection.mutable
 import com.glyph.scala.Glyph
 import com.glyph.scala.lib.util.observer.Observable
+import com.glyph.scala.lib.util.callback.Callback
+import com.glyph.scala.game.dungeon
 
 /**
  * should turn manager know the animation manager? obviously no.
  * this class do not know of any other classes...except the TurnProcessor
  * @author glyph
  */
-class TurnManager extends Observable[TurnManager]{
-  //TODO let the animation manager know the time to start animation
-  self =>
+class TurnManager extends Callback{
+  import TurnManager._
+  import TurnProcessor._
+
   private var focus:TurnProcessor = null
   val processors = ListBuffer[TurnProcessor]()
   private val REACTION = new Reaction
   private val ACTION = new Action
-  private val IDLE = new Idle
+  private val FOCUS = new Focus
   private val MOVE = new Move
-  var state:State = IDLE
+  private var state:State = FOCUS
 
-  val log = Glyph.log("TurnManager")_
+  private val log = Glyph.log("TurnManager")_
 
   def setFocus(f:TurnProcessor){
+    if(focus != null){
+      focus.removeCallback(ACTION_END)(onActionEnd)
+      focus.removeCallback(MOVE_END)(onMoveEnd)
+    }
     focus = f
+    focus.addCallback(ACTION_END)(onActionEnd)
+    focus.addCallback(MOVE_END)(onMoveEnd)
   }
-
-  def start() {
-    /**
-     * まずは反応処理、
-     * 次に移動処理
-     * 次に行動処理...
-     */
-    log("start")
-    setState(REACTION)
+  private def onActionEnd(){
+    state.onActionEnd()
+  }
+  private def onMoveEnd(){
+    state.onMoveEnd()
   }
 
   private def setState(s:State){
@@ -65,15 +70,31 @@ class TurnManager extends Observable[TurnManager]{
    * State classes
    */
   class State{
+    def onMoveEnd(){}
+    def onActionEnd(){}
     def onEnter(){log("enter:"+this.getClass.getSimpleName)}
-    def onPhaseEnd(){}
+    def onPhaseEnd(){log("phaseEnd:"+this.getClass.getSimpleName)}
     def onExit(){}
   }
 
   /**
-   * 何も起きない状態
+   * プレイヤー行動待ち状態
    */
-  class Idle extends State
+  class Focus extends State{
+
+    override def onMoveEnd(){
+      //TODO animationManagerの操作
+      callback(FOCUS_MOVE_DONE)
+    }
+    override def onActionEnd(){
+      callback(FOCUS_ACTION_DONE)
+    }
+
+    override def onPhaseEnd() {
+      super.onPhaseEnd()
+      setState(REACTION)
+    }
+  }
 
   /**
    * 反応処理
@@ -84,13 +105,14 @@ class TurnManager extends Observable[TurnManager]{
     override def onEnter() {
       super.onEnter()
       reactions.foreach{_.onActionPhase()}
-      //TODO let animation manager start
+      callback(REACTION_DONE)
     }
 
     override def onPhaseEnd() {
       super.onPhaseEnd()
       setState (MOVE)
     }
+
   }
 
   /**
@@ -100,12 +122,13 @@ class TurnManager extends Observable[TurnManager]{
     override def onEnter() {
       super.onEnter()
       processors.sortBy(focus.getPosition() - _.getPosition()).foreach {_.onMovePhase()}
-      //TODO let the animation manager do its work
+      callback(MOVE_DONE)
     }
     override def onPhaseEnd() {
       super.onPhaseEnd()
       setState(ACTION)
     }
+
   }
   /**
    * 行動処理
@@ -114,12 +137,18 @@ class TurnManager extends Observable[TurnManager]{
     override def onEnter() {
       super.onEnter()
       processors.sortBy(p=>focus.getPosition() - p.getPosition()).foreach {_.onActionPhase()}
-      //TODO let the animation manager do its work
+      callback(ACTION_DONE)
     }
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState(IDLE)
+      setState(FOCUS)
     }
   }
-
+}
+object TurnManager{
+  final val REACTION_DONE = 0
+  final val MOVE_DONE = 1
+  final val ACTION_DONE = 2
+  final val FOCUS_ACTION_DONE = 3
+  final val FOCUS_MOVE_DONE = 4
 }

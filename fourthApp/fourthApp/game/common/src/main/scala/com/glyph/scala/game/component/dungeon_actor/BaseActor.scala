@@ -1,10 +1,8 @@
 package com.glyph.scala.game.component.dungeon_actor
 
-import com.glyph.scala.game.dungeon.TurnManager
 import com.glyph.scala.game.component.dungeon_actor.DungeonActor.Direction
-import com.glyph.scala.game.component.update.Update
 import com.glyph.scala.game.GameConstants
-import collection.generic.IdleSignalling
+import com.glyph.scala.game.dungeon.animation.Animation
 
 /**
  * @author glyph
@@ -12,61 +10,40 @@ import collection.generic.IdleSignalling
 trait BaseActor extends DungeonActor{
   self =>
   import Direction._
-  var state = new Idle
 
-  /**
-   * update callback
-   */
-  owner += ((e:Update)=>{state.update(e.delta)})
+  //val log = Glyph.log("BaseActor")_
 
   override def onMovePhase() {
+    log("onMovePhase")
     super.onMovePhase()
-    //TODO: post animation
+    tryMove(Direction.RIGHT)
   }
-  override def onActionPhase() {
-    super.onActionPhase()
-  }
-  def tryMove(dir: Direction) {
-    state.tryMove(dir)
+
+  override def tryMove(dir: Direction) {
+    log("tryMove")
     //TODO if this is called directory, it is required to call the animation manager to start animation of the others
+    val animation = new Animation(dungeon.animationManager){
+
+      val duration = 0.3f
+      val speed = GameConstants.CELL_WIDTH/duration
+      var timer = duration
+      def update(delta: Float) {
+        timer -= delta
+        dir match {
+          case Direction.RIGHT => transform.position.x += speed*delta
+          case Direction.LEFT => transform.position.x -= speed*delta
+        }
+        if (timer < 0){
+          end()
+        }
+      }
+    }
+    dungeon.animationManager.postAnimation(animation)
+    super.tryMove(dir)
   }
 
-  class Idle{
-    def tryMove(dir:Direction){
-      val next = dir match{
-        case RIGHT => getPosition() + 1
-        case LEFT => getPosition() -1
-      }
-      if (dungeon.tryMove(self,next)){
-        dTransform.position = next
-        state = new Move(dir)
-      }
-    }
-    def update(delta:Float){
 
-    }
-  }
-
-  class Move(dir:Direction) extends Idle{
-    val duration = 0.3f
-    var timer = duration
-    val speed = GameConstants.CELL_WIDTH/duration
-    override def update(delta: Float) {
-      super.update(delta)
-      val diff = dir match{
-        case RIGHT => speed * delta
-        case LEFT => speed * -delta
-        case _ => 0
-      }
-      transform.position.x += diff
-      timer -= delta
-      if (timer <= 0){
-        state = new Idle
-      }
-    }
-
-    override def tryMove(dir: Direction.Direction) {
-      //do nothing
-    }
+  override def doAction() {
+    super.doAction()
   }
 }

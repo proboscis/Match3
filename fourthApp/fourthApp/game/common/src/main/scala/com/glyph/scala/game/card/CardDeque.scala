@@ -17,6 +17,7 @@ class CardDeque extends Observable[CardDeque]{
   (1 to 40).foreach{_=>deque.enqueue(new Card)}
 
   def drawCard(){
+    if (deque.isEmpty)deque.enqueue(new Card)
     val card = deque.dequeue()
     hands.enqueue(card)
     notifyObservers(DrawCard(card))
