@@ -66,6 +66,7 @@ class AnimationManager extends  Updatable{
     def startParallel(){}
     def onAnimationEnd(){}
   }
+  
 
   /**
    * state that represents nothing is being done

@@ -1,4 +1,0 @@
-[debug] C:\Program Files (x86)\Android\android-sdk\platform-tools\adb -d install -r  C:\Documents and Settings\glyph\Documents\sbt\first\gitRepo\fourthApp\fourthApp\game\android\target\android-1.0.apk
-[info] 	pkg: /data/local/tmp/android-1.0.apk
-[info] Success
-[info] 4670 KB/s (21659720 bytes in 4.528s)
