@@ -1,9 +1,8 @@
 package com.glyph.scala.game.component.dungeon_actor
 
 import com.glyph.scala.lib.engine.Entity
-import com.glyph.scala.game.dungeon.{DungeonManager, TurnManager, TurnProcessor}
+import com.glyph.scala.game.dungeon.{DungeonManager,TurnProcessor}
 import com.glyph.scala.game.component.value.{Transform, DTransform}
-import com.glyph.scala.lib.util.callback.Callback
 import com.glyph.scala.Glyph
 
 /**
@@ -34,12 +33,12 @@ abstract class DungeonActor(protected val owner: Entity) extends TurnProcessor{
 
   def tryMove(dir: Direction){
     //TODO 複数回行動の実装
-    callback(TurnProcessor.MOVE_END)
+    onMoveEnd()
   }
   def doAction(){
     log("doAction")
     //TODO 複数回行動の実装
-    callback(TurnProcessor.ACTION_END)
+    onActionEnd()
   }
 }
 

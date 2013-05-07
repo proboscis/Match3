@@ -3,37 +3,34 @@ package com.glyph.scala.game.dungeon
 import collection.mutable.ListBuffer
 import collection.mutable
 import com.glyph.scala.Glyph
-import com.glyph.scala.lib.util.observer.Observable
 import com.glyph.scala.lib.util.callback.Callback
-import com.glyph.scala.game.dungeon
 
 /**
  * should turn manager know the animation manager? obviously no.
  * this class do not know of any other classes...except the TurnProcessor
  * @author glyph
  */
-class TurnManager extends Callback{
-  import TurnManager._
-  import TurnProcessor._
+class TurnManager{
+  val onReactionDone = new Callback
+  val onMoveDone = new Callback
+  val onActionDone = new Callback
+  val onFocusActionDone = new Callback
+  val onFocusMoveDone = new Callback
 
   private var focus:TurnProcessor = null
   val processors = ListBuffer[TurnProcessor]()
-  private val REACTION = new Reaction
-  private val ACTION = new Action
-  private val FOCUS = new Focus
-  private val MOVE = new Move
-  private var state:State = FOCUS
+  private var state:State = Focus
 
   private val log = Glyph.log("TurnManager")_
 
   def setFocus(f:TurnProcessor){
     if(focus != null){
-      focus.removeCallback(ACTION_END)(onActionEnd)
-      focus.removeCallback(MOVE_END)(onMoveEnd)
+      focus.onActionEnd -= onActionEnd
+      focus.onMoveEnd -= onMoveEnd
     }
     focus = f
-    focus.addCallback(ACTION_END)(onActionEnd)
-    focus.addCallback(MOVE_END)(onMoveEnd)
+    focus.onActionEnd += onActionEnd
+    focus.onMoveEnd += onMoveEnd
   }
   private def onActionEnd(){
     state.onActionEnd()
@@ -57,7 +54,7 @@ class TurnManager extends Callback{
   }
 
   def enqueueReaction(p:TurnProcessor){
-    REACTION.enqueueReaction(p)
+    Reaction.enqueueReaction(p)
   }
   def addProcessor(p:TurnProcessor){
     processors += p
@@ -69,7 +66,7 @@ class TurnManager extends Callback{
   /**
    * State classes
    */
-  class State{
+  trait State{
     def onMoveEnd(){}
     def onActionEnd(){}
     def onEnter(){log("enter:"+this.getClass.getSimpleName)}
@@ -80,75 +77,70 @@ class TurnManager extends Callback{
   /**
    * プレイヤー行動待ち状態
    */
-  class Focus extends State{
+  object Focus extends State{
 
     override def onMoveEnd(){
-      //TODO animationManagerの操作
-      callback(FOCUS_MOVE_DONE)
+      onFocusMoveDone()
     }
     override def onActionEnd(){
-      callback(FOCUS_ACTION_DONE)
+      onFocusActionDone()
     }
 
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState(REACTION)
+      setState(Reaction)
     }
   }
 
   /**
    * 反応処理
    */
-  class Reaction extends State{
+  object Reaction extends State{
     var reactions = mutable.Queue[TurnProcessor]()
     def enqueueReaction(p:TurnProcessor){reactions.enqueue(p)}
     override def onEnter() {
       super.onEnter()
-      reactions.foreach{_.onActionPhase()}
-      callback(REACTION_DONE)
+      if(!reactions.isEmpty){
+        reactions.foreach{_.onActionPhase()}
+        onReactionDone()
+      }else{//skip if there is no reaction
+        setState (Move)
+      }
     }
 
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState (MOVE)
+      setState (Move)
     }
-
   }
 
   /**
    * 移動処理
    */
-  class Move extends State{
+  object Move extends State{
     override def onEnter() {
       super.onEnter()
       processors.sortBy(focus.getPosition() - _.getPosition()).foreach {_.onMovePhase()}
-      callback(MOVE_DONE)
+      onMoveDone()
     }
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState(ACTION)
+      setState(Action)
     }
 
   }
   /**
    * 行動処理
    */
-  class Action extends State{
+  object Action extends State{
     override def onEnter() {
       super.onEnter()
       processors.sortBy(p=>focus.getPosition() - p.getPosition()).foreach {_.onActionPhase()}
-      callback(ACTION_DONE)
+      onActionDone()
     }
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState(FOCUS)
+      setState(Focus)
     }
   }
-}
-object TurnManager{
-  final val REACTION_DONE = 0
-  final val MOVE_DONE = 1
-  final val ACTION_DONE = 2
-  final val FOCUS_ACTION_DONE = 3
-  final val FOCUS_MOVE_DONE = 4
 }

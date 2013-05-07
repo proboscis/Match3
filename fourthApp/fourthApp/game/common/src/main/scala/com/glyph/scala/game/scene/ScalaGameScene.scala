@@ -75,6 +75,7 @@ class ScalaGameScene(x: Int, y: Int) extends Scene(x, y) {
     cameraSystem.setTarget(c.get[Transform].position)
     actorController.setFocus(c)
     dungeon.setFocus(c.get[DungeonActor])
+    mCardTable.setFocus(c.get[DungeonActor])
     game.addEntity(c)
   })
   Glyph.printExecTime("init characters", {

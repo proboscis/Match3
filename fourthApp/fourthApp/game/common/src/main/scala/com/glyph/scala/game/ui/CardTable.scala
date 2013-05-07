@@ -14,6 +14,8 @@ import com.glyph.scala.lib.util.update.UpdateQueue
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.audio.Sound
 import com.glyph.scala.game.dungeon.DungeonManager
+import com.glyph.scala.lib.engine.Entity
+import com.glyph.scala.game.component.dungeon_actor.DungeonActor
 
 /**
  * UI class
@@ -24,8 +26,16 @@ class CardTable(deque: CardDeque, pool: ParticlePool[SpriteParticle],dungeon:Dun
   deque.register(dequeCallback)
   val tokens = ListBuffer.empty[CardToken]
   val drawCardQueue = new UpdateQueue(0.1f)
-
   addActFunc(drawCardQueue.update)
+
+  /**
+   * focused actor
+   */
+  var focus :DungeonActor = null
+
+  def setFocus(focus:DungeonActor){
+    this.focus = focus
+  }
 
   def dequeCallback(deque: CardDeque, value: Any) {
     value match {
@@ -48,7 +58,7 @@ class CardTable(deque: CardDeque, pool: ParticlePool[SpriteParticle],dungeon:Dun
       func(pos)
       tokens -= token
       deque.drawCard()
-      dungeon.focus.doAction()
+      focus.doAction()
       true
     }
     addActor(token)

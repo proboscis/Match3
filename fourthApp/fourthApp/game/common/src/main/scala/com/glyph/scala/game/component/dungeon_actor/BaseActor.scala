@@ -10,8 +10,9 @@ import com.glyph.scala.game.dungeon.animation.Animation
 trait BaseActor extends DungeonActor{
   self =>
   import Direction._
-
   //val log = Glyph.log("BaseActor")_
+
+  var state :State = Idle
 
   override def onMovePhase() {
     log("onMovePhase")
@@ -20,30 +21,41 @@ trait BaseActor extends DungeonActor{
   }
 
   override def tryMove(dir: Direction) {
-    log("tryMove")
-    //TODO if this is called directory, it is required to call the animation manager to start animation of the others
-    val animation = new Animation(dungeon.animationManager){
-
-      val duration = 0.3f
-      val speed = GameConstants.CELL_WIDTH/duration
-      var timer = duration
-      def update(delta: Float) {
-        timer -= delta
-        dir match {
-          case Direction.RIGHT => transform.position.x += speed*delta
-          case Direction.LEFT => transform.position.x -= speed*delta
-        }
-        if (timer < 0){
-          end()
-        }
-      }
-    }
-    dungeon.animationManager.postAnimation(animation)
+    state.tryMove(dir)
     super.tryMove(dir)
   }
 
 
   override def doAction() {
     super.doAction()
+  }
+
+  trait State{
+    def tryMove(dir:Direction){}
+  }
+  object Moving extends State{}
+  object Idle extends State{
+    override def tryMove(dir: Direction.Direction) {
+      log("tryMove")
+      //TODO if this is called directory, it is required to call the animation manager to start animation of the others
+      val animation = new Animation(dungeon.animationManager){
+        val duration = 0.3f
+        val speed = GameConstants.CELL_WIDTH/duration
+        var timer = duration
+        def update(delta: Float) {
+          timer -= delta
+          dir match {
+            case Direction.RIGHT => transform.position.x +=speed * delta
+            case Direction.LEFT => transform.position.x -= speed * delta
+          }
+          if (timer < 0){
+            end()
+          }
+        }
+      }
+      state = Moving
+      animation.onAnimationEnd+={()=>{state = Idle}}
+      dungeon.animationManager.postAnimation(animation)
+    }
   }
 }
