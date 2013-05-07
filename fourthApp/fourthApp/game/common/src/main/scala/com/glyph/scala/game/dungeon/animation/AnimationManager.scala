@@ -2,20 +2,19 @@ package com.glyph.scala.game.dungeon.animation
 
 import com.glyph.scala.lib.util.update.Updatable
 import com.glyph.scala.lib.util.LinkedList
-import com.glyph.scala.lib.util.callback.Callback
 import com.glyph.scala.Glyph
+import com.glyph.scala.lib.util.callback.Callback
 
 /**
  * @author glyph
  */
-class AnimationManager extends Callback with Updatable{
-  import AnimationManager._
-  val animationQueue = new LinkedList[Animation]()
-  val IDLE = new Idle
-  val SEQUENTIAL = new Sequential
-  val PARALLEL = new Parallel
-  var state :State= IDLE
-  val log = Glyph.log("AnimationManager")_
+class AnimationManager extends  Updatable{
+  val onSequenceEnd = new Callback
+  val onParallelEnd = new Callback
+
+  private val animationQueue = new LinkedList[Animation]()
+  private var state :State= Idle
+  private val log = Glyph.log("AnimationManager")_
   def postAnimation(ani:Animation){
     log("post"+ani)
     animationQueue push ani
@@ -60,7 +59,7 @@ class AnimationManager extends Callback with Updatable{
     state.enter()
   }
 
-  class State extends Updatable{
+  trait State extends Updatable{
     def enter(){}
     def update(delta: Float) {}
     def startSequential(){}
@@ -71,20 +70,20 @@ class AnimationManager extends Callback with Updatable{
   /**
    * state that represents nothing is being done
    */
-  class Idle extends State{
-    override def startSequential() {log("startSequential");setState(SEQUENTIAL)}
-    override def startParallel() {log("startParallel");setState(PARALLEL)}
+  object Idle extends State{
+    override def startSequential() {log("startSequential");setState(Sequential)}
+    override def startParallel() {log("startParallel");setState(Parallel)}
   }
 
   /**
    * state that represents Sequential animation is in progress
    */
-  class Sequential extends State{
+  object Sequential extends State{
     var current:Animation = null
     def proceed(){
       if (animationQueue.isEmpty){
-        setState(IDLE)
-        callback(SEQUENTIAL_DONE)
+        setState(Idle)
+        onSequenceEnd()
       }else{
         current = animationQueue.pop()
       }
@@ -110,7 +109,7 @@ class AnimationManager extends Callback with Updatable{
   /**
    * Parallel animation
    */
-  class Parallel extends State{
+  object Parallel extends State{
     var count = 0
     override def enter() {
       super.enter()
@@ -118,8 +117,8 @@ class AnimationManager extends Callback with Updatable{
       if (count > 0){
         animationQueue.foreach(_.start())
       }else{
-        setState(IDLE)
-        callback(PARALLEL_DONE)
+        setState(Idle)
+        onParallelEnd()
       }
     }
 
@@ -133,13 +132,9 @@ class AnimationManager extends Callback with Updatable{
       count -= 1
       if (count == 0){
         animationQueue.clear()
-        setState(IDLE)
-        callback(PARALLEL_DONE)
+        setState(Idle)
+        onParallelEnd()
       }
     }
   }
-}
-object AnimationManager{
-  final val SEQUENTIAL_DONE = 0
-  final val PARALLEL_DONE = 1
 }

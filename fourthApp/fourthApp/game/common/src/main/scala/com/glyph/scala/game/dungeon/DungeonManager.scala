@@ -25,43 +25,39 @@ class DungeonManager(context:GameContext,pkg:EntityPackage)extends EntitySystem(
     turnManager.setFocus(focus)
   }
 
-  def onActionEnd(){
-    log("focus action end")
-    animationManager.startSequential()
-  }
-  def onMoveEnd(){
-    log("focus move end")
-    //TODO ここが間違っていた!
-    turnManager.phaseEnd()
-  }
 
   /**
    * animationManagerとturnManagerの接続処理・・・これはここで書くべきか否か？
+   * やはり、書くべきではないだろう
    */
-  turnManager.addCallback(TurnManager.FOCUS_ACTION_DONE)(()=>{
-    log("focus done")
+  turnManager.onFocusActionDone+={()=>{
+    log("focus action done")
     animationManager.startSequential()
-  })
-  turnManager.addCallback(TurnManager.REACTION_DONE)(()=>{
+  }}
+  turnManager.onFocusMoveDone+={()=>{
+    log("focus move done")
+    turnManager.phaseEnd()
+  }}
+  turnManager.onReactionDone+={()=>{
     log("reaction done")
     animationManager.startSequential()
-  })
-  turnManager.addCallback(TurnManager.ACTION_DONE)(()=>{
+  }}
+  turnManager.onActionDone+={()=>{
     log("action done")
     animationManager.startSequential()
-  })
-  turnManager.addCallback(TurnManager.MOVE_DONE)(()=>{
+  }}
+  turnManager.onMoveDone+={()=>{
     log("move done")
     animationManager.startParallel()
-  })
-  animationManager.addCallback(AnimationManager.PARALLEL_DONE)(()=>{
+  }}
+  animationManager.onParallelEnd+={()=>{
     log("parallel done")
     turnManager.phaseEnd()
-  })
-  animationManager.addCallback(AnimationManager.SEQUENTIAL_DONE)(()=>{
+  }}
+  animationManager.onSequenceEnd +={()=>{
     log("sequential done")
     turnManager.phaseEnd()
-  })
+  }}
 
   def onAddEntity(e: EntityAdded){
     if(e.entity.hasI(iActor)){

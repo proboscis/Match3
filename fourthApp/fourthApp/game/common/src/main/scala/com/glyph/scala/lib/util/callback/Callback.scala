@@ -1,27 +1,35 @@
 package com.glyph.scala.lib.util.callback
 
 import collection.mutable
-import collection.mutable.ListBuffer
 
 /**
+ * sugar class to add callbacks
  * @author glyph
  */
-trait Callback {
-  private lazy val callbacks = mutable.HashMap[Int,ListBuffer[()=>Unit]]()
-  def addCallback(typ:Int)(f:()=>Unit){
-    callbacks get typ match{
-      case Some(list) => list += f
-      case None =>{
-        val list = new ListBuffer[()=>Unit]
-        callbacks(typ) = list
-        list += f
-      }
-    }
+class Callback{
+  type F = ()=>Unit
+  lazy val callbacks = mutable.ListBuffer[F]()
+  def +=(func:F){
+    callbacks += func
   }
-  def removeCallback(typ:Int)(f:()=>Unit){
-    callbacks get typ map {_ -= f}
+  def -=(func:F){
+    callbacks -= func
   }
-  def callback (typ:Int){
-    callbacks get typ map {_.foreach {_()}}
+  def apply(){
+    callbacks.foreach {_()}
+  }
+}
+
+class Callback1[T]{
+  type F = (T)=>Unit
+  lazy val callbacks = mutable.ListBuffer[F]()
+  def +=(func:F){
+    callbacks += func
+  }
+  def -=(func:F){
+    callbacks -= func
+  }
+  def apply(v:T){
+    callbacks.foreach {_(v)}
   }
 }
