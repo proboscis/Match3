@@ -19,11 +19,7 @@ class TurnManager{
 
   private var focus:TurnProcessor = null
   val processors = ListBuffer[TurnProcessor]()
-  private val REACTION = new Reaction
-  private val ACTION = new Action
-  private val FOCUS = new Focus
-  private val MOVE = new Move
-  private var state:State = FOCUS
+  private var state:State = Focus
 
   private val log = Glyph.log("TurnManager")_
 
@@ -58,7 +54,7 @@ class TurnManager{
   }
 
   def enqueueReaction(p:TurnProcessor){
-    REACTION.enqueueReaction(p)
+    Reaction.enqueueReaction(p)
   }
   def addProcessor(p:TurnProcessor){
     processors += p
@@ -70,7 +66,7 @@ class TurnManager{
   /**
    * State classes
    */
-  class State{
+  trait State{
     def onMoveEnd(){}
     def onActionEnd(){}
     def onEnter(){log("enter:"+this.getClass.getSimpleName)}
@@ -81,7 +77,7 @@ class TurnManager{
   /**
    * プレイヤー行動待ち状態
    */
-  class Focus extends State{
+  object Focus extends State{
 
     override def onMoveEnd(){
       onFocusMoveDone()
@@ -92,14 +88,14 @@ class TurnManager{
 
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState(REACTION)
+      setState(Reaction)
     }
   }
 
   /**
    * 反応処理
    */
-  class Reaction extends State{
+  object Reaction extends State{
     var reactions = mutable.Queue[TurnProcessor]()
     def enqueueReaction(p:TurnProcessor){reactions.enqueue(p)}
     override def onEnter() {
@@ -108,20 +104,20 @@ class TurnManager{
         reactions.foreach{_.onActionPhase()}
         onReactionDone()
       }else{//skip if there is no reaction
-        setState (MOVE)
+        setState (Move)
       }
     }
 
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState (MOVE)
+      setState (Move)
     }
   }
 
   /**
    * 移動処理
    */
-  class Move extends State{
+  object Move extends State{
     override def onEnter() {
       super.onEnter()
       processors.sortBy(focus.getPosition() - _.getPosition()).foreach {_.onMovePhase()}
@@ -129,14 +125,14 @@ class TurnManager{
     }
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState(ACTION)
+      setState(Action)
     }
 
   }
   /**
    * 行動処理
    */
-  class Action extends State{
+  object Action extends State{
     override def onEnter() {
       super.onEnter()
       processors.sortBy(p=>focus.getPosition() - p.getPosition()).foreach {_.onActionPhase()}
@@ -144,7 +140,7 @@ class TurnManager{
     }
     override def onPhaseEnd() {
       super.onPhaseEnd()
-      setState(FOCUS)
+      setState(Focus)
     }
   }
 }
