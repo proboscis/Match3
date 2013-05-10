@@ -11,4 +11,5 @@ object Main extends App {
     cfg.width = 320
     cfg.useGL20 = true
     new LwjglApplication(new ScalaGame(), cfg)
+    //new LwjglApplication(new Engine(), cfg)
 }

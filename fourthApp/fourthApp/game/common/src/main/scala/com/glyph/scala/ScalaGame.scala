@@ -1,10 +1,11 @@
 package com.glyph.scala
 
 import com.badlogic.gdx.Game
-import game.screen.{Loading, GameScreen}
+import game.screen.{DecalTableTest, ShapeTestScene, Loading, GameScreen}
 import com.badlogic.gdx.graphics.Texture
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.audio.Sound
+import lib.util.gl.ViewportStack
 
 /**
  * @author glyph
@@ -27,8 +28,11 @@ class ScalaGame extends Game{
     AM.instance().load("data/leftArrow.png", classOf[Texture])
     AM.instance().load("data/lightbulb32.png", classOf[Texture])
     //AM.instance().finishLoading()
-    setScreen(new Loading(this))
+    //setScreen(new Loading(this))
+    //setScreen(new ShapeTestScene)
+    setScreen(new DecalTableTest)
   }
+
 }
 object ScalaGame{
   final val VIRTUAL_WIDTH = 540
