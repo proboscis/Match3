@@ -2,6 +2,7 @@ package com.glyph
 
 import com.badlogic.gdx.backends.lwjgl._
 import libgdx.Engine
+import scala.ScalaGame
 
 object Main extends App {
     val cfg = new LwjglApplicationConfiguration()
@@ -9,5 +10,5 @@ object Main extends App {
     cfg.height = 480
     cfg.width = 320
     cfg.useGL20 = true
-    new LwjglApplication(new Engine(), cfg)
+    new LwjglApplication(new ScalaGame(), cfg)
 }
