@@ -1,11 +1,12 @@
 package com.glyph.scala
 
 import com.badlogic.gdx.Game
-import game.screen.{DecalTableTest, ShapeTestScene, Loading, GameScreen}
+import game.screen._
 import com.badlogic.gdx.graphics.Texture
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.audio.Sound
 import lib.util.gl.ViewportStack
+import lib.util.screen.Loader
 
 /**
  * @author glyph
@@ -13,7 +14,7 @@ import lib.util.gl.ViewportStack
 class ScalaGame extends Game{
   def create() {
     AM.create()
-    var i = 0
+    var i = 1
     while ( i <= 10){
       AM.instance().load("data/card" + i + ".png", classOf[Texture])
       i+=1
@@ -28,11 +29,14 @@ class ScalaGame extends Game{
     AM.instance().load("data/leftArrow.png", classOf[Texture])
     AM.instance().load("data/lightbulb32.png", classOf[Texture])
     //AM.instance().finishLoading()
-    //setScreen(new Loading(this))
-    //setScreen(new ShapeTestScene)
-    setScreen(new DecalTableTest)
+    val loading = new LoadingScreen
+    loading.onFinish += (()=>{
+      //setScreen(new GameScreen(this))
+      //setScreen(new DecalTableTest)
+      setScreen(new Loading(this))
+    })
+    setScreen(loading)
   }
-
 }
 object ScalaGame{
   final val VIRTUAL_WIDTH = 540

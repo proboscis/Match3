@@ -92,7 +92,6 @@ public class Surface extends Group {
             //Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
             mBatch.begin();
             {
-
                 for (SurfaceDrawable drawable : mDrawables) {
                     drawable.draw(mBatch, parentAlpha);
                 }

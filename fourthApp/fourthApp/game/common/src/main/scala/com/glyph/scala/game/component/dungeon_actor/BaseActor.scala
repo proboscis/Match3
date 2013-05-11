@@ -37,7 +37,6 @@ trait BaseActor extends DungeonActor{
   object Idle extends State{
     override def tryMove(dir: Direction.Direction) {
       log("tryMove")
-      //TODO if this is called directory, it is required to call the animation manager to start animation of the others
       val animation = new Animation(dungeon.animationManager){
         val duration = 0.3f
         val speed = GameConstants.CELL_WIDTH/duration

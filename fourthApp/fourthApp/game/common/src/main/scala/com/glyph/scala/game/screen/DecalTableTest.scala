@@ -3,7 +3,7 @@ package com.glyph.scala.game.screen
 import com.glyph.scala.lib.util.screen.Screen
 import com.badlogic.gdx.graphics.GL10
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.{Actor, Stage}
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph.scala.ScalaGame
 import com.glyph.scala.lib.util.actor.{Scissor, Renderer}
@@ -13,6 +13,7 @@ import com.glyph.scala.lib.util.actor.{Scissor, Renderer}
  */
 class DecalTableTest extends Screen{
   import ScalaGame._
+  //TODO Actorの領域内で任意のレンダリングを行う実装
   val stage = new Stage(VIRTUAL_WIDTH,VIRTUAL_HEIGHT,true)
   val root = new Table
   root.setSize(stage.getWidth,stage.getHeight)
@@ -30,7 +31,6 @@ class DecalTableTest extends Screen{
     super.render(delta)
     Gdx.gl.glClearColor(0, 0, 0, 0)
     Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT)
-
     Table.drawDebug(stage)
     stage.act(delta)
     stage.draw()

@@ -32,12 +32,10 @@ abstract class DungeonActor(protected val owner: Entity) extends TurnProcessor{
   def getPosition(): Int = dTransform.position
 
   def tryMove(dir: Direction){
-    //TODO 複数回行動の実装
     onMoveEnd()
   }
   def doAction(){
     log("doAction")
-    //TODO 複数回行動の実装
     onActionEnd()
   }
 }
