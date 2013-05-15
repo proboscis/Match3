@@ -2,15 +2,16 @@ package com.glyph.scala.lib.graphics.util
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.graphics.{Camera, Color}
+import com.glyph.scala.lib.util.drawable.RequireCamera
 
 /**
  * @author glyph
  */
-class World (val unit:Float){
+class World (val unit:Float) extends RequireCamera{
   val renderer = new ShapeRenderer()
   val grid = new Grid(20,20,unit)
 
-  def render(camera:Camera){
+  def draw(camera:Camera){
     renderer.setProjectionMatrix(camera.combined)
     renderer.begin(ShapeRenderer.ShapeType.Line)
     renderer.identity()

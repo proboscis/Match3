@@ -1,15 +1,14 @@
 package com.glyph.scala.lib.util
 
 import com.badlogic.gdx.utils.Pool
+import collection.mutable
 
 /**
  * @author glyph
  */
-class LinkedList [T]extends Traversable[T]{
+class LinkedList [T]extends mutable.Traversable[T]{
   val mHead = new Element
-  private val iteratorPool = new IteratorPool
   private val elementPool = new ElementPool
-
 
   def push(e:T){
     val next = elementPool.obtain()
@@ -44,7 +43,7 @@ class LinkedList [T]extends Traversable[T]{
     }
   }
 
-  def foreach[U](f: (T) => U) {
+  override def foreach[U](f: (T) => U) {
     var current = mHead
     while(current != null && current.next != null){
       current = current.next
@@ -67,27 +66,9 @@ class LinkedList [T]extends Traversable[T]{
     var data:T = null.asInstanceOf[T]
     var next:Element = null
   }
-  def iterator=iteratorPool.obtain()
-
-  class Iterator{
-    var current:Element = null
-    def init(){current = mHead.next}
-    init()
-    def hasNext():Boolean = current.next != null
-    def next():T={
-      val data = current.data
-      current = current.next
-      data
-    }
-  }
-
 
   override def isEmpty: Boolean = {
     mHead.next == null
-  }
-
-  class IteratorPool extends Pool[Iterator]{
-    def newObject() = new Iterator
   }
   class ElementPool extends Pool[Element]{
     def newObject() = new Element
