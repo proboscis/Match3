@@ -2,6 +2,7 @@ package com.glyph.scala.lib.util.actor
 
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Actor}
 import com.glyph.scala.lib.math.Vec2
+import com.badlogic.gdx.Gdx
 
 /**
  * @author glyph
@@ -9,8 +10,8 @@ import com.glyph.scala.lib.math.Vec2
 trait Touchable extends Actor{
   var onReleased = (pos: Vec2) => {}
   var onPressing = () => {}
-  var onPressed = (pos: Vec2) => true
-
+  var onPressed = (pos: Vec2) => {}
+  setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled)
   val inputListener = new InputListener() {
     private var pressed = false
     def isPressed = pressed

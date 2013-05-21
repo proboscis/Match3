@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.util.actor
 
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.glyph.scala.lib.util.LinkedList
+import com.glyph.scala.lib.util.collection.LinkedList
 
 /**
  * @author glyph

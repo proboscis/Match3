@@ -2,7 +2,7 @@ package com.glyph.scala.game.system
 
 import com.glyph.scala.lib.engine.{GameContext, Entity, EntityPackage}
 import com.glyph.scala.game.event.{EntityRemoved, EntityAdded}
-import com.glyph.scala.lib.util.LinkedList
+import com.glyph.scala.lib.util.collection.LinkedList
 
 /**
  * system that holds all the entities

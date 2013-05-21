@@ -17,10 +17,12 @@ trait Scissor extends Actor{
     batch.flush()
     clipBounds.set(getX,getY,getWidth,getHeight)
     ScissorStack.calculateScissors(getStage.getCamera,batch.getTransformMatrix,clipBounds,scissors)
-    ScissorStack.pushScissors(scissors)
-    super.draw(batch, parentAlpha)
+    if (ScissorStack.pushScissors(scissors)){
+      super.draw(batch, parentAlpha)
+      ScissorStack.popScissors()
+    }else{
+      super.draw(batch, parentAlpha)
+    }
     batch.flush()
-    ScissorStack.popScissors()
-
   }
 }

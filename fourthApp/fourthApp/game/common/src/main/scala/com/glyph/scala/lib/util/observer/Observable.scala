@@ -1,5 +1,5 @@
 package com.glyph.scala.lib.util.observer
-import com.glyph.scala.lib.util.LinkedList
+import com.glyph.scala.lib.util.collection.LinkedList
 
 /**
  * @author glyph

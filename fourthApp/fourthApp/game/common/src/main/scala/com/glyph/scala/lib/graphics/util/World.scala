@@ -9,7 +9,7 @@ import com.glyph.scala.lib.util.drawable.RequireCamera
  */
 class World (val unit:Float) extends RequireCamera{
   val renderer = new ShapeRenderer()
-  val grid = new Grid(20,20,unit)
+  val grid = new Grid(40,40,unit)
 
   def draw(camera:Camera){
     renderer.setProjectionMatrix(camera.combined)

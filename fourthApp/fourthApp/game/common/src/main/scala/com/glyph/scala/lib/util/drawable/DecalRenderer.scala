@@ -2,7 +2,8 @@ package com.glyph.scala.lib.util.drawable
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g3d.decals.{ CameraGroupStrategy, DecalBatch}
-import com.glyph.scala.lib.util.{LinkedList, Disposable}
+import com.glyph.scala.lib.util.{Disposable}
+import com.glyph.scala.lib.util.collection.LinkedList
 
 /**
  * @author glyph

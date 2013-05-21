@@ -1,13 +1,13 @@
 package com.glyph.scala.lib.event
 
 import collection.mutable
-import com.glyph.scala.lib.util.LinkedList
+import com.glyph.scala.lib.util.collection.LinkedList
 
 /**
  * @author glyph
  */
 trait Dispatcher{
-  private val listenerMap = mutable.HashMap[Manifest[_],com.glyph.scala.lib.util.LinkedList[Any]]()
+  private val listenerMap = mutable.HashMap[Manifest[_],LinkedList[Any]]()
   private lazy val children = new LinkedList[Dispatcher]
   def +=[T:Manifest](f:(T)=>Unit){
     listenerMap get implicitly[Manifest[T]] match{

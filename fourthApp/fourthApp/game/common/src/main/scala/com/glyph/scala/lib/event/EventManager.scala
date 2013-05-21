@@ -3,8 +3,8 @@ package com.glyph.scala.lib.event
 import collection.mutable.ListBuffer
 import com.glyph.scala.Glyph
 import annotation.tailrec
-import com.glyph.scala.lib.util.LinkedList
 import collection.mutable
+import com.glyph.scala.lib.util.collection.LinkedList
 
 /**
  * eventmanager with function registers

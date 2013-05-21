@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.{MathUtils, Vector2}
  * @param b y
  */
 class Vec2(a: Float, b: Float) extends Vector2(a, b) {
+  //TODO make this a trait
   def this() = this(0, 0)
 
   def this(v: Vector2) = this(v.x, v.y)

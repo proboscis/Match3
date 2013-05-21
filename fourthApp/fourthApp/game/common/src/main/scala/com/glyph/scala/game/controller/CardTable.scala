@@ -10,7 +10,7 @@ import collection.mutable.ListBuffer
 import com.badlogic.gdx.scenes.scene2d.actions.{Actions, MoveToAction}
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.util.actor.{Actable, Touchable, Scissor}
-import com.glyph.scala.lib.util.update.UpdateQueue
+import com.glyph.scala.lib.util.updatable.UpdateQueue
 import com.glyph.libgdx.asset.AM
 import com.badlogic.gdx.audio.Sound
 import com.glyph.scala.game.view.CardToken
