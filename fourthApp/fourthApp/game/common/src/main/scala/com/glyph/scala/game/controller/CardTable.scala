@@ -5,13 +5,13 @@ import com.glyph.scala.lib.util.Disposable
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.glyph.scala.game.card.CardDeque.DrawCard
 import com.glyph.scala.lib.math.Vec2
-import com.glyph.libgdx.particle.{SpriteParticle, ParticlePool}
+import com.glyph.java.particle.{SpriteParticle, ParticlePool}
 import collection.mutable.ListBuffer
 import com.badlogic.gdx.scenes.scene2d.actions.{Actions, MoveToAction}
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.util.actor.{Actable, Touchable, Scissor}
 import com.glyph.scala.lib.util.updatable.UpdateQueue
-import com.glyph.libgdx.asset.AM
+import com.glyph.java.asset.AM
 import com.badlogic.gdx.audio.Sound
 import com.glyph.scala.game.view.CardToken
 

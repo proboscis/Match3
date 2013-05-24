@@ -2,7 +2,7 @@ package com.glyph
 
 import android.os.Bundle
 import com.badlogic.gdx.backends.android._
-import libgdx.Engine
+import java.Engine
 
 class Main extends AndroidApplication {
   override def onCreate(savedInstanceState: Bundle) {

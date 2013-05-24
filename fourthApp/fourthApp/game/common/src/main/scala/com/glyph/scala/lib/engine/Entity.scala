@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.engine
 
 import com.glyph.scala.lib.util.Foreach
-import com.glyph.libgdx.util.ArrayStack
+import com.glyph.java.util.ArrayStack
 import com.glyph.scala.lib.event.Dispatcher
 import com.glyph.scala.lib.engine.Entity.OnInitialize
 

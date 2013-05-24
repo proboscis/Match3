@@ -3,28 +3,29 @@ package com.glyph.scala.game.controller
 import com.glyph.scala.lib.util.drawable.{DecalList, DecalRenderer}
 import com.glyph.scala.game.model.StageData
 import com.glyph.scala.lib.util.updatable.Updatables
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.glyph.libgdx.asset.AM
-import com.badlogic.gdx.math.{Vector3, Interpolation, MathUtils}
+import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.updatable.decal.DecalTask.MoveTo
-import com.glyph.scala.lib.util.callback.Callback
+import com.glyph.scala.lib.util.callback.DeprecatedCallback
 import com.glyph.scala.lib.util.updatable.task.{Parallel, CompleteHook, TimedTask, Sequence}
 import com.glyph.scala.lib.graphics.util.decal.Decal
-import com.glyph.scala.lib.util.tile.TileRegionGenerator
+import com.glyph.scala.lib.libgdx.TileRegionGenerator
+import com.glyph.scala.lib.libgdx.json.JsonParser
+import com.glyph.scala.lib.util.json.ScalaJSON
 
 /**
  * @author glyph
  */
 class StageController(renderer: DecalRenderer, stage: StageData) extends Updatables {
-  val tileGenerator = new TileRegionGenerator("data/TileA4.png",8,8)
-  val onStageReady = new Callback
+  val tileGenerator = new TileRegionGenerator("data/TileA4.png", 8, 8)
+  val onStageReady = new DeprecatedCallback
   val decalList = new DecalList {}
+  //TODO reloadで再起動
   val parallel = new Parallel with CompleteHook {
     def onComplete() {
       onStageReady()
     }
   }
-  renderer.decals.push(decalList)
+  renderer.add(decalList)
   this.add(parallel)
   val ground = stage.ground
   ground.data.foldLeft(0) {
@@ -34,12 +35,12 @@ class StageController(renderer: DecalRenderer, stage: StageData) extends Updatab
       d.setHeight(0.5f)
       d.rotateX(-90)
       d.setPosition(
-        (i % ground.width - ground.height / 2) * d.getWidth+d.getWidth/2,
+        (i % ground.width - ground.height / 2) * d.getWidth + d.getWidth / 2,
         10,
-        ((i / ground.height) - ground.height / 2) * d.getHeight+d.getHeight/2)
+        ((i / ground.height) - ground.height / 2) * d.getHeight + d.getHeight / 2)
       val animator = new Sequence {}
       animator.addTask(new TimedTask {
-        val duration: Float = MathUtils.random(0f, 1f)
+        val duration: Float = MathUtils.random(1f, 2f)
       })
       animator.addTask(new MoveTo {
         val decal: Decal = d
@@ -54,25 +55,39 @@ class StageController(renderer: DecalRenderer, stage: StageData) extends Updatab
   }
   val wall = stage.wall
   wall.data.foldLeft(0) {
-        import MathUtils._
     (i, m) => {
       val d = new Decal(tileGenerator.createRegion(m))
       d.setWidth(0.5f)
       d.setHeight(0.5f)
-      d.setPosition(0,0,-100)
+      d.setPosition(0, 0, -100)
       val sequence = new Sequence {}
       sequence.addTask(new TimedTask {
-        val duration: Float = (wall.data.size-i)*0.016f
+        val duration: Float = (wall.data.size - i) * 0.016f
       })
       sequence.addTask(new MoveTo {
         val decal: Decal = d
         val duration: Float = 1f
         interpolation = Interpolation.elasticOut
-        end.set((i%wall.width -wall.width/2+0.5f)*d.getWidth,(wall.height - i / wall.width-0.5f)*d.getHeight,(-ground.height/2)*d.getHeight)
+        end.set((i % wall.width - wall.width / 2 + 0.5f) * d.getWidth, (wall.height - i / wall.width - 0.5f) * d.getHeight, (-ground.height / 2) * d.getHeight)
       })
       parallel.addTask(sequence)
       decalList.add(d)
       i + 1
     }
-  }//TODO scalaが3050行 (5/22) javaが480行
+  }
+
+  TestLoader.load{
+    println(TestLoader.data)
+  }
+
+  object TestLoader extends JsonParser("json/test.json") {
+    import com.glyph.scala.lib.util.json.JSON._
+    var data = ""
+    var data2 = ""
+    protected def parse(json: ScalaJSON) {
+      data = json.data
+      data2 = json.data2
+    }
+    override def toString: String = data + "\n" + data2
+  }
 }

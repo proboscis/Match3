@@ -1,9 +1,9 @@
 package com.glyph.scala.game.table
 
-import com.glyph.scala.lib.util.tile.TileRegionGenerator
 import com.badlogic.gdx.scenes.scene2d.ui.{Button, Image, Table}
 import com.glyph.scala.lib.util.actor.Touchable
 import com.glyph.scala.lib.math.Vec2
+import com.glyph.scala.lib.libgdx.TileRegionGenerator
 
 /**
  * @author glyph

@@ -14,6 +14,8 @@ import com.glyph.scala.lib.graphics.util.decal.Decal
  */
 class BattleController(renderer:DecalRenderer,battle:Battle) extends Updatables{
   val PLAYER_POSITION = new Vector3(2,6f,0)
+  //TODO プレイヤーや敵の座標の決定
+  //TODO 戦闘システムの実装
   val player = new CharacterRenderer
   val sequence = new Sequence{}
   player.decal.setPosition(PLAYER_POSITION)
@@ -24,5 +26,5 @@ class BattleController(renderer:DecalRenderer,battle:Battle) extends Updatables{
     end.set(decal.getPosition).sub(0,5.5f,0)
   })
   this.add(sequence)
-  renderer.decals.push(player)
+  renderer.add(player)
 }

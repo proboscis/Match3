@@ -1,6 +1,6 @@
 package com.glyph.scala.game.screen
 
-import com.glyph.scala.lib.util.callback.Callback
+import com.glyph.scala.lib.util.callback.DeprecatedCallback
 import com.glyph.scala.lib.util.screen.Screen
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.{PerspectiveCamera, GL10, Texture}
@@ -14,7 +14,7 @@ import com.glyph.scala.lib.graphics.util.World
  * @author glyph
  */
 class LoadingTestScreen(game: ScalaGame) extends Screen {
-  val onLoadingDone = new Callback
+  val onLoadingDone = new DeprecatedCallback
   val world = new World(1)
   val batch = new DecalBatch()
   val camera = new PerspectiveCamera(60f, Gdx.graphics.getWidth, Gdx.graphics.getHeight)

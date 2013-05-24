@@ -2,6 +2,8 @@ package com.glyph.scala.lib.util
 
 import net.minidev.json.{JSONArray, JSONObject, JSONValue}
 import scala.language.dynamics
+import com.badlogic.gdx.Gdx
+
 /**
  * @author glyph
  */
@@ -9,6 +11,9 @@ package object json {
   import scala.collection.JavaConversions._
 
   object JSON {
+    def parseFile(filename: String): ScalaJSON = {
+      json.JSON.parseJSON(Gdx.files.internal(filename).readString())
+    }
     def parseJSON(s: String) = new ScalaJSON(JSONValue.parse(s))
     def makeJSON(a: Any): String = a match {
       case m: Map[String, Any] => m.map {

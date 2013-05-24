@@ -3,7 +3,7 @@ package com.glyph.scala
 import com.badlogic.gdx.Game
 import game.screen._
 import com.badlogic.gdx.graphics.Texture
-import com.glyph.libgdx.asset.AM
+import com.glyph.java.asset.AM
 
 /**
  * @author glyph

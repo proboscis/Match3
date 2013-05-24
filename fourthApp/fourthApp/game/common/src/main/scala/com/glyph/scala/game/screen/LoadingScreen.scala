@@ -3,7 +3,7 @@ package com.glyph.scala.game.screen
 import com.glyph.scala.lib.util.screen.{Loader, Screen}
 import com.badlogic.gdx.scenes.scene2d.{Actor, Stage}
 import com.badlogic.gdx.graphics.g2d.{BitmapFont, SpriteBatch}
-import com.glyph.libgdx.asset.AM
+import com.glyph.java.asset.AM
 import com.badlogic.gdx.graphics.{GL10, Color}
 import com.badlogic.gdx.Gdx
 

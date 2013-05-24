@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.util.pool
 
-import com.glyph.libgdx.util.ArrayStack
+import com.glyph.java.util.ArrayStack
 
 /**
  * @author glyph

@@ -1,6 +1,5 @@
 package com.glyph.scala.lib.util.tile
 
-import model.{Layer, TileMap}
 import com.glyph.scala.lib.util.json.JSON._
 
 /**

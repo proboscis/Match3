@@ -1,7 +1,7 @@
 package com.glyph.scala.game.view
 
 import com.glyph.scala.lib.util.drawable.DecalDrawable
-import com.glyph.libgdx.asset.AM
+import com.glyph.java.asset.AM
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.Texture

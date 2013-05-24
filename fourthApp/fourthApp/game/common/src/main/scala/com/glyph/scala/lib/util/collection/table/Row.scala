@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.util.table
 
-import com.glyph.libgdx.util.ArrayBag
+import com.glyph.java.util.ArrayBag
 import java.util
 
 /**

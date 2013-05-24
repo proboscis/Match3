@@ -1,7 +1,7 @@
 package com.glyph.scala
 
 import com.badlogic.gdx.{Gdx, Game}
-import com.glyph.libgdx.asset.AM
+import com.glyph.java.asset.AM
 import com.badlogic.gdx.graphics.{GL10, Texture}
 import game.screen.{ScrollTestScreen, DebugScreen, LoadingScreen}
 import com.badlogic.gdx.audio.Sound

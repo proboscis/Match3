@@ -1,11 +1,11 @@
 package com.glyph.scala.game.view
 
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.glyph.libgdx.asset.AM
+import com.glyph.java.asset.AM
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
 import com.badlogic.gdx.graphics.Texture
 import com.glyph.scala.lib.math.Vec2
-import com.glyph.libgdx.particle.{SpriteExplosion, SpriteParticle, ParticlePool}
+import com.glyph.java.particle.{SpriteExplosion, SpriteParticle, ParticlePool}
 import com.glyph.scala.game.card.Card
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.scala.lib.util.actor.Touchable
