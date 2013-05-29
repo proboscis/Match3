@@ -25,8 +25,9 @@ trait SequentialProcessor extends TaskProcessor {
     }
   }
 
-  def addTask(task: Task) {
+  def add(task: Task) :TaskProcessor={
     tasks.push(task)
+    this
   }
 
   def removeTask(task: Task) {

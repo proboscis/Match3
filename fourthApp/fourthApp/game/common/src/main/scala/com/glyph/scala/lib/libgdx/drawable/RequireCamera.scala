@@ -1,4 +1,4 @@
-package com.glyph.scala.lib.util.drawable
+package com.glyph.scala.lib.libgdx.drawable
 
 import com.badlogic.gdx.graphics.Camera
 
@@ -6,5 +6,5 @@ import com.badlogic.gdx.graphics.Camera
  * @author glyph
  */
 trait RequireCamera {
-  def draw(camera:Camera)
+  def draw(camera: Camera)
 }

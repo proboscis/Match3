@@ -8,9 +8,8 @@ import com.glyph.scala.lib.util.collection.DoubleTree
 trait UpdatableTree extends Updatable with DoubleTree[UpdatableTree] {
   override def update(delta: Float) {
     super.update(delta)
-    onUpdate(delta)
-    foreach {
-      _.update(delta)
+    for (node <- this if node ne this){
+      node.update(delta)
     }
   }
 

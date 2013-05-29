@@ -1,34 +1,34 @@
-package com.glyph.scala.lib.util.drawable
+package com.glyph.scala.lib.libgdx.drawable
 
-import com.badlogic.gdx.graphics.Camera
-import com.badlogic.gdx.graphics.g3d.decals.{ CameraGroupStrategy, DecalBatch}
-import com.glyph.scala.lib.util.{Disposable}
+import com.badlogic.gdx.graphics.g3d.decals.{GroupStrategy, DecalBatch}
+import com.glyph.scala.lib.util.Disposable
 import com.glyph.scala.lib.util.collection.LinkedList
 
 /**
  * @author glyph
  */
-class DecalRenderer extends RequireCamera with Disposable{
+class DecalRenderer extends RequireStrategy with Disposable {
   protected val decals = new LinkedList[DecalDrawable]
   protected val batch = new DecalBatch()
-  private val strategy = new CameraGroupStrategy(null)
-  batch.setGroupStrategy(strategy)
+  //TODO カメラセットのタイミングはインスタンス作成時っぽい
 
-  def add(d:DecalDrawable){
+  def add(d: DecalDrawable) {
     decals.push(d)
   }
-  def remove(d:DecalDrawable){
+
+  def remove(d: DecalDrawable) {
     decals.remove(d)
   }
 
-  def draw(camera: Camera) {
-    strategy.setCamera(camera)
-    decals.foreach {_.draw(batch)}
+  def draw(strategy: GroupStrategy) {
+    batch.setGroupStrategy(strategy)
+    decals.foreach {
+      _.draw(batch)
+    }
     batch.flush()
   }
 
   def dispose() {
     batch.dispose()
-    strategy.dispose()
   }
 }

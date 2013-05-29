@@ -1,10 +1,10 @@
-package com.glyph.scala.lib.util.updatable.decal
+package com.glyph.scala.lib.libgdx.decal
 
 import com.glyph.scala.lib.util.updatable.task.InterpolationTask
 
 /**
  * @author glyph
  */
-trait DecalInterpolation extends DecalTask with InterpolationTask{
+trait DecalInterpolation extends DecalTask with InterpolationTask {
 
 }

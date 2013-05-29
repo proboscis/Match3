@@ -1,24 +1,24 @@
-package com.glyph.scala.lib.util.actor
+package com.glyph.scala.lib.libgdx.actor
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.math.{Rectangle, MathUtils}
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.glyph.scala.lib.util.gl.ViewportStack
-import com.glyph.scala.lib.util.drawable.RequireCamera
+import com.glyph.scala.lib.libgdx.drawable.RequireCamera
 
 /**
  * @author glyph
  */
 trait PerspectiveRenderer extends Actor {
-  val drawable:RequireCamera
+  val drawable: RequireCamera
   val camera = new PerspectiveCamera(60f, Gdx.graphics.getWidth, Gdx.graphics.getHeight)
   camera.near = 1
   camera.far = 1000
   val area = new Rectangle()
   val bound = new Rectangle()
-
+//TODO strategyの切り替え実装
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     batch.end()

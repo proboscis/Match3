@@ -12,10 +12,8 @@ class GameTable extends Table with Updatables {
   val model = new CardGameModel
   val controller = new CardGameController(this, model)
   this.add(controller)
-
   override def act(delta: Float) {
     super.act(delta)
     update(delta)
   }
-
 }

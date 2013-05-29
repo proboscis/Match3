@@ -1,8 +1,8 @@
-package com.glyph.scala.lib.util.updatable.decal
+package com.glyph.scala.lib.libgdx.decal
 
 import com.badlogic.gdx.math.Vector3
 import com.glyph.scala.lib.util.updatable.task.Task
-import com.glyph.scala.lib.graphics.util.decal.Decal
+import com.badlogic.gdx.graphics.g3d.decals.Decal
 
 /**
  * @author glyph
@@ -12,6 +12,7 @@ trait DecalTask extends Task {
 }
 
 object DecalTask {
+
   trait MoveTo extends DecalInterpolation {
     var start: Vector3 = new Vector3
     var end: Vector3 = new Vector3()
@@ -28,6 +29,6 @@ object DecalTask {
         (end.z - start.z) * alpha + start.z
       )
     }
-  }
 
+  }
 }

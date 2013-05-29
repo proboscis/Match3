@@ -2,25 +2,25 @@ package com.glyph.scala.game.screen
 
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.glyph.scala.ScalaGame
-import com.glyph.scala.lib.util.actor.Scissor
 import com.glyph.scala.lib.util.screen.Screen
 import com.badlogic.gdx.{Game, Gdx}
 import com.badlogic.gdx.graphics.GL10
 import com.glyph.scala.game.model.CardGameModel
-import com.glyph.scala.lib.util.updatable.Updatables
 import com.glyph.scala.game.controller.CardGameController
+import com.glyph.scala.lib.util.scene.UpdatableNode
+import com.glyph.scala.lib.libgdx.actor.Scissor
 
 /**
  * @author glyph
  */
-class GameScreen(game: Game) extends Screen with Updatables {
+class GameScreen(game: Game) extends Screen with UpdatableNode {
+
   import com.glyph.scala.ScalaGame._
 
   val model = new CardGameModel
   val root = new Table() with Scissor
   val controller = new CardGameController(root, model)
-  this.add(controller)
+  this += (controller)
   val stage = new Stage(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, true)
   root.setSize(stage.getWidth, stage.getHeight)
   root.debug()

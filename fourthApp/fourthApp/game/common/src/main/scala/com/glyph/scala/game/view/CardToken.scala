@@ -8,23 +8,25 @@ import com.glyph.scala.lib.math.Vec2
 import com.glyph.java.particle.{SpriteExplosion, SpriteParticle, ParticlePool}
 import com.glyph.scala.game.card.Card
 import com.badlogic.gdx.math.MathUtils
-import com.glyph.scala.lib.util.actor.Touchable
+import com.glyph.scala.lib.libgdx.actor.Touchable
 
 /**
  * @author glyph
  */
-class CardToken(val card:Card,pool:ParticlePool[SpriteParticle]) extends Actor with Touchable{
-  val sprite = new Sprite(AM.instance().get[Texture]("data/card"+MathUtils.random(1,10)+".png"))
-  override def draw(batch: SpriteBatch, parentAlpha: Float){
+class CardToken(val card: Card, pool: ParticlePool[SpriteParticle]) extends Actor with Touchable {
+  val sprite = new Sprite(AM.instance().get[Texture]("data/card" + MathUtils.random(1, 10) + ".png"))
+
+  override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
-    sprite.setPosition(getX,getY)
+    sprite.setPosition(getX, getY)
     sprite.setRotation(getRotation)
-    sprite.setScale(getScaleX,getScaleY)
-    sprite.setSize(getWidth,getHeight)
-    sprite.draw(batch,parentAlpha)
+    sprite.setScale(getScaleX, getScaleY)
+    sprite.setSize(getWidth, getHeight)
+    sprite.draw(batch, parentAlpha)
   }
-  onPressed = (pos:Vec2)=>{
-    getParent.addActor(new SpriteExplosion(sprite,pool))
+
+  onPressed = (pos: Vec2) => {
+    getParent.addActor(new SpriteExplosion(sprite, pool))
     remove()
     true
   }

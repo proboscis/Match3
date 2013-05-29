@@ -28,6 +28,7 @@ package object json {
     implicit def ScalaJSONToString(s: ScalaJSON) = s.toString
     implicit def ScalaJSONToInt(s: ScalaJSON) = s.toInt
     implicit def ScalaJSONToDouble(s: ScalaJSON) = s.toDouble
+    implicit def ScalaJSONToFloat(s:ScalaJSON) = s.toDouble.toFloat
   }
 
   case class JSONException(name:String = "default") extends RuntimeException(name)

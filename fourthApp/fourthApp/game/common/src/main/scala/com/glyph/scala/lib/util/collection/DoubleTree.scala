@@ -4,15 +4,16 @@ package com.glyph.scala.lib.util.collection
  * @author glyph
  */
 trait DoubleTree[T<:DoubleTree[T]] extends Tree[T]{
-  var parent:DoubleTree[T] = null
+  self:T=>
+  var parent:T = null.asInstanceOf[T]
 
   override def addChild(child:T) {
-    child.parent = this
+    child.parent = self
     super.addChild(child)
   }
 
   override def removeChild(child: T) {
-    child.parent = null
+    child.parent = null.asInstanceOf[T]
     super.removeChild(child)
   }
 }

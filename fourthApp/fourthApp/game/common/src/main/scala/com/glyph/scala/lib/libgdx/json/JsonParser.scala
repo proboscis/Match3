@@ -7,15 +7,15 @@ import com.glyph.scala.lib.util.callback.Callback
 /**
  * @author glyph
  */
-abstract class JsonParser(filename:String){
+class JsonParser(filename:String){
   import com.glyph.scala.lib.util.json.JSON._
   private val reload:Boolean = true
-  var onLoad = ()=>{}
+  private var onLoad =(_:ScalaJSON)=>{}
   protected var lastModifiedTime = Gdx.files.internal(filename).lastModified()
 
-  def load(f: =>Unit){
-    onLoad = ()=>f
-    doParse(parseJSON(Gdx.files.internal(filename).readString()))
+  def load(f: ScalaJSON=>Unit){
+    onLoad = f
+    onLoad(parseJSON(Gdx.files.internal(filename).readString()))
     if (reload) {
       startThread()
     }
@@ -31,15 +31,15 @@ abstract class JsonParser(filename:String){
           val time = file.lastModified()
           if (lastModifiedTime != time) {
             lastModifiedTime = time
-            doParse(parseJSON(file.readString()))
+            onLoad(parseJSON(file.readString()))
           }
         }
       }
     }).start()
   }
-  private def doParse(json:ScalaJSON){
-    parse(json)
-    onLoad()
+}
+object JsonParser{
+  def apply(filename:String):JsonParser={
+    new JsonParser(filename)
   }
-  protected def parse(json: ScalaJSON)
 }

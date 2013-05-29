@@ -9,11 +9,11 @@ import com.glyph.java.particle.{SpriteParticle, ParticlePool}
 import collection.mutable.ListBuffer
 import com.badlogic.gdx.scenes.scene2d.actions.{Actions, MoveToAction}
 import com.badlogic.gdx.math.Interpolation
-import com.glyph.scala.lib.util.actor.{Actable, Touchable, Scissor}
 import com.glyph.scala.lib.util.updatable.UpdateQueue
 import com.glyph.java.asset.AM
 import com.badlogic.gdx.audio.Sound
 import com.glyph.scala.game.view.CardToken
+import com.glyph.scala.lib.libgdx.actor.{Touchable, Scissor, Actable}
 
 /**
  * UI class
@@ -21,7 +21,7 @@ import com.glyph.scala.game.view.CardToken
  */
 class CardTable(deque: CardDeque) extends Group
 with Disposable with Touchable with Scissor with Actable {
-  val pool = new ParticlePool[SpriteParticle](classOf[SpriteParticle],1000)
+  val pool = new ParticlePool[SpriteParticle](classOf[SpriteParticle], 1000)
   deque.register(dequeCallback)
   val tokens = ListBuffer.empty[CardToken]
   val drawCardQueue = new UpdateQueue(0.1f)
@@ -55,7 +55,7 @@ with Disposable with Touchable with Scissor with Actable {
   }
 
   def setupTokenTargets() {
-    var i = 0;
+    var i = 0
     tokens.foreach {
       token => {
         val action = Actions.action(classOf[MoveToAction])

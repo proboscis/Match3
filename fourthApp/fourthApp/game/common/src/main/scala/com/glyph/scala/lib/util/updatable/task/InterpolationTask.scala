@@ -21,7 +21,6 @@ trait InterpolationTask extends TimedTask{
       if (completed)onEnd()
     }
   }
-
   def apply(alpha:Float)
   def onStart(){}
   def onEnd(){}

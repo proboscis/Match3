@@ -1,4 +1,4 @@
-package com.glyph.scala.lib.util.actor
+package com.glyph.scala.lib.libgdx.actor
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.{Vector3, Rectangle, Matrix4}
@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.{Vector3, Rectangle, Matrix4}
 object ActorUtil {
   val tmp = new Vector3
 
-  def getBounds(camera:Camera)(area:Rectangle)(bound:Rectangle)(transform:Matrix4){
+  def getBounds(camera: Camera)(area: Rectangle)(bound: Rectangle)(transform: Matrix4) {
     tmp.set(area.x, area.y, 0)
     tmp.mul(transform)
     camera.project(tmp)
