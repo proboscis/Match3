@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.libgdx.drawable
 
-import com.glyph.scala.lib.util.collection.DoubleLinkedList
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
+import com.glyph.scala.lib.util.collection.list.DoubleLinkedList
 
 /**
  * @author glyph

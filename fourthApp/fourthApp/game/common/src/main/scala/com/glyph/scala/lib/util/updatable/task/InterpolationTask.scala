@@ -24,4 +24,8 @@ trait InterpolationTask extends TimedTask{
   def apply(alpha:Float)
   def onStart(){}
   def onEnd(){}
+  def using(i:Interpolation):this.type={
+    interpolation = i
+    this
+  }
 }

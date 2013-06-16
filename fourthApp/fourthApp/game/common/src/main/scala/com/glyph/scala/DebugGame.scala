@@ -3,13 +3,16 @@ package com.glyph.scala
 import com.badlogic.gdx.{Gdx, Game}
 import com.glyph.java.asset.AM
 import com.badlogic.gdx.graphics.{GL10, Texture}
-import game.screen.{ScrollTestScreen, DebugScreen, LoadingScreen}
 import com.badlogic.gdx.audio.Sound
+import game.puzzle.screen.PuzzleScreen
+import game.screen.DebugScreen
+import lib.libgdx.screen.LoadingScreen
 
 /**
  * @author glyph
  */
-class DebugGame extends Game {
+class DebugGame extends Game{
+
   def create() {
     AM.create()
     var i = 1
@@ -23,7 +26,7 @@ class DebugGame extends Game {
     AM.instance().load("data/background.png", classOf[Texture])
     AM.instance().load("data/table.png", classOf[Texture])
     AM.instance().load("data/tile.png", classOf[Texture])
-    AM.instance().load("data/rightArrow.png",classOf[Texture])
+    AM.instance().load("data/rightArrow.png", classOf[Texture])
     AM.instance().load("data/leftArrow.png", classOf[Texture])
 
     AM.instance().load("data/TileA4.png", classOf[Texture])
@@ -32,8 +35,9 @@ class DebugGame extends Game {
     //AM.instance().finishLoading()
     val loading = new LoadingScreen
     loading.onFinish += (() => {
-      setScreen(new DebugScreen)
+      //setScreen(new DebugScreen)
       //setScreen(new ScrollTestScreen)
+      setScreen(new PuzzleScreen)
     })
     setScreen(loading)
   }

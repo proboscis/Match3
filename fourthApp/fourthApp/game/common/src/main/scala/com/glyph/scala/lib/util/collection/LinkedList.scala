@@ -8,7 +8,7 @@ import collection.mutable
 class LinkedList[T] extends mutable.Traversable[T] {
   val mHead = new Element
 
-  def push(e: T) {
+  def push(e: T){
     val next = new Element
     next.data = e
     next.next = mHead.next
@@ -26,7 +26,7 @@ class LinkedList[T] extends mutable.Traversable[T] {
   def remove(t: T) {
     var current = mHead.next
     var prev = mHead
-    var continue = current.next != null
+    var continue = current != null
     while (continue) {
       if (current.data == t) {
         prev.next = current.next
@@ -34,15 +34,16 @@ class LinkedList[T] extends mutable.Traversable[T] {
       } else {
         prev = current
         current = current.next
+        continue = current != null
       }
     }
   }
 
   override def foreach[U](f: (T) => U) {
-    var current = mHead
-    while (current != null && current.next != null) {
-      current = current.next
+    var current = mHead.next
+    while (current != null) {
       f(current.data)
+      current = current.next
     }
   }
 

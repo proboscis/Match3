@@ -1,21 +1,32 @@
 package com.glyph.test
 
+import collection.mutable.ListBuffer
+
 
 /**
  * @author glyph
  */
 object Test {
   def main(args: Array[String]) {
-      val i = 1
+    //TODO observer test
+  }
 
-  }
-  class Cond(b:Boolean)(f: =>Unit){
-    def when(b_ :Boolean)(f_ : =>Unit):Cond={
-      new Cond(b_)(f_)
+  class Observable[T<:Any] {
+    val observers = ListBuffer[(T) => Unit]()
+    def apply(t: T) {
+      observers.foreach(_(t))
     }
-    def or(){}
   }
-  implicit def Unit2Cond(u:Unit):Cond={
-    new Cond(true)()
+
+  trait Observing {
+    val blocks = ListBuffer[Any]()
+    def observe[T](o: Observable[T])(block: T => Unit) {
+      val cb = (t:T)=>{
+        block(t)
+      }
+      blocks += cb
+      o.observers += cb
+    }
   }
+
 }

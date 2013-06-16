@@ -6,7 +6,7 @@ package com.glyph.scala.lib.util.updatable.task
 object TaskUtil {
   def delay(sec:Float)(f: =>Unit):Task={
     new TimedTask with CompleteHook{
-      val duration: Float = sec
+      var duration: Float = sec
       onComplete(f)
     }
   }

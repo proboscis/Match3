@@ -1,7 +1,8 @@
-package com.glyph.scala.lib.util.screen
+package com.glyph.scala.lib.libgdx.screen
 
 import com.glyph.java.asset.AM
 import com.glyph.scala.lib.util.callback.DeprecatedCallback
+import com.glyph.scala.lib.util.screen.Screen
 
 /**
  * @author glyph
@@ -11,7 +12,7 @@ trait Loader extends Screen{
   override def render(delta: Float) {
     super.render(delta)
     val done = AM.instance().update()
-    println(AM.instance().getProgress)
+    //println(AM.instance().getProgress)
     if (done){
       onFinish()
     }

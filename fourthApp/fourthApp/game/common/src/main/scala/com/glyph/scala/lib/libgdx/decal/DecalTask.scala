@@ -29,6 +29,17 @@ object DecalTask {
         (end.z - start.z) * alpha + start.z
       )
     }
-
+    def to(pos:Vector3):this.type ={
+      end.set(pos)
+      this
+    }
+  }
+  object Move{
+    def apply(d:Decal):MoveTo={
+      new MoveTo {
+        val decal: Decal = d
+        var duration: Float = 0
+      }
+    }
   }
 }

@@ -1,9 +1,9 @@
 package com.glyph.scala
 
 import com.badlogic.gdx.Game
-import game.screen._
 import com.badlogic.gdx.graphics.Texture
 import com.glyph.java.asset.AM
+import lib.libgdx.screen.LoadingScreen
 
 /**
  * @author glyph

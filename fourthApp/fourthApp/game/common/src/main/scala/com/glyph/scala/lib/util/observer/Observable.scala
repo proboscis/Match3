@@ -1,31 +1,13 @@
 package com.glyph.scala.lib.util.observer
-import com.glyph.scala.lib.util.collection.LinkedList
+
+import collection.mutable.ListBuffer
 
 /**
  * @author glyph
  */
-trait Observable[T]{
-  this:T=>
-  type Callback = (T , Any) => Unit
-  val observers = new LinkedList[Callback]
-
-  def register(f: Callback) {
-    observers push f
-  }
-
-  def unregister(f: Callback) {
-    observers remove f
-  }
-
-  protected def notifyObservers() {
-    observers.foreach {
-      f => f(this, null)
-    }
-  }
-
-  protected def notifyObservers(value: Any) {
-    observers.foreach {
-      f => f(this, value)
-    }
+class Observable [T]{
+  val observers = new ListBuffer[(T)=>Unit]
+  def apply(t:T){
+    observers foreach{_(t)}
   }
 }
