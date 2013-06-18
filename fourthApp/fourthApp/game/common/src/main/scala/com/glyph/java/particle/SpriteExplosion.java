@@ -1,8 +1,5 @@
 package com.glyph.java.particle;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -10,6 +7,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * DURATION秒後に自動で自分をremoveしparticleもdisposeします
@@ -93,7 +93,7 @@ public class SpriteExplosion extends Actor implements Disposable {
                 sp.init(region);
                 sp.setSize(divX, divY);
                 sp.setPosition(spx + x * divX * sx, spy + height - y * divY * sy);
-
+                sp.setColor(sprite.getColor());
                 result.add(sp);
             }
         }

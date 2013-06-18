@@ -1,9 +1,10 @@
 package com.glyph.scala
 
-import com.badlogic.gdx.Game
+import com.badlogic.gdx.{Gdx, Game}
 import com.badlogic.gdx.graphics.Texture
 import com.glyph.java.asset.AM
 import lib.libgdx.screen.LoadingScreen
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 
 /**
  * @author glyph
@@ -42,4 +43,5 @@ class ScalaGame extends Game {
 object ScalaGame {
   final val VIRTUAL_WIDTH = 540
   final val VIRTUAL_HEIGHT = 800
+  val font = new BitmapFont(Gdx.files.internal("font/Harrington.fnt"),false)
 }
