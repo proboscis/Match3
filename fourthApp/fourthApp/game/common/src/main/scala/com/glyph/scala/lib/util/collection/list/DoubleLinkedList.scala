@@ -43,6 +43,9 @@ class DoubleLinkedList[T] extends Traversable[T] {
     }
   }
 
+  def remove(list: T*){
+    list foreach remove
+  }
 
   override def isEmpty: Boolean = {
     mHead.next == mTail

@@ -10,8 +10,8 @@ import scala.collection.mutable
  * @author glyph
  */
 class Puzzle {
-  val ROW = 5
-  val COLUMN = 5
+  val ROW = 8
+  val COLUMN = 8
   /**
    * should contain the data of puzzling panels
    **/
@@ -19,22 +19,24 @@ class Puzzle {
     _ => new mutable.ArrayBuffer[Panel]
   }: _*)
   // the right most column
-  val onPanelRemoved = new Callback1[(Panel, Int, Int)]
-  val onPanelAdded = new Callback1[(Panel, Int, Int)]
+  type Event = (Panel, Int, Int)
+  val onPanelRemoved = new Callback1[Event]
+  val onPanelAdded = new Callback1[Event]
+  val onScan = new Callback1[(Seq[Event], Seq[Event])]
 
   def addPanel(x: Int) {
     val p = Panel.random()
     panels(x) += p
     onPanelAdded(p, x, panels(x).size - 1)
-    println("add"+p)
-    println(this)
+    //println("add"+p)
+    //println(this)
   }
 
   def initPanel() {
-    for (i <- 0 until panels.length; j <- 1 to 5) {
+    for (i <- 0 until COLUMN; j <- 0 until ROW) {
       addPanel(i)
     }
-    println(this)
+    // println(this)
   }
 
   /**
@@ -46,7 +48,7 @@ class Puzzle {
     まず横についてチェック。
     次に縦についてチェック・・・
      */
-    (0 until min(COLUMN, panels.size)).map {
+    val scanned = (0 until min(COLUMN, panels.size)).map {
       x => (0 until min(ROW, panels(x).size)).map {
         y: Int => {
           {
@@ -81,27 +83,31 @@ class Puzzle {
         }
       }.flatten
     }.flatten.distinct.map {
-      case (x,y)=>{
+      case (x, y) => {
         (panels(x)(y), x, y)
       }
-    }.foreach {
-      case (p, x, y) =>{
-        //本当はインスタンスチェックをして欲しい・・・
-        panels(x) -= p//TODO ここでリムーブが内容チェックになっているっぽい
-        println("remove "+ p)
-        onPanelRemoved(p, x, y)
+    }
+    scanned.foreach {
+      case (p, x, y) => {
+        panels(x) = panels(x).filter {
+          _ ne p
+        }
+        //println("remove "+ p)
+        //onPanelRemoved(p, x, y)
       }
     }
-    fill()
+    onScan(scanned,fill())
+    println(this)
   }
 
-  def fill(){
-    for (x <- 0 until panels.size){
-      for ( i <- panels(x).size until ROW){
-        addPanel(x)
-      }
+  def fill(): Seq[Event] = {
+    for (x <- 0 until panels.size;i <- panels(x).size until ROW)yield {
+      val p = Panel.random()
+      panels(x) += p
+      (p, x, i - 1)
     }
   }
+
   override def toString: String = {
     panels.map {
       col => col.map {

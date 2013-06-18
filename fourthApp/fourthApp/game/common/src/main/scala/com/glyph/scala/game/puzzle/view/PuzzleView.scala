@@ -10,12 +10,13 @@ import com.badlogic.gdx.scenes.scene2d
  * @author glyph
  */
 class PuzzleView(puzzle: Puzzle) extends Table with Scissor {
-  def marginX = getWidth/(5f + 6f*0.1f)*0.1f
-  def marginY = getHeight/(5f + 6f*0.1f)*0.1f
-  def panelW = getWidth/(5f + 6f*0.1f)
-  def panelH = getHeight/(5f + 6f*0.1f)
-  def divX = puzzleGroup.getWidth/5f
-  def divY = puzzleGroup.getHeight/5f
+  import puzzle._
+  def marginX = getWidth/(COLUMN + COLUMN*0.1f)*0.1f
+  def marginY = getHeight/(ROW + ROW*0.1f)*0.1f
+  def panelW = getWidth/(COLUMN + COLUMN*0.1f)
+  def panelH = getHeight/(ROW + ROW*0.1f)
+  def divX = puzzleGroup.getWidth/COLUMN
+  def divY = puzzleGroup.getHeight/ROW
   val puzzleGroup = new Group with Scissor
   this.add(new Group{
     this.addActor(puzzleGroup)

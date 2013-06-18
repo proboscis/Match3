@@ -13,9 +13,6 @@ class TileViewer(filename: String, tw: Int, th: Int) extends Table {
   for (row <- regions.tile) {
     for (region <- row) {
       add(new Image(region) with Touchable {
-        onPressed = (pos: Vec2) => {
-          println(pos)
-        }
       })
     }
     this.row()

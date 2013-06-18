@@ -16,7 +16,6 @@ class LoadingScreen extends Screen with Loader {
     val font = new BitmapFont()
     font.setColor(Color.WHITE)
     setPosition(stage.getWidth / 2, stage.getHeight / 2)
-
     override def draw(batch: SpriteBatch, parentAlpha: Float) {
       super.draw(batch, parentAlpha)
       font.draw(batch, "Loading...%.1f%%".format(AM.instance().getProgress * 100), getX, getY)

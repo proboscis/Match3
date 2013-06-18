@@ -5,18 +5,13 @@ import com.glyph.java.asset.AM
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
+import com.glyph.scala.lib.libgdx.actor.{Touchable, ExplosionFadeout, DrawSprite}
 
 /**
  * @author glyph
  */
-class CardToken extends Actor {
+class CardToken(w:Float,h:Float) extends Actor with DrawSprite with ExplosionFadeout with Touchable{
   val sprite = new Sprite(AM.instance().get[Texture]("data/card" + MathUtils.random(1, 10) + ".png"))
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
-    super.draw(batch, parentAlpha)
-    sprite.setPosition(getX, getY)
-    sprite.setRotation(getRotation)
-    sprite.setScale(getScaleX, getScaleY)
-    sprite.setSize(getWidth, getHeight)
-    sprite.draw(batch, parentAlpha)
-  }
+  setSize(w,h)
+  setOrigin(w/2,h/2)
 }

@@ -25,7 +25,7 @@ class CardToken(val card: Card, pool: ParticlePool[SpriteParticle]) extends Acto
     sprite.draw(batch, parentAlpha)
   }
 
-  onPressed = (pos: Vec2) => {
+  onPressed = (x,y) => {
     getParent.addActor(new SpriteExplosion(sprite, pool))
     remove()
     true

@@ -44,8 +44,8 @@ with Disposable with Touchable with Scissor with Actable {
     val token = new CardToken(card, pool)
     token.setSize(getWidth / 5, getWidth / 5 * 1.618f)
     val func = token.onPressed
-    token.onPressed = (pos: Vec2) => {
-      func(pos)
+    token.onPressed = (x,y) => {
+      func(x,y)
       tokens -= token
       deque.drawCard()
       true
@@ -74,8 +74,8 @@ with Disposable with Touchable with Scissor with Actable {
     deque.unregister(dequeCallback)
   }
 
-  onPressed = (pos: Vec2) => {
-    println("pressed" + pos)
+  onPressed = (x,y) => {
+    println("pressed" + x + ","+y)
     true
   }
 }
