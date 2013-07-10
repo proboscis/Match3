@@ -16,8 +16,8 @@ class BattleController(battle: Battle) extends UpdatableNode with DecalNode {
   val PLAYER_POSITION = new Vector3(2, 6f, 0)
   val ENEMY_POSITION = new Vector3(-2, 6, 0)
   val turnManager = new TurnManager
-  //TODO プレイヤーや敵の座標の決定
-  //TODO 戦闘システムの実装
+  //TODOO プレイヤーや敵の座標の決定
+  //TODOO 戦闘システムの実装
   val player = new CharacterRenderer
     with SceneComponent
     with TurnProcessor

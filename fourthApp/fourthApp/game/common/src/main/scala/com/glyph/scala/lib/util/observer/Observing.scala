@@ -1,25 +1,47 @@
 package com.glyph.scala.lib.util.observer
 
-import collection.mutable.ListBuffer
 
 /**
  * @author glyph
  */
 trait Observing {
-  private val observers = new ListBuffer[Observer[_]]
-  def observe[T](o:Observable[T])(f: (T)=>Unit):Observer[T] ={
-    val oo = new Observer(o,f)
-    observers += oo
+  private var observers: List[Observer[_]] = Nil
+
+  def observe[T](o: Observable[T])(f: (T) => Unit): Observer[T] = {
+    val oo = new Observer(o, f)
+    observers = oo :: observers
     oo
   }
-  def clearObserver(){
-    observers foreach {_.remove()}
+
+  def clearObservers() {
+    observers foreach {
+      _.remove()
+    }
+    observers = Nil
   }
-  class Observer[T](o:Observable[T],f:(T)=>Unit){
-    o.observers += f
-    def remove(){
-      o.observers -= f
-      observers -= this
+
+  def removeObserver(o: Observable[_]) {
+    observers = observers filter{
+      observer =>{
+        if(observer.o == o){
+          observer.remove()
+          false
+        }else true
+      }
     }
   }
+
+  class Observer[T](val o: Observable[T], f: (T) => Unit) {
+    o.subscribe(this)
+
+    def remove() {
+      o.unSubscribe(this)
+      observers = observers diff this :: Nil
+    }
+
+    def apply(param: T) {
+      f(param)
+    }
+  }
+
 }

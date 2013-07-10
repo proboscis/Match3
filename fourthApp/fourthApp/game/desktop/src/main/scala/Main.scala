@@ -7,7 +7,7 @@ object Main extends App {
   val cfg = new LwjglApplicationConfiguration()
   cfg.title = "Game"
   cfg.height = 700
-  cfg.width = 600
+  cfg.width = 320
   cfg.useGL20 = true
   new LwjglApplication(new DebugGame(), cfg)
 }

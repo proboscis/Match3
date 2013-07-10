@@ -23,12 +23,12 @@ class StageController(stage: StageData) extends UpdatableNode with DecalNode {
     json =>
       val dur: Float = json.duration
       clear() //remove all components
-      //TODO reloadで再起動
+      //TODOO reloadで再起動
       val parallel = new Parallel with CompleteHook with SceneComponent
       parallel onComplete {
         onStageReady()
       }
-      //TODO シーングラフのひとつということで管理する
+      //TODOO シーングラフのひとつということで管理する
       this += parallel
       val ground = stage.ground
       ground.data.foldLeft(0) {

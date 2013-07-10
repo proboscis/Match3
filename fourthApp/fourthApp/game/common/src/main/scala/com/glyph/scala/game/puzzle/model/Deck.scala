@@ -12,7 +12,6 @@ class Deck {
   val discarded = new DoubleLinkedQueue[Card]
   val onDrawCard = new Callback1[Card]
 
-  //TODO ゲームのロジックマネージャの作成
   def drawCard() {
     if (deck.isEmpty){
       deck.enqueue(new Card)

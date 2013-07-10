@@ -11,7 +11,7 @@ import com.glyph.scala.ScalaGame
 /**
  * @author glyph
  */
-class LoadingScreen extends Screen with Loader {
+class LoadingScreen extends Loader {
   val stage = new Stage()
   stage.addActor(new Actor {
     val font = ScalaGame.font

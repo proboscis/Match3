@@ -13,6 +13,7 @@ class Vec2(a: Float, b: Float) extends Vector2(a, b) {
 
   def this(v: Vector2) = this(v.x, v.y)
 
+
   def -=(t: Vector2): Vec2 = {
     x = x - t.x
     y = y - t.y

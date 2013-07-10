@@ -8,12 +8,12 @@ import com.glyph.scala.lib.math.Vec2
 import com.glyph.java.particle.{SpriteExplosion, SpriteParticle, ParticlePool}
 import com.glyph.scala.game.card.Card
 import com.badlogic.gdx.math.MathUtils
-import com.glyph.scala.lib.libgdx.actor.Touchable
+import com.glyph.scala.lib.libgdx.actor.FuncTouchable
 
 /**
  * @author glyph
  */
-class CardToken(val card: Card, pool: ParticlePool[SpriteParticle]) extends Actor with Touchable {
+class CardToken(val card: Card, pool: ParticlePool[SpriteParticle]) extends Actor with FuncTouchable {
   val sprite = new Sprite(AM.instance().get[Texture]("data/card" + MathUtils.random(1, 10) + ".png"))
 
   override def draw(batch: SpriteBatch, parentAlpha: Float) {

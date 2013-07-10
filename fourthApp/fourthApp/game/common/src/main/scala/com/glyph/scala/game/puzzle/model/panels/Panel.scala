@@ -5,15 +5,26 @@ import util.Random
 /**
  * @author glyph
  */
-class Panel{
+class Panel {
 }
-object Panel{
+
+object Panel {
   private val rand = new Random()
-  private val seed = List(()=>{new Fire},()=>{new Water},()=>{new Thunder})
-  case class Fire() extends Panel
-  case class Water() extends Panel
-  case class Thunder() extends Panel
-  def random():Panel={
+  private val seed = List(
+    () => new Fire,
+    () => new Water,
+    () => new Thunder,
+    () => new Monster)
+  class Element extends Panel
+  class Fire extends Element
+
+  class Water extends Element
+
+  class Thunder extends Element
+
+  class Monster extends Panel
+
+  def random(): Panel = {
     seed(rand.nextInt(seed.size))()
   }
 }

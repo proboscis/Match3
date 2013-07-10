@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Interpolation
  * @author glyph
  */
 trait ExplosionFadeout extends ActionUtil{
-  //TODO traitで実装
   def explode(f: =>Unit){
     import com.badlogic.gdx.scenes.scene2d.actions.Actions._
     val fade = fadeOut(0.3f)

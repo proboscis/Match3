@@ -13,14 +13,14 @@ import com.glyph.scala.lib.util.updatable.UpdateQueue
 import com.glyph.java.asset.AM
 import com.badlogic.gdx.audio.Sound
 import com.glyph.scala.game.view.CardToken
-import com.glyph.scala.lib.libgdx.actor.{Touchable, Scissor, Actable}
+import com.glyph.scala.lib.libgdx.actor.{FuncTouchable, Scissor, Actable}
 
 /**
  * UI class
  * @author glyph
  */
 class CardTable(deque: CardDeque) extends Group
-with Disposable with Touchable with Scissor with Actable {
+with Disposable with FuncTouchable with Scissor with Actable {
   val pool = new ParticlePool[SpriteParticle](classOf[SpriteParticle], 1000)
   deque.register(dequeCallback)
   val tokens = ListBuffer.empty[CardToken]

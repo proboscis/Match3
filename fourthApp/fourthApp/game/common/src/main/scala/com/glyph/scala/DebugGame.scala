@@ -21,16 +21,16 @@ class DebugGame extends Game{
       i += 1
     }
 
-    AM.instance().load("sound/drawcard.mp3", classOf[Sound])
-    AM.instance().load("sound/gore.wav", classOf[Sound])
-    AM.instance().load("data/background.png", classOf[Texture])
-    AM.instance().load("data/table.png", classOf[Texture])
-    AM.instance().load("data/tile.png", classOf[Texture])
-    AM.instance().load("data/rightArrow.png", classOf[Texture])
-    AM.instance().load("data/leftArrow.png", classOf[Texture])
+    //AM.instance().load("sound/drawcard.mp3", classOf[Sound])
+    //AM.instance().load("sound/gore.wav", classOf[Sound])
+    //AM.instance().load("data/background.png", classOf[Texture])
+    //AM.instance().load("data/table.png", classOf[Texture])
+    //AM.instance().load("data/tile.png", classOf[Texture])
+    //AM.instance().load("data/rightArrow.png", classOf[Texture])
+    //AM.instance().load("data/leftArrow.png", classOf[Texture])
 
-    AM.instance().load("data/TileA4.png", classOf[Texture])
-    AM.instance().load("data/skeleton.png", classOf[Texture])
+    //AM.instance().load("data/TileA4.png", classOf[Texture])
+    //AM.instance().load("data/skeleton.png", classOf[Texture])
     //AM.instance().load("data/lightbulb32.png", classOf[Texture])
     //AM.instance().finishLoading()
     val loading = new LoadingScreen
