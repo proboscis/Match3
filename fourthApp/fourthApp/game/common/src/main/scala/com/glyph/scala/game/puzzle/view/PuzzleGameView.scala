@@ -15,8 +15,12 @@ import com.glyph.scala.lib.util.observer.reactive.Reactor
 /**
  * @author glyph
  */
-class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table with ObsTouchable with Observing {
+class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table with ObsTouchable with Reactor {
+  //TODO デザインの検討
+  //TODO コメントの記述
+
   import ScalaGame._
+
   val root = new WidgetGroup with Layered
   val table = new Table
   val cardView = new CardTableView(game.deck)
@@ -36,37 +40,49 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
   table.row()
   table.debug()
   root.addActor(table)
+  react(statusView.lifeGauge.visualAlpha() <= 0 && game.player.hp() <= 0) {
+    if (_) {
+      println("GAMEOVER")
+      val gameOver = new GameOver
+      import Actions._
+      gameOver.setColor(0, 0, 0, 0)
+      gameOver.addAction(fadeIn(0.7f, Interpolation.exp10Out))
+      root.addActor(gameOver)
+    }
+  }
   //root.addActor(new GameOver)do this when the game is over
-  table.layout()//somehow this is required
+  table.layout() //somehow this is required
   add(root).fill().expand()
   layout()
   //this.addActor(table)
 
   /**
    * TODO
-   * まずはHPを実装、
+   * まずはHPを実装、..done
    * フロアを進む方法を実装
    * 敵のターンを実装
-   * カード使用によるターン進行を実装
+   * カード使用によるターン進行を実装 => Cardの効果はcardに記述する
    */
   //もしかすると、多くのビューをスライドインするかも知れない。それを考慮して作るべき。
   private var mState: State = null
+
   def state_=(s: State) {
     //setter
     if (mState != null) mState.exit()
     mState = s
     s.enter()
   }
+
   def state = mState //getter
   this.state = Idle()
 
-  trait State extends Observing with Reactor{
+  trait State extends Observing with Reactor {
     def enter() {
-      //println("enter:" + this)
+      println("enter:" + this)
     }
 
     def exit() {
-      //println("exit:" + this)
+      println("exit:" + this)
       clearObservers()
       clearReaction()
     }
@@ -94,7 +110,8 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
         }
       }
       react(controller.state) {
-        case controller.Animating => state = PuzzleAnimation()
+        case s if s == controller.Animating => state = PuzzleAnimation()
+        case _ =>
       }
     }
   }
@@ -103,14 +120,10 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
     override def enter() {
       super.enter()
       react(controller.state) {
-        case controller.Idle => {
-          state = Idle()
-        }
+        case s if s == controller.Idle => state = Idle();println("received idle:"+s)
+        case s => println("received:"+s)
       }
     }
-  }
-  case class Transition(src:ObsTouchable,anims:ObsTouchable*){
-
   }
 
   case class ShowDescription(displayable: Displayable) extends State {
@@ -118,12 +131,11 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
       super.enter()
       val (src, actor) = displayable
       observe(actor.press) {
-        _ => if (src.isInstanceOf[CardToken]) state = SlideOut(displayable, () => {
-          controller.startScanSequence()
-          game.player.hp() = game.player.hp() - 10
-        })
-        else {
-          state = SlideOut(displayable)
+        pos => src match {
+          case CardToken(card, _, _) => state = SlideOut(displayable, () => {
+            card(controller) // use card
+          })
+          case _ => state = SlideOut(displayable)
         }
       }
       observe(cardView.cardPressed) {
@@ -164,7 +176,7 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
         token =>
           if (token != src) {
             state = SlideInOut((token, new PanelDescription(token.panel) with ObsTouchable), in)
-          }else{
+          } else {
             disp.clearActions()
             state = SlideOut(in)
           }

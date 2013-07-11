@@ -11,6 +11,7 @@ import com.glyph.scala.lib.libgdx.TextureUtil
  * @author glyph
  */
 class Gauge(alpha:Varying[Float]) extends WidgetGroup{
+  val visualAlpha = Var(alpha())
   val rWidth = Var(getWidth)
   val rHeight = Var(getHeight)
   addActor(new Actor with DrawSprite with Reactor {
@@ -26,6 +27,12 @@ class Gauge(alpha:Varying[Float]) extends WidgetGroup{
         actor.setHeight(h)
         actor.addAction(sizeTo(zero(a*w), zero(h), 1f, exp10Out))
     }
+
+    override def setSize(width: Float, height: Float) {
+      super.setSize(width, height)
+      visualAlpha() = width/Gauge.this.getWidth
+    }
+
     override def draw(batch: SpriteBatch, parentAlpha: Float) {
       super.draw(batch, parentAlpha)
       drawSprite(batch,sprite,parentAlpha)

@@ -2,14 +2,14 @@ package com.glyph.scala.game.puzzle.controller
 
 import com.glyph.scala.game.puzzle.model.Game
 import com.glyph.scala.lib.util.observer.Observing
-import com.glyph.scala.lib.util.observer.reactive.{Var, EventSource}
+import com.glyph.scala.lib.util.observer.reactive.{Reactor, Var, EventSource}
 
 /**
  * Receives events from view, and pass it to the game model
  * this is like an activity of the androids!
  * @author glyph
  */
-class PuzzleGameController(game: Game) extends Observing {
+class PuzzleGameController(game: Game) extends Observing with Reactor{
   //TODO slide in out
 
   import game._
@@ -17,7 +17,27 @@ class PuzzleGameController(game: Game) extends Observing {
   /**
    * notified when the state of this object is changed
    */
-  val state = Var[State](Idle)
+  val state = new Var[State](Idle){
+
+    override def subscribe(callback: (PuzzleGameController.this.type#State) => Unit) {
+      super.subscribe(callback)
+      println("sub=>"+reactiveObservers)
+    }
+
+    override def unSubscribe(callback: (PuzzleGameController.this.type#State) => Unit) {
+      super.unSubscribe(callback)
+      println("unsub=>"+reactiveObservers)
+    }
+
+    override def notifyObservers(t: PuzzleGameController.this.type#State) {
+      super.notifyObservers(t)
+      println("notify=>"+reactiveObservers)
+    }
+  }
+
+  react(state){
+    s => println("react=>"+s)
+  }
 
   trait Event
 
@@ -29,6 +49,9 @@ class PuzzleGameController(game: Game) extends Observing {
 
   def startScanSequence() {
     state().handle(StartScan)
+  }
+  def damage(){
+    game.player.hp() = game.player.hp()-100
   }
 
   def onRemoveAnimationEnd() {
@@ -42,7 +65,7 @@ class PuzzleGameController(game: Game) extends Observing {
   // i want to define only related behaviors... well, define the default behavior...
   trait State {
     def handle(e: Event) {
-      //println("handle:" + e)
+      println("handle:" + e)
     } //do nothing by default
   }
 
@@ -52,7 +75,6 @@ class PuzzleGameController(game: Game) extends Observing {
       e match {
         case StartScan => {
           val scanned = puzzle.scan()
-
           if (!scanned.isEmpty) {
             state() = Animating
             puzzle.remove(scanned)
@@ -75,7 +97,8 @@ class PuzzleGameController(game: Game) extends Observing {
           if (!scanned.isEmpty) {
             puzzle.remove(scanned)
           } else {
-            state() = Idle
+            println("emit Idle")
+            state() = Idle//TODO Idleが通知されない問題を解決
           }
         }
         case _ =>

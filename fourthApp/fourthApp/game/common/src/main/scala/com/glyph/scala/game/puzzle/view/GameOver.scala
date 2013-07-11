@@ -16,11 +16,11 @@ class GameOver extends Actor with DrawSprite {
   fontCache.setText("GAME OVER", 0, 0)
 
   val back = new Sprite(TextureUtil.dummy)
-
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
-    super.draw(batch, parentAlpha)
-    drawSprite(batch, back, parentAlpha*0.8f, color = Color.BLACK)
+    val alpha = parentAlpha * 0.8f
+    super.draw(batch, alpha)
+    drawSprite(batch, back, alpha)
     fontCache.setPosition(getWidth / 2 - fontCache.getBounds.width/2, getHeight / 2)
-    fontCache.draw(batch)
+    fontCache.draw(batch,alpha)
   }
 }

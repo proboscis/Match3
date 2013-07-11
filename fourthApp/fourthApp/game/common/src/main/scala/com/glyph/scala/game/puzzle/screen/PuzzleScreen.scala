@@ -9,7 +9,7 @@ import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import com.glyph.scala.lib.util.updatable.Updatables
 import com.glyph.scala.lib.libgdx.actor.Scissor
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.{FPSLogger, GL20}
+import com.badlogic.gdx.graphics.{Color, FPSLogger, GL20}
 
 /**
  * @author glyph
@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.{FPSLogger, GL20}
 class PuzzleScreen extends TabledScreen {
   //TODO ControllerはViewのイベントをModelに渡すためのもの。
   //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。
+  override val backgroundColor: Color = Color.DARK_GRAY
   def STAGE_WIDTH = ScalaGame.VIRTUAL_WIDTH
   def STAGE_HEIGHT = ScalaGame.VIRTUAL_HEIGHT
   def DEBUG: Boolean = true
@@ -32,7 +33,6 @@ class PuzzleScreen extends TabledScreen {
   root.add(gameView).fill().expand()
   root.invalidate()
   root.layout()
-  println("PuzzleScreen=>layout"+STAGE_WIDTH)
   /*
   init game
    */

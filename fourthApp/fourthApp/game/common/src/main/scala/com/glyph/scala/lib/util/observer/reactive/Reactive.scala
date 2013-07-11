@@ -23,13 +23,14 @@ trait Reactive[T] {
   }
 
   private def validateObserver() {
-    unSubscribeQueue = unSubscribeQueue.dropWhile {
+    unSubscribeQueue foreach {
       func =>
         observers = observers filter {
           case WeakReference(ref) => ref != func
         }
         true
     }
+    unSubscribeQueue = Nil
   }
 
   def notifyObservers(t: T) {
@@ -37,7 +38,7 @@ trait Reactive[T] {
     observers = observers filter {
       wRef => wRef.get match {
         case Some(ref) => ref(t); true
-        case _ => false
+        case _ =>false
       }
     }
     validateObserver()

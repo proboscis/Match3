@@ -1,13 +1,14 @@
 package com.glyph.scala.game.puzzle.view
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.glyph.scala.game.puzzle.model.{Card, Deck}
+import com.glyph.scala.game.puzzle.model.{Deck}
 import com.glyph.scala.lib.libgdx.actor.Updating
 import com.glyph.scala.lib.util.updatable.UpdateQueue
 import com.glyph.scala.lib.util.observer.{Observing, Observable}
 import com.glyph.scala.lib.util.collection.list.DoubleLinkedQueue
 import com.badlogic.gdx.scenes.scene2d.actions.{MoveToAction, Actions}
 import com.badlogic.gdx.math.Interpolation
+import com.glyph.scala.game.puzzle.model.cards.Card
 
 /**
  * @author glyph

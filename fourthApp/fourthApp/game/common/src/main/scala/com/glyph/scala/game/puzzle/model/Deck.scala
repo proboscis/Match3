@@ -1,5 +1,6 @@
 package com.glyph.scala.game.puzzle.model
 
+import cards.{Scanner, Card}
 import com.glyph.scala.lib.util.callback.Callback1
 import com.glyph.scala.lib.util.collection.list.DoubleLinkedQueue
 
@@ -14,7 +15,7 @@ class Deck {
 
   def drawCard() {
     if (deck.isEmpty){
-      deck.enqueue(new Card)
+      deck.enqueue(new Scanner)
     }
     val drawn = deck.dequeue()
     hand.push(drawn)

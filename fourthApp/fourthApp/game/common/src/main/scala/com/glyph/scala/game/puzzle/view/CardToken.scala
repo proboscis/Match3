@@ -6,16 +6,21 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.graphics.g2d.{BitmapFontCache, BitmapFont, SpriteBatch, Sprite}
 import com.glyph.scala.lib.libgdx.actor.{ObsTouchable, FuncTouchable, ExplosionFadeout, OldDrawSprite}
 import com.badlogic.gdx.Gdx
-import com.glyph.scala.game.puzzle.model.Card
+import com.glyph.scala.game.puzzle.controller.PuzzleGameController
+import com.glyph.scala.game.puzzle.model.cards.{Scanner, Card}
 
 /**
  * @author glyph
  */
-class CardToken(val card: Card, w: Float, h: Float) extends Actor with OldDrawSprite with ExplosionFadeout with ObsTouchable {
+case class CardToken(card: Card, w: Float, h: Float) extends Actor with OldDrawSprite with ExplosionFadeout with ObsTouchable {
   // val sprite = new Sprite(AM.instance().get[Texture]("data/card" + MathUtils.random(1, 10) + ".png"))
   //Actionポイントの実装
-  val sprite = new Sprite(CardToken.texture)
-  val glyph = CardToken.random()
+  import CardToken._
+  val sprite = new Sprite(texture)
+  val glyph = mapping (card match {
+    case c:Scanner => 'S'
+    case _=>'?'
+  })
   //TODO　ユグドラシルの
   setColor(Color.LIGHT_GRAY)
   setSize(w*0.9f, h*0.9f)
@@ -28,11 +33,12 @@ class CardToken(val card: Card, w: Float, h: Float) extends Actor with OldDrawSp
     glyph.setColor(Color.WHITE)
     glyph.draw(batch, getColor.a * parentAlpha)
   }
+
 }
 
 object CardToken {
   val yggdrasil = new BitmapFont(Gdx.files.internal("font/yggdrasil.fnt"), false)
-  val keys = "YGGDRASIL".toCharArray
+  val keys = "YGGDRASIL?".toCharArray
 
   def random(): BitmapFontCache = {
     mapping(keys(MathUtils.random(keys.length - 1)))

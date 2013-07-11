@@ -6,9 +6,14 @@ package com.glyph.scala.lib.util.observer.reactive
 trait Reactor {
   private var observers: List[Observer[_]] = Nil
 
-  def react[T](v: Reactive[T])(callback: T => Unit): Observer[T] = {
+  def react[T](v: Reactive[T])(callback: (T) => Unit): Observer[T] = {
     val o = new Observer(v, callback)
     observers = (o :: observers)
+    o
+  }
+  def reactIf(v:Reactive[Boolean])(callback: =>Unit):Observer[Boolean]={
+    val o = new Observer(v,(b:Boolean)=>if(b)callback)
+    observers = o::observers
     o
   }
 

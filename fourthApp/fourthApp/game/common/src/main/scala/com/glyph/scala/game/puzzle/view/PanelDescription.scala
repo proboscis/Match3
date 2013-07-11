@@ -15,7 +15,6 @@ class PanelDescription(panel:Panel) extends Table with OldDrawSprite{
   val sprite: Sprite = new Sprite(PanelToken.texture)
   setColor(Color.WHITE)
   val text = panel.getClass.getSimpleName
-  //TODO 説明文表示中のタップ判定を修正する。
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     ScalaGame.font.setColor(Color.BLACK)
