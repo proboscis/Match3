@@ -15,4 +15,9 @@ class Scanner extends Card{
     controller.damage()
   }
 }
+class Meteor extends Card{
+  def apply(controller: PuzzleGameController) {
+    controller.destroy((0 to 5).map{i => (i,i)}:_*)
+  }
+}
 

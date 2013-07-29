@@ -3,11 +3,10 @@ package com.glyph.scala.game.puzzle.view
 import com.badlogic.gdx.scenes.scene2d.ui.{WidgetGroup, Table}
 import com.glyph.scala.game.puzzle.model.Game
 import com.glyph.scala.ScalaGame
-import com.badlogic.gdx.scenes.scene2d.{Actor, Touchable}
-import com.glyph.scala.lib.util.observer.Observing
+import com.badlogic.gdx.scenes.scene2d.{Touchable, Actor}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.math.Interpolation
-import com.glyph.scala.lib.libgdx.actor.{ObsTouchable, Layered}
+import com.glyph.scala.lib.libgdx.actor.{TouchSource, Layered}
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import com.glyph.scala.lib.libgdx.GdxUtil
 import com.glyph.scala.lib.util.observer.reactive.Reactor
@@ -15,7 +14,7 @@ import com.glyph.scala.lib.util.observer.reactive.Reactor
 /**
  * @author glyph
  */
-class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table with ObsTouchable with Reactor {
+class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table with TouchSource with Reactor {
   //TODO デザインの検討
   //TODO コメントの記述
 
@@ -40,6 +39,13 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
   table.row()
   table.debug()
   root.addActor(table)
+  //root.addActor(new GameOver)do this when the game is over
+  table.layout() //somehow this is required
+  add(root).fill().expand()
+  layout()
+  //this.addActor(table)
+
+  //logic for gameover
   react(statusView.lifeGauge.visualAlpha() <= 0 && game.player.hp() <= 0) {
     if (_) {
       println("GAMEOVER")
@@ -50,17 +56,12 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
       root.addActor(gameOver)
     }
   }
-  //root.addActor(new GameOver)do this when the game is over
-  table.layout() //somehow this is required
-  add(root).fill().expand()
-  layout()
-  //this.addActor(table)
 
   /**
    * TODO
    * まずはHPを実装、..done
-   * フロアを進む方法を実装
-   * 敵のターンを実装
+   * フロアを進む方法を実装 ->見た目も
+   * 敵のターンを実装->見た目も
    * カード使用によるターン進行を実装 => Cardの効果はcardに記述する
    */
   //もしかすると、多くのビューをスライドインするかも知れない。それを考慮して作るべき。
@@ -76,14 +77,13 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
   def state = mState //getter
   this.state = Idle()
 
-  trait State extends Observing with Reactor {
+  trait State extends Reactor {
     def enter() {
-      println("enter:" + this)
+      //println("enter:" + this)
     }
 
     def exit() {
-      println("exit:" + this)
-      clearObservers()
+      //println("exit:" + this)
       clearReaction()
     }
   }
@@ -92,20 +92,20 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
    * event source,
    * display
    */
-  type Displayable = (Actor, ObsTouchable)
+  type Displayable = (Actor, TouchSource)
 
   case class Idle() extends State {
     override def enter() {
       super.enter()
-      observe(puzzleView.panelTouch) {
+      react(puzzleView.panelTouch) {
         token => {
-          state = SlideIn(token, new PanelDescription(token.panel) with ObsTouchable)
+          state = SlideIn(token, new PanelDescription(token.panel) with TouchSource)
         }
       }
-      observe(cardView.cardPressed) {
+      react(cardView.cardPress) {
         token => {
           //cardView.removeToken(token)
-          state = SlideIn(token, new CardDescription(token.card) with ObsTouchable)
+          state = SlideIn(token, new CardDescription(token.card) with TouchSource)
           //controller.startScanSequence()
         }
       }
@@ -120,17 +120,21 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
     override def enter() {
       super.enter()
       react(controller.state) {
-        case s if s == controller.Idle => state = Idle();println("received idle:"+s)
-        case s => println("received:"+s)
+        case s if s == controller.Idle => state = Idle() //;println("received idle:"+s)
+        case s => //println("received:"+s)
       }
     }
+  }
+
+  case class SelectPosition() extends State {
+
   }
 
   case class ShowDescription(displayable: Displayable) extends State {
     override def enter() {
       super.enter()
       val (src, actor) = displayable
-      observe(actor.press) {
+      react(actor.press) {
         pos => src match {
           case CardToken(card, _, _) => state = SlideOut(displayable, () => {
             card(controller) // use card
@@ -138,18 +142,18 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
           case _ => state = SlideOut(displayable)
         }
       }
-      observe(cardView.cardPressed) {
+      react(cardView.cardPress) {
         token =>
           if (token != src) {
-            state = SlideInOut((token, new CardDescription(token.card) with ObsTouchable), displayable)
+            state = SlideInOut((token, new CardDescription(token.card) with TouchSource), displayable)
           } else {
             state = SlideOut(displayable)
           }
       }
-      observe(puzzleView.panelTouch) {
-        token => if (token != src) state = SlideInOut((token, new PanelDescription(token.panel) with ObsTouchable), displayable)
+      react(puzzleView.panelTouch) {
+        token => if (token != src) state = SlideInOut((token, new PanelDescription(token.panel) with TouchSource), displayable)
       }
-      observe(press) {
+      react(press) {
         pos => state = SlideOut(displayable)
       }
     }
@@ -162,20 +166,20 @@ class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table
       slideIn(in) {
         state = ShowDescription(in)
       }
-      observe(cardView.cardPressed) {
+      react(cardView.cardPress) {
         token => {
           if (token == src) {
             disp.clearActions()
             state = SlideOut(in)
           } else {
-            state = SlideInOut((token, new CardDescription(token.card) with ObsTouchable), in)
+            state = SlideInOut((token, new CardDescription(token.card) with TouchSource), in)
           }
         }
       }
-      observe(puzzleView.panelTouch) {
+      react(puzzleView.panelTouch) {
         token =>
           if (token != src) {
-            state = SlideInOut((token, new PanelDescription(token.panel) with ObsTouchable), in)
+            state = SlideInOut((token, new PanelDescription(token.panel) with TouchSource), in)
           } else {
             disp.clearActions()
             state = SlideOut(in)

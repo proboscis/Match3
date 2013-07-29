@@ -3,6 +3,8 @@ package com.glyph.scala.game.puzzle.controller
 import com.glyph.scala.game.puzzle.model.Game
 import com.glyph.scala.lib.util.observer.Observing
 import com.glyph.scala.lib.util.observer.reactive.{Reactor, Var, EventSource}
+import com.glyph.scala.game.puzzle.model.cards.{Meteor, Scanner}
+import com.badlogic.gdx.math.MathUtils
 
 /**
  * Receives events from view, and pass it to the game model
@@ -17,29 +19,36 @@ class PuzzleGameController(game: Game) extends Observing with Reactor{
   /**
    * notified when the state of this object is changed
    */
-  val state = new Var[State](Idle){
-
-    override def subscribe(callback: (PuzzleGameController.this.type#State) => Unit) {
-      super.subscribe(callback)
-      println("sub=>"+reactiveObservers)
-    }
-
-    override def unSubscribe(callback: (PuzzleGameController.this.type#State) => Unit) {
-      super.unSubscribe(callback)
-      println("unsub=>"+reactiveObservers)
-    }
-
-    override def notifyObservers(t: PuzzleGameController.this.type#State) {
-      super.notifyObservers(t)
-      println("notify=>"+reactiveObservers)
-    }
+  val state = Var[State](Idle)
+  def startScanSequence() {
+    state().handle(StartScan)
   }
-
-  react(state){
-    s => println("react=>"+s)
+  def damage(){
+    game.player.hp() = game.player.hp()-50
   }
-
+  def destroy(request:(Int,Int)*){
+    puzzle.removeIndices(request:_*)
+    state().handle(Destroy)
+  }
+  val cardSeed = Array(
+    ()=>new Scanner,
+    ()=>new Meteor
+  )
+  def initialize(){
+    (1 to 40) foreach{_=>
+      deck.deck.push(cardSeed(MathUtils.random(1))())
+    }
+    (1 to 5) foreach {
+      _=>deck.drawCard()
+    }
+    puzzle.fill(puzzle.createFilling)
+  }
+  def drawCard(){
+    deck.drawCard()
+  }
   trait Event
+
+  object Destroy extends Event
 
   object StartScan extends Event
 
@@ -47,12 +56,6 @@ class PuzzleGameController(game: Game) extends Observing with Reactor{
 
   object FillAnimationEnd extends Event
 
-  def startScanSequence() {
-    state().handle(StartScan)
-  }
-  def damage(){
-    game.player.hp() = game.player.hp()-100
-  }
 
   def onRemoveAnimationEnd() {
     state().handle(RemoveAnimationEnd)
@@ -65,7 +68,7 @@ class PuzzleGameController(game: Game) extends Observing with Reactor{
   // i want to define only related behaviors... well, define the default behavior...
   trait State {
     def handle(e: Event) {
-      println("handle:" + e)
+      //println("handle:" + e)
     } //do nothing by default
   }
 
@@ -78,6 +81,13 @@ class PuzzleGameController(game: Game) extends Observing with Reactor{
           if (!scanned.isEmpty) {
             state() = Animating
             puzzle.remove(scanned)
+          }
+        }
+        case Destroy=>{
+          val filling = puzzle.createFilling
+          if(!filling.isEmpty){
+            state() = Animating
+            puzzle.fill(filling)
           }
         }
         case _ =>
@@ -97,8 +107,7 @@ class PuzzleGameController(game: Game) extends Observing with Reactor{
           if (!scanned.isEmpty) {
             puzzle.remove(scanned)
           } else {
-            println("emit Idle")
-            state() = Idle//TODO Idleが通知されない問題を解決
+            state() = Idle
           }
         }
         case _ =>

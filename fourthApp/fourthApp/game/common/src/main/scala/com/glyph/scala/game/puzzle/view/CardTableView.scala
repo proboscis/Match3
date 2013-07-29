@@ -9,6 +9,7 @@ import com.glyph.scala.lib.util.collection.list.DoubleLinkedQueue
 import com.badlogic.gdx.scenes.scene2d.actions.{MoveToAction, Actions}
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.game.puzzle.model.cards.Card
+import com.glyph.scala.lib.util.observer.reactive.EventSource
 
 /**
  * @author glyph
@@ -16,8 +17,7 @@ import com.glyph.scala.game.puzzle.model.cards.Card
 class CardTableView(deck: Deck) extends Table with Updating with Observing {
   val updateQueue = new UpdateQueue(0.1f)
   this.add(updateQueue)
-  val cardPressed = new Observable[CardToken]
-
+  val cardPress = new EventSource[CardToken]
   def removeToken(token: CardToken) {
     token.explode {
       token.remove()
@@ -40,8 +40,8 @@ class CardTableView(deck: Deck) extends Table with Updating with Observing {
   def createToken(card: Card) {
     val token = new CardToken(card, getWidth / 5, getHeight)
     observe(token.press) {
-      pos => cardPressed(token)
-
+      pos =>
+        cardPress.emit(token)//TOOD イベントの結合
     }
     tokens.enqueue(token)
     if (tokens.isEmpty) {

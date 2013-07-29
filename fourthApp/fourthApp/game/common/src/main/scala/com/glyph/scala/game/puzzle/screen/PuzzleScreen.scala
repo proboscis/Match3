@@ -36,6 +36,6 @@ class PuzzleScreen extends TabledScreen {
   /*
   init game
    */
-  game.initialize()
+  gameController.initialize()
   val fps = new FPSLogger
 }

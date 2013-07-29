@@ -90,6 +90,19 @@ class Puzzle {
     onPanelRemoved(events)
     panelRemoveEvent.emit(events)
   }
+  def removeIndices(request:(Int,Int)*){
+    var events:List[Event] = Nil
+    request groupBy(_._1) foreach{
+      case(key,group) => panels(key) = panels(key) diff group.map{
+        case(x,y)=>{
+          events = (panels(x)(y),x,y) :: events
+          panels(x)(y)
+        }
+      }
+    }
+    onPanelRemoved(events)
+    panelRemoveEvent.emit(events)
+  }
 
   def createFilling: Events = {
     for (x <- 0 until panels.size; i <- panels(x).size until ROW) yield {

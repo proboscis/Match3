@@ -15,6 +15,7 @@ import com.badlogic.gdx.Gdx
 import com.glyph.scala.lib.libgdx.actor.action.Waiter
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
+import com.glyph.scala.lib.util.observer.reactive.EventSource
 
 /**
  * @author glyph
@@ -62,7 +63,7 @@ class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends Widge
   import com.glyph.scala.lib.util.Implicit._
 
   val sequencer = new SequentialProcessor {}
-  val panelTouch = new Observable[PanelToken]
+  val panelTouch = new EventSource[PanelToken]
   this add sequencer
   val tokens = Array(puzzle.panels map {
     column => new DoubleLinkedQueue[PanelToken]
@@ -108,7 +109,7 @@ class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends Widge
     //println("create panel token")
     val p = PanelToken(panel)
     observe(p.press){
-      pos => panelTouch(p)
+      pos => panelTouch.emit(p)
     }
     //初期サイズの設定
     p.setSize(panelW, panelH)

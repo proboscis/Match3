@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Actor, Toucha
 /**
  * @author glyph
  */
-trait Touchable extends Actor{
+trait TouchSource extends Actor{
   type POS = (Float,Float)
   val press = new EventSource[POS]
   val drag = new EventSource[POS]

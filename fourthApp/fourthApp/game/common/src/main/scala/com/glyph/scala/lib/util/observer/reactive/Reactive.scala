@@ -7,30 +7,33 @@ import ref.WeakReference
  * @author glyph
  */
 trait Reactive[T] {
-  //TODO Reactive Data-flowの実装
   private var observers: List[WeakReference[T => Unit]] = Nil
-  private var unSubscribeQueue: List[T => Unit] = Nil
+  private var removeQueue: List[T => Unit] = Nil
+  private var addQueue: List[T => Unit] = Nil
 
   def subscribe(callback: T => Unit) {
-    //println("sub=>"+System.identityHashCode(callback))
-    observers = WeakReference(callback) :: observers
+    addQueue = callback :: addQueue
   }
 
   def reactiveObservers = observers
 
   def unSubscribe(callback: T => Unit) {
-    unSubscribeQueue = callback :: unSubscribeQueue
+    removeQueue = callback :: removeQueue
   }
 
   private def validateObserver() {
-    unSubscribeQueue foreach {
+    removeQueue foreach {
       func =>
         observers = observers filter {
           case WeakReference(ref) => ref != func
+          case _=> false
         }
-        true
     }
-    unSubscribeQueue = Nil
+    removeQueue = Nil
+    addQueue foreach {
+      f => observers = WeakReference(f) :: observers
+    }
+    addQueue = Nil
   }
 
   def notifyObservers(t: T) {
@@ -38,7 +41,7 @@ trait Reactive[T] {
     observers = observers filter {
       wRef => wRef.get match {
         case Some(ref) => ref(t); true
-        case _ =>false
+        case _ => false
       }
     }
     validateObserver()

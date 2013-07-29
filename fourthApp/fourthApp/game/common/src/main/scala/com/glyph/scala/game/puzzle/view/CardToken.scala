@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.{BitmapFontCache, BitmapFont, SpriteBatch, 
 import com.glyph.scala.lib.libgdx.actor.{ObsTouchable, FuncTouchable, ExplosionFadeout, OldDrawSprite}
 import com.badlogic.gdx.Gdx
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
-import com.glyph.scala.game.puzzle.model.cards.{Scanner, Card}
+import com.glyph.scala.game.puzzle.model.cards.{Meteor, Scanner, Card}
 
 /**
  * @author glyph
@@ -19,6 +19,7 @@ case class CardToken(card: Card, w: Float, h: Float) extends Actor with OldDrawS
   val sprite = new Sprite(texture)
   val glyph = mapping (card match {
     case c:Scanner => 'S'
+    case _:Meteor =>'M'
     case _=>'?'
   })
   //TODO　ユグドラシルの
@@ -38,7 +39,7 @@ case class CardToken(card: Card, w: Float, h: Float) extends Actor with OldDrawS
 
 object CardToken {
   val yggdrasil = new BitmapFont(Gdx.files.internal("font/yggdrasil.fnt"), false)
-  val keys = "YGGDRASIL?".toCharArray
+  val keys = "YGGDRASIL?M".toCharArray
 
   def random(): BitmapFontCache = {
     mapping(keys(MathUtils.random(keys.length - 1)))

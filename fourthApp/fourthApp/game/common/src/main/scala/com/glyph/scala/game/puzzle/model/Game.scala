@@ -16,18 +16,6 @@ class Game extends Reactor{
   val deck = new Deck
   val action = Var(0) // action point
   val state = player.hp->{life =>if (life <= 0) GAME_OVER else PLAYING}
-  def initialize(){
-    (1 to 40) foreach{_=>
-      deck.deck.push(new Scanner)
-    }
-    (1 to 5) foreach {
-      _=>deck.drawCard()
-    }
-    puzzle.fill(puzzle.createFilling)
-  }
-  def drawCard(){
-    deck.drawCard()
-  }
 }
 object Game extends Enumeration{
   val PLAYING,GAME_OVER = Value
