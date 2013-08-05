@@ -1,26 +1,26 @@
-package com.glyph.scala.game.puzzle.model
+package com.glyph.scala.game.puzzle.model.puzzle
 
-import panels.Panel
-import panels.Panel.{Monster, Water, Fire, Thunder}
-import scala._
 import scala.collection.mutable
 import com.glyph.scala.lib.util.observer.Observable
-import com.glyph.scala.lib.util.observer.reactive.EventSource
+import com.glyph.scala.lib.util.reactive.{Var, EventSource}
 
 /**
+ * generic puzzle!
  * @author glyph
  */
-class Puzzle {
-  import Puzzle._
-
+class Puzzle(panelSeed: () => Panel) {
+  type Event = (Panel, Int, Int)
+  type Events = Seq[Event]
   val ROW = 6
   val COLUMN = 6
   /**
    * should contain the data of puzzling panels
    **/
-  val panels = Array((1 to COLUMN) map {
+  val rawPanels = Array((1 to COLUMN) map {
     _ => new mutable.ArrayBuffer[Panel]
   }: _*)
+
+  val panels = Var(Vector.empty[IndexedSeq[Panel]])
 
   val onPanelRemoved = new Observable[Events]
   val onPanelAdded = new Observable[Events]
@@ -28,6 +28,12 @@ class Puzzle {
   val panelAddEvent = new EventSource[Events]
 
   def canBeScanned = !scan().isEmpty
+
+  private def updatePanels() {
+    panels() = Vector(rawPanels.map {
+      Vector(_: _*)
+    }: _*)
+  }
 
   /**
    * 縦横３つ並んでいるパネルを探し、返す
@@ -38,14 +44,14 @@ class Puzzle {
     まず横についてチェック。
     次に縦についてチェック・・・
      */
-    (0 until min(COLUMN, panels.size)).map {
-      x => (0 until min(ROW, panels(x).size)).map {
+    (0 until min(COLUMN, rawPanels.size)).map {
+      x => (0 until min(ROW, rawPanels(x).size)).map {
         y: Int => {
           {
-            val c = panels(x)(y).getClass
+            val c = rawPanels(x)(y)
             //横
             var index = x + 1
-            while (index < min(panels.size, COLUMN) && y < panels(index).size && panels(index)(y).getClass == c) {
+            while (index < min(rawPanels.size, COLUMN) && y < rawPanels(index).size && rawPanels(index)(y).matchTo(c)) {
               index += 1
             }
             if (index - x > 2) {
@@ -57,9 +63,9 @@ class Puzzle {
             }
           } ::: {
             //縦
-            val c = panels(x)(y).getClass
+            val c = rawPanels(x)(y)
             var index = y + 1
-            while (index < min(ROW, panels(x).size) && panels(x)(index).getClass == c) {
+            while (index < min(ROW, rawPanels(x).size) && rawPanels(x)(index).matchTo(c)) {
               index += 1
             }
             if (index - y > 2) {
@@ -74,7 +80,7 @@ class Puzzle {
       }.flatten
     }.flatten.distinct.map {
       case (x, y) => {
-        (panels(x)(y), x, y)
+        (rawPanels(x)(y), x, y)
       }
     }
   }
@@ -82,51 +88,50 @@ class Puzzle {
   def remove(events: Events) {
     events.foreach {
       case (p, x, y) => {
-        panels(x) = panels(x).filter {
+        rawPanels(x) = rawPanels(x).filter {
           _ ne p
         }
       }
     }
+    updatePanels()
     onPanelRemoved(events)
     panelRemoveEvent.emit(events)
   }
-  def removeIndices(request:(Int,Int)*){
-    var events:List[Event] = Nil
-    request groupBy(_._1) foreach{
-      case(key,group) => panels(key) = panels(key) diff group.map{
-        case(x,y)=>{
-          events = (panels(x)(y),x,y) :: events
-          panels(x)(y)
+
+  def removeIndices(request: (Int, Int)*) {
+    var events: List[Event] = Nil
+    request groupBy (_._1) foreach {
+      case (key, group) => rawPanels(key) = rawPanels(key) diff group.map {
+        case (x, y) => {
+          events = (rawPanels(x)(y), x, y) :: events
+          rawPanels(x)(y)
         }
       }
     }
+    updatePanels()
     onPanelRemoved(events)
     panelRemoveEvent.emit(events)
   }
 
   def createFilling: Events = {
-    for (x <- 0 until panels.size; i <- panels(x).size until ROW) yield {
-      val p = Panel.random()
-      (p, x, i - 1)
+    for (x <- 0 until rawPanels.size; i <- rawPanels(x).size until ROW) yield {
+      (panelSeed(), x, i - 1)
     }
   }
 
   def fill(filling: Events) {
     filling.foreach {
-      case (p, x, y) => panels(x) += p
+      case (p, x, y) => rawPanels(x) += p
     }
+    updatePanels()
     onPanelAdded(filling)
     panelAddEvent.emit(filling)
   }
 
   override def toString: String = {
-    panels.map {
+    rawPanels.map {
       col => col.map {
-        case _: Thunder => "T"
-        case _: Water => "W"
-        case _: Fire => "F"
-        case _: Monster => "M"
-        case _ => "?"
+        _.toString
       }.fold("") {
         _ + "," + _
       }
@@ -134,9 +139,4 @@ class Puzzle {
       _ + "\n" + _
     }
   }
-}
-
-object Puzzle {
-  type Event = (Panel, Int, Int)
-  type Events = Seq[Event]
 }

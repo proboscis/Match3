@@ -6,8 +6,10 @@ import com.glyph.scala.DebugGame
 object Main extends App {
   val cfg = new LwjglApplicationConfiguration()
   cfg.title = "Game"
-  cfg.height = 700
-  cfg.width = 320
+  val ratio = 9d/16d
+  val height = 1920 /3
+  cfg.height = height
+  cfg.width = (height * ratio).toInt
   cfg.useGL20 = true
   new LwjglApplication(new DebugGame(), cfg)
 }

@@ -1,24 +1,39 @@
 package com.glyph.scala.game.puzzle.model
 
 import cards.{Scanner, Card}
-import com.glyph.scala.lib.util.callback.Callback1
-import com.glyph.scala.lib.util.collection.list.DoubleLinkedQueue
+import com.glyph.scala.lib.util.reactive.{EventSource, Var}
+import collection.immutable.Queue
 
 /**
  * @author glyph
  */
+
 class Deck {
-  val deck = new DoubleLinkedQueue[Card]
-  val hand = new DoubleLinkedQueue[Card]
-  val discarded = new DoubleLinkedQueue[Card]
-  val onDrawCard = new Callback1[Card]
+  val deck = Var(Queue.empty[Card])
+  val hand = Var(Queue.empty[Card])
+  val discarded = Var(Queue.empty[Card])
+  val drawCardEvent = EventSource[Card]()
+  val discardEvent = EventSource[Card]()
+
+  def addCard(card: Card) {
+    deck() = deck().enqueue(card)
+  }
 
   def drawCard() {
-    if (deck.isEmpty){
-      deck.enqueue(new Scanner)
+    if (deck().isEmpty) {
+      deck() = deck().enqueue(new Scanner)
     }
-    val drawn = deck.dequeue()
-    hand.push(drawn)
-    onDrawCard(drawn)
+    val (drawn, d) = deck().dequeue
+    deck() = d
+    hand() = hand().enqueue(drawn)
+    drawCardEvent.emit(drawn)
+  }
+
+  def discard(card: Card) {
+    if (hand().contains(card)) {
+      hand() = hand().diff(card :: Nil)
+      discarded() = discarded().enqueue(card)
+      discardEvent.emit(card)
+    }
   }
 }

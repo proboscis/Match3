@@ -38,7 +38,7 @@ case class CardToken(card: Card, w: Float, h: Float) extends Actor with OldDrawS
 }
 
 object CardToken {
-  val yggdrasil = new BitmapFont(Gdx.files.internal("font/yggdrasil.fnt"), false)
+  //val yggdrasil = new BitmapFont(Gdx.files.internal("font/yggdrasil.fnt"), false)
   val keys = "YGGDRASIL?M".toCharArray
 
   def random(): BitmapFontCache = {
@@ -47,7 +47,7 @@ object CardToken {
 
   val mapping = Map(keys map {
     k =>
-      val cache = new BitmapFontCache(yggdrasil)
+      val cache = new BitmapFontCache(yggdrasilFont)
       cache.setText("" + k, 0f, 0f)
       (k -> cache)
   }: _*)

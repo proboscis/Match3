@@ -1,7 +1,13 @@
 package com.glyph.scala.game.puzzle.model
 
-import cards.{Scanner, Card}
-import com.glyph.scala.lib.util.observer.reactive.{Block, Varying, Reactor, Var}
+import com.glyph.scala.lib.util.reactive.{Var, Reactor}
+import com.glyph.scala.game.puzzle.system.turn.TurnManager
+import collection.immutable.Queue
+import com.badlogic.gdx.math.MathUtils
+import Element.{Water, Thunder, Fire}
+import monsters.Slime
+import puzzle.{Panel, Puzzle}
+
 
 /**
  * ゲームの目的：
@@ -9,14 +15,17 @@ import com.glyph.scala.lib.util.observer.reactive.{Block, Varying, Reactor, Var}
  * レベル１００まで到達すること。
  * @author glyph
  */
-class Game extends Reactor{
-  import Game._
+class Game extends Reactor {
   val player = new Player
-  val puzzle = new Puzzle
+  val puzzle = new Puzzle(
+    ()=>MathUtils.random(3)match{
+      case 0 => new Fire
+      case 1 => new Water
+      case 2 => new Thunder
+      case 3 => new Slime
+    }
+  )
   val deck = new Deck
-  val action = Var(0) // action point
-  val state = player.hp->{life =>if (life <= 0) GAME_OVER else PLAYING}
-}
-object Game extends Enumeration{
-  val PLAYING,GAME_OVER = Value
+  val action = Var(0)
+  val dungeon = new Dungeon
 }

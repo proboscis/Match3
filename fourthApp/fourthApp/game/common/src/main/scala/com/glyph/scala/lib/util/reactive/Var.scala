@@ -1,4 +1,4 @@
-package com.glyph.scala.lib.util.observer.reactive
+package com.glyph.scala.lib.util.reactive
 
 
 /**
@@ -15,7 +15,7 @@ class Var[T](private var variable: T) extends Varying[T] {
   }
   override def notifyObservers(t: T) {
     variable = t
-    super.notifyObservers(t)
+     super.notifyObservers(t)
   }
 }
 

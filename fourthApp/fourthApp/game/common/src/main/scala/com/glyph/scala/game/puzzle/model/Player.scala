@@ -1,10 +1,12 @@
 package com.glyph.scala.game.puzzle.model
 
-import com.glyph.scala.lib.util.observer.reactive.Var
+import com.glyph.scala.lib.util.reactive.Var
+
 
 /**
  * @author glyph
  */
 class Player {
-  var hp = Var(100)
+  val hp = Var(100)
+  val position = Var(1)
 }

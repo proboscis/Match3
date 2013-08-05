@@ -1,51 +1,63 @@
 package com.glyph.scala.game.puzzle.controller
 
 import com.glyph.scala.game.puzzle.model.Game
-import com.glyph.scala.lib.util.observer.Observing
-import com.glyph.scala.lib.util.observer.reactive.{Reactor, Var, EventSource}
-import com.glyph.scala.game.puzzle.model.cards.{Meteor, Scanner}
+import com.glyph.scala.game.puzzle.model.cards.{Card, Meteor, Scanner}
 import com.badlogic.gdx.math.MathUtils
+import com.glyph.scala.lib.util.reactive
+import reactive.{Var, EventSource}
 
 /**
  * Receives events from view, and pass it to the game model
  * this is like an activity of the androids!
  * @author glyph
  */
-class PuzzleGameController(game: Game) extends Observing with Reactor{
+class PuzzleGameController(game: Game) {
   //TODO slide in out
-
   import game._
 
   /**
    * notified when the state of this object is changed
    */
   val state = Var[State](Idle)
+  val stateChange = state.toEvents
+
   def startScanSequence() {
     state().handle(StartScan)
   }
-  def damage(){
-    game.player.hp() = game.player.hp()-50
+
+  def damage() {
+    game.player.hp() = game.player.hp() - 10
   }
-  def destroy(request:(Int,Int)*){
-    puzzle.removeIndices(request:_*)
+
+  def destroy(request: (Int, Int)*) {
+    puzzle.removeIndices(request: _*)
     state().handle(Destroy)
   }
+
   val cardSeed = Array(
-    ()=>new Scanner,
-    ()=>new Meteor
+    () => new Scanner,
+    () => new Meteor
   )
-  def initialize(){
-    (1 to 40) foreach{_=>
-      deck.deck.push(cardSeed(MathUtils.random(1))())
+
+  def initialize() {
+    (1 to 40) foreach {
+      _ =>
+        deck.addCard(cardSeed(MathUtils.random(1))())
     }
     (1 to 5) foreach {
-      _=>deck.drawCard()
+      _ => deck.drawCard()
     }
     puzzle.fill(puzzle.createFilling)
   }
-  def drawCard(){
+
+  def drawCard() {
     deck.drawCard()
   }
+
+  def discard(card: Card) {
+    deck.discard(card)
+  }
+
   trait Event
 
   object Destroy extends Event
@@ -83,9 +95,9 @@ class PuzzleGameController(game: Game) extends Observing with Reactor{
             puzzle.remove(scanned)
           }
         }
-        case Destroy=>{
+        case Destroy => {
           val filling = puzzle.createFilling
-          if(!filling.isEmpty){
+          if (!filling.isEmpty) {
             state() = Animating
             puzzle.fill(filling)
           }

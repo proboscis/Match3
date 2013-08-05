@@ -1,4 +1,4 @@
-package com.glyph.scala.lib.util.observer.reactive
+package com.glyph.scala.lib.util.reactive
 
 import collection.immutable.Stack
 
@@ -23,11 +23,10 @@ trait Varying[T] extends Reactive[T] {
   def ~[P](v: Varying[P]): Varying[(T, P)] = {
     new Varying[(T, P)] with Reactor {
       def current: (T, P) = (self(), v())
-
-      react(self) {
+      reactVar(self) {
         s => this.notifyObservers((s, v()))
       }
-      react(v) {
+      reactVar(v) {
         s => this.notifyObservers(self(), s)
       }
     }
@@ -37,9 +36,16 @@ trait Varying[T] extends Reactive[T] {
   def ->[R](f: (T) => R): Varying[R] = {
     new Varying[R] with Reactor {
       def current: R = f(self())
-
-      react(self) {
+      reactVar(self) {
         s => this.notifyObservers(f(s))
+      }
+    }
+  }
+  //maps to event source
+  def toEvents :EventSource[T]={
+    new EventSource[T] with Reactor{
+      reactVar(self){
+        s => emit(s)
       }
     }
   }
@@ -49,6 +55,7 @@ object Varying {
   var tracking = false
   var dependencyMap = Map.empty[Long, Stack[List[Varying[_]]]]
 
+  @Deprecated
   def notify(r: Varying[_]) {
     if (tracking) {
       //prevent checking map when not necessary
@@ -60,6 +67,7 @@ object Varying {
     }
   }
 
+  @Deprecated
   def getDependency(block: => Unit): List[Varying[_]] = {
     val id = Thread.currentThread().getId
     tracking = true

@@ -5,10 +5,10 @@ import com.glyph.scala.lib.libgdx.screen.TabledScreen
 import com.glyph.scala.ScalaGame
 import com.badlogic.gdx.graphics.Texture
 import com.glyph.scala.game.puzzle.view.CardToken
-import com.glyph.scala.lib.util.observer.reactive.{Reactor, Var}
 import com.glyph.scala.lib.util.observer.Observing
 import com.badlogic.gdx.scenes.scene2d.{Touchable, InputEvent, InputListener}
-import com.glyph.scala.game.puzzle.model.cards.{Scanner, Card}
+import com.glyph.scala.game.puzzle.model.cards.Scanner
+import com.glyph.scala.lib.util.reactive.{Var, Reactor}
 
 
 /**
@@ -28,7 +28,9 @@ object ReactUITest extends ScreenGame(am => {
 
   def DEBUG: Boolean = true
 
-  val deck = Var((1 to 100) map {i => new Scanner} toList)
+  val deck = Var((1 to 100) map {
+    i => new Scanner
+  } toList)
   root.setTouchable(Touchable.enabled)
   root.addListener(new InputListener {
     override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
@@ -37,7 +39,7 @@ object ReactUITest extends ScreenGame(am => {
       true
     }
   })
-  react(deck) {
+  reactVar(deck) {
     d =>
       println(d.size)
       root.clear()

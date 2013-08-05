@@ -1,26 +1,25 @@
 package com.glyph.scala.game.puzzle.view
 
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
-import com.glyph.scala.game.puzzle.model.Puzzle
 import com.glyph.scala.lib.libgdx.actor.{Updating, Scissor}
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d
-import com.glyph.scala.lib.util.observer.{Observable, Observing}
+import com.glyph.scala.lib.util.observer.Observing
 import panel.PanelToken
 import scene2d.actions.{MoveToAction, Actions}
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.util.collection.list.DoubleLinkedQueue
-import com.glyph.scala.game.puzzle.model.panels.Panel
 import com.badlogic.gdx.Gdx
 import com.glyph.scala.lib.libgdx.actor.action.Waiter
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
-import com.glyph.scala.lib.util.observer.reactive.EventSource
+import com.glyph.scala.lib.util.reactive.{Reactor, EventSource}
+import com.glyph.scala.game.puzzle.model.puzzle.{Puzzle, Panel}
 
 /**
  * @author glyph
  */
-class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends WidgetGroup with Scissor with Updating with Observing {
+class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends WidgetGroup with Scissor with Updating with Reactor{
 
   import puzzle._
 
@@ -54,8 +53,8 @@ class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends Widge
 
   def setupPosition() {
     setPosition(marginX / 2f, marginY / 2f)
-   // println("x,y,w,h:" +(getX, getY, getWidth, getHeight))
-   // println("marginX:" + marginX)
+    // println("x,y,w,h:" +(getX, getY, getWidth, getHeight))
+    // println("marginX:" + marginX)
     setupTokenPosition()
   }
 
@@ -65,11 +64,11 @@ class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends Widge
   val sequencer = new SequentialProcessor {}
   val panelTouch = new EventSource[PanelToken]
   this add sequencer
-  val tokens = Array(puzzle.panels map {
+  val tokens = Array(puzzle.rawPanels map {
     column => new DoubleLinkedQueue[PanelToken]
   }: _*)
 
-  observe(puzzle.onPanelRemoved) {
+  reactEvent(puzzle.panelRemoveEvent) {
     events =>
       sequencer add Sequence(
         Parallel(
@@ -82,21 +81,23 @@ class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends Widge
                 Wait(wait => {
                   //TODOなぜかrunがすぐに実行される問題=>implicit conversionのせい
                   token.explode {
-                    token.remove
+                    token.remove()
                     tokens(x).remove(token)
-                    removeObserver(token.press)
+                    //println("puzzleView:remove!")
+                    stopReact(token.press)
+                    token.dispose()
                     wait.wake()
                   }
                 })
             }
           }: _*),
         Do {
-            controller.onRemoveAnimationEnd()
+          controller.onRemoveAnimationEnd()
 
         })
   }
 
-  observe(puzzle.onPanelAdded) {
+  reactEvent(puzzle.panelAddEvent) {
     events => events.foreach {
       case (p, x, y) => createPanelToken(p, x, y)
     }
@@ -108,7 +109,7 @@ class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends Widge
   def createPanelToken(panel: Panel, x: Int, y: Int) {
     //println("create panel token")
     val p = PanelToken(panel)
-    observe(p.press){
+    reactEvent(p.press) {
       pos => panelTouch.emit(p)
     }
     //初期サイズの設定
@@ -116,7 +117,7 @@ class PuzzleView(puzzle: Puzzle, controller: PuzzleGameController) extends Widge
     //拡大原点の設定
     p.setOrigin(p.getWidth / 2, p.getHeight / 2)
     //列の上部に初期配置する。
-    p.setPosition(calcPanelX(x), calcPanelY(puzzle.ROW - puzzle.panels(x).size + puzzle.ROW))
+    p.setPosition(calcPanelX(x), calcPanelY(puzzle.ROW - puzzle.rawPanels(x).size + puzzle.ROW))
     tokens(x).enqueue(p)
     Gdx.app.postRunnable {
       () =>

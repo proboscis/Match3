@@ -1,4 +1,4 @@
-package com.glyph.scala.game.logic
+package com.glyph.scala.game.card_dungeon.logic
 
 import collection.mutable.ListBuffer
 import collection.mutable

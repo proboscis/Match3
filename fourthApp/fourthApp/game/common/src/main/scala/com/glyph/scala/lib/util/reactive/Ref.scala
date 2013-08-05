@@ -1,4 +1,4 @@
-package com.glyph.scala.lib.util.observer.reactive
+package com.glyph.scala.lib.util.reactive
 
 /**
  * @author glyph

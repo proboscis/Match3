@@ -1,6 +1,7 @@
 package com.glyph.test
 
-import com.glyph.scala.lib.util.observer.reactive.EventSource
+import com.glyph.scala.lib.util.reactive.EventSource
+
 
 /**
  * @author glyph

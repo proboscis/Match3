@@ -1,5 +1,7 @@
 package com.glyph.scala
 
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
+
 
 /**
  * @author glyph

@@ -21,7 +21,7 @@ class CardDescription(card: Card) extends Table with FuncTouchable with OldDrawS
   val text = card.getClass.getSimpleName
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
-    ScalaGame.font.setColor(Color.BLACK)
-    ScalaGame.font.draw(batch,text,getX,getY+getHeight/2)
+    commonFont.setColor(Color.BLACK)
+    commonFont.draw(batch,text,getX,getY+getHeight/2)
   }
 }

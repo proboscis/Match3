@@ -9,9 +9,7 @@ class DoubleLinkedList[T] extends Traversable[T] {
   mHead.next = mTail
   mTail.prev = mHead
 
-
   override def last: T = mTail.prev.data
-
   override def head: T = mHead.next.data
 
   def push(e: T) {
