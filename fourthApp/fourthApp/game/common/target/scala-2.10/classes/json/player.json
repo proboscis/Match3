@@ -1,0 +1,4 @@
+init = {
+    hp:100,
+    position:1
+}

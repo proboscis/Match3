@@ -16,7 +16,7 @@ class EventManager(final val TAG:String = "EventManager") {
   private val children = mutable.ListBuffer[EventManager]()
 
   /**
-   * add callback
+   * add inDone
    * @param func
    * @param typ
    * @tparam T
@@ -32,12 +32,12 @@ class EventManager(final val TAG:String = "EventManager") {
         newList
       }
     }
-    if(DEBUG) Glyph.deprecatedLog(TAG, "attached callback to:" + typeStr[T])
+    if(DEBUG) Glyph.deprecatedLog(TAG, "attached inDone to:" + typeStr[T])
     list += func
   }
 
   /**
-   * remove callback
+   * remove inDone
    * @param func
    * @param typ
    * @tparam T
@@ -47,9 +47,9 @@ class EventManager(final val TAG:String = "EventManager") {
     listenerMap get typ match {
       case Some(list) => {
         list -= func
-        if(DEBUG) Glyph.deprecatedLog(TAG, "successfully removed callback from:" + typeStr[T])
+        if(DEBUG) Glyph.deprecatedLog(TAG, "successfully removed inDone from:" + typeStr[T])
       }
-      case _ => if(DEBUG) Glyph.deprecatedLog(TAG, "failed to remove callback from:" + typeStr[T])
+      case _ => if(DEBUG) Glyph.deprecatedLog(TAG, "failed to remove inDone from:" + typeStr[T])
     }
   }
 

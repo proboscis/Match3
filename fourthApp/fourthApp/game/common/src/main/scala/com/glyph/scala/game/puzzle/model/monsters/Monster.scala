@@ -2,7 +2,7 @@ package com.glyph.scala.game.puzzle.model.monsters
 
 import com.glyph.scala.lib.util.reactive.Var
 import com.glyph.scala.game.puzzle.system.TurnProcessor
-import com.glyph.scala.game.puzzle.model.puzzle.Panel
+import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
 
 /**
  * @author glyph
@@ -15,7 +15,11 @@ trait Monster extends TurnProcessor with Panel{
    * @param other
    * @return
    */
-  def matchTo(other: Panel): Boolean = false
+  def matchTo(other: Panel): Boolean = other match {
+    case o:Monster => true
+    case _ => false
+  }
+  def atk:Int
 }
 object Monster{
   val constructors = Array(()=>new Slime)

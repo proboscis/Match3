@@ -34,6 +34,7 @@ trait TouchSource extends Actor with Disposable{
   })
 
   def dispose() {
+    //println("disposed")
     press.dispose()
     drag.dispose()
     release.dispose()

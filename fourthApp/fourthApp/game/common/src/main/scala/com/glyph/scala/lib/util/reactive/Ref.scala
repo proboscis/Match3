@@ -13,7 +13,7 @@ class Ref [T](private var ref:Varying[T]) extends Varying[T]{
     ref.unSubscribe(callback)
     ref = v
     ref.subscribe(callback)
-    //this is not required since callback is invoked when subscribing
+    //this is not required since inDone is invoked when subscribing
     // notifyObservers(v())
   }
 }

@@ -3,7 +3,6 @@ package com.glyph.scala.game.puzzle.model
 import cards.{Scanner, Card}
 import com.glyph.scala.lib.util.reactive.{EventSource, Var}
 import collection.immutable.Queue
-
 /**
  * @author glyph
  */
@@ -16,15 +15,17 @@ class Deck {
   val discardEvent = EventSource[Card]()
 
   def addCard(card: Card) {
-    deck() = deck().enqueue(card)
+    deck()= deck().enqueue(card)
   }
 
   def drawCard() {
     if (deck().isEmpty) {
-      deck() = deck().enqueue(new Scanner)
+      deck() ++= discarded()
+      discarded() = Queue.empty
+      //deck() = deck().enqueue(new Scanner)
     }
     val (drawn, d) = deck().dequeue
-    deck() = d
+    deck ()= d
     hand() = hand().enqueue(drawn)
     drawCardEvent.emit(drawn)
   }

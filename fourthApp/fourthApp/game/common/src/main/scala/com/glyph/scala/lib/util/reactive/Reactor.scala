@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.util.reactive
 
 import ref.WeakReference
-
+//TODO the observer is not released even if the reactive is disposed!!
 /**
  * @author glyph
  */
@@ -20,11 +20,14 @@ trait Reactor {
   def reactVar[T](v: Varying[T])(callback: (T) => Unit): Observer[T] = new Observer(v, callback)
 
   def reactEvent[T](src: EventSource[T])(callback: (T) => Unit): Observer[T] = new Observer(src, callback)
+  def reactSome[T](v:Varying[Option[T]])(callback: (T)=>Unit):Observer[Option[T]] = new Observer[Option[T]](v,{
+    case Some(r) => callback(r)
+    case None => println("failed")
+  })
 
+  protected def check[T](v: Reactive[T])(callback: PartialFunction[T, Unit]): Observer[T] = new Observer(v, (t: T) => callback(t))
 
-  def check[T](v: Reactive[T])(callback: PartialFunction[T, Unit]): Observer[T] = new Observer(v, (t: T) => callback(t))
-
-  def reactAnd[T](v: Reactive[T])(callback: (T, Observer[T]) => Unit): Observer[T] = {
+  protected def reactAnd[T](v: Reactive[T])(callback: (T, Observer[T]) => Unit): Observer[T] = {
     var o: Observer[T] = null
     o = new Observer(v, (t: T) => {
       callback(t, o)
@@ -32,13 +35,13 @@ trait Reactor {
     o
   }
 
-  def once[T](v: EventSource[T])(callback: (T) => Unit): Observer[T] = {
+  protected def once[T](v: EventSource[T])(callback: (T) => Unit): Observer[T] = {
     reactAnd(v) {
       (t, o) => o.unSubscribe(); callback(t)
     }
   }
 
-  def once(v: EventSource[Unit])(callback: => Unit): Observer[Unit] = {
+  protected def once(v: EventSource[Unit])(callback: => Unit): Observer[Unit] = {
     reactAnd(v) {
       (unit, o) => o.unSubscribe(); callback
     }
@@ -77,17 +80,18 @@ trait Reactor {
     }
   }
 
-  def clearReaction() {
-    println("Reactor:clearReactions:" + this)
+  protected def clearReaction() {
+    //println("Reactor:clearReactions:" + this)
     observers foreach {
       _.unSubscribe()
     }
+    /*
     observers foreach {
       o => println("Reactor:after cleared:" + o)
-    }
+    }*/
   }
 
-  def stopReact(r: Reactive[_]) {
+  protected def stopReact(r: Reactive[_]) {
     for (obs <- observers if obs.reactive eq r) {
       obs.unSubscribe()
     }

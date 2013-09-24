@@ -1,275 +1,231 @@
 package com.glyph.scala.game.puzzle.view
 
-import com.badlogic.gdx.scenes.scene2d.ui.{WidgetGroup, Table}
+import com.badlogic.gdx.scenes.scene2d.ui.{Image, WidgetGroup, Table}
 import com.glyph.scala.game.puzzle.model.Game
 import com.glyph.scala.ScalaGame
-import com.badlogic.gdx.scenes.scene2d.{Touchable, Actor}
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.math.Interpolation
-import com.glyph.scala.lib.libgdx.actor.{TouchSource, Layered}
-import com.glyph.scala.game.puzzle.controller.PuzzleGameController
-import com.glyph.scala.lib.libgdx.GdxUtil
+import com.glyph.scala.lib.libgdx.actor.{ReactiveSize, TouchSource, Layered}
+import com.glyph.scala.game.puzzle.controller.{Swiped, UseCard, PuzzleGameController}
 import com.glyph.scala.lib.util.reactive
 import reactive._
+import com.glyph.scala.lib.libgdx.actor.ui.{Gauge, SlideView}
+import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.libgdx.reactive.GdxFile
+import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.{Texture, Color}
+import com.badlogic.gdx.math.{MathUtils, Rectangle, Vector2, Interpolation}
+import com.glyph.scala.lib.libgdx.{GdxUtil, TextureUtil}
+import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.glyph.scala.lib.util.rhino.Rhino
+import com.glyph.scala.game.puzzle.view.match3.Match3View
+import com.glyph.scala.lib.libgdx.actor.action.Oscillator
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.glyph.java.asset.AM
+import com.glyph.scala.game.puzzle.model.Element.{Fire, Water, Thunder}
+import com.glyph.scala.game.puzzle.model.match_puzzle.Life
+import com.glyph.scala.game.puzzle.model.monsters.Monster
+import com.glyph.scala.lib.libgdx.particle.Emission
+import com.glyph.java.particle.{SpriteParticle, ParticlePool}
 
 /**
+ * ここでcontrollerを渡したことが間違いだった!
  * @author glyph
  */
-class PuzzleGameView(game: Game, controller: PuzzleGameController) extends Table with TouchSource with Reactor {
-
+class PuzzleGameView(val game: Game, val controller: PuzzleGameController) extends Table with TouchSource with Reactor {
+  //TODO 動いている感をparticleなどで表現
   import ScalaGame._
-
   val root = new WidgetGroup with Layered
   val table = new Table
-  val cardView = new CardTableView(game.deck)
-  val headerView = new HeaderView(game)
-  val puzzleView = new PuzzleView(game.puzzle, controller)
+  val cardView = new CardTableView(game.deck,controller)
+  val headerView = new HeaderView(game) with ReactiveSize
+  val puzzleView = new Match3View(game.puzzle)
   val puzzleGroup = new WidgetGroup with Layered
-  val descLayer = new WidgetGroup
-  val statusView = new StatusView(game)
-  //puzzleView.setSize(VIRTUAL_WIDTH,VIRTUAL_WIDTH)
-  puzzleGroup.addActor(puzzleView)
-  puzzleGroup.addActor(descLayer)
-  table.top()
-  table.add().expandX().height(VIRTUAL_WIDTH / 9f * 1.4f).row //dummy for ads
-  table.add(headerView).size(VIRTUAL_WIDTH, VIRTUAL_WIDTH / 9f).top.row
-  table.add(puzzleGroup).size(VIRTUAL_WIDTH, VIRTUAL_WIDTH).top.row
-  table.add(statusView).expandX().height(VIRTUAL_WIDTH / 9f * 0.7f).fill.row
-  table.add(cardView).size(VIRTUAL_WIDTH, VIRTUAL_WIDTH / 5f * 1.618f)
-  table.row()
-  table.debug()
-  root.addActor(table)
-  table.layout() //somehow this is required
-  add(root).fill().expand()
-  layout()
-  //logic for gameover
-  once((game.player.hp ~ statusView.lifeGauge.visualAlpha).toEvents.filter {
+  val slideView = new SlideView(RJSON(GdxFile("js/view/slideView.js")))
+  val lifeGauge = new Gauge(game.player.hp ~ game.player.maxHp map {
+    case hp ~ max => hp / max
+  }, true) with ReactiveSize
+  val fireGauge = new ManaGauge(game.player.fireMana) with ReactiveSize
+  val waterGauge = new ManaGauge(game.player.waterMana) with ReactiveSize
+  val thunderGauge = new ManaGauge(game.player.thunderMana) with ReactiveSize
+
+  val colors = RJSON(GdxFile("js/view/panelView.js"))
+
+  implicit def strToColor(hex: String): Color = Color.valueOf(hex)
+
+  reactVar(colors) {
+    scheme => for {
+      fire <- scheme.fire.as[String]
+      water <- scheme.water.as[String]
+      thunder <- scheme.thunder.as[String]
+      life <- scheme.life.as[String]
+    } {
+      fireGauge.setColor(fire)
+      waterGauge.setColor(water)
+      thunderGauge.setColor(thunder)
+      lifeGauge.setColor(life)
+    }
+  }
+  val setup = Rhino(GdxFile("js/view/gameView.js"), Map(
+    "self" -> this,
+    "root" -> root,
+    "table" -> table,
+    "cardView" -> cardView,
+    "headerView" -> headerView,
+    "puzzleView" -> puzzleView,
+    "puzzleGroup" -> puzzleGroup,
+    "slideView" -> slideView,
+    "lifeGauge" -> lifeGauge,
+    "fireGauge" -> fireGauge,
+    "waterGauge" -> waterGauge,
+    "thunderGauge" -> thunderGauge,
+    "VIRTUAL_WIDTH" -> VIRTUAL_WIDTH,
+    "VIRTUAL_HEIGHT" -> VIRTUAL_HEIGHT)
+  ).asFunction
+  reactSome(setup)(_())
+  //logic for gameover... this should not be here.
+  once((game.player.hp ~ lifeGauge.visualAlpha).toEvents.filter {
     case hp ~ a => hp <= 0 && a <= 0
   }) {
     e => root.addActor(new GameOver)
   }
-  //TODO ゲーム全体のステートマシンをどう表現するか
-  //TODO モンスタとプレイヤを両方ターンマネージャに追加する必要がある。
+
+  controller.fillAnimation = Some(puzzleView.fillAnimation)
+  controller.destroyAnimation = Some(puzzleView.destroyAnimation)
 
   /**
-   * GOALを定める
-   * 階層月ダンジョンをクリアしたらゲームクリア
-   * 敵を倒してカード入手
-   * 敵のターンで何かが起きるときはエフェクト、アニメーションが発生する
-   * 画面構成を考える
+   * make sure to clear out all the side effects when callback
    */
-  //TODO actions wrapper を作成
-  //TODO TurnManager =>
-  /**
-   * 　ターン参加者をすべて含むターンマネージャを作成するか
-   * Animationを含めた状態遷移の検討が必要
-   */
-
-  /**
-   * TODO
-   * まずはHPを実装、..done
-   * フロアを進む方法を実装 ->見た目も
-   * 敵のターンを実装->見た目も
-   * カード使用によるターン進行を実装 => Cardの効果はcardに記述する
-   */
-  //もしかすると、多くのビューをスライドインするかも知れない。それを考慮して作るべき。
-  private var mState: State = null
-
-  def state_=(s: State) {
-    if (mState != null) mState.exit()
-    mState = s
-    s.enter()
-    println("<="+s)
-  }
-
-  def state = mState //getter
-  this.state = Idle()
-
-  trait State extends Reactor {
-    debugReaction(this.toString+"@%x".format(this.hashCode()))
-    def enter() {
-      println("enter:%s@%x".format(this,this.hashCode()))
-    }
-
-    def exit() {
-      println("exit:%s@%x".format(this,this.hashCode()))
-      State.this.clearReaction()//clear できてない説
-      State.this.reactors foreach {println}
-    }
-  }
-
-  /**
-   * event source,
-   * display
-   */
-  type Displayable = (Actor, TouchSource)
-
-  case class Idle() extends State {
-    puzzleView.panelTouch.debugReactive("panelTouch")
-    cardView.cardPress.debugReactive("cardPress")
-    controller.stateChange.debugReactive("stateChange")
-    override def enter() {
-      super.enter()
-      reactEvent(puzzleView.panelTouch) {
-        token => {
-          state = SlideIn(token, new PanelDescription(token.panel) with TouchSource)
+  controller.idleInput = {
+    swipeLength => {
+      callback => {
+        puzzleView.setTouchable(Touchable.enabled)
+        reactEvent(cardView.cardPress) {
+          token => val view = new PlayableCardDescription(token.card) with TouchSource
+            in(view)
         }
-      }
-      reactEvent(cardView.cardPress) {
-        token => {
-          //cardView.removeToken(token)
-          state = SlideIn(token, new CardDescription(token.card) with TouchSource)
-          //controller.startScanSequence()
+        once(slideView.shownPress) {
+          case PlayableCardDescription(card)=> {
+            //println("pressed card description")
+            slideView.slideOut()
+            puzzleView.setTouchable(Touchable.disabled)
+            stopReact(slideView.shownPress)
+            stopReact(cardView.cardPress)
+            puzzleView.stopSwipeCheck()
+            callback(UseCard(card))
+          }
+          case _ => throw new RuntimeException("Cant happen here.")
         }
-      }
-      reactEvent(controller.stateChange) {
-        case s if s == controller.Animating => state = PuzzleAnimation();println("switch to puzzle animation")
-        case _ => println("skip this state")
-      }
-      println("idle enter end")
-    }
-  }
-
-  case class PuzzleAnimation() extends State {
-    override def enter() {
-      super.enter()
-      reactEvent(controller.stateChange) {
-        case s if s == controller.Idle => state = Idle() //;println("received idle:"+s)
-        case s => //println("received:"+s)
-      }
-    }
-  }
-
-  case class SelectPosition() extends State {
-
-  }
-
-  case class ShowDescription(displayable: Displayable) extends State {
-    press.debugReactive("PuzzleGameView press")
-    override def enter() {
-      super.enter()
-      val (src, actor) = displayable
-      actor.press.debugReactive(actor.getClass.getSimpleName+", description press")
-      reactEvent(actor.press) {
-        pos =>
-          src match {
-            case CardToken(card, _, _) => state = SlideOut(displayable, () => {
-              card(controller) // use card
-              controller.discard(card)
-              controller.drawCard()
-            })
-            case _ => state = SlideOut(displayable)
-          }
-      }
-      reactEvent(cardView.cardPress) {
-        token =>
-          if (token != src) {
-            state = SlideInOut((token, new CardDescription(token.card) with TouchSource), displayable)
-          } else {
-            state = SlideOut(displayable)
-          }
-      }
-      reactEvent(puzzleView.panelTouch) {
-        token => if (token != src) state = SlideInOut((token, new PanelDescription(token.panel) with TouchSource), displayable)
-      }
-      reactEvent(press) {
-        pos => state = SlideOut(displayable)
-      }
-    }
-  }
-
-  case class SlideIn(in: Displayable) extends State {
-    override def enter() {
-      super.enter()
-      val (src, disp) = in
-      slideIn(in) {
-        state = ShowDescription(in)
-      }
-      /*
-      react(cardView.cardPress) {
-        token => {
-          if (token == src) {
-            disp.clearActions()
-            state = SlideOut(in)
-          } else {
-            state = SlideInOut((token, new CardDescription(token.card) with TouchSource), in)
+        puzzleView.startSwipeCheck(swipeLength) {
+          record => {
+            stopReact(slideView.shownPress)
+            stopReact(cardView.cardPress)
+            puzzleView.stopSwipeCheck()
+            callback(Swiped(record))
           }
         }
       }
-      react(puzzleView.panelTouch) {
-        token =>
-          if (token != src) {
-            state = SlideInOut((token, new PanelDescription(token.panel) with TouchSource), in)
-          } else {
-            disp.clearActions()
-            state = SlideOut(in)
+    }
+  }
+  def in(view: TouchSource) {
+    slideView.slideIn(view, outDone = () => {
+      view.dispose()
+    })
+  }
+  def out() {
+    slideView.slideOut()
+  }
+  val dmgEffect = RJSON(GdxFile("js/effect/dmgEffect.js"))
+  controller.damageAnimation = {
+    monsters => {
+      callback => {
+        for {
+          a <- dmgEffect().alpha.as[Float]
+          col <- dmgEffect().color.as[Color]
+          inD <- dmgEffect().in.duration.as[Float]
+          outD <- dmgEffect().out.duration.as[Float]
+          inI <- dmgEffect().in.interpolation.as[Interpolation]
+          outI <- dmgEffect().out.interpolation.as[Interpolation]
+        } {
+          val oscillator = new Oscillator(0, 5, 10)
+          oscillator.setDuration(0.4f)
+          table.addAction(oscillator)
+          // root.addActor()
+          import Actions._
+          val img = new Image()
+          img.setDrawable(new TextureRegionDrawable(new TextureRegion(TextureUtil.dummy)))
+          root.addActor(img)
+          img.setColor(col)
+          val fadeInOut = sequence(alpha(a, inD, inI), fadeOut(outD, outI), run(new Runnable() {
+            def run() {
+              callback()
+            }
+          }), Actions.removeActor())
+          img.addAction(fadeInOut)
+        }
+      }
+    }
+  }
+
+  val pool = new ParticlePool(classOf[SpriteParticle], 1000)
+  val expEffect = RJSON(GdxFile("js/effect/expParticle.js"))
+  lazy val region: TextureRegion = new TextureRegion(AM.instance().get("data/particle.png", classOf[Texture]))
+  reactEvent(puzzleView.tokenExplosion) {
+    token =>
+      for {
+        speed <- expEffect().speed.as[Float]
+        alpha <- expEffect().alpha.as[Float]
+        power <- expEffect().power.as[Float]
+        duration <- expEffect().duration.as[Float]
+        minN <- expEffect().minNumber.as[Int]
+        maxN <- expEffect().maxNumber.as[Int]
+        minSize <- expEffect().minSize.as[Int]
+        maxSize <- expEffect().maxSize.as[Int]
+      } {
+        val (view, reaction) = (token.panel match {
+          case t: Thunder => (thunderGauge, () => controller.addThunderMana(1))
+          case t: Water => (waterGauge, () => controller.addWaterMana(1))
+          case t: Fire => (fireGauge, () => controller.addFireMana(1))
+          case l: Life => (lifeGauge, () => controller.addLife(1))
+          case m: Monster => (headerView, () => controller.addExperience(1))
+          case _ => (headerView, null)
+        }) match {
+          case (a, b) => (a, Option(b))
+        }
+        import MathUtils._
+        val emission = new Emission(
+          view.rRect map {
+            rect => val pos = headerView.getParent.localToStageCoordinates(new Vector2(rect.x, rect.y))
+              new Rectangle(pos.x, pos.y, rect.width, rect.height)
+          }, pool, duration, alpha, power)
+        for (_ <- 1 until random(minN, maxN)) {
+          emission += pool.obtain()
+        }
+        emission.particles foreach {
+          p => p.init(region)
+            p.setColor(token.getColor)
+            //TODO 座標系と色の修正
+            val size = random(minSize, maxSize)
+            p.setSize(size, size)
+            val pos = new Vector2(token.getX, token.getY)
+            puzzleView.localToStageCoordinates(pos)
+            p.setPosition(pos.x + random(token.getWidth), pos.y + random(token.getHeight))
+            val rand = new Vector2(0, 1)
+            rand.rotate(random(360))
+            rand.scl(random(speed))
+            p.getVelocity.add(rand)
+        }
+        emission.setTouchable(Touchable.disabled)
+        GdxUtil.post {
+          root.addActor(emission)
+        }
+        reactEvent(emission.hitEvent) {
+          p => reaction.foreach {
+            _()
           }
-      }
-      */
-    }
-  }
-
-  case class SlideOut(out: Displayable, f: () => Unit = () => {}) extends State {
-    override def enter() {
-      super.enter()
-      slideOut(out) {
-        state = Idle()
-        f()
-      }
-    }
-  }
-
-  case class SlideInOut(in: Displayable, out: Displayable) extends State {
-    override def enter() {
-      super.enter()
-      var inDone, outDone = false
-      slideIn(in) {
-        inDone = true
-        if (inDone && outDone) {
-          state = ShowDescription(in)
+        }
+        once(emission.finishEvent) {
+          stopReact(emission.hitEvent)
         }
       }
-      slideOut(out) {
-        outDone = true
-        if (inDone && outDone) {
-          state = ShowDescription(in)
-        }
-      }
-    }
-  }
-
-  def slideIn(disp: Displayable)(f: => Unit) {
-    val (_, in) = disp
-    val view = descLayer
-    descLayer.setTouchable(Touchable.childrenOnly)
-    in.setSize(view.getWidth * 0.6f, view.getHeight)
-    in.setPosition(view.getWidth, 0)
-    import Actions._
-    val m = moveTo(view.getWidth - in.getWidth, 0)
-    m.setDuration(0.6f)
-    m.setInterpolation(Interpolation.exp10Out)
-    in.addAction(sequence(m, run(new Runnable {
-      def run() {
-        f
-      }
-    })))
-    in.toFront()
-    GdxUtil.post {
-      view.addActor(in)
-    }
-  }
-
-  def slideOut(disp: Displayable)(f: => Unit) {
-    val (_, out) = disp
-    import Actions._
-    val move = moveTo(descLayer.getWidth, 0)
-    move.setDuration(0.3f)
-    move.setInterpolation(Interpolation.exp10Out)
-    out.addAction(sequence(move, run(new Runnable {
-      def run() {
-        f
-        println("must be removed after this")
-      }
-    }), Actions.removeActor()))
   }
 }

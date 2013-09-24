@@ -42,6 +42,7 @@ class ScalaGame extends Game {
 
 object ScalaGame {
   println("ScalaGame")
+  //TODO make this out of source...
   final val VIRTUAL_WIDTH = 1080 /2
   final val VIRTUAL_HEIGHT = (1920f * 15f/16f /2f).toInt
 }

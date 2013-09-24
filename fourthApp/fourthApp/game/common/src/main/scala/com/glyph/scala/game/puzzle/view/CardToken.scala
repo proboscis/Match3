@@ -1,31 +1,60 @@
 package com.glyph.scala.game.puzzle.view
 
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.graphics.{Color, Pixmap, Texture}
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.graphics.g2d.{BitmapFontCache, BitmapFont, SpriteBatch, Sprite}
-import com.glyph.scala.lib.libgdx.actor.{ObsTouchable, FuncTouchable, ExplosionFadeout, OldDrawSprite}
-import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.g2d.{TextureRegion, BitmapFontCache, SpriteBatch, Sprite}
+import com.glyph.scala.lib.libgdx.actor.{Layered, ObsTouchable, ExplosionFadeout, OldDrawSprite}
+import com.glyph.scala.game.puzzle.model.cards._
+import com.badlogic.gdx.scenes.scene2d.ui.{Image, WidgetGroup, Label, Table}
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
-import com.glyph.scala.game.puzzle.model.cards.{Meteor, Scanner, Card}
+import com.glyph.scala.lib.util.reactive.Reactor
+import com.badlogic.gdx.scenes.scene2d.Touchable
 
 /**
  * @author glyph
  */
-case class CardToken(card: Card, w: Float, h: Float) extends Actor with OldDrawSprite with ExplosionFadeout with ObsTouchable {
-  // val sprite = new Sprite(AM.instance().get[Texture]("data/card" + MathUtils.random(1, 10) + ".png"))
-  //Actionポイントの実装
+case class CardToken(card: Card#PlayableCard, w: Float, h: Float)
+  extends WidgetGroup with Layered
+  with ExplosionFadeout with ObsTouchable
+  with Reactor{
   import CardToken._
-  val sprite = new Sprite(texture)
-  val glyph = mapping (card match {
-    case c:Scanner => 'S'
-    case _:Meteor =>'M'
-    case _=>'?'
-  })
-  //TODO　ユグドラシルの
-  setColor(Color.LIGHT_GRAY)
-  setSize(w*0.9f, h*0.9f)
+  val root = new Table
+  val src = card.source
+  val labels = {
+    (src.costs collect{
+      case ThunderCost(Thunder(cost)) =>cost
+    } sum) ::
+      (src.costs collect{
+        case WaterCost(Water(cost)) => cost
+      } sum) ::
+      (src.costs collect{
+        case FireCost(Fire(cost)) => cost
+      } sum) ::Nil
+  } map{cost => new Label(cost+"",skin)}
+  val img = new Image(texture)
+  setSize(w, h)
   setOrigin(w / 2, h / 2)
+  labels foreach{
+    label => label.setWrap(true)
+      label.setFontScale(0.5f)
+      root.add(label).expand.fillX.bottom()
+  }
+  reactVar(card.playable){
+    if(_){
+      setColor(Color.LIGHT_GRAY)
+      setTouchable(Touchable.enabled)
+      img.setColor(getColor)
+    }else{
+      setColor(Color.BLACK)
+      setTouchable(Touchable.disabled)
+      img.setColor(getColor)
+    }
+  }
+  addActor(img)
+  addActor(root)
+  //root.debug()
+  val glyph = mapping.getOrElse(card.source.getClass.getSimpleName.charAt(0),mapping('?'))
 
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
@@ -34,7 +63,6 @@ case class CardToken(card: Card, w: Float, h: Float) extends Actor with OldDrawS
     glyph.setColor(Color.WHITE)
     glyph.draw(batch, getColor.a * parentAlpha)
   }
-
 }
 
 object CardToken {
@@ -49,7 +77,7 @@ object CardToken {
     k =>
       val cache = new BitmapFontCache(yggdrasilFont)
       cache.setText("" + k, 0f, 0f)
-      (k -> cache)
+      k -> cache
   }: _*)
   val image = new Pixmap(128, 128, Pixmap.Format.RGBA8888)
   image.setColor(Color.WHITE)

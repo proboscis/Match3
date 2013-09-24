@@ -1,11 +1,12 @@
 package com.glyph.scala.lib.util.reactive
 
-import collection.immutable.Stack
+import com.glyph.scala.lib.util.lifting.Variable
+
 
 /**
  * @author glyph
  */
-trait Varying[T] extends Reactive[T] {
+trait Varying[T] extends Reactive[T]{
   self =>
   def current: T
 
@@ -15,7 +16,7 @@ trait Varying[T] extends Reactive[T] {
   }
 
   def apply(): T = {
-    Varying.notify(this)
+    //Varying.notify(this)
     current
   }
 
@@ -23,6 +24,7 @@ trait Varying[T] extends Reactive[T] {
   def ~[P](v: Varying[P]): Varying[(T, P)] = {
     new Varying[(T, P)] with Reactor {
       def current: (T, P) = (self(), v())
+
       reactVar(self) {
         s => this.notifyObservers((s, v()))
       }
@@ -32,25 +34,33 @@ trait Varying[T] extends Reactive[T] {
     }
   }
 
-  //mapper
-  def ->[R](f: (T) => R): Varying[R] = {
+  /**
+   * mapper
+   */
+  def map[R](f: (T) => R): Varying[R] = {
     new Varying[R] with Reactor {
-      def current: R = f(self())
+      var variable:R = null.asInstanceOf[R]
       reactVar(self) {
-        s => this.notifyObservers(f(s))
+        s => variable = f(s);this.notifyObservers(variable)
       }
+      def current: R = variable
     }
   }
+
   //maps to event source
-  def toEvents :EventSource[T]={
-    new EventSource[T] with Reactor{
-      reactVar(self){
+  def toEvents: EventSource[T] = {
+    new EventSource[T] with Reactor {
+      reactVar(self) {
         s => emit(s)
       }
     }
   }
-}
 
+  override def toString: String = getClass.getSimpleName+"("+current+")@%x".format(System.identityHashCode(this))
+
+
+}
+/*
 object Varying {
   var tracking = false
   var dependencyMap = Map.empty[Long, Stack[List[Varying[_]]]]
@@ -80,4 +90,4 @@ object Varying {
     if (dependencyMap.values.forall(_.isEmpty)) tracking = false
     depStack.head.distinct
   }
-}
+}*/

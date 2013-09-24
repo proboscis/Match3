@@ -2,7 +2,6 @@ package com.glyph
 
 import android.os.Bundle
 import com.badlogic.gdx.backends.android._
-import java.Engine
 
 class Main extends AndroidApplication {
   override def onCreate(savedInstanceState: Bundle) {
@@ -12,6 +11,6 @@ class Main extends AndroidApplication {
     config.useCompass = false
     config.useWakelock = true
     config.useGL20 = true
-    initialize(new Engine(), config)
+    //initialize(new Engine(), config)
   }
 }

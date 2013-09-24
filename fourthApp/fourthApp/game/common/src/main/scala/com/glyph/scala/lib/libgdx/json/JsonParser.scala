@@ -8,7 +8,7 @@ import com.glyph.scala.lib.util.callback.Callback
  * @author glyph
  */
 class JsonParser(filename:String){
-  import com.glyph.scala.lib.util.json.JSON._
+  import com.glyph.scala.lib.util.json.DeprecatedJSON._
   private val reload:Boolean = true
   private var onLoad =(_:ScalaJSON)=>{}
   protected var lastModifiedTime = Gdx.files.internal(filename).lastModified()

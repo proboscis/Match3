@@ -16,7 +16,7 @@ package object game {
     Glyph.deprecatedLog2("=> start")
     val prev = System.nanoTime();
     proc
-    val time = (System.nanoTime() - prev)
+    val time = System.nanoTime() - prev
     time
   }
 

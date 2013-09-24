@@ -1,55 +1,221 @@
 package com.glyph.scala.game.puzzle.controller
 
 import com.glyph.scala.game.puzzle.model.Game
-import com.glyph.scala.game.puzzle.model.cards.{Card, Meteor, Scanner}
+import com.glyph.scala.game.puzzle.model.cards.{AddSwipe, Scanner, Meteor, Card}
+import com.glyph.scala.lib.util.reactive.{Var, Reactor}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, Panel}
+import com.glyph.scala.game.puzzle.model.monsters.Monster
 import com.badlogic.gdx.math.MathUtils
-import com.glyph.scala.lib.util.reactive
-import reactive.{Var, EventSource}
 
 /**
  * Receives events from view, and pass it to the game model
  * this is like an activity of the androids!
  * @author glyph
  */
-class PuzzleGameController(game: Game) {
-  //TODO slide in out
+class PuzzleGameController(val game: Game) extends Reactor {
+  //TODO make this swipable
+
   import game._
+  import Match3._
+  val swipeLength = Var(1)
 
-  /**
-   * notified when the state of this object is changed
-   */
-  val state = Var[State](Idle)
-  val stateChange = state.toEvents
+  //ゲームのロジックとアニメーションを分けたいんですよね。
+  reactVar(player.experience) {
+    exp => val floor = (exp / 1000).toInt + 1
+      if (floor != player.position()) {
+        player.position() = floor
+      }
+  }
+  var destroyAnimation: Option[DestroyAnimation] = None
+  var fillAnimation: Option[FillAnimation] = None
+  var damageAnimation: Seq[(Monster, Int)] => Animation = {
+    seq => {
+      f => f()
+    }
+  }
+  var idleInput: (Int)=>(IdleEvent => Unit) => Unit = {
+    //dummy
+    length=>{
+      func => {
+        func(UseCard(new Meteor().createPlayable(this)))
+      }
+    }
+  }
+  type Animation = (() => Unit) => Unit
+  type DestroyAnimation = Seq[(Panel, Int, Int)] => Animation
+  type FillAnimation = Seq[(Panel, Int, Int)] => Animation
 
-  def startScanSequence() {
-    state().handle(StartScan)
+  def dummy: Animation = block => {
+    block()
   }
 
-  def damage() {
-    game.player.hp() = game.player.hp() - 10
+  def fill: Animation = {
+    block => {
+      //println("fill")
+      val filling = puzzle.createFilling
+      puzzle.fill(filling)
+      //println("fill=>")
+      //println(puzzle.panels().toStr)
+      fillAnimation.map {
+        _(filling)
+      }.getOrElse(dummy) {
+        () => scan {
+          () => block()
+        }
+      }
+    }
   }
 
-  def destroy(request: (Int, Int)*) {
-    puzzle.removeIndices(request: _*)
-    state().handle(Destroy)
+  def addSwipeLength(amount:Int){
+    swipeLength() += amount
   }
 
-  val cardSeed = Array(
-    () => new Scanner,
-    () => new Meteor
-  )
+
+  def scan: Animation = {
+    block => {
+      //println("scan")
+      val scanned = puzzle.scan() map {
+        case (p, x, y) => (x, y)
+      }
+      if (!scanned.isEmpty) {
+        destroy(scanned: _*) {
+          () => block()
+        }
+      } else {
+        block()
+      }
+    }
+  }
+
+  def destroy(indices: (Int, Int)*): Animation = {
+    block => {
+      val snapshot = puzzle.panels()
+      //println("destroy=>")
+      //println(snapshot.toStr)
+      val panels = indices map {
+        case (x, y) => (snapshot(x)(y), x, y)
+      }
+      puzzle.removeIndices(indices: _*)
+      destroyAnimation.map {
+        _(panels)
+      }.getOrElse(dummy) {
+        () => fill {
+          () => block()
+        }
+      }
+    }
+  }
+
+  def addExperience(exp: Float) {
+    player.experience() += exp
+  }
+
+  def addThunderMana(mana: Float) {
+    player.thunderMana <= mana
+  }
+
+  def addFireMana(mana: Float) {
+    player.fireMana <= mana
+  }
+
+  def addWaterMana(mana: Float) {
+    player.waterMana <= mana
+  }
+
+  def addLife(life: Float) {
+    player.hp() += life
+  }
+
+  def damage(dmg: Int = 30) {
+    game.player.hp() -= dmg
+  }
+
+  //val cardSeed = new RJS[() => Card](new GdxFile("js/cardseed.js"))
+
+  // val cardSeed = new RScala[()=>Card](new GdxFile("scala/cardSeed.scala"))
+  val cardSeed = () => {
+    MathUtils.random(0,2) match{
+      case 0 => new Meteor
+      case 1 => new Scanner
+      case 2 => new AddSwipe
+    }
+  }
 
   def initialize() {
     (1 to 40) foreach {
       _ =>
-        deck.addCard(cardSeed(MathUtils.random(1))())
+        deck.addCard(cardSeed())
     }
     (1 to 5) foreach {
       _ => deck.drawCard()
     }
-    puzzle.fill(puzzle.createFilling)
+    fill {
+      () =>
+        idle {
+          result =>
+        }
+    }
   }
 
+  def idle(f: (Any) => Unit) {
+    swipeLength() = 1
+    val initialMonsters = puzzle.panels().flatten.collect{
+      case m:Monster => m
+    }
+    loop()
+    def loop() {
+      idleInput(swipeLength()){
+        case UseCard(card) => {
+          //println("UseCard:"+card)
+          card{
+            case _ => loop()
+          }
+          println("hands =>")
+          game.deck.hand() foreach println
+          println("used card => "+card.source)
+          game.deck.discard(card.source)
+        }
+        case Swiped(record) => {
+          record foreach {
+            case (a, b, c, d) => puzzle.swap(a, b, c, d)
+          }
+          deck.hand() foreach discard
+          scan {
+            () => damagePhase(initialMonsters){
+              () =>
+                for (_ <- 1 to 5) drawCard()
+                idle(f)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  def damagePhase(initMonsters:Seq[Monster])(cb: () => Unit) {
+    val currentMonsters =puzzle.panels().flatten.collect {
+      case m: Monster => m
+    }
+    //println("init   =>"+initMonsters)
+    //println("current=>"+currentMonsters)
+    val deleted = initMonsters diff currentMonsters
+    val alive = initMonsters diff deleted
+    val monsters = alive
+    //println("diff   =>"+monsters)
+    (monsters map {
+      _.atk
+    }).sum match {
+      case 0 => cb()
+      case dmg => damage(dmg)
+        damageAnimation(monsters map {
+          m => (m, m.atk)
+        }) {
+          () => cb()
+        }
+    }
+  }
+
+  //誰から呼ばれているんだ・・・！
   def drawCard() {
     deck.drawCard()
   }
@@ -57,74 +223,10 @@ class PuzzleGameController(game: Game) {
   def discard(card: Card) {
     deck.discard(card)
   }
-
-  trait Event
-
-  object Destroy extends Event
-
-  object StartScan extends Event
-
-  object RemoveAnimationEnd extends Event
-
-  object FillAnimationEnd extends Event
-
-
-  def onRemoveAnimationEnd() {
-    state().handle(RemoveAnimationEnd)
-  }
-
-  def onFillAnimationEnd() {
-    state().handle(FillAnimationEnd)
-  }
-
-  // i want to define only related behaviors... well, define the default behavior...
-  trait State {
-    def handle(e: Event) {
-      //println("handle:" + e)
-    } //do nothing by default
-  }
-
-  object Idle extends State {
-    override def handle(e: Event) {
-      super.handle(e)
-      e match {
-        case StartScan => {
-          val scanned = puzzle.scan()
-          if (!scanned.isEmpty) {
-            state() = Animating
-            puzzle.remove(scanned)
-          }
-        }
-        case Destroy => {
-          val filling = puzzle.createFilling
-          if (!filling.isEmpty) {
-            state() = Animating
-            puzzle.fill(filling)
-          }
-        }
-        case _ =>
-      }
-    }
-  }
-
-  object Animating extends State {
-    override def handle(e: Event) {
-      super.handle(e)
-      e match {
-        case RemoveAnimationEnd => {
-          puzzle.fill(puzzle.createFilling)
-        }
-        case FillAnimationEnd => {
-          val scanned = puzzle.scan()
-          if (!scanned.isEmpty) {
-            puzzle.remove(scanned)
-          } else {
-            state() = Idle
-          }
-        }
-        case _ =>
-      }
-    }
-  }
-
 }
+
+trait IdleEvent
+
+case class UseCard(card: Card#PlayableCard) extends IdleEvent
+
+case class Swiped(record: Seq[(Int, Int, Int, Int)]) extends IdleEvent

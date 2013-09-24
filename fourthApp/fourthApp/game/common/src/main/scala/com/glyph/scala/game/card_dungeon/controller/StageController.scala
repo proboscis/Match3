@@ -10,6 +10,8 @@ import com.glyph.scala.lib.libgdx.decal.DecalNode
 import com.glyph.scala.lib.libgdx.graphics.util.decal.Decal
 import com.glyph.scala.lib.libgdx.decal.DecalTask.Move
 import com.glyph.scala.game.model.cardgame.StageData
+import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.util.reactive.RFile
 
 /**
  * @author glyph
@@ -21,6 +23,7 @@ class StageController(stage: StageData) extends UpdatableNode with DecalNode {
   JsonParser("json/test.json") load {
     import com.glyph.scala.lib.util.json.JSON._
     json =>
+
       val dur: Float = json.duration
       clear() //remove all components
       //TODOO reloadで再起動

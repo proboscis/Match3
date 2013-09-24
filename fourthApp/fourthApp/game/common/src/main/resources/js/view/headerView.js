@@ -1,0 +1,15 @@
+var out = java.lang.System.out
+var Table = Packages.com.badlogic.gdx.scenes.scene2d.ui.Table
+table.clear()
+//table.add(gauge).size(100,100).fill(1,1).expand(1,1)
+//table.add(levelLabel).expand()
+root.addActor(gauge)
+var wrapper = new Table()
+root.addActor(wrapper)
+wrapper.add(levelLabel).center()
+table.add(root).fill(0.95,0.8).expand()
+table.debug()
+out.println("reload")
+//table.add(root)
+//root.addActor(gauge)
+//root.addActor(levelLabel)

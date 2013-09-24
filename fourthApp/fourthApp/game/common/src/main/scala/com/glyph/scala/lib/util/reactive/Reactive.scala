@@ -4,6 +4,7 @@ import ref.WeakReference
 
 
 /**
+ * you cannot make this class covariant because of the notifyObserver() method.
  * @author glyph
  */
 trait Reactive[T] {
@@ -49,7 +50,7 @@ trait Reactive[T] {
     }
   }
 
-  val log = (str: String) => println("reactive:" + str)
+  private val log = (str: String) => println("reactive:" + str)
 
   private def validateObserver() {
     if (disposed) {
@@ -70,7 +71,10 @@ trait Reactive[T] {
   }
 
   def notifyObservers(t: T) {
-    if (disposed) throw new RuntimeException("this Reactive is already disposed! you cannot call notifyObservers after disposed\n" + this.getClass.getSimpleName)
+    if (disposed){
+      println("this Reactive is already disposed! you cannot call notifyObservers after disposed\n" + this.getClass.getSimpleName)
+      return
+    }
     validateObserver()
     concurrent += 1
     observers = observers filter {

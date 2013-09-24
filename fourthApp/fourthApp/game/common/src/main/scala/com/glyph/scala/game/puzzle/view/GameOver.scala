@@ -27,5 +27,4 @@ class GameOver extends Actor with DrawSprite {
   }
   setColor(0, 0, 0, 0)
   addAction(fadeIn(0.7f, Interpolation.exp10Out))
-
 }

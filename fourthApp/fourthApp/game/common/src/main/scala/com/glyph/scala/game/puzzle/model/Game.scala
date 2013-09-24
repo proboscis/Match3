@@ -1,13 +1,14 @@
 package com.glyph.scala.game.puzzle.model
 
-import com.glyph.scala.lib.util.reactive.{Var, Reactor}
-import com.glyph.scala.game.puzzle.system.turn.TurnManager
-import collection.immutable.Queue
+import com.glyph.scala.lib.util.reactive.{RFile, Var, Reactor}
 import com.badlogic.gdx.math.MathUtils
 import Element.{Water, Thunder, Fire}
-import monsters.Slime
-import puzzle.{Panel, Puzzle}
-
+import monsters.{Monster, Slime}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{Move, Life, Match3}
+import com.glyph.scala.game.puzzle.system.turn.TurnManager
+import collection.immutable.Queue
+import com.glyph.scala.game.puzzle.system.TurnProcessor
+import com.glyph.scala.lib.libgdx.reactive.GdxFile
 
 /**
  * ゲームの目的：
@@ -15,17 +16,19 @@ import puzzle.{Panel, Puzzle}
  * レベル１００まで到達すること。
  * @author glyph
  */
-class Game extends Reactor {
-  val player = new Player
-  val puzzle = new Puzzle(
-    ()=>MathUtils.random(3)match{
+class Game(fileSrc:String=>RFile){
+  val player = new Player(fileSrc("json/player.json"))
+  val puzzle = new Match3(
+    () => MathUtils.random(6) match {
       case 0 => new Fire
       case 1 => new Water
       case 2 => new Thunder
-      case 3 => new Slime
+      case 3|4|5 => new Slime
+      case 6 => new Life
+      case 7 => new Move
     }
   )
   val deck = new Deck
-  val action = Var(0)
   val dungeon = new Dungeon
+  val movement = Var(0f)
 }

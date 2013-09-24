@@ -12,7 +12,7 @@ class EventSource[T] extends Reactive[T] {
     notifyObservers(event)
   }
 
-  def ->[B](f: T => B): EventSource[B] = {
+  def map[B](f: T => B): EventSource[B] = {
     new EventSource[B] with Reactor {
       reactEvent(self) {
         e => emit(f(e))

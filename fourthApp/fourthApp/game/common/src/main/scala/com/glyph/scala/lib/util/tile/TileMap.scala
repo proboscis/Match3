@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.util.tile
 
-import com.glyph.scala.lib.util.json.JSON._
+import com.glyph.scala.lib.util.json.DeprecatedJSON._
 import com.glyph.scala.lib.util.json.ScalaJSON
 
 /**

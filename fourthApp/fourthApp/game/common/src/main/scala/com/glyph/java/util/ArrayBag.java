@@ -1,5 +1,4 @@
 package com.glyph.java.util;
-
 /**
  * @author glyph
  */
