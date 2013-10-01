@@ -1,11 +1,13 @@
 package com.glyph.scala.game.puzzle.controller
 
 import com.glyph.scala.game.puzzle.model.Game
-import com.glyph.scala.game.puzzle.model.cards.{AddSwipe, Scanner, Meteor, Card}
+import com.glyph.scala.game.puzzle.model.cards._
 import com.glyph.scala.lib.util.reactive.{Var, Reactor}
 import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, Panel}
 import com.glyph.scala.game.puzzle.model.monsters.Monster
 import com.badlogic.gdx.math.MathUtils
+import com.glyph.scala.game.puzzle.controller.Swiped
+import com.glyph.scala.game.puzzle.controller.UseCard
 
 /**
  * Receives events from view, and pass it to the game model
@@ -15,8 +17,19 @@ import com.badlogic.gdx.math.MathUtils
 class PuzzleGameController(val game: Game) extends Reactor {
   //TODO make this swipable
 
+  //sacrifice the spirits to either angel or demons
+  /**
+   * ３元の精霊を天使か悪魔に捧げることでカードを発動する。
+   * カードには中立カード、天使カード、悪魔カードがある
+   * 捧げた精霊の比率によってプレイヤーの属性が決定されていく
+   * パズルに登場するモンスターは全て天使か悪魔か人間の創造物・・・
+   * というような世界観でやってみるか
+   * プレイヤは天使か悪魔に近づいていくことになるが、
+   * 近づくことによって特典とデメリットを得るようにしたい。
+   */
+
+
   import game._
-  import Match3._
   val swipeLength = Var(1)
 
   //ゲームのロジックとアニメーションを分けたいんですよね。
@@ -134,10 +147,11 @@ class PuzzleGameController(val game: Game) extends Reactor {
 
   // val cardSeed = new RScala[()=>Card](new GdxFile("scala/cardSeed.scala"))
   val cardSeed = () => {
-    MathUtils.random(0,2) match{
+    MathUtils.random(0,3) match{
       case 0 => new Meteor
       case 1 => new Scanner
       case 2 => new AddSwipe
+      case 3 => new DrawCard
     }
   }
 
@@ -215,7 +229,6 @@ class PuzzleGameController(val game: Game) extends Reactor {
     }
   }
 
-  //誰から呼ばれているんだ・・・！
   def drawCard() {
     deck.drawCard()
   }

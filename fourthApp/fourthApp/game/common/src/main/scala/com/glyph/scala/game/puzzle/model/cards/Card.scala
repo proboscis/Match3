@@ -120,7 +120,14 @@ class AddSwipe extends Card {
     controller.addSwipeLength(1)
     cb(None)
   }
-
   def costs: Seq[Cost] = WaterCost(Water(1)) :: Nil
+}
+class DrawCard extends Card{
+  protected def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {
+    controller.drawCard()
+    controller.drawCard()
+    cb(None)
+  }
+  def costs: Seq[Cost] = WaterCost(Water(1))::FireCost(Fire(1))::ThunderCost(Thunder(1))::Nil
 }
 

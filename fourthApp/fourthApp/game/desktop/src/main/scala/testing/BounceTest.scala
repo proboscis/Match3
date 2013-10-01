@@ -15,7 +15,7 @@ import com.glyph.scala.lib.libgdx.actor.action.MyActions
  */
 object BounceTest extends UITest {
   def screen: DebugScreen = new DebugScreen with Reactor {
-    val json = RJSON(new RFile("common/src/main/resources/test/test.js"))
+    val json = RJSON(new RFile("common/src/main/resources/test/test.js").getString)
     val label = new RLabel(skin, json.i.as[String].map {
       _.getOrElse("None")
     })

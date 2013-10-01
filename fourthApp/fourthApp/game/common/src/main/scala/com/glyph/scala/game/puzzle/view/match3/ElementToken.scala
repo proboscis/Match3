@@ -26,7 +26,7 @@ class ElementToken(panel: Panel) extends PanelToken(panel) with OldDrawSprite {
   }))
 }
 object ElementToken{
-  val scheme = RJSON(GdxFile("js/view/panelView.js"))
+  val scheme = RJSON(GdxFile("js/view/panelView.js").getString)
   val FIRE = scheme.fire.as[String]
   val WATER = scheme.water.as[String]
   val THUNDER = scheme.thunder.as[String]

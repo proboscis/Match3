@@ -40,7 +40,7 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
   val headerView = new HeaderView(game) with ReactiveSize
   val puzzleView = new Match3View(game.puzzle)
   val puzzleGroup = new WidgetGroup with Layered
-  val slideView = new SlideView(RJSON(GdxFile("js/view/slideView.js")))
+  val slideView = new SlideView(RJSON(GdxFile("js/view/slideView.js").getString))
   val lifeGauge = new Gauge(game.player.hp ~ game.player.maxHp map {
     case hp ~ max => hp / max
   }, true) with ReactiveSize
@@ -48,7 +48,7 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
   val waterGauge = new ManaGauge(game.player.waterMana) with ReactiveSize
   val thunderGauge = new ManaGauge(game.player.thunderMana) with ReactiveSize
 
-  val colors = RJSON(GdxFile("js/view/panelView.js"))
+  val colors = RJSON(GdxFile("js/view/panelView.js").getString)
 
   implicit def strToColor(hex: String): Color = Color.valueOf(hex)
 
@@ -65,7 +65,7 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
       lifeGauge.setColor(life)
     }
   }
-  val setup = Rhino(GdxFile("js/view/gameView.js"), Map(
+  val setup = Rhino(GdxFile("js/view/gameView.js").getString, Map(
     "self" -> this,
     "root" -> root,
     "table" -> table,
@@ -134,7 +134,7 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
   def out() {
     slideView.slideOut()
   }
-  val dmgEffect = RJSON(GdxFile("js/effect/dmgEffect.js"))
+  val dmgEffect = RJSON(GdxFile("js/effect/dmgEffect.js").getString)
   controller.damageAnimation = {
     monsters => {
       callback => {
@@ -167,7 +167,7 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
   }
 
   val pool = new ParticlePool(classOf[SpriteParticle], 1000)
-  val expEffect = RJSON(GdxFile("js/effect/expParticle.js"))
+  val expEffect = RJSON(GdxFile("js/effect/expParticle.js").getString)
   lazy val region: TextureRegion = new TextureRegion(AM.instance().get("data/particle.png", classOf[Texture]))
   reactEvent(puzzleView.tokenExplosion) {
     token =>

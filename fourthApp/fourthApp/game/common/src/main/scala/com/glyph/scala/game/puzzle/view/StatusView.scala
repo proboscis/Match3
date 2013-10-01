@@ -25,7 +25,7 @@ class StatusView(game: Game) extends Table with Reactor with Tasking {
   val deckText = game.deck.deck map { _.size + "" }
   val discardText = game.deck.discarded map {_.size + ""}
   //TODO make this JS
-  val script = new RJS[Any](new GdxFile("js/view/statusView.js"),
+  val script = new RJS[Any](GdxFile("js/view/statusView.js").getString,
     ("gaugeAlpha"->gaugeAlpha)::
       ("lifeText"->lifeText)::
       ("deckText"->deckText)::

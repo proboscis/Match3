@@ -2,8 +2,10 @@ package com.glyph
 
 import android.os.Bundle
 import com.badlogic.gdx.backends.android._
+import com.glyph.scala.DebugGame
 
 class Main extends AndroidApplication {
+
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     val config = new AndroidApplicationConfiguration()
@@ -11,6 +13,6 @@ class Main extends AndroidApplication {
     config.useCompass = false
     config.useWakelock = true
     config.useGL20 = true
-    //initialize(new Engine(), config)
+    initialize(new DebugGame(), config)
   }
 }

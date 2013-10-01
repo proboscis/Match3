@@ -11,12 +11,13 @@ import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
  * @author glyph
  */
 class MonsterToken(panel: Panel) extends PanelToken(panel) {
-  import MonsterToken.random
+  import MonsterToken._
   //TODO Monsterパネルをタップで説明文表示
   //TODO Monsterクラスにdescriptionを追加しておく。
   implicit def StringToColor(s:String):Color = Color.valueOf(s)
   setColor(ElementToken.MONSTER().get)
-  val cache = random()
+  val cache = fontMap.getOrElse(panel.getClass.getSimpleName.charAt(0)+"",fontMap("@"))
+
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     val b = cache.getBounds
@@ -27,7 +28,7 @@ class MonsterToken(panel: Panel) extends PanelToken(panel) {
 }
 
 object MonsterToken {
-  val keys = Array("D","S","@")
+  val keys = Array("D","S","@","W")
   def random():BitmapFontCache={
     fontMap(keys(MathUtils.random(keys.length-1)))
   }

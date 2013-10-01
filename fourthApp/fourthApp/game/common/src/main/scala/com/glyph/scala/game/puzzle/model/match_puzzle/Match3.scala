@@ -187,12 +187,11 @@ object Match3 {
       allCatch either {
         val row = puzzle.filter {
           _.contains(panel)
-        }.head //TODO why not !
+        }.head
         (puzzle.indexOf(row), row.indexOf(panel))
       }
     }
 
-    //TODO fix this bug
     def swap(ax: Int, ay: Int, bx: Int, by: Int): Puzzle = {
       val a = puzzle(ax)(ay)
       val b = puzzle(bx)(by)
@@ -211,5 +210,4 @@ object Match3 {
       _ + "\n" + _
     }
   }
-
 }

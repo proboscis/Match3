@@ -4,17 +4,15 @@ import com.badlogic.gdx._
 import com.glyph.java.asset.AM
 import com.badlogic.gdx.graphics.{GL10, Texture}
 import game.puzzle.screen.PuzzleScreen
-import lib.libgdx.reactive.GdxFile
 import lib.libgdx.screen.LoadingScreen
-import lib.util.json.DepreactedRJSON
 import lib.util.MemoryAnalyzer
-import scenes.scene2d.ui.Table
 
 /**
  * @author glyph
  */
 class DebugGame extends Game {
   def create() {
+    Gdx.app.log("DebugGame","CreatedDebugGame")
     new MemoryAnalyzer
     //new ReactiveMonitor
     AM.create()

@@ -1,4 +1,8 @@
 init = {
-    hp:100,
-    position:1
+    maxHp:50,
+    hp:50,
+    position:1,
+    thunderDiv:50,
+    fireDiv:50,
+    waterDiv:50
 }

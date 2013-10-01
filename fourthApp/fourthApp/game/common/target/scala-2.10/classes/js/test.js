@@ -1,4 +1,4 @@
 config = {
-first:"kento",
-last:"masui"
+    first:"kento",
+    last:"masui"
 }

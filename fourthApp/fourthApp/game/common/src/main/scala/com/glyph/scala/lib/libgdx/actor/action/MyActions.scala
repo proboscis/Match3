@@ -14,7 +14,7 @@ object MyActions {
 
   def jump(height: Float, duration: Float) = new TemporalAction(duration, linear) {
     var x, y = 0f
-
+    //TODO 跳ねているタイミングでは、元の座標に戻れない。
     override def begin() {
       super.begin()
       x = actor.getX

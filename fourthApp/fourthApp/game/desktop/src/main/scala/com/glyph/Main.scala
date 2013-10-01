@@ -14,4 +14,5 @@ object Main {
     cfg.useGL20 = true
     new LwjglApplication(new DebugGame(), cfg)
   }
+
 }

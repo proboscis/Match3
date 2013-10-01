@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.libgdx.reactive
 
-import com.glyph.scala.lib.util.reactive.{FileAdapter, RFile}
+import com.glyph.scala.lib.util.reactive.{Varying, FileAdapter, RFile}
 import java.io.File
 import com.badlogic.gdx.Gdx
 
@@ -16,14 +16,14 @@ object GdxFile{
   }
   val open: (String) => FileAdapter = {
     (path) => new FileAdapter {
-
       def name: String = handle.name()
-
-      val handle = if(debug)Gdx.files.external(absolute + "/" + path) else Gdx.files.internal(path)
-      println(handle.path())
+      def dir = absolute + "/" + path
+      println("GdxFilePath:"+dir)
+      val handle = if(debug)Gdx.files.external(dir) else Gdx.files.internal(path)
       def lastModified: Long = handle.lastModified()
-
-      def readString(): String = handle.readString()
+      import util.control.Exception._
+      def readString = allCatch either handle.readString
     }
   }
 }
+

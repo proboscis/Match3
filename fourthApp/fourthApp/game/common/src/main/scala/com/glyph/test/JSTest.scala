@@ -35,7 +35,7 @@ object JSTest extends Reactor {
       def getClassName: String = "A"
     }
     */
-    val rjson = RJSON(script)
+    val rjson = RJSON(script.getString)
     reactVar(rjson) {
       json => for {
         first <- json.first.as[String]

@@ -1,5 +1,5 @@
 params = {
-    alpha:0.081,
+    alpha:0.3,
     color:new Packages.com.badlogic.gdx.graphics.Color(1,0,0,0),
     in:{
         duration:0.2,

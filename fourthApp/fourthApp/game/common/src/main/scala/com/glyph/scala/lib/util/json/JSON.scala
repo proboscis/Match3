@@ -127,6 +127,7 @@ class RJSON(o: Varying[JSON]) extends Varying[JSON] with Dynamic with Reactor {
 
 object RJSON {
   def apply(script: Varying[String],env:Map[String,Any] = Map.empty): RJSON = {
+    //println("new RJSON:"+script())
     new RJSON(script map {
       str => JSON(str,env)
     })

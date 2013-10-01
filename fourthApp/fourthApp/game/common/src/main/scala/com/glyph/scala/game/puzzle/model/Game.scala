@@ -18,7 +18,9 @@ import com.glyph.scala.lib.libgdx.reactive.GdxFile
  */
 class Game(fileSrc:String=>RFile){
   val player = new Player(fileSrc("json/player.json"))
-  val puzzle = new Match3(
+  val deck = new Deck
+  val dungeon = new Dungeon
+  /*val puzzle = new Match3(
     () => MathUtils.random(6) match {
       case 0 => new Fire
       case 1 => new Water
@@ -27,8 +29,8 @@ class Game(fileSrc:String=>RFile){
       case 6 => new Life
       case 7 => new Move
     }
-  )
-  val deck = new Deck
-  val dungeon = new Dungeon
-  val movement = Var(0f)
+  )*/
+  val puzzle = new Match3(()=>{
+    dungeon.getPanel(player.position())
+  })
 }

@@ -6,18 +6,16 @@ import com.glyph.scala.game.puzzle.model.Game
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import com.glyph.scala.lib.libgdx.actor.Scissor
 import com.badlogic.gdx.graphics.{Color, FPSLogger}
-import com.glyph.scala.lib.util.json.DepreactedRJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
-import com.glyph.scala.lib.util.hfsm.{HReactiveEmpty, ReactiveHState}
-import com.glyph.scala.lib.util.reactive.Var
 import com.glyph.scala.game.puzzle.view.PuzzleGameView
+import com.glyph.scala.lib.util.json.RJSON
 
 /**
  * @author glyph
  */
 class PuzzleScreen extends TabledScreen {
-  val config = DepreactedRJSON(GdxFile("json/puzzleScreenConfig.json"))
-  val debug = config.debug.toBoolean
+  val config = RJSON(GdxFile("json/puzzleScreenConfig.json").getString)
+  val debug =config.debug.as[Boolean]
 
   //TODO ControllerはViewのイベントをModelに渡すためのもの。
   //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。
@@ -27,7 +25,7 @@ class PuzzleScreen extends TabledScreen {
 
   def STAGE_HEIGHT = ScalaGame.VIRTUAL_HEIGHT
 
-  def DEBUG: Boolean = if (debug == null) false else debug()
+  def DEBUG: Boolean =if(debug != null)debug().getOrElse(true) else false
 
   //Model
   val game = new Game(GdxFile(_))
@@ -35,7 +33,7 @@ class PuzzleScreen extends TabledScreen {
   val gameController = new PuzzleGameController(game)
   //TODO make View Controller
   //View
-  val gameView = new PuzzleGameView(game,gameController) with Scissor
+  val gameView = new PuzzleGameView(game, gameController) with Scissor
   /*
    init layout
    */

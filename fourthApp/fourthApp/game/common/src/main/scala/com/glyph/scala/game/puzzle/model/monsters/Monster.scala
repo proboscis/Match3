@@ -7,12 +7,12 @@ import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
 /**
  * @author glyph
  */
-trait Monster extends TurnProcessor with Panel{
+trait Monster extends Panel{
   val hp = Var(100)
 
   /**
-   * Monster never matches to anything
-   * @param other
+   * Monster matches to monster
+   * @param other:Panel
    * @return
    */
   def matchTo(other: Panel): Boolean = other match {

@@ -10,7 +10,7 @@ import com.glyph.scala.lib.util.lifting.Clamp
  * @author glyph
  */
 class Player(file: RFile) extends Reactor with TurnProcessor {
-  val json = RJSON(file)
+  val json = RJSON(file.map{_.right.getOrElse("")})
   val maxHp = Var(20f)
   val hp = new Var(20f) with Clamp[Float].clamp(Var(0f), maxHp)
   val experience = Var(0f)

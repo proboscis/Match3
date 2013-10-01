@@ -14,7 +14,7 @@ import com.glyph.scala.lib.libgdx.reactive.GdxFile
  * @author glyph
  */
 class ManaGauge(mana: Divider[Float]) extends WidgetGroup with Layered{
-  val config = RJSON(GdxFile("js/view/manaGauge.js"))
+  val config = RJSON(GdxFile("js/view/manaGauge.js").getString)
   import com.glyph.scala.lib.util.reactive.~
   val gauge = new Gauge(mana.source~mana.limit map{case s~limit=>s/limit},true)
   val label = new RLabel(skin, mana.map {
@@ -24,7 +24,6 @@ class ManaGauge(mana: Divider[Float]) extends WidgetGroup with Layered{
       height <- config().height.as[Float]
       duration <- config().duration.as[Float]
     } yield {
-      println("managauge success")
       MyActions.jump(height, duration)
     }) getOrElse MyActions.NullAction
   }
