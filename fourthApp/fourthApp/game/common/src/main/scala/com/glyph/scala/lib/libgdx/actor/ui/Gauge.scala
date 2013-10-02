@@ -16,7 +16,7 @@ import com.badlogic.gdx.math.MathUtils
  */
 class Gauge(alpha: Varying[Float],vertical:Boolean = false) extends WidgetGroup with ReactiveActor with ReactiveSize{
   import reactive._
-  val visualAlpha = new Var(alpha())
+  val visualAlpha = new Var(alpha(),"Gauge:visualAlpha")
   val filling = new Actor with DrawSprite with Reactor {
     actor =>
     val sprite = new Sprite(TextureUtil.dummy)

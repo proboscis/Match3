@@ -23,7 +23,9 @@ object Settings {
       keyalias in Android := "change-me",
       mainAssetsPath in Android := file("common/src/main/resources"),
       unmanagedBase <<= baseDirectory( _ /"src/main/libs" ),
-      proguardOption in Android := "-keep class com.badlogic.gdx.backends.android.** { *; } -keep class scala.collection.SeqLike {public protected *;}"
+      proguardOption in Android := "-keep class com.badlogic.gdx.backends.android.** { *; } -keep class scala.collection.SeqLike {public protected *;}"+
+      "-keep class org.mozilla.** {*;}"+
+      "-keep class com.esotericsoftware.** {*;}"
     )
 
   val updateLibgdx = TaskKey[Unit]("update-gdx", "Updates libgdx")

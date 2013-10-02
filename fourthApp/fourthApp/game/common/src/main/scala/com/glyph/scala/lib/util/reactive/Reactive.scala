@@ -8,6 +8,7 @@ import ref.WeakReference
  * @author glyph
  */
 trait Reactive[T] {
+  import Reactive._
   private var observers: List[WeakReference[T => Unit]] = Nil
   private var removeQueue: List[T => Unit] = Nil
   private var addQueue: List[T => Unit] = Nil
@@ -15,8 +16,8 @@ trait Reactive[T] {
   private var concurrent = 0
   private var debugging = false
   private var debugMsg = ""
-  def debugReactive(str:String){
-    debugMsg = str
+  def debugReactive[R:Manifest](str:String){
+    debugMsg = implicitly[Manifest[R]].runtimeClass.getSimpleName+","+str
     debugging = true
   }
 
@@ -71,6 +72,10 @@ trait Reactive[T] {
   }
 
   def notifyObservers(t: T) {
+
+    stack += 1
+    //println("ReactiveStack:"+stack)
+    //if(debugging) println(toString)
     if (disposed){
       println("this Reactive is already disposed! you cannot call notifyObservers after disposed\n" + this.getClass.getSimpleName)
       return
@@ -85,6 +90,7 @@ trait Reactive[T] {
     }
     concurrent -= 1
     validateObserver()
+    stack -=1
   }
 
   def dispose() {
@@ -97,6 +103,11 @@ trait Reactive[T] {
     if(!debugging){
       super.toString
     }else{
-      debugMsg+" : "+super.toString
+      getClass.getSimpleName+"@%x \nmsg:%s".format(System.identityHashCode(this),debugMsg)
     }
+}
+
+object Reactive{
+  //TODO androidではなぜかこのスタックが32まで積まれてしまう
+  var stack = 0
 }

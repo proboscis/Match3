@@ -56,8 +56,7 @@ trait Varying[T] extends Reactive[T]{
     }
   }
 
-  override def toString: String = getClass.getSimpleName+"("+current+")@%x".format(System.identityHashCode(this))
-
+  override def toString: String ="<"+current+">"+super.toString
 
 }
 /*

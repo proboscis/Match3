@@ -1,14 +1,13 @@
 package com.glyph.scala.game.puzzle.model.monsters
 
 import com.glyph.scala.lib.util.reactive.Var
-import com.glyph.scala.game.puzzle.system.TurnProcessor
 import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
 
 /**
  * @author glyph
  */
 trait Monster extends Panel{
-  val hp = Var(100)
+  val hp = Var(100,"Monster:hp")
 
   /**
    * Monster matches to monster

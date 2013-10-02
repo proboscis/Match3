@@ -30,7 +30,7 @@ class PuzzleGameController(val game: Game) extends Reactor {
 
 
   import game._
-  val swipeLength = Var(1)
+  val swipeLength = Var(1,"PuzzleGameController:swipeLength")
 
   //ゲームのロジックとアニメーションを分けたいんですよね。
   reactVar(player.experience) {

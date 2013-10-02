@@ -51,6 +51,7 @@ class JSON(o: Either[Throwable, Object],scope:ScriptableObject) extends Dynamic 
         case f:org.mozilla.javascript.Function => clazz match{
           case ft if ft.isAssignableFrom(classOf[()=>_])  => new JSFunction(f).asInstanceOf[T]
         }
+        case b:java.lang.Boolean => b.booleanValue().asInstanceOf[T]
         case _=> clazz.cast(t)
       }
       //println("success")

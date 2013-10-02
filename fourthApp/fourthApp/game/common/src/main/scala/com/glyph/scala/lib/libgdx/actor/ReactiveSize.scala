@@ -9,10 +9,10 @@ import com.badlogic.gdx.math.Rectangle
  * @author glyph
  */
 trait ReactiveSize extends Actor{
-  val rX = Var(getX)
-  val rY = Var(getY)
-  val rWidth = Var(getWidth)
-  val rHeight = Var(getHeight)
+  val rX = Var(getX,"ReactiveSize:rX")
+  val rY = Var(getY,"ReactiveSize:rY")
+  val rWidth = Var(getWidth,"ReactiveSize:rWidth")
+  val rHeight = Var(getHeight,"ReactiveSize:rHeight")
   import reactive._
   val rRect = rX~rY~rWidth~rHeight map {case rx~ry~w~h =>new Rectangle(rx,ry,w,h)}
 

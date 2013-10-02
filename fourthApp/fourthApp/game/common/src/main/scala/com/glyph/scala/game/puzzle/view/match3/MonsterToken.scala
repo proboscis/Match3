@@ -14,8 +14,7 @@ class MonsterToken(panel: Panel) extends PanelToken(panel) {
   import MonsterToken._
   //TODO Monsterパネルをタップで説明文表示
   //TODO Monsterクラスにdescriptionを追加しておく。
-  implicit def StringToColor(s:String):Color = Color.valueOf(s)
-  setColor(ElementToken.MONSTER().get)
+  setColor(Color.valueOf(ElementToken.MONSTER().getOrElse("00000000")))
   val cache = fontMap.getOrElse(panel.getClass.getSimpleName.charAt(0)+"",fontMap("@"))
 
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
@@ -36,6 +35,6 @@ object MonsterToken {
     c =>
       val cache = new BitmapFontCache(view.commonFont)
       cache.setText(c,0,0)
-      (c ->cache)
+      c -> cache
   }:_*)
 }

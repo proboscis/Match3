@@ -2,22 +2,21 @@ package com.glyph.scala.game.puzzle.model
 
 import com.glyph.scala.lib.util.reactive._
 import scala.language.dynamics
-import com.glyph.scala.game.puzzle.system.TurnProcessor
 import com.glyph.scala.lib.util.json.RJSON
 import com.glyph.scala.lib.util.lifting.Clamp
 
 /**
  * @author glyph
  */
-class Player(file: RFile) extends Reactor with TurnProcessor {
+class Player(file: RFile) extends Reactor{
   val json = RJSON(file.map{_.right.getOrElse("")})
-  val maxHp = Var(20f)
-  val hp = new Var(20f) with Clamp[Float].clamp(Var(0f), maxHp)
+  val maxHp = Var(20f,"Player:maxHp")
+  val hp = new Var(20f,"Player:hp") with Clamp[Float].clamp(Var(0f), maxHp)
   val experience = Var(0f)
   val fireMana = new Divider(json.fireDiv.as[Float] map{_.getOrElse(0f)},1)
   val thunderMana = new Divider(json.thunderDiv.as[Float] map{_.getOrElse(0f)},1)
   val waterMana = new Divider(json.waterDiv.as[Float] map {_.getOrElse(0f)},1)
-  val position = Var(1)
+  val position = Var(1,"Player:position")
   reactVar(json.maxHp.as[Float]) {
     for (max <- _) {
       maxHp() = max
@@ -33,4 +32,7 @@ class Player(file: RFile) extends Reactor with TurnProcessor {
       position.update
     }
   }
+  fireMana.debugReactive("fireMana")
+  thunderMana.debugReactive("thunderMana")
+  waterMana.debugReactive("waterMana")
 }

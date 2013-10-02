@@ -7,11 +7,12 @@ import com.glyph.scala.lib.util.lifting.Variable
 /**
  * @author glyph
  */
-class Var[T](protected var variable: T) extends Varying[T] with Variable[T] {
+class Var[T:Manifest](protected var variable: T,name:String="undefined") extends Varying[T] with Variable[T] {
   self =>
   Var.allVariables = WeakReference(this)::Var.allVariables
   def current: T = variable
   def unary_~ :self.type = self
+  debugReactive[T]("name:"+name)
   def update(v: T) {
     notifyObservers(v)
   }
@@ -22,5 +23,5 @@ class Var[T](protected var variable: T) extends Varying[T] with Variable[T] {
 }
 object Var {
   var allVariables :List[WeakReference[Var[_]]] = Nil
-  def apply[T](v: T) = new Var(v)
+  def apply[T:Manifest](v: T,name:String = "undefined") = new Var(v,name)
 }

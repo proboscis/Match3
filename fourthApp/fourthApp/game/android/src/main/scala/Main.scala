@@ -13,6 +13,10 @@ class Main extends AndroidApplication {
     config.useCompass = false
     config.useWakelock = true
     config.useGL20 = true
-    initialize(new DebugGame(), config)
+    new Thread(Thread.currentThread().getThreadGroup,new Runnable {
+      def run() {
+        initialize(new DebugGame(), config)
+      }
+    },Thread.currentThread().getName+"logic",64000000).run()
   }
 }

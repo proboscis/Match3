@@ -15,12 +15,12 @@ class ElementToken(panel: Panel) extends PanelToken(panel) with OldDrawSprite {
   import ElementToken._
   setColor(Color.valueOf({
     panel match {
-      case _:Fire => FIRE().getOrElse("")
-      case _:Water => WATER().getOrElse("")
-      case _:Thunder => THUNDER().getOrElse("")
-      case _:Monster => MONSTER().getOrElse("")
-      case _:Life => LIFE().getOrElse("")
-      case _:Move => MOVE().getOrElse("")
+      case _:Fire => FIRE().getOrElse("ffffff")
+      case _:Water => WATER().getOrElse("ffffff")
+      case _:Thunder => THUNDER().getOrElse("ffffff")
+      case _:Monster => MONSTER().getOrElse("ffffff")
+      case _:Life => LIFE().getOrElse("ffffff")
+      case _:Move => MOVE().getOrElse("ffffff")
       case _ => "ffffff"
     }
   }))
