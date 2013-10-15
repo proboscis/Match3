@@ -1,7 +1,7 @@
 package com.glyph.scala.game.puzzle.view.match3
 
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
-import com.glyph.scala.lib.libgdx.actor.{Updating, Scissor}
+import com.glyph.scala.lib.libgdx.actor.{TouchSource, Updating, Scissor}
 import com.badlogic.gdx.scenes.scene2d.{Touchable, InputEvent, InputListener, Group}
 import com.badlogic.gdx.scenes.scene2d
 import scene2d.actions.{MoveToAction, Actions}
@@ -14,12 +14,13 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import com.glyph.scala.lib.libgdx.GdxUtil
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import scala.collection.mutable
+import com.glyph.scala.lib.util.Logging
 
 /**
  * @author glyph
  */
-class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating with Reactor {
-
+class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating with Reactor with TouchSource with Logging{
+  import PuzzleGameController._
   import puzzle._
   import Match3._
   def marginX = getWidth / (COLUMN + COLUMN * 0.1f) * 0.1f
@@ -71,42 +72,50 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
 
   var swipeListener:Option[InputListener] = None
   def startSwipeCheck(length:Int)(callback:Seq[(Int,Int,Int,Int)] => Unit){
+    //TODO make this not react while swiping...
     setTouchable(Touchable.enabled)
-    swipeListener = Some(new InputListener {
-      val swipeRecord = mutable.Stack[(Int,Int,Int,Int)]()
-      val record = mutable.Stack[(Int, Int)]()
-      var current = (0, 0)
-      val MAX_MOVE = length
-      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-        current = positionToIndex(x, y)
-        record.clear()
-        true
+    swipeListener match{
+      case Some(listener) =>{
+        error("swipe already started... or previous swipeCheck is not finished correctly. ignoring start swipeCheck")
       }
-      def diffAmount(a: (Int, Int), b: (Int, Int)) = Math.abs(a._1 - b._1) + Math.abs(a._2 - b._2)
-      override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
-        val next = positionToIndex(x, y)
-        if (diffAmount(current, next) == 1 && (record.size < MAX_MOVE || (record.headOption exists{
-          case head => head == next
-        }))) {
-          val ((a, b), (c, d)) = (current, next)
-          record.headOption match {
-            case Some(head) if head == next =>swipeRecord.pop(); record.pop()
-            case _ =>swipeRecord.push((a,b,c,d)); record.push(current)
+      case None => {
+        swipeListener = Some(new InputListener {
+          val swipeRecord = mutable.Stack[(Int,Int,Int,Int)]()
+          val record = mutable.Stack[(Int, Int)]()
+          var current = (0, 0)
+          val MAX_MOVE = length
+          override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
+            current = positionToIndex(x, y)
+            record.clear()
+            true
           }
-          puzzleBuffer = puzzleBuffer.swap(a,b,c,d)
-          current = next
-          setupTokenPosition()
-        }
-      }
-      override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-        if(!record.isEmpty){
-          postAfterSetup {
-            callback(swipeRecord.reverse)
+          def diffAmount(a: (Int, Int), b: (Int, Int)) = Math.abs(a._1 - b._1) + Math.abs(a._2 - b._2)
+          override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
+            val next = positionToIndex(x, y)
+            if (diffAmount(current, next) == 1 && (record.size < MAX_MOVE || (record.headOption exists{
+              case head => head == next
+            }))) {
+              val ((a, b), (c, d)) = (current, next)
+              record.headOption match {
+                case Some(head) if head == next =>swipeRecord.pop(); record.pop()
+                case _ =>swipeRecord.push((a,b,c,d)); record.push(current)
+              }
+              puzzleBuffer = puzzleBuffer.swap(a,b,c,d)
+              current = next
+              setupTokenPosition()
+            }
           }
-        }
+          override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
+            if(!record.isEmpty){
+              postAfterSetup {
+                callback(swipeRecord.reverse)
+              }
+            }
+          }
+        })
+        swipeListener foreach addListener
       }
-    })
-    swipeListener foreach addListener
+    }
   }
   def stopSwipeCheck(){
     setTouchable(Touchable.disabled)
@@ -114,7 +123,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
     swipeListener = None
   }
   //TODO implement this animation.
-  val fillAnimation: PuzzleGameController#FillAnimation = {
+  val fillAnimation: FillAnimation = {
     events => {
       callback => {
         events.foreach {
@@ -126,7 +135,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
       }
     }
   }
-  val destroyAnimation:PuzzleGameController#DestroyAnimation = {
+  val destroyAnimation:DestroyAnimation = {
     events => {
       callback => {
         sequencer add Sequence(
@@ -163,46 +172,6 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
 
   def positionToIndex(px: Float, py: Float): (Int, Int) = (clamp((px / divX).toInt, 0, ROW - 1), clamp((py / divY).toInt, 0, COLUMN - 1))
 
-  /*
-  reactEvent(puzzle.panelRemoveEvent) {
-    events =>
-      sequencer add Sequence(
-        Parallel(
-          events flatMap {
-            case (p, x, y) => tokens collect {
-              case token if token.panel eq p => {
-                //パネルのアニメ終了まで待つ
-                Wait(wait => {
-                  //TODOなぜかrunがすぐに実行される問題=>implicit conversionのせい
-                  token.explode {
-                    token.remove()
-                    tokens -= token
-                    //println("puzzleView:remove!")
-                    stopReact(token.press)
-                    stopReact(token.drag)
-                    stopReact(token.release)
-                    token.dispose()
-                    wait.wake()
-                  }
-                  tokenExplosion.emit(token)
-                })
-              }
-            }
-          }: _*),
-        Do {
-          destroyEnd.emit(null)
-        })
-  }
-
-  reactEvent(puzzle.panelAddEvent) {
-    events => events.foreach {
-      case (p, x, y) => createPanelToken(p, x, y)
-    }
-      setupTokenPosition(callback = {
-        fillEnd.emit(null)
-      })
-  }
-*/
   override def setWidth(width: Float) {
     if (getWidth != width) {
       super.setWidth(width)

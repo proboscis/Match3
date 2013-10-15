@@ -1,7 +1,7 @@
 package com.glyph.scala.game.puzzle.model
 
 import com.glyph.scala.game.puzzle.model.match_puzzle.{Life, Panel}
-import com.glyph.scala.game.puzzle.model.monsters.{Worm, Slime, Monster}
+import com.glyph.scala.game.puzzle.model.monsters.{Weapon, Worm, Slime, Monster}
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.scala.game.puzzle.model.Element.{Water, Thunder, Fire}
 
@@ -12,13 +12,14 @@ class Dungeon {
   val goal = 10
   def getPanel(floor:Int):Panel = {
     import MathUtils.random
-    random(0,6) match {
+    random(0,7) match {
       case 0 => new Fire
       case 1 => new Thunder
       case 2 => new Water
-      case 3|4|5 => Vector(appearance.collect {
+      case 3|4 => Vector(appearance.collect {
         case (seed, floors) if floors.contains(floor) => seed
       }.toSeq:_*).random()
+      case 5|7 => new Weapon
       case 6 => new Life
     }
   }

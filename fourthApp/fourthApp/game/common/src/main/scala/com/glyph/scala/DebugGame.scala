@@ -6,13 +6,36 @@ import com.badlogic.gdx.graphics.{GL10, Texture}
 import game.puzzle.screen.PuzzleScreen
 import lib.libgdx.screen.LoadingScreen
 import lib.util.MemoryAnalyzer
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 
 /**
  * @author glyph
  */
 class DebugGame extends Game {
+  var pausedScreen: Option[Screen] = None
+
+  override def resume() {
+    super.resume()
+    println("resume!")
+    setScreen(new LoadingScreen (()=>{
+      pausedScreen foreach setScreen
+    }))
+  }
+
+
+  override def setScreen(screen: Screen) {
+    println("setScreen:"+screen)
+    super.setScreen(screen)
+  }
+
+  override def pause() {
+    super.pause()
+    println("pause!")
+    pausedScreen = Some(getScreen)
+  }
+
   def create() {
-    Gdx.app.log("DebugGame","CreatedDebugGame")
+    Gdx.app.log("DebugGame", "CreatedDebugGame")
     new MemoryAnalyzer
     //new ReactiveMonitor
     AM.create()
@@ -22,7 +45,13 @@ class DebugGame extends Game {
       AM.instance().load("data/card" + i + ".png", classOf[Texture])
       i += 1
     }*/
-    AM.instance().load("data/particle.png", classOf[Texture])
+    val am = AM.instance()
+    am.load("skin/default.json",classOf[Skin])
+    am.finishLoading()
+    //TODO make loading screen appear fast !
+    am.load("data/particle.png", classOf[Texture])
+    am.load("data/sword.png",classOf[Texture])
+    am.load("data/dummy.png",classOf[Texture])
 
     //    AM.instance().load("sound/drawcard.mp3", classOf[Sound])
     //    AM.instance().load("sound/gore.wav", classOf[Sound])
@@ -36,19 +65,18 @@ class DebugGame extends Game {
     //    AM.instance().load("data/skeleton.png", classOf[Texture])
     //    AM.instance().load("data/lightbulb32.png", classOf[Texture])
     //AM.instance().finishLoading()
-    val loading = new LoadingScreen
-    loading.onFinish += (() => {
+    setScreen(new LoadingScreen(()=>{
+      println("load done")
       //setScreen(new DebugScreen)
       //setScreen(new ScrollTestScreen)
       setScreenConstructor(new PuzzleScreen)
-    })
-    setScreen(loading)
+    }))
   }
 
   def setScreenConstructor(f: => Screen) {
     Gdx.input.setInputProcessor(null)
     //val usedVars = Var.allVariables
-    setScreen(f)
+    setScreen(f)//ここでprocessorがセットされるなければならない
     val currentProcessor = Gdx.input.getInputProcessor
     val multiplexer = new InputMultiplexer()
     multiplexer.addProcessor(new InputAdapter {

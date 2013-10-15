@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2
  * @author glyph
  */
 trait Layered extends WidgetGroup {
+
   setTouchable(Touchable.childrenOnly)
   override def layout() {
     super.layout()

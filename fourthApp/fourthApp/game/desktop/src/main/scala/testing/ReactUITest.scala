@@ -7,8 +7,10 @@ import com.badlogic.gdx.graphics.Texture
 import com.glyph.scala.game.puzzle.view.CardToken
 import com.glyph.scala.lib.util.observer.Observing
 import com.badlogic.gdx.scenes.scene2d.{Touchable, InputEvent, InputListener}
-import com.glyph.scala.game.puzzle.model.cards.Scanner
+import com.glyph.scala.game.puzzle.model.cards.Charge
 import com.glyph.scala.lib.util.reactive.{Var, Reactor}
+import com.glyph.scala.lib.libgdx.reactive.GdxFile
+import com.glyph.scala.lib.util.json.RJSON
 
 
 /**
@@ -22,14 +24,10 @@ object ReactUITest extends ScreenGame(am => {
     i += 1
   }
 }, new TabledScreen with Reactor {
-  def STAGE_HEIGHT: Int = ScalaGame.VIRTUAL_HEIGHT
-
-  def STAGE_WIDTH: Int = ScalaGame.VIRTUAL_WIDTH
-
-  def DEBUG: Boolean = true
+  def configSrc = RJSON(GdxFile("json/gameConfig.json").getString)
 
   val deck = Var((1 to 2) map {
-    i => new Scanner
+    i => new Charge
   } toList)
   root.setTouchable(Touchable.enabled)
   root.addListener(new InputListener {

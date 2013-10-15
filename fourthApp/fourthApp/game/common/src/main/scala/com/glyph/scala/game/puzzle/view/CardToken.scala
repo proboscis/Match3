@@ -3,20 +3,29 @@ package com.glyph.scala.game.puzzle.view
 import com.badlogic.gdx.graphics.{Color, Pixmap, Texture}
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.graphics.g2d.{TextureRegion, BitmapFontCache, SpriteBatch, Sprite}
-import com.glyph.scala.lib.libgdx.actor.{Layered, ObsTouchable, ExplosionFadeout, OldDrawSprite}
+import com.glyph.scala.lib.libgdx.actor._
 import com.glyph.scala.game.puzzle.model.cards._
 import com.badlogic.gdx.scenes.scene2d.ui.{Image, WidgetGroup, Label, Table}
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
-import com.glyph.scala.lib.util.reactive.Reactor
+import com.glyph.scala.lib.util.reactive.{Varying, Reactor}
 import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.glyph.scala.game.puzzle.model.cards.ThunderCost
+import com.glyph.scala.game.puzzle.model.cards.Thunder
+import com.glyph.scala.game.puzzle.model.cards.WaterCost
+import com.glyph.scala.game.puzzle.model.cards.Water
+import com.glyph.scala.game.puzzle.model.cards.FireCost
+import com.glyph.scala.game.puzzle.model.cards.Fire
+import com.badlogic.gdx.Gdx
+import com.glyph.scala.lib.util.reactive
+import com.glyph.scala.lib.libgdx.TextureUtil
 
 /**
  * @author glyph
  */
-case class CardToken(card: Card#PlayableCard, w: Float, h: Float)
+case class CardToken(card: Card#PlayableCard, w: Float, h: Float,condition:Varying[Boolean])
   extends WidgetGroup with Layered
-  with ExplosionFadeout with ObsTouchable
+  with ExplosionFadeout
   with Reactor{
   import CardToken._
   val root = new Table
@@ -40,8 +49,10 @@ case class CardToken(card: Card#PlayableCard, w: Float, h: Float)
       label.setFontScale(0.5f)
       root.add(label).expand.fillX.bottom()
   }
-  reactVar(card.playable){
-    if(_){
+  import reactive.~
+  val reactor = reactVar(card.playable~condition){
+    case p~c =>
+    if(p&&c){
       setColor(Color.LIGHT_GRAY)
       setTouchable(Touchable.enabled)
       img.setColor(getColor)
@@ -56,6 +67,9 @@ case class CardToken(card: Card#PlayableCard, w: Float, h: Float)
   //root.debug()
   val glyph = mapping.getOrElse(card.source.getClass.getSimpleName.charAt(0),mapping('?'))
 
+  def dispose(){
+    reactor.unSubscribe()
+  }
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     val b = glyph.getBounds
@@ -67,7 +81,7 @@ case class CardToken(card: Card#PlayableCard, w: Float, h: Float)
 
 object CardToken {
   //val yggdrasil = new BitmapFont(Gdx.files.internal("font/yggdrasil.fnt"), false)
-  val keys = "YGGDRASIL?M".toCharArray
+  val keys = "ABCDEFGHIJKLMNOPQRSTU?@".toCharArray
 
   def random(): BitmapFontCache = {
     mapping(keys(MathUtils.random(keys.length - 1)))
@@ -79,9 +93,6 @@ object CardToken {
       cache.setText("" + k, 0f, 0f)
       k -> cache
   }: _*)
-  val image = new Pixmap(128, 128, Pixmap.Format.RGBA8888)
-  image.setColor(Color.WHITE)
-  image.fillRectangle(0, 0, image.getWidth, image.getHeight)
-  val texture = new Texture(image)
+  def texture = TextureUtil.dummy
 }
 

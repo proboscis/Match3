@@ -14,18 +14,10 @@ import com.glyph.scala.lib.util.json.RJSON
  * @author glyph
  */
 class PuzzleScreen extends TabledScreen {
-  val config = RJSON(GdxFile("json/puzzleScreenConfig.json").getString)
-  val debug =config.debug.as[Boolean]
-
+  def configSrc = RJSON(GdxFile("json/gameConfig.json").getString)
   //TODO ControllerはViewのイベントをModelに渡すためのもの。
   //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。
   override val backgroundColor: Color = Color.DARK_GRAY
-
-  def STAGE_WIDTH = ScalaGame.VIRTUAL_WIDTH
-
-  def STAGE_HEIGHT = ScalaGame.VIRTUAL_HEIGHT
-
-  def DEBUG: Boolean =if(debug != null)debug().getOrElse(true) else false
 
   //Model
   val game = new Game(GdxFile(_))
@@ -33,7 +25,8 @@ class PuzzleScreen extends TabledScreen {
   val gameController = new PuzzleGameController(game)
   //TODO make View Controller
   //View
-  val gameView = new PuzzleGameView(game, gameController) with Scissor
+  val gameView = new PuzzleGameView(game,gameController.deck,(STAGE_WIDTH,STAGE_HEIGHT)) with Scissor
+  //gameView.setSize(STAGE_WIDTH,STAGE_HEIGHT)
   /*
    init layout
    */
@@ -43,6 +36,11 @@ class PuzzleScreen extends TabledScreen {
   /*
   init game
    */
+  gameController.destroyAnimation = gameView.puzzleView.destroyAnimation
+  gameController.fillAnimation = gameView.puzzleView.fillAnimation
+  gameController.damageAnimation = gameView.damageAnimation
+  gameController.idleInput = gameView.idleInput
+
   gameController.initialize()
   val fps = new FPSLogger
 }

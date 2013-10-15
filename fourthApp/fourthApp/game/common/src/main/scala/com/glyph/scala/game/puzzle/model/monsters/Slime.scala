@@ -8,5 +8,6 @@ import com.glyph.scala.game.puzzle.controller.PuzzleGameController
  */
 class Slime extends Monster {
   override def toString: String = "S"
-  def atk: Int = 1
+  atk()=1
+
 }

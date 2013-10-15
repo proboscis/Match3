@@ -1,22 +1,21 @@
 package com.glyph.scala.game.puzzle.controller
 
-import com.glyph.scala.game.puzzle.model.Game
+import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
 import com.glyph.scala.game.puzzle.model.cards._
 import com.glyph.scala.lib.util.reactive.{Var, Reactor}
-import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, Panel}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{MaybeDestroyed, OnMatch, DestroyEffect, Panel}
 import com.glyph.scala.game.puzzle.model.monsters.Monster
 import com.badlogic.gdx.math.MathUtils
-import com.glyph.scala.game.puzzle.controller.Swiped
-import com.glyph.scala.game.puzzle.controller.UseCard
+import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.game.puzzle.model.match_puzzle.Match3.Events
 
 /**
- * Receives events from view, and pass it to the game model
- * this is like an activity of the androids!
+ * this is actually a game class...
  * @author glyph
  */
-class PuzzleGameController(val game: Game) extends Reactor {
-  //TODO make this swipable
-
+class PuzzleGameController(val game: Game) extends Reactor with Logging{
+  import PuzzleGameController._
+  val deck = new PlayableDeck(this)
   //sacrifice the spirits to either angel or demons
   /**
    * ３元の精霊を天使か悪魔に捧げることでカードを発動する。
@@ -27,10 +26,17 @@ class PuzzleGameController(val game: Game) extends Reactor {
    * プレイヤは天使か悪魔に近づいていくことになるが、
    * 近づくことによって特典とデメリットを得るようにしたい。
    */
+  //TODO 5ターンくらい経過したときにカードを取得出来るように変更
+  /**
+   * カードの取得方法：画面内のモンスターを、リソースを消費することでカード化する。
+   * 敵ごとに必要なリソース数が決まっていることにするか。
+   */
+  //TODO UI　デザイン
 
 
   import game._
-  val swipeLength = Var(1,"PuzzleGameController:swipeLength")
+
+  val swipeLength = Var(1, "PuzzleGameController:swipeLength")
 
   //ゲームのロジックとアニメーションを分けたいんですよね。
   reactVar(player.experience) {
@@ -39,39 +45,32 @@ class PuzzleGameController(val game: Game) extends Reactor {
         player.position() = floor
       }
   }
-  var destroyAnimation: Option[DestroyAnimation] = None
-  var fillAnimation: Option[FillAnimation] = None
-  var damageAnimation: Seq[(Monster, Int)] => Animation = {
+  var destroyAnimation: DestroyAnimation = requests=> cb=>cb()
+  var fillAnimation: FillAnimation = filling => cb=>cb()
+  var damageAnimation: DamageAnimation = {
     seq => {
       f => f()
     }
   }
-  var idleInput: (Int)=>(IdleEvent => Unit) => Unit = {
+  var idleInput: IdleInput = {
     //dummy
-    length=>{
+    length => {
       func => {
-        func(UseCard(new Meteor().createPlayable(this)))
+        val card = new Meteor().createPlayable(this)
+        if (card.playable()) {
+          func(UseCard(card))
+        }
       }
     }
   }
-  type Animation = (() => Unit) => Unit
-  type DestroyAnimation = Seq[(Panel, Int, Int)] => Animation
-  type FillAnimation = Seq[(Panel, Int, Int)] => Animation
 
-  def dummy: Animation = block => {
-    block()
-  }
-
-  def fill: Animation = {
+  def fill(filling:Events = puzzle.createFilling): Animation = {
     block => {
       //println("fill")
-      val filling = puzzle.createFilling
       puzzle.fill(filling)
       //println("fill=>")
       //println(puzzle.panels().toStr)
-      fillAnimation.map {
-        _(filling)
-      }.getOrElse(dummy) {
+      fillAnimation(filling){
         () => scan {
           () => block()
         }
@@ -79,20 +78,27 @@ class PuzzleGameController(val game: Game) extends Reactor {
     }
   }
 
-  def addSwipeLength(amount:Int){
+  def addSwipeLength(amount: Int) {
     swipeLength() += amount
   }
 
 
   def scan: Animation = {
     block => {
-      //println("scan")
-      val scanned = puzzle.scan() map {
-        case (p, x, y) => (x, y)
+      val matchedSets = puzzle.findMatches
+      val panelSets = (matchedSets.view map{sets=> sets map{case(p,x,y) => p}}).force
+      panelSets.foreach{//do damage calculations and so on...
+        sets => sets.collect{case p:OnMatch => p} foreach{_.onMatch(sets)}
       }
-      if (!scanned.isEmpty) {
-        destroy(scanned: _*) {
-          () => block()
+      val destroyed = matchedSets.flatten.distinct filter{
+        case a@(p:MaybeDestroyed,x,y)=> p.isDestroyed
+        case a => true
+      } map {
+        case (p,x,y) => (x,y)
+      }
+      if(!destroyed.isEmpty){
+        destroy(destroyed:_*){
+          ()=> block()
         }
       } else {
         block()
@@ -109,11 +115,12 @@ class PuzzleGameController(val game: Game) extends Reactor {
         case (x, y) => (snapshot(x)(y), x, y)
       }
       puzzle.removeIndices(indices: _*)
-      destroyAnimation.map {
-        _(panels)
-      }.getOrElse(dummy) {
-        () => fill {
-          () => block()
+      destroyAnimation(panels) {
+        () => {
+          panels collect { case(p:DestroyEffect,_,_) => p} foreach{_.onDestroy(this)}
+          fill() {
+            () => block()
+          }
         }
       }
     }
@@ -121,18 +128,6 @@ class PuzzleGameController(val game: Game) extends Reactor {
 
   def addExperience(exp: Float) {
     player.experience() += exp
-  }
-
-  def addThunderMana(mana: Float) {
-    player.thunderMana <= mana
-  }
-
-  def addFireMana(mana: Float) {
-    player.fireMana <= mana
-  }
-
-  def addWaterMana(mana: Float) {
-    player.waterMana <= mana
   }
 
   def addLife(life: Float) {
@@ -147,9 +142,9 @@ class PuzzleGameController(val game: Game) extends Reactor {
 
   // val cardSeed = new RScala[()=>Card](new GdxFile("scala/cardSeed.scala"))
   val cardSeed = () => {
-    MathUtils.random(0,3) match{
+    MathUtils.random(0, 3) match {
       case 0 => new Meteor
-      case 1 => new Scanner
+      case 1 => new Charge
       case 2 => new AddSwipe
       case 3 => new DrawCard
     }
@@ -158,12 +153,12 @@ class PuzzleGameController(val game: Game) extends Reactor {
   def initialize() {
     (1 to 40) foreach {
       _ =>
-        deck.addCard(cardSeed())
+        deck.addCard(cardSeed().createPlayable(this))
     }
     (1 to 5) foreach {
       _ => deck.drawCard()
     }
-    fill {
+    fill(/*puzzle.createNoMatchFilling*/){
       () =>
         idle {
           result =>
@@ -173,21 +168,21 @@ class PuzzleGameController(val game: Game) extends Reactor {
 
   def idle(f: (Any) => Unit) {
     swipeLength() = 1
-    val initialMonsters = puzzle.panels().flatten.collect{
-      case m:Monster => m
+    val initialMonsters = puzzle.panels().flatten.collect {
+      case m: Monster => m
     }
     loop()
     def loop() {
-      idleInput(swipeLength()){
+      idleInput(swipeLength()) {
         case UseCard(card) => {
           //println("UseCard:"+card)
-          card{
+          card {
             case _ => loop()
           }
           println("hands =>")
-          game.deck.hand() foreach println
-          println("used card => "+card.source)
-          game.deck.discard(card.source)
+          deck.hand() foreach println
+          println("used card => " + card.source)
+          deck.discard(card)
         }
         case Swiped(record) => {
           record foreach {
@@ -195,7 +190,7 @@ class PuzzleGameController(val game: Game) extends Reactor {
           }
           deck.hand() foreach discard
           scan {
-            () => damagePhase(initialMonsters){
+            () => damagePhase(initialMonsters) {
               () =>
                 for (_ <- 1 to 5) drawCard()
                 idle(f)
@@ -206,8 +201,8 @@ class PuzzleGameController(val game: Game) extends Reactor {
     }
   }
 
-  def damagePhase(initMonsters:Seq[Monster])(cb: () => Unit) {
-    val currentMonsters =puzzle.panels().flatten.collect {
+  def damagePhase(initMonsters: Seq[Monster])(cb: () => Unit) {
+    val currentMonsters = puzzle.panels().flatten.collect {
       case m: Monster => m
     }
     //println("init   =>"+initMonsters)
@@ -217,12 +212,12 @@ class PuzzleGameController(val game: Game) extends Reactor {
     val monsters = alive
     //println("diff   =>"+monsters)
     (monsters map {
-      _.atk
+      _.atk()
     }).sum match {
       case 0 => cb()
       case dmg => damage(dmg)
         damageAnimation(monsters map {
-          m => (m, m.atk)
+          m => (m, m.atk())
         }) {
           () => cb()
         }
@@ -233,9 +228,17 @@ class PuzzleGameController(val game: Game) extends Reactor {
     deck.drawCard()
   }
 
-  def discard(card: Card) {
+  def discard(card: Card#PlayableCard) {
     deck.discard(card)
   }
+}
+
+object PuzzleGameController {
+  type IdleInput = (Int) => (IdleEvent => Unit) => Unit
+  type Animation = (() => Unit) => Unit
+  type DestroyAnimation = Seq[(Panel, Int, Int)] => Animation
+  type FillAnimation = Seq[(Panel, Int, Int)] => Animation
+  type DamageAnimation = Seq[(Monster, Int)] => Animation
 }
 
 trait IdleEvent

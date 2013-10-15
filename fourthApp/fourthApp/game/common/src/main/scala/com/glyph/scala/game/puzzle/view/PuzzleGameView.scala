@@ -1,11 +1,10 @@
 package com.glyph.scala.game.puzzle.view
 
 import com.badlogic.gdx.scenes.scene2d.ui.{Image, WidgetGroup, Table}
-import com.glyph.scala.game.puzzle.model.Game
-import com.glyph.scala.ScalaGame
+import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
 import com.glyph.scala.lib.libgdx.actor.{ReactiveSize, TouchSource, Layered}
-import com.glyph.scala.game.puzzle.controller.{Swiped, UseCard, PuzzleGameController}
-import com.glyph.scala.lib.util.reactive
+import com.glyph.scala.game.puzzle.controller.{IdleEvent, Swiped, UseCard, PuzzleGameController}
+import com.glyph.scala.lib.util.{Logging, reactive}
 import reactive._
 import com.glyph.scala.lib.libgdx.actor.ui.{Gauge, SlideView}
 import com.glyph.scala.lib.util.json.RJSON
@@ -16,7 +15,7 @@ import com.badlogic.gdx.math.{MathUtils, Rectangle, Vector2, Interpolation}
 import com.glyph.scala.lib.libgdx.{GdxUtil, TextureUtil}
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.glyph.scala.lib.util.rhino.Rhino
-import com.glyph.scala.game.puzzle.view.match3.Match3View
+import com.glyph.scala.game.puzzle.view.match3.{ColorTheme, ElementToken, Match3View}
 import com.glyph.scala.lib.libgdx.actor.action.Oscillator
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -31,12 +30,16 @@ import com.glyph.java.particle.{SpriteParticle, ParticlePool}
  * ここでcontrollerを渡したことが間違いだった!
  * @author glyph
  */
-class PuzzleGameView(val game: Game, val controller: PuzzleGameController) extends Table with TouchSource with Reactor {
+class PuzzleGameView(val game: Game,deck:PlayableDeck, size: (Int, Int)) extends Table with TouchSource with Reactor with Logging {
+
+  import PuzzleGameController._
+  val ET = ColorTheme
+  //TODOスワイプでカード使用
   //TODO 動いている感をparticleなどで表現
-  import ScalaGame._
+  setSize(size._1, size._2)
   val root = new WidgetGroup with Layered
   val table = new Table
-  val cardView = new CardTableView(game.deck,controller)
+  val cardView = new CardTableView(deck)
   val headerView = new HeaderView(game) with ReactiveSize
   val puzzleView = new Match3View(game.puzzle)
   val puzzleGroup = new WidgetGroup with Layered
@@ -44,9 +47,9 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
   val lifeGauge = new Gauge(game.player.hp ~ game.player.maxHp map {
     case hp ~ max => hp / max
   }, true) with ReactiveSize
-  val fireGauge = new ManaGauge(game.player.fireMana) with ReactiveSize
-  val waterGauge = new ManaGauge(game.player.waterMana) with ReactiveSize
-  val thunderGauge = new ManaGauge(game.player.thunderMana) with ReactiveSize
+  val fireGauge = new ManaGauge(game.player.fireMana,ET.fire) with ReactiveSize
+  val waterGauge = new ManaGauge(game.player.waterMana,ET.water) with ReactiveSize
+  val thunderGauge = new ManaGauge(game.player.thunderMana,ET.thunder) with ReactiveSize
 
   val colors = RJSON(GdxFile("js/view/panelView.js").getString)
 
@@ -65,6 +68,9 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
       lifeGauge.setColor(life)
     }
   }
+
+  log("PuzzleGameView:w,h=>" + getWidth + "," + getHeight)
+
   val setup = Rhino(GdxFile("js/view/gameView.js").getString, Map(
     "self" -> this,
     "root" -> root,
@@ -78,8 +84,8 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
     "fireGauge" -> fireGauge,
     "waterGauge" -> waterGauge,
     "thunderGauge" -> thunderGauge,
-    "VIRTUAL_WIDTH" -> VIRTUAL_WIDTH,
-    "VIRTUAL_HEIGHT" -> VIRTUAL_HEIGHT)
+    "VIRTUAL_WIDTH" -> getWidth,
+    "VIRTUAL_HEIGHT" -> getHeight)
   ).asFunction
   reactSome(setup)(_())
   //logic for gameover... this should not be here.
@@ -89,53 +95,74 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
     e => root.addActor(new GameOver)
   }
 
-  controller.fillAnimation = Some(puzzleView.fillAnimation)
-  controller.destroyAnimation = Some(puzzleView.destroyAnimation)
+  //controller.fillAnimation = Some(puzzleView.fillAnimation)
+  //controller.destroyAnimation = Some(puzzleView.destroyAnimation)
 
   /**
    * make sure to clear out all the side effects when callback
    */
-  controller.idleInput = {
+  val idleInput: (Int) => (IdleEvent => Unit) => Unit = {
     swipeLength => {
       callback => {
         puzzleView.setTouchable(Touchable.enabled)
         reactEvent(cardView.cardPress) {
           token => val view = new PlayableCardDescription(token.card) with TouchSource
-            in(view)
+            if (slideView.shown.exists {
+              _ == view
+            }) {
+              out()
+            } else {
+              in(view)
+            }
         }
         once(slideView.shownPress) {
-          case PlayableCardDescription(card)=> {
-            //println("pressed card description")
-            slideView.slideOut()
-            puzzleView.setTouchable(Touchable.disabled)
-            stopReact(slideView.shownPress)
-            stopReact(cardView.cardPress)
-            puzzleView.stopSwipeCheck()
+          case PlayableCardDescription(card) => {
+            stop()
             callback(UseCard(card))
           }
           case _ => throw new RuntimeException("Cant happen here.")
         }
         puzzleView.startSwipeCheck(swipeLength) {
           record => {
-            stopReact(slideView.shownPress)
-            stopReact(cardView.cardPress)
-            puzzleView.stopSwipeCheck()
+            stop()
             callback(Swiped(record))
           }
+        }
+        cardView.startSwipeCheck{
+          token =>{
+            stop()
+            callback(UseCard(token.card))
+            log("swiped token:"+token)
+          }
+        }
+        reactEvent(puzzleView.press) {
+          p => out()
+        }
+        def stop() {
+          puzzleView.setTouchable(Touchable.disabled)
+          stopReact(slideView.shownPress)
+          stopReact(cardView.cardPress)
+          stopReact(puzzleView.press)
+          puzzleView.stopSwipeCheck()
+          cardView.stopSwipeCheck()
+          out()
         }
       }
     }
   }
+
   def in(view: TouchSource) {
     slideView.slideIn(view, outDone = () => {
       view.dispose()
     })
   }
+
   def out() {
     slideView.slideOut()
   }
+
   val dmgEffect = RJSON(GdxFile("js/effect/dmgEffect.js").getString)
-  controller.damageAnimation = {
+  val damageAnimation: DamageAnimation = {
     monsters => {
       callback => {
         for {
@@ -165,7 +192,6 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
       }
     }
   }
-
   val pool = new ParticlePool(classOf[SpriteParticle], 1000)
   val expEffect = RJSON(GdxFile("js/effect/expParticle.js").getString)
   lazy val region: TextureRegion = new TextureRegion(AM.instance().get("data/particle.png", classOf[Texture]))
@@ -181,15 +207,13 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
         minSize <- expEffect().minSize.as[Int]
         maxSize <- expEffect().maxSize.as[Int]
       } {
-        val (view, reaction) = (token.panel match {
-          case t: Thunder => (thunderGauge, () => controller.addThunderMana(1))
-          case t: Water => (waterGauge, () => controller.addWaterMana(1))
-          case t: Fire => (fireGauge, () => controller.addFireMana(1))
-          case l: Life => (lifeGauge, () => controller.addLife(1))
-          case m: Monster => (headerView, () => controller.addExperience(1))
-          case _ => (headerView, null)
-        }) match {
-          case (a, b) => (a, Option(b))
+        val view = token.panel match {
+          case t: Thunder => thunderGauge
+          case t: Water => waterGauge
+          case t: Fire => fireGauge
+          case l: Life => lifeGauge
+          case m: Monster => headerView
+          case _ => headerView
         }
         import MathUtils._
         val emission = new Emission(
@@ -217,14 +241,6 @@ class PuzzleGameView(val game: Game, val controller: PuzzleGameController) exten
         emission.setTouchable(Touchable.disabled)
         GdxUtil.post {
           root.addActor(emission)
-        }
-        reactEvent(emission.hitEvent) {
-          p => reaction.foreach {
-            _()
-          }
-        }
-        once(emission.finishEvent) {
-          stopReact(emission.hitEvent)
         }
       }
   }

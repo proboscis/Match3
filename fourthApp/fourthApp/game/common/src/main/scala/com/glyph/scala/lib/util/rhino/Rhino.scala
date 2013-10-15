@@ -18,14 +18,14 @@ class Rhino {
 
   def apply[T: Manifest](script: String): Either[Throwable, T] = {
     var result: Either[Throwable, T] = null
-    Rhino.log("load javascript") {
+   // Rhino.log("load javascript") {
       val context = Context.enter
       context.setOptimizationLevel(-1) //no byte-code generation
       result = allCatch.either(context.evaluateString(scope, script, "", 1, null)).right.flatMap {
         r => allCatch.either(Context.jsToJava(r, implicitly[Manifest[T]].runtimeClass).asInstanceOf[T])
       }
       Context.exit()
-    }
+   // }
     result
   }
 }

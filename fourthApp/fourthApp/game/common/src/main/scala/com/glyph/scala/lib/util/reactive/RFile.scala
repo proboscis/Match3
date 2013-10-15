@@ -43,6 +43,10 @@ class RFile(val adapter: FileAdapter) extends Varying[Either[Throwable,String]] 
 
   def current: Either[Throwable,String] = string
 
+  /**
+   *
+   * @return empty String if failed to load
+   */
   def getString:Varying[String] = map{_.fold(err =>{println(err);""},identity)}
 
   RFile.register(this)

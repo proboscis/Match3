@@ -1,36 +1,29 @@
 package com.glyph.scala.game.puzzle.view.match3
 
-import com.glyph.scala.lib.libgdx.actor.OldDrawSprite
 import com.badlogic.gdx.graphics.Color
-import com.glyph.scala.game.puzzle.model.match_puzzle.{Move, Life, Panel}
-import com.glyph.scala.game.puzzle.model.Element.{Water, Thunder, Fire}
-import com.glyph.scala.game.puzzle.model.monsters.Monster
+import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.util.reactive.Varying
 
 /**
  * @author glyph
  */
-class ElementToken(panel: Panel) extends PanelToken(panel) with OldDrawSprite {
-  import ElementToken._
-  setColor(Color.valueOf({
-    panel match {
-      case _:Fire => FIRE().getOrElse("ffffff")
-      case _:Water => WATER().getOrElse("ffffff")
-      case _:Thunder => THUNDER().getOrElse("ffffff")
-      case _:Monster => MONSTER().getOrElse("ffffff")
-      case _:Life => LIFE().getOrElse("ffffff")
-      case _:Move => MOVE().getOrElse("ffffff")
-      case _ => "ffffff"
-    }
-  }))
+class ElementToken(panel: Panel) extends PanelToken(panel)
+
+object ColorTheme {
+  val scheme = RJSON(GdxFile("js/colors.js").getString)
+
+  implicit def json2Str(json: RJSON): Varying[Color] = json.as[String] map {
+    str => Color.valueOf(str getOrElse "ffffff")
+  }
+
+  type VC = Varying[Color]
+  val fire: VC = scheme.fire
+  val water: VC = scheme.water
+  val thunder: VC = scheme.thunder
+  val monster: VC = scheme.monster
+  val life: VC = scheme.life
+  val move: VC = scheme.move
 }
-object ElementToken{
-  val scheme = RJSON(GdxFile("js/view/panelView.js").getString)
-  val FIRE = scheme.fire.as[String]
-  val WATER = scheme.water.as[String]
-  val THUNDER = scheme.thunder.as[String]
-  val MONSTER = scheme.monster.as[String]
-  val LIFE = scheme.life.as[String]
-  val MOVE = scheme.move.as[String]
-}
+

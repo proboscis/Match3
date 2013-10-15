@@ -12,10 +12,6 @@ class ScreenGame(loader:AssetManager=>Unit,screen: =>Screen) extends Game{
   def create() {
     AM.create()
     loader(AM.instance())
-    val loading = new LoadingScreen
-    loading.onFinish +={
-      ()=>setScreen(screen)
-    }
-    setScreen(loading)
+    setScreen( new LoadingScreen(()=>setScreen(screen)))
   }
 }

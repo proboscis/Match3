@@ -7,14 +7,13 @@ import com.glyph.scala.lib.util.screen.Screen
 /**
  * @author glyph
  */
-trait Loader extends Screen{
-  val onFinish = new DeprecatedCallback
+class Loader(onFinish: =>Unit) extends Screen{
   override def render(delta: Float) {
     super.render(delta)
     val done = AM.instance().update()
     //println(AM.instance().getProgress)
     if (done){
-      onFinish()
+      onFinish
     }
   }
 }

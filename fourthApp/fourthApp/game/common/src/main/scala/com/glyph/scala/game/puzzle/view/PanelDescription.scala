@@ -7,12 +7,13 @@ import match3.PanelToken
 import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.ScalaGame
 import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
+import com.glyph.scala.lib.libgdx.TextureUtil
 
 /**
  * @author glyph
  */
 class PanelDescription(panel:Panel) extends Table with OldDrawSprite with TouchSource{
-  val sprite: Sprite = new Sprite(PanelToken.texture)
+  val sprite: Sprite = new Sprite(TextureUtil.dummy)
   setColor(Color.WHITE)
   val text = panel.toString
   override def draw(batch: SpriteBatch, parentAlpha: Float) {

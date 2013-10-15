@@ -26,6 +26,7 @@ class SlideView(config: RJSON = SlideView.config) extends WidgetGroup with React
 
   val shownPress = EventSource[Actor]()
 
+  def shown : ?[View] = showing.map{_._1._1}
 
   private var showing: ?[(Pair,InputListener)] = None
   setTouchable(Touchable.childrenOnly)

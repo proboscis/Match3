@@ -3,6 +3,7 @@ package com.glyph.scala.game.puzzle.model.cards
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import com.glyph.scala.lib.util.reactive.{Var, Varying}
 import com.glyph.scala.lib.util.reactive
+import scala.util.Random
 
 /**
  * @author glyph
@@ -31,7 +32,7 @@ trait Card {
         }
         applyImpl(controller)(cb)
       } else {
-        throw new RuntimeException("card is applied with insufficient costs!")
+        throw new RuntimeException(self +" card is applied with insufficient costs!:"+costs)
       }
     }
   }
@@ -66,7 +67,7 @@ case class Water(value: Int)
 
 case class FireCost(fire: Fire) extends Cost {
   def applyCost(controller: PuzzleGameController) {
-    controller.game.player.fireMana -= fire.value
+    controller.game.player.fireMana() -= fire.value
   }
 
   def fulfilled(controller: PuzzleGameController): Varying[Boolean] = controller.game.player.fireMana map {
@@ -76,7 +77,7 @@ case class FireCost(fire: Fire) extends Cost {
 
 case class ThunderCost(thunder: Thunder) extends Cost {
   def applyCost(controller: PuzzleGameController) {
-    controller.game.player.thunderMana -= thunder.value
+    controller.game.player.thunderMana() -= thunder.value
   }
 
   def fulfilled(controller: PuzzleGameController): Varying[Boolean] = controller.game.player.thunderMana map {
@@ -86,7 +87,7 @@ case class ThunderCost(thunder: Thunder) extends Cost {
 
 case class WaterCost(water: Water) extends Cost {
   def applyCost(controller: PuzzleGameController) {
-    controller.game.player.waterMana -= water.value
+    controller.game.player.waterMana() -= water.value
   }
 
   def fulfilled(controller: PuzzleGameController): Varying[Boolean] = controller.game.player.waterMana map {
@@ -95,21 +96,22 @@ case class WaterCost(water: Water) extends Cost {
 }
 trait CardResult
 
-class Scanner extends Card {
+class Charge extends Card {
   def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {
-    controller.scan {
-      () => cb(None)
-    }
+    import controller.game.player._
+    fireMana() +=1
+    waterMana() += 1
+    thunderMana() += 1
+    cb(None)
   }
   def costs: Seq[Cost] = Nil
 }
 
 class Meteor extends Card {
   def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {
-    controller.destroy((0 to 5).map {
-      i => (i, i)
-    }: _*) {
-      () => cb(None)
+    import controller.game.puzzle.{ROW,COLUMN}
+    controller.destroy(Random.shuffle(for(x <- 0 until ROW;y <- 0 until COLUMN) yield (x,y)) take (ROW * COLUMN * 0.2).toInt :_*){
+      ()=>cb(None)
     }
   }
   def costs: Seq[Cost] =  FireCost(Fire(1)) :: Nil

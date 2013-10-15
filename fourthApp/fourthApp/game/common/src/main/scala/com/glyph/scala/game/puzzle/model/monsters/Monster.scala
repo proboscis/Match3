@@ -1,24 +1,34 @@
 package com.glyph.scala.game.puzzle.model.monsters
 
 import com.glyph.scala.lib.util.reactive.Var
-import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
+import com.glyph.scala.game.puzzle.model.match_puzzle.{MaybeDestroyed, DestroyEffect, OnMatch, Panel}
+import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 
 /**
  * @author glyph
  */
-trait Monster extends Panel{
+trait Monster extends MonsterLike with DestroyEffect with MaybeDestroyed{
   val hp = Var(100,"Monster:hp")
+  def isDestroyed: Boolean = hp() <= 0
+  val atk = Var(1)
+  val exp = Var(1)
 
-  /**
-   * Monster matches to monster
-   * @param other:Panel
-   * @return
-   */
-  def matchTo(other: Panel): Boolean = other match {
-    case o:Monster => true
-    case _ => false
+  def onDestroy(controller: PuzzleGameController) {
+    controller.addExperience(exp())
   }
-  def atk:Int
+}
+class Weapon extends MonsterLike with OnMatch{
+  val atk = Var(50)
+
+  def onMatch(matched: Seq[Panel]) {
+    matched foreach {
+      case m:Monster => m.hp() -= atk()
+      case _=>
+    }
+  }
+}
+trait MonsterLike extends Panel{
+  def matchTo(other: Panel): Boolean = other.isInstanceOf[MonsterLike]
 }
 object Monster{
   val constructors = Array(()=>new Slime)

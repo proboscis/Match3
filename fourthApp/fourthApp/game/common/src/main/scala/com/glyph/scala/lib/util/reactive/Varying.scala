@@ -24,7 +24,6 @@ trait Varying[T] extends Reactive[T]{
   def ~[P](v: Varying[P]): Varying[(T, P)] = {
     new Varying[(T, P)] with Reactor {
       def current: (T, P) = (self(), v())
-
       reactVar(self) {
         s => this.notifyObservers((s, v()))
       }

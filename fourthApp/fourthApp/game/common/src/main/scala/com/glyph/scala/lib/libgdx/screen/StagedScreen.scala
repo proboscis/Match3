@@ -4,16 +4,27 @@ import com.glyph.scala.lib.util.screen.Screen
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.{Color, GL20, GL10}
+import com.glyph.scala.lib.util.json.RJSON
 
 /**
  * @author glyph
  */
 trait StagedScreen extends Screen{
+  def configSrc:RJSON
+  val config = configSrc
   val backgroundColor = Color.WHITE
-  def STAGE_WIDTH :Int
-  def STAGE_HEIGHT :Int
   val stage = new Stage(STAGE_WIDTH,STAGE_HEIGHT,true)
-  Gdx.input.setInputProcessor(stage)
+  def STAGE_WIDTH =config().width.as[Int].getOrElse(1080/2)
+
+
+  def STAGE_HEIGHT = config().height.as[Int].getOrElse((1920f*15f/16f/2f).toInt)
+
+
+  override def show() {
+    println("show StagedScreen")
+    Gdx.input.setInputProcessor(stage)
+    super.show()
+  }
 
   override def render(delta: Float) {
     super.render(delta)

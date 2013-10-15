@@ -6,9 +6,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
  * @author glyph
  */
 trait TabledScreen extends StagedScreen{
-  def DEBUG:Boolean
+  val debug =config.debug.as[Boolean]
   val root = new Table
   root.setSize(STAGE_WIDTH,STAGE_HEIGHT)
+  def DEBUG: Boolean =if(debug != null)debug().getOrElse(true) else false
 
   if(DEBUG)root.debug()
   stage.addActor(root)

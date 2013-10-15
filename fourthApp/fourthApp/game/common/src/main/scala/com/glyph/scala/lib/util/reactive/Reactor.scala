@@ -57,6 +57,9 @@ trait Reactor {
     reactive.subscribe(hook)
     observers = this :: observers
 
+    /**
+     * stops reaction
+     */
     def unSubscribe() {
       def printReactiveObservers(){
         reactive.reactiveObservers foreach {

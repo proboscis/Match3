@@ -11,18 +11,7 @@ import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
  */
 class Game(fileSrc: String => RFile) {
   val player = new Player(fileSrc("json/player.json"))
-  val deck = new Deck
   val dungeon = new Dungeon
-  /*val puzzle = new Match3(
-    () => MathUtils.random(6) match {
-      case 0 => new Fire
-      case 1 => new Water
-      case 2 => new Thunder
-      case 3|4|5 => new Slime
-      case 6 => new Life
-      case 7 => new Move
-    }
-  )*/
   val puzzle = new Match3(() => {
     dungeon.getPanel(player.position())
   })

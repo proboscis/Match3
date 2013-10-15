@@ -10,13 +10,14 @@ import com.glyph.scala.game.puzzle.model.cards.Card
 import match3.PanelToken
 import com.glyph.scala.ScalaGame
 import com.glyph.scala.lib.util.reactive.Reactor
+import com.glyph.scala.lib.libgdx.TextureUtil
 
 /**
  * カードの説明を表示しまっせ
  * @author glyph
  */
 abstract class BaseCardDescription(card:Card) extends Table with OldDrawSprite  with Reactor{
-  val sprite: Sprite = new Sprite(PanelToken.texture)
+  val sprite: Sprite = new Sprite(TextureUtil.dummy)
   debug()
   setColor(Color.WHITE)
   val text = card.getClass.getSimpleName

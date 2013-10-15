@@ -1,6 +1,6 @@
 package com.glyph.scala.game.puzzle.view
 
-import com.glyph.scala.game.puzzle.model.Game
+import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph.scala.lib.libgdx.actor.ui.{Reaction, RLabel, Gauge}
 import com.glyph.scala.lib.libgdx.actor.{Tasking, Layered}
@@ -15,15 +15,13 @@ import com.glyph.scala.lib.libgdx.actor.action.MyActions
 /**
  * @author glyph
  */
-class StatusView(game: Game) extends Table with Reactor with Tasking {
+class StatusView(game: Game,deck:PlayableDeck) extends Table with Reactor with Tasking {
   debug()
-  val visualLife = Easing(this)(game.player.hp map {
-    _.toFloat
-  })(_/100f*0.7f+0.3f,0)(Interpolation.linear) map {_.toInt}
+  val visualLife = Easing(this)(game.player.hp)(_/100f*0.7f+0.3f,0)(Interpolation.linear) map {_.toInt}
   val gaugeAlpha = game.player.hp map  { _ / 100f}
   val lifeText = visualLife map { _ + "/100"}
-  val deckText = game.deck.deck map { _.size + "" }
-  val discardText = game.deck.discarded map {_.size + ""}
+  val deckText = deck.deck map { _.size + "" }
+  val discardText = deck.discarded map {_.size + ""}
   //TODO make this JS
   val script = new RJS[Any](GdxFile("js/view/statusView.js").getString,
     ("gaugeAlpha"->gaugeAlpha)::

@@ -11,6 +11,8 @@ trait DrawSprite extends Actor {
     sprite.setOrigin(getOriginX,getOriginY)
     if (offset != null){
       sprite.setPosition(getX+offset.x, getY+offset.y)
+    }else{
+      sprite.setPosition(getX,getY)
     }
     sprite.setScale(getScaleX, getScaleY)
     sprite.setRotation(getRotation)

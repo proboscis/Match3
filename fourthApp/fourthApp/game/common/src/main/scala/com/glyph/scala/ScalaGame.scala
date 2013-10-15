@@ -30,19 +30,11 @@ class ScalaGame extends Game {
     AM.instance().load("data/skeleton.png", classOf[Texture])
     //AM.instance().load("data/lightbulb32.png", classOf[Texture])
     //AM.instance().finishLoading()
-    val loading = new LoadingScreen
-    loading.onFinish += (() => {
+    val loading = new LoadingScreen(() => {
       //setScreen(new GameScreen(this))
       //setScreen(new DecalTableTest)
       //setScreen(new Loading(this))
     })
     setScreen(loading)
   }
-}
-
-object ScalaGame {
-  println("ScalaGame")
-  //TODO make this out of source...
-  final val VIRTUAL_WIDTH = 1080 /2
-  final val VIRTUAL_HEIGHT = (1920f * 15f/16f /2f).toInt
 }

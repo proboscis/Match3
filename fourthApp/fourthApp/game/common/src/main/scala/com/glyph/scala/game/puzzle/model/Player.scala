@@ -13,9 +13,9 @@ class Player(file: RFile) extends Reactor{
   val maxHp = Var(20f,"Player:maxHp")
   val hp = new Var(20f,"Player:hp") with Clamp[Float].clamp(Var(0f), maxHp)
   val experience = Var(0f)
-  val fireMana = new Divider(json.fireDiv.as[Float] map{_.getOrElse(0f)},1)
-  val thunderMana = new Divider(json.thunderDiv.as[Float] map{_.getOrElse(0f)},1)
-  val waterMana = new Divider(json.waterDiv.as[Float] map {_.getOrElse(0f)},1)
+  val fireMana = Var(1)//new Divider(json.fireDiv.as[Float] map{_.getOrElse(0f)},1)
+  val thunderMana = Var(1)//new Divider(json.thunderDiv.as[Float] map{_.getOrElse(0f)},1)
+  val waterMana = Var(1)//new Divider(json.waterDiv.as[Float] map {_.getOrElse(0f)},1)
   val position = Var(1,"Player:position")
   reactVar(json.maxHp.as[Float]) {
     for (max <- _) {
