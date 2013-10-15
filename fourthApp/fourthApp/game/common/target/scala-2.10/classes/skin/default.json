@@ -1,5 +1,6 @@
 {
         com.badlogic.gdx.graphics.g2d.BitmapFont:{
+            yggdrasil-font:{file:font/yggdrasil.fnt},
             default-font:{file:font/Harrington.fnt}
         },
         com.badlogic.gdx.graphics.Color: {
