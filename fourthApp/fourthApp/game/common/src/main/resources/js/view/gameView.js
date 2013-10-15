@@ -27,7 +27,7 @@ function(){
 function(){
     var out = java.lang.System.out
     self.clear()
-    out.println("setup PuzzleGameView")
+    out.println("gameView.js: setup PuzzleGameView")
     puzzleGroup.addActor(puzzleView)
     puzzleGroup.addActor(slideView)
     table.top()
@@ -52,5 +52,5 @@ function(){
     table.layout() //somehow this is required
     self.add(root).fill().expand()
     self.layout()
-    out.println(VIRTUAL_WIDTH)
+    out.println("gameView.js width:"+VIRTUAL_WIDTH)
 }
