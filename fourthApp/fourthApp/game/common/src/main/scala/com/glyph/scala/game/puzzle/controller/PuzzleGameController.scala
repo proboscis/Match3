@@ -8,7 +8,8 @@ import com.glyph.scala.game.puzzle.model.monsters.Monster
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.scala.lib.util.Logging
 import com.glyph.scala.game.puzzle.model.match_puzzle.Match3.Events
-
+import scalaz.Scalaz
+import Scalaz._
 /**
  * this is actually a game class...
  * @author glyph
@@ -19,6 +20,7 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
   type PCard = C#PlayableCard
   import PuzzleGameController._
   //sacrifice the spirits to either angel or demons
+  //TODO カードのことはすっぱり忘れる！！！
   /**
    * ３元の精霊を天使か悪魔に捧げることでカードを発動する。
    * カードには中立カード、天使カード、悪魔カードがある
@@ -38,7 +40,10 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
 
   import game._
 
-  val swipeLength = Var(1, "PuzzleGameController:swipeLength")
+  val swipeLength = new Var[Option[Int]](None, "PuzzleGameController:swipeLength"){
+    def +=(a:Int){this ()= current map {_ + a}}
+    def -=(a:Int){this ()= current map {_ - a}}
+  }
 
   //ゲームのロジックとアニメーションを分けたいんですよね。
   reactVar(player.experience) {
@@ -81,7 +86,7 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
   }
 
   def addSwipeLength(amount: Int) {
-    swipeLength() += amount
+    swipeLength += amount
   }
 
 
@@ -160,7 +165,7 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
     (1 to 5) foreach {
       _ => deck.drawCard()
     }
-    fill(/*puzzle.createNoMatchFilling*/){
+    fill(puzzle.createNoMatchFilling){
       () =>
         idle {
           result =>
@@ -169,22 +174,25 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
   }
 
   def idle(f: (Any) => Unit) {
-    swipeLength() = 1
+    val handSwipes = deck.hand map{_.map(_.source).collect {
+      case a: AddSwipe => a.move
+    }.sum +1}
+    swipeLength() = handSwipes().some
     val initialMonsters = puzzle.panels().flatten.collect {
       case m: Monster => m
     }
     loop()
     def loop() {
-      idleInput(swipeLength()) {
+      idleInput(handSwipes()) {
         case UseCard(card) => {
           //println("UseCard:"+card)
-          card {
-            case _ => loop()
-          }
           println("hands =>")
           deck.hand() foreach println
           println("used card => " + card.source)
           deck.discard(card)
+          card {
+            case _ => loop()
+          }
         }
         case Swiped(record) => {
           record foreach {

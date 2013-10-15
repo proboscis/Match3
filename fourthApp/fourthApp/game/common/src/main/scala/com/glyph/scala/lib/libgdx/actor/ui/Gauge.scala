@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.MathUtils
 /**
  * @author glyph
  */
-class Gauge(alpha: Varying[Float],vertical:Boolean = false) extends WidgetGroup with ReactiveActor with ReactiveSize{
+class Gauge(alpha: Varying[Float],vertical:Boolean = false) extends WidgetGroup with ReactiveActor[Float] with ReactiveSize{
   import reactive._
   val visualAlpha = new Var(alpha(),"Gauge:visualAlpha")
   val filling = new Actor with DrawSprite with Reactor {
@@ -54,7 +54,7 @@ class Gauge(alpha: Varying[Float],vertical:Boolean = false) extends WidgetGroup 
     rHeight() = height
   }
 
-  def reactiveValue: Reactive[_] = alpha
+  def reactiveValue: Reactive[Float] = alpha
 
   override def setColor(color: Color) {
     super.setColor(color)

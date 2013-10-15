@@ -9,7 +9,7 @@ import scala.annotation.tailrec
  * generic puzzle!
  * @author glyph
  */
-class Match3(panelSeed: () => Panel,val ROW:Int = 3,val COLUMN:Int = 3) {
+class Match3(panelSeed: () => Panel,val ROW:Int = 6,val COLUMN:Int = 6) {
   import Match3._
   /**
    * should contain the data of puzzling panels

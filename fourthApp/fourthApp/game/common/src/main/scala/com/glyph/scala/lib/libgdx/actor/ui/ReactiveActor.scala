@@ -6,6 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 /**
  * @author glyph
  */
-trait ReactiveActor extends Actor with Reactor{
-  def reactiveValue: Reactive[_]
+trait ReactiveActor[T] extends Actor with Reactor{
+  def reactiveValue: Reactive[T]
 }

@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.GL20
 /**
  * @author glyph
  */
-class RLabel(skin:Skin,text:Varying[String]) extends Label(text(),skin) with ReactiveActor{
+class RLabel(skin:Skin,text:Varying[String]) extends Label(text(),skin) with ReactiveActor[String]{
 
   reactVar(text){
     setText(_)
@@ -17,5 +17,5 @@ class RLabel(skin:Skin,text:Varying[String]) extends Label(text(),skin) with Rea
   //TODO scaling
   setFontScale(0.7f)
 
-  def reactiveValue: Reactive[_] = text
+  def reactiveValue: Reactive[String] = text
 }

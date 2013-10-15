@@ -47,7 +47,7 @@ class RFile(val adapter: FileAdapter) extends Varying[Either[Throwable,String]] 
    *
    * @return empty String if failed to load
    */
-  def getString:Varying[String] = map{_.fold(err =>{println(err);""},identity)}
+  def getString:Varying[String] = map{_.fold(err =>{err.printStackTrace();""},identity)}
 
   RFile.register(this)
 }

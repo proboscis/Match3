@@ -19,7 +19,7 @@ class HeaderView(game: Game) extends Table {
       ("root" -> new WidgetGroup with Layered) ::
       ("levelLabel" -> new RLabel(skin, game.player.position map {
         "floor:" + _ + "/" + game.dungeon.goal
-      }) with Reaction {
+      }) with Reaction[String]{
         def reaction: Action = {
           MyActions.jump(50, 0.6f)
         }

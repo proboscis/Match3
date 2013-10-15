@@ -122,10 +122,11 @@ class Meteor extends PuzzleCard {
 
 class AddSwipe extends PuzzleCard {
   def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {
-    controller.addSwipeLength(1)
+    //controller.addSwipeLength(1)
     cb(None)
   }
   def costs  = WaterCost(Water(1)) :: Nil
+  def move:Int = 1
 }
 class DrawCard extends PuzzleCard{
   protected def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {

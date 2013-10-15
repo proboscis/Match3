@@ -6,12 +6,13 @@ import com.glyph.scala.lib.util.reactive.{EventSource, Varying}
 /**
  * @author glyph
  */
-trait Reaction extends ReactiveActor{
+trait Reaction[T]{
+  self:ReactiveActor[T] =>
   private var initialX = 0f
   private var initialY = 0f
   reactiveValue match {
-    case r:Varying[_] =>reactVar(r){_=>doReaction()}
-    case r:EventSource[_] =>reactEvent(r){_=>doReaction()}
+    case r:Varying[T] =>reactEvent(r.toEvents){_=>doReaction()}
+    case r:EventSource[T] =>reactEvent(r){_=>doReaction()}
   }
   private def doReaction(){
     if(getActions.size != 0){

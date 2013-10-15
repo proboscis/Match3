@@ -8,13 +8,14 @@ import scene2d.actions.{MoveToAction, Actions}
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.libgdx.actor.action.Waiter
 import com.badlogic.gdx.math.{MathUtils, Interpolation}
-import com.glyph.scala.lib.util.reactive.{Reactor, EventSource}
+import com.glyph.scala.lib.util.reactive.{Var, Reactor, EventSource}
 import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, Panel}
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import com.glyph.scala.lib.libgdx.GdxUtil
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import scala.collection.mutable
 import com.glyph.scala.lib.util.Logging
+import scala.collection.immutable.Stack
 
 /**
  * @author glyph
@@ -61,6 +62,8 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
   val afterSetupQueue = ListBuffer[() => Unit]()
   var processingSetup = false
 
+  val visualSwipeLength = Var[Option[Int]](None)
+
   def postAfterSetup(f: => Unit) {
     if (processingSetup) afterSetupQueue += (() => f) else f
   }
@@ -79,6 +82,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
         error("swipe already started... or previous swipeCheck is not finished correctly. ignoring start swipeCheck")
       }
       case None => {
+        visualSwipeLength ()= Some(length)
         swipeListener = Some(new InputListener {
           val swipeRecord = mutable.Stack[(Int,Int,Int,Int)]()
           val record = mutable.Stack[(Int, Int)]()
@@ -97,8 +101,8 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
             }))) {
               val ((a, b), (c, d)) = (current, next)
               record.headOption match {
-                case Some(head) if head == next =>swipeRecord.pop(); record.pop()
-                case _ =>swipeRecord.push((a,b,c,d)); record.push(current)
+                case Some(head) if head == next =>swipeRecord.pop(); record.pop();visualSwipeLength() = visualSwipeLength().map{_+1}
+                case _ =>swipeRecord.push((a,b,c,d)); record.push(current);visualSwipeLength() = visualSwipeLength().map{_-1}
               }
               puzzleBuffer = puzzleBuffer.swap(a,b,c,d)
               current = next
@@ -107,6 +111,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
           }
           override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
             if(!record.isEmpty){
+              visualSwipeLength() = None
               postAfterSetup {
                 callback(swipeRecord.reverse)
               }

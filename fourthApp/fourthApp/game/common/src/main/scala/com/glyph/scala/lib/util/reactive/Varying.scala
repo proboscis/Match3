@@ -48,9 +48,10 @@ trait Varying[T] extends Reactive[T]{
 
   //maps to event source
   def toEvents: EventSource[T] = {
+    var prev = current
     new EventSource[T] with Reactor {
       reactVar(self) {
-        s => emit(s)
+        s =>if(prev != current)emit(current);prev = current
       }
     }
   }

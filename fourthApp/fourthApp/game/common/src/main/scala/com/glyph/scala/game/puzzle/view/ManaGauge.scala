@@ -19,7 +19,7 @@ class ManaGauge(mana: Varying[Int],color:Varying[Color]) extends WidgetGroup wit
   val config = RJSON(GdxFile("js/view/manaGauge.js").getString)
   val label = new RLabel(skin, mana.map {
     _ + ""
-  }) with Reaction {
+  }) with Reaction[String] {
     def reaction: Action = (for {
       height <- config().height.as[Float]
       duration <- config().duration.as[Float]

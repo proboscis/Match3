@@ -1,22 +1,22 @@
 package com.glyph.scala.game.puzzle.view
 
-import com.badlogic.gdx.scenes.scene2d.ui.{Image, WidgetGroup, Table}
+import com.badlogic.gdx.scenes.scene2d.ui.{Label, Image, WidgetGroup, Table}
 import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
 import com.glyph.scala.lib.libgdx.actor.{ReactiveSize, TouchSource, Layered}
 import com.glyph.scala.game.puzzle.controller.{IdleEvent, Swiped, UseCard, PuzzleGameController}
 import com.glyph.scala.lib.util.{Logging, reactive}
 import reactive._
-import com.glyph.scala.lib.libgdx.actor.ui.{Gauge, SlideView}
+import com.glyph.scala.lib.libgdx.actor.ui.{Reaction, RLabel, Gauge, SlideView}
 import com.glyph.scala.lib.util.json.RJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.{Texture, Color}
 import com.badlogic.gdx.math.{MathUtils, Rectangle, Vector2, Interpolation}
 import com.glyph.scala.lib.libgdx.{GdxUtil, TextureUtil}
-import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.{Action, Touchable}
 import com.glyph.scala.lib.util.rhino.Rhino
 import com.glyph.scala.game.puzzle.view.match3.{ColorTheme, ElementToken, Match3View}
-import com.glyph.scala.lib.libgdx.actor.action.Oscillator
+import com.glyph.scala.lib.libgdx.actor.action.{MyActions, Oscillator}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.glyph.java.asset.AM
@@ -31,12 +31,16 @@ import com.glyph.scala.game.puzzle.model.cards.{Card, PuzzleCard}
  * ここでcontrollerを渡したことが間違いだった!
  * @author glyph
  */
-class PuzzleGameView(val game: Game,deck:PlayableDeck[PuzzleGameController], size: (Int, Int)) extends Table with TouchSource with Reactor with Logging {
+class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], size: (Int, Int)) extends Table with TouchSource with Reactor with Logging {
 
   import PuzzleGameController._
+
   val ET = ColorTheme
   //TODOスワイプでカード使用
   //TODO 動いている感をparticleなどで表現
+  //TODO スワイプ量の表示
+  //TODO スワイプカードの数によってスワイプ数を決める
+  //TODO パネルはエレメントではなく、敵、ライフ、アクション、金、盾とする。
   setSize(size._1, size._2)
   val root = new WidgetGroup with Layered
   val table = new Table
@@ -45,12 +49,27 @@ class PuzzleGameView(val game: Game,deck:PlayableDeck[PuzzleGameController], siz
   val puzzleView = new Match3View(game.puzzle)
   val puzzleGroup = new WidgetGroup with Layered
   val slideView = new SlideView(RJSON(GdxFile("js/view/slideView.js").getString))
+  val config = RJSON(GdxFile("js/view/manaGauge.js").getString)
+
+  val swipeLength = new Table() {
+    add(new RLabel(skin, puzzleView.visualSwipeLength.map {
+      case Some(x) => "" + x
+      case None => "*"
+    }) with Reaction[String] {
+      def reaction: Action = (for {
+        height <- config().height.as[Float]
+        duration <- config().duration.as[Float]
+      } yield {
+        MyActions.jump(height, duration)
+      }) getOrElse MyActions.NullAction
+    }).fill.expand.center()
+  }
   val lifeGauge = new Gauge(game.player.hp ~ game.player.maxHp map {
     case hp ~ max => hp / max
   }, true) with ReactiveSize
-  val fireGauge = new ManaGauge(game.player.fireMana,ET.fire) with ReactiveSize
-  val waterGauge = new ManaGauge(game.player.waterMana,ET.water) with ReactiveSize
-  val thunderGauge = new ManaGauge(game.player.thunderMana,ET.thunder) with ReactiveSize
+  val fireGauge = new ManaGauge(game.player.fireMana, ET.fire) with ReactiveSize
+  val waterGauge = new ManaGauge(game.player.waterMana, ET.water) with ReactiveSize
+  val thunderGauge = new ManaGauge(game.player.thunderMana, ET.thunder) with ReactiveSize
 
   val colors = RJSON(GdxFile("js/view/panelView.js").getString)
 
@@ -80,6 +99,7 @@ class PuzzleGameView(val game: Game,deck:PlayableDeck[PuzzleGameController], siz
     "headerView" -> headerView,
     "puzzleView" -> puzzleView,
     "puzzleGroup" -> puzzleGroup,
+    "swipeLength" -> swipeLength,
     "slideView" -> slideView,
     "lifeGauge" -> lifeGauge,
     "fireGauge" -> fireGauge,
@@ -129,11 +149,11 @@ class PuzzleGameView(val game: Game,deck:PlayableDeck[PuzzleGameController], siz
             callback(Swiped(record))
           }
         }
-        cardView.startSwipeCheck{
-          token =>{
+        cardView.startSwipeCheck {
+          token => {
             stop()
             callback(UseCard(token.card))
-            log("swiped token:"+token)
+            log("swiped token:" + token)
           }
         }
         reactEvent(puzzleView.press) {
@@ -246,4 +266,5 @@ class PuzzleGameView(val game: Game,deck:PlayableDeck[PuzzleGameController], siz
       }
   }
 }
-case class PlayableCardDescription(card:Card[PuzzleGameController]#PlayableCard) extends BaseCardDescription(card.source)
+
+case class PlayableCardDescription(card: Card[PuzzleGameController]#PlayableCard) extends BaseCardDescription(card.source)
