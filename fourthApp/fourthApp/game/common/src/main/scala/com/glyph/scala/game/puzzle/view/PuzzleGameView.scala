@@ -25,12 +25,13 @@ import com.glyph.scala.game.puzzle.model.match_puzzle.Life
 import com.glyph.scala.game.puzzle.model.monsters.Monster
 import com.glyph.scala.lib.libgdx.particle.Emission
 import com.glyph.java.particle.{SpriteParticle, ParticlePool}
+import com.glyph.scala.game.puzzle.model.cards.{Card, PuzzleCard}
 
 /**
  * ここでcontrollerを渡したことが間違いだった!
  * @author glyph
  */
-class PuzzleGameView(val game: Game,deck:PlayableDeck, size: (Int, Int)) extends Table with TouchSource with Reactor with Logging {
+class PuzzleGameView(val game: Game,deck:PlayableDeck[PuzzleGameController], size: (Int, Int)) extends Table with TouchSource with Reactor with Logging {
 
   import PuzzleGameController._
   val ET = ColorTheme
@@ -245,3 +246,4 @@ class PuzzleGameView(val game: Game,deck:PlayableDeck, size: (Int, Int)) extends
       }
   }
 }
+case class PlayableCardDescription(card:Card[PuzzleGameController]#PlayableCard) extends BaseCardDescription(card.source)

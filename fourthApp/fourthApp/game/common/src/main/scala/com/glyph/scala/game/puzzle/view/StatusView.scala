@@ -11,11 +11,12 @@ import com.glyph.scala.lib.util.updatable.reactive.Easing
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.glyph.scala.lib.libgdx.actor.action.MyActions
+import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 
 /**
  * @author glyph
  */
-class StatusView(game: Game,deck:PlayableDeck) extends Table with Reactor with Tasking {
+class StatusView(game: Game,deck:PlayableDeck[_]) extends Table with Reactor with Tasking {
   debug()
   val visualLife = Easing(this)(game.player.hp)(_/100f*0.7f+0.3f,0)(Interpolation.linear) map {_.toInt}
   val gaugeAlpha = game.player.hp map  { _ / 100f}

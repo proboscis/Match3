@@ -8,14 +8,14 @@ import scala.util.Random
 /**
  * @author glyph
  */
-trait Card {
+trait Card[T] {
   self =>
-  protected def applyImpl(controller: PuzzleGameController)(cb: Option[CardResult] => Unit)
-  def costs: Seq[Cost]
+  protected def applyImpl(controller: T)(cb: Option[CardResult] => Unit)
+  def costs: Seq[Cost[T]]
 
-  def createPlayable(controller: PuzzleGameController): PlayableCard = new PlayableCard(controller)
+  def createPlayable(controller: T): PlayableCard = new PlayableCard(controller)
 
-  class PlayableCard(controller: PuzzleGameController) {
+  class PlayableCard(controller: T) {
     val source = self
     import reactive._
     val playable: Varying[Boolean] = costs map {
@@ -36,8 +36,15 @@ trait Card {
       }
     }
   }
+
+}
+trait Requirement[T] {
+  def fulfilled(controller: T): Varying[Boolean]
 }
 
+trait Cost[T] extends Requirement[T] {
+  def applyCost(controller: T)
+}
 
 object Card {
   implicit def FireToCost(fire: Fire) = FireCost(fire)
@@ -47,13 +54,7 @@ object Card {
   implicit def waterToCost(water: Water) = WaterCost(water)
 }
 
-trait Requirement {
-  def fulfilled(controller: PuzzleGameController): Varying[Boolean]
-}
 
-trait Cost extends Requirement {
-  def applyCost(controller: PuzzleGameController)
-}
 
 trait Element {
   val value: Int
@@ -64,8 +65,9 @@ case class Fire(value: Int)
 case class Thunder(value: Int)
 
 case class Water(value: Int)
-
-case class FireCost(fire: Fire) extends Cost {
+trait PuzzleCard extends Card[PuzzleGameController]
+trait PCost extends Cost[PuzzleGameController]
+case class FireCost(fire: Fire) extends PCost {
   def applyCost(controller: PuzzleGameController) {
     controller.game.player.fireMana() -= fire.value
   }
@@ -74,8 +76,7 @@ case class FireCost(fire: Fire) extends Cost {
     _ >= fire.value
   }
 }
-
-case class ThunderCost(thunder: Thunder) extends Cost {
+case class ThunderCost(thunder: Thunder) extends PCost{
   def applyCost(controller: PuzzleGameController) {
     controller.game.player.thunderMana() -= thunder.value
   }
@@ -85,7 +86,7 @@ case class ThunderCost(thunder: Thunder) extends Cost {
   }
 }
 
-case class WaterCost(water: Water) extends Cost {
+case class WaterCost(water: Water) extends PCost{
   def applyCost(controller: PuzzleGameController) {
     controller.game.player.waterMana() -= water.value
   }
@@ -94,9 +95,11 @@ case class WaterCost(water: Water) extends Cost {
     _ >= water.value
   }
 }
+
+
 trait CardResult
 
-class Charge extends Card {
+class Charge extends PuzzleCard {
   def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {
     import controller.game.player._
     fireMana() +=1
@@ -104,32 +107,32 @@ class Charge extends Card {
     thunderMana() += 1
     cb(None)
   }
-  def costs: Seq[Cost] = Nil
+  def costs = Nil
 }
 
-class Meteor extends Card {
+class Meteor extends PuzzleCard {
   def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {
     import controller.game.puzzle.{ROW,COLUMN}
     controller.destroy(Random.shuffle(for(x <- 0 until ROW;y <- 0 until COLUMN) yield (x,y)) take (ROW * COLUMN * 0.2).toInt :_*){
       ()=>cb(None)
     }
   }
-  def costs: Seq[Cost] =  FireCost(Fire(1)) :: Nil
+  def costs  =  FireCost(Fire(1)) :: Nil
 }
 
-class AddSwipe extends Card {
+class AddSwipe extends PuzzleCard {
   def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {
     controller.addSwipeLength(1)
     cb(None)
   }
-  def costs: Seq[Cost] = WaterCost(Water(1)) :: Nil
+  def costs  = WaterCost(Water(1)) :: Nil
 }
-class DrawCard extends Card{
+class DrawCard extends PuzzleCard{
   protected def applyImpl(controller: PuzzleGameController)(cb: (Option[CardResult]) => Unit) {
     controller.drawCard()
     controller.drawCard()
     cb(None)
   }
-  def costs: Seq[Cost] = WaterCost(Water(1))::FireCost(Fire(1))::ThunderCost(Thunder(1))::Nil
+  def costs = WaterCost(Water(1))::FireCost(Fire(1))::ThunderCost(Thunder(1))::Nil
 }
 

@@ -14,8 +14,10 @@ import com.glyph.scala.game.puzzle.model.match_puzzle.Match3.Events
  * @author glyph
  */
 class PuzzleGameController(val game: Game) extends Reactor with Logging{
+  val deck = new PlayableDeck[PuzzleGameController](this)
+  type C = Card[PuzzleGameController]
+  type PCard = C#PlayableCard
   import PuzzleGameController._
-  val deck = new PlayableDeck(this)
   //sacrifice the spirits to either angel or demons
   /**
    * ３元の精霊を天使か悪魔に捧げることでカードを発動する。
@@ -228,7 +230,7 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
     deck.drawCard()
   }
 
-  def discard(card: Card#PlayableCard) {
+  def discard(card: PCard) {
     deck.discard(card)
   }
 }
@@ -243,6 +245,6 @@ object PuzzleGameController {
 
 trait IdleEvent
 
-case class UseCard(card: Card#PlayableCard) extends IdleEvent
+case class UseCard(card: Card[PuzzleGameController]#PlayableCard) extends IdleEvent
 
 case class Swiped(record: Seq[(Int, Int, Int, Int)]) extends IdleEvent

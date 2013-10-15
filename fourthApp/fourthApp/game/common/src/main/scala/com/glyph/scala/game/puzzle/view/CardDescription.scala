@@ -16,7 +16,7 @@ import com.glyph.scala.lib.libgdx.TextureUtil
  * カードの説明を表示しまっせ
  * @author glyph
  */
-abstract class BaseCardDescription(card:Card) extends Table with OldDrawSprite  with Reactor{
+abstract class BaseCardDescription(card:Card[_]) extends Table with OldDrawSprite  with Reactor{
   val sprite: Sprite = new Sprite(TextureUtil.dummy)
   debug()
   setColor(Color.WHITE)
@@ -27,5 +27,4 @@ abstract class BaseCardDescription(card:Card) extends Table with OldDrawSprite  
     commonFont.draw(batch,text,getX,getY+getHeight/2)
   }
 }
-case class CardDescription(card: Card) extends BaseCardDescription(card)
-case class PlayableCardDescription(card:Card#PlayableCard) extends BaseCardDescription(card.source)
+case class CardDescription(card: Card[_]) extends BaseCardDescription(card)

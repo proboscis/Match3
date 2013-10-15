@@ -10,15 +10,17 @@ import com.glyph.scala.game.puzzle.model.cards.Card
 import com.glyph.scala.lib.util.reactive.{Var, Reactor, EventSource}
 import com.badlogic.gdx.scenes.scene2d.{Touchable, Group, InputEvent, InputListener}
 import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 
 /**
  * @author glyph
  */
-class CardTableView(deck: PlayableDeck) extends Table with Updating with Reactor with Logging {
+class CardTableView[T](deck: PlayableDeck[T]) extends Table with Updating with Reactor with Logging {
+  type PCard = Card[T]#PlayableCard
   val updateQueue = new UpdateQueue(0.1f)
   this.add(updateQueue)
   @deprecated //never emits anything...
-  val cardPress = new EventSource[CardToken]
+  val cardPress = new EventSource[CardToken[PuzzleGameController]]
   val tokens = scala.collection.mutable.ListBuffer[Offset]()
   val checkingSwipe = Var(false,"checkingSwipe")
 
@@ -54,7 +56,7 @@ class CardTableView(deck: PlayableDeck) extends Table with Updating with Reactor
       }
   }
 
-  def createToken(card: Card#PlayableCard) {
+  def createToken(card: PCard) {
     log("createToken:" + card.source)
     val token = new CardToken(card, cardW, cardH,checkingSwipe)
     val offset = Offset(token)
@@ -82,7 +84,7 @@ class CardTableView(deck: PlayableDeck) extends Table with Updating with Reactor
       }
     }
   }
-  def startSwipeCheck(cb: CardToken => Unit) {
+  def startSwipeCheck(cb: CardToken[T] => Unit) {
     //TODO previous card is still here and blocking the touch!!!
     log("startSwipeCheck:" + tokens)
     if(checkingSwipe()) error("swipe check is already started, or previous check is not finished correctly.")
@@ -103,7 +105,6 @@ class CardTableView(deck: PlayableDeck) extends Table with Updating with Reactor
           }
         })
           * */
-
         offsetToken.addListener(new InputListener() {
           var touchX, touchY = 0f
           var startX, startY = 0f
@@ -142,7 +143,7 @@ class CardTableView(deck: PlayableDeck) extends Table with Updating with Reactor
     }
     checkingSwipe() = false
   }
-  case class Offset(token: CardToken) extends Group with Reactor with Logging{
+  case class Offset(token: CardToken[T]) extends Group with Reactor with Logging{
     log("created offset:"+token)
     this.addActor(token)
     setSize(token.getWidth, token.getHeight)

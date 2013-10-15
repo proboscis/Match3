@@ -1,24 +1,23 @@
 package com.glyph.scala.game.puzzle.model
 
-import cards.{Charge, Card}
+import cards.Card
 import com.glyph.scala.lib.util.reactive.{EventSource, Var}
 import collection.immutable.Queue
-import com.glyph.scala.game.puzzle.view.PlayableCardDescription
-import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 
 /**
  * @author glyph
  */
 
-class PlayableDeck(controller:PuzzleGameController) {
-  val deck = Var(Queue.empty[Card#PlayableCard])
-  val hand = Var(Queue.empty[Card#PlayableCard])
-  val discarded = Var(Queue.empty[Card#PlayableCard])
-  val drawCardEvent = EventSource[Card#PlayableCard]()
-  val discardEvent = EventSource[Card#PlayableCard]()
+class PlayableDeck[T:Manifest](controller: T) {
+  type PCard = Card[T]#PlayableCard
+  val deck = Var(Queue.empty[Card[T]#PlayableCard])
+  val hand = Var(Queue.empty[Card[T]#PlayableCard])
+  val discarded = Var(Queue.empty[Card[T]#PlayableCard])
+  val drawCardEvent = EventSource[Card[T]#PlayableCard]()
+  val discardEvent = EventSource[Card[T]#PlayableCard]()
 
-  def addCard(card: Card#PlayableCard) {
-    deck()= deck().enqueue(card)
+  def addCard(card: PCard) {
+    deck() = deck().enqueue(card)
   }
 
   def drawCard() {
@@ -28,12 +27,12 @@ class PlayableDeck(controller:PuzzleGameController) {
       //deck() = deck().enqueue(new Scanner)
     }
     val (drawn, d) = deck().dequeue
-    deck ()= d
+    deck() = d
     hand() = hand().enqueue(drawn)
     drawCardEvent.emit(drawn)
   }
 
-  def discard(card: Card#PlayableCard) {
+  def discard(card: PCard) {
     if (hand().contains(card)) {
       hand() = hand().diff(card :: Nil)
       discarded() = discarded().enqueue(card)
