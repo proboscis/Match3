@@ -1,22 +1,18 @@
 package com.glyph.scala.lib.util.reactive
 
-import com.glyph.scala.lib.util.lifting.Variable
-
 
 /**
  * @author glyph
  */
-trait Varying[T] extends Reactive[T]{
+trait Varying[T] extends Reactive[T] {
   self =>
   def current: T
-
   override def subscribe(callback: (T) => Unit) {
     super.subscribe(callback)
     callback(current)
   }
-
+  def * : Varying[T] = self
   def apply(): T = {
-    //Varying.notify(this)
     current
   }
 
@@ -36,29 +32,49 @@ trait Varying[T] extends Reactive[T]{
   /**
    * mapper
    */
-  def map[R](f: (T) => R): Varying[R] = {
-    new Varying[R] with Reactor {
-      var variable:R = null.asInstanceOf[R]
-      reactVar(self) {
-        s => variable = f(s);this.notifyObservers(variable)
+  def map[R](f: (T) => R): Varying[R] = new Mapped(self, f)
+
+
+  /*
+  def flatMap[R](f: T => Varying[R]): Varying[R] = f(current) match {
+    case noneMapped =>
+      new Varying[R] with Reactor {
+        var variable = null.asInstanceOf[R]
+
+        def current: R = variable
+
+        reactVar(self) {
+          a => variable = f(a)(); println("self update=>" + a + ":" + variable); this.notifyObservers(variable)
+        }
+        reactVar(noneMapped) {
+          a => variable = f(self.current)(); println("instance update =>" + a + ":" + variable); notifyObservers(variable)
+        }
       }
-      def current: R = variable
-    }
-  }
+  }*/
+
 
   //maps to event source
   def toEvents: EventSource[T] = {
     var prev = current
     new EventSource[T] with Reactor {
       reactVar(self) {
-        s =>if(prev != current)emit(current);prev = current
+        s => if (prev != current) emit(current); prev = current
       }
     }
   }
 
-  override def toString: String ="<"+current+">"+super.toString
+  override def toString: String = "<" + current + ">" + super.toString
 
 }
+
+class Mapped[T, R](val self: Varying[T], val mapping: T => R) extends Varying[R] with Reactor {
+  var variable: R = null.asInstanceOf[R]
+  def current: R = variable
+  reactVar(self) {
+    s => variable = mapping(s); this.notifyObservers(variable)
+  }
+}
+
 /*
 object Varying {
   var tracking = false

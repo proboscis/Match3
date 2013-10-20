@@ -13,6 +13,6 @@ object Match3Test {
     val puzzle = new Match3(()=>dungeon.getPanel(1))
     puzzle.fill(puzzle.createFilling)
     val panels = puzzle.panels()
-    Match3.scanAll(panels) foreach println
+    panels.scanAll foreach println
   }
 }

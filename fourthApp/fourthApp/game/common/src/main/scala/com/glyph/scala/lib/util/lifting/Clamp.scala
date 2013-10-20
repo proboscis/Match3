@@ -21,4 +21,14 @@ trait Clamp[T] extends Var[T] {
       ev <- evidence
     } yield ev.max(min(), ev.min(v, max()))).getOrElse(v))
   }
+
+  override def update(f: (T) => T): Unit = {
+    val v = f(current)
+    super.update(
+      (for {
+        min <- this.min
+        max <- this.max
+        ev <- evidence
+      } yield ev.max(min(), ev.min(v, max()))).getOrElse(v))
+  }
 }

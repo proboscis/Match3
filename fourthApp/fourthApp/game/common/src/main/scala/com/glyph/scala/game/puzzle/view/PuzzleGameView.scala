@@ -35,12 +35,26 @@ class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], s
 
   import PuzzleGameController._
 
+  /**
+   * 面白さを煮詰めたミニゲームの予定ではなかったのか！？
+   * ということで、そうする。
+   *
+   * カードゲームを一人で行うには、ルールが必要となる。
+   * カードだけで操作を行う点を考慮しPuaaaaなければ。RPG的な世界観は別にどうでもいい。
+   * インフレエンドレスか？１ゲーム制か？
+   * 意外と、カードでコンボし続ける状況は悪くない。
+   * カードでコンボした後、さらに考えて行動しなければならない点が良くない！
+   * となると、マッチ３であっても、コンボのみで完結していれば良いことになる。(!!!)
+   *
+   */
+
   val ET = ColorTheme
   //TODOスワイプでカード使用
   //TODO 動いている感をparticleなどで表現
   //TODO スワイプ量の表示
   //TODO スワイプカードの数によってスワイプ数を決める
   //TODO パネルはエレメントではなく、敵、ライフ、アクション、金、盾とする。
+  //TODO シンプルなパズルを基本とする。
   setSize(size._1, size._2)
   val root = new WidgetGroup with Layered
   val table = new Table

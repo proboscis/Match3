@@ -13,12 +13,15 @@ class Var[T:Manifest](protected var variable: T,name:String="undefined") extends
   def current: T = variable
   def unary_~ :self.type = self
   debugReactive[T]("name:"+name)
+  def update(f:T=>T){
+    notifyObservers(f(current))
+  }
   def update(v: T) {
     notifyObservers(v)
   }
   override def notifyObservers(t: T) {
     variable = t
-     super.notifyObservers(t)
+    super.notifyObservers(t)
   }
 }
 object Var {

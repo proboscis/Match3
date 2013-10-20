@@ -9,7 +9,7 @@ import scala.annotation.tailrec
  * generic puzzle!
  * @author glyph
  */
-class Match3(panelSeed: () => Panel,val ROW:Int = 6,val COLUMN:Int = 6) {
+class Match3(panelSeed: () => Panel, val ROW: Int = 6, val COLUMN: Int = 6) {
   import Match3._
   /**
    * should contain the data of puzzling panels
@@ -18,8 +18,6 @@ class Match3(panelSeed: () => Panel,val ROW:Int = 6,val COLUMN:Int = 6) {
     _ => new mutable.ArrayBuffer[Panel]
   }: _*)
   val panels = Var(Vector.empty[IndexedSeq[Panel]])
-  val onPanelRemoved = new Observable[Events]
-  val onPanelAdded = new Observable[Events]
   val panelRemoveEvent = new EventSource[Events]
   val panelAddEvent = new EventSource[Events]
 
@@ -49,7 +47,7 @@ class Match3(panelSeed: () => Panel,val ROW:Int = 6,val COLUMN:Int = 6) {
     updatePanels()
   }
 
-  def findMatches: Seq[MatchedSet] = scanAll(rawPanels)
+  def findMatches: Seq[MatchedSet] = rawPanels.scanAll
 
   /**
    * 縦横３つ並んでいるパネルを探し、返す
@@ -110,7 +108,6 @@ class Match3(panelSeed: () => Panel,val ROW:Int = 6,val COLUMN:Int = 6) {
       }
     }
     updatePanels()
-    onPanelRemoved(events)
     panelRemoveEvent.emit(events)
   }
 
@@ -125,7 +122,6 @@ class Match3(panelSeed: () => Panel,val ROW:Int = 6,val COLUMN:Int = 6) {
       }
     }
     updatePanels()
-    onPanelRemoved(events)
     panelRemoveEvent.emit(events)
   }
 
@@ -135,14 +131,13 @@ class Match3(panelSeed: () => Panel,val ROW:Int = 6,val COLUMN:Int = 6) {
     }
   }
 
-  def createNoMatchFilling: Events = Match3.createNoMatchFilling(rawPanels, panelSeed, ROW)
+  def createNoMatchFilling: Events = rawPanels.createNoMatchFilling(panelSeed, ROW)
 
   def fill(filling: Events) {
     filling.foreach {
       case (p, x, y) => rawPanels(x) += p
     }
     updatePanels()
-    onPanelAdded(filling)
     panelAddEvent.emit(filling)
   }
 
@@ -160,171 +155,151 @@ class Match3(panelSeed: () => Panel,val ROW:Int = 6,val COLUMN:Int = 6) {
 }
 
 object Match3 {
-  import scala.util.control.Exception._
 
-  //Optionは存在するときのみ処理したい場合
-  //Eitherは存在しなかった時の処理がある場合
+  import scala.util.control.Exception._
 
   type MatchedSet = Seq[Event]
   type Event = (Panel, Int, Int)
   type Events = Seq[Event]
   type Puzzle = IndexedSeq[IndexedSeq[Panel]]
 
-  def puzzleToString(p: Puzzle): String = {
-    p.map {
-      col => col.map {
-        _.toString
-      }.fold("") {
-        _ + "," + _
-      }
-    }.fold("") {
-      _ + "\n" + _
-    }
-  }
-
-  //TODO scannerを使うと動かしたときに消せるパネルを表示できるようにしたいね
-
   def included(sets: MatchedSet, target: MatchedSet): Boolean = target forall sets.contains
 
-  def scan(puzzle: Puzzle, x: Int, y: Int, right: Boolean): MatchedSet = {
-    val W = puzzle.size
-    val H = puzzle.head.size
-    val panel = puzzle(x)(y)
-    var matching = (puzzle(x)(y), x, y) :: Nil
-    if (right) {
-      var nx = x + 1
-      while (nx < W && panel.matchTo(puzzle(nx)(y))) {
-        matching ::=(puzzle(nx)(y), nx, y)
-        nx += 1
+  //implicit def puzzleToImpl(puzzle:Puzzle):PuzzleImpl = new PuzzleImpl(puzzle)
+  implicit class PuzzleImpl(val puzzle: Puzzle) extends AnyVal {
+    def text: String = puzzle.map {
+        col => col.map {
+          _.toString
+        }.fold("") {
+          _ + "," + _
+        }
+      }.fold("") {
+        _ + "\n" + _
       }
-    } else {
-      var ny = y + 1
-      while (ny < H && panel.matchTo(puzzle(x)(ny))) {
-        matching ::=(puzzle(x)(ny), x, ny)
-        ny += 1
-      }
-    }
-    if (matching.size >= 3) matching else Nil
-  }
-
-  def createFilling(puzzle: Puzzle, seed: () => Panel, size: Int): Events = {
-    for (x <- 0 until puzzle.size; y <- puzzle(x).size - 1 until size - 1) yield {
-      (seed(), x, y)
-    }
-  }
-
-  def fill(puzzle: Puzzle, filling: Events): Puzzle = filling.foldLeft(puzzle) {
-    case (p, (panel, x, _)) => p.updated(x, p(x) :+ panel)
-  }
-
-  def removePanels(puzzle: Puzzle, panels: Seq[Panel]): Puzzle = puzzle.map {
-    column => column.collect {
-      case p if !panels.contains(p) => p
-    }
-  }
-
-  def createNoMatchFilling(puzzle: Puzzle, seed: () => Panel, size: Int): Events = {
-    val contains = puzzle.flatten.contains _
-    @tailrec
-    def fillWithStatics(added: Puzzle): Puzzle =
-      createFilling(added, seed, size) match {
-        case filling => fill(added, filling) match {
-          case filled => scanAll(filled) match {
-            case matches if matches.flatten.map(_._1).forall(contains)=> filled
-            case matches => fillWithStatics(removePanels(filled,filling.filterNot(puzzle.flatten.contains).map {
-              _._1
-            }))
-          }
+    //TODO scannerを使うと動かしたときに消せるパネルを表示できるようにしたいね
+    def scan(x: Int, y: Int, right: Boolean): MatchedSet = {
+      val W = puzzle.size
+      val H = puzzle.head.size
+      val panel = puzzle(x)(y)
+      var matching = (puzzle(x)(y), x, y) :: Nil
+      if (right) {
+        var nx = x + 1
+        while (nx < W && panel.matchTo(puzzle(nx)(y))) {
+          matching ::=(puzzle(nx)(y), nx, y)
+          nx += 1
+        }
+      } else {
+        var ny = y + 1
+        while (ny < H && panel.matchTo(puzzle(x)(ny))) {
+          matching ::=(puzzle(x)(ny), x, ny)
+          ny += 1
         }
       }
-    fillWithStatics(puzzle).zipWithIndex.flatMap {
-      case (col, x) => col.zipWithIndex.collect {
-        case (panel, y) if !puzzle(x).contains(panel) => (panel, x, y)
+      if (matching.size >= 3) matching else Nil
+    }
+
+    def createFilling(seed: () => Panel, size: Int): Events = for (x <- 0 until puzzle.size; y <- puzzle(x).size - 1 until size - 1) yield (seed(), x, y)
+
+    def fill(filling: Events): Puzzle = filling.foldLeft(puzzle) {
+      case (p, (panel, x, _)) => p.updated(x, p(x) :+ panel)
+    }
+
+    def removePanels(panels: Seq[Panel]): Puzzle = puzzle.map {
+      column => column.collect {
+        case p if !panels.contains(p) => p
       }
     }
-  }
 
-  @tailrec
-  def fillWithoutMatches(puzzle: Puzzle, seed: () => Panel, size: Int): Puzzle = scanAll(puzzle) match {
-    case Seq() => puzzle
-    case matches => fillWithoutMatches(removePanels(puzzle, matches.flatten.distinct.map {
-      case (p, x, y) => p
-    }), seed, size)
-  }
-
-  def scanAll(puzzle: Puzzle): Seq[MatchedSet] = {
-    val result = mutable.ArrayBuffer[MatchedSet]()
-    val tof = true :: false :: Nil
-    for {
-      x <- 0 until puzzle.size
-      y <- 0 until puzzle(x).size
-      set <- tof map (scan(puzzle, x, y, _))} {
-      var i = 0
-      val l = result.length
-      var noNeedToAdd = false
-      while (i < l) {
-        val current = result(i)
-        val inc = included(result(i), set)
-        noNeedToAdd |= inc
-        val needReplace = current.size < set.size && inc
-        if (needReplace) result(i) = set
-        i += 1
-      }
-      if (!noNeedToAdd && set != Nil) {
-        result += set
+    def createNoMatchFilling(seed: () => Panel, size: Int): Events = {
+      val contains = puzzle.flatten.contains _
+      @tailrec
+      def fillWithStatics(added: Puzzle): Puzzle =
+        added.createFilling(seed, size) match {
+          case filling => added.fill(filling) match {
+            case filled => filled.scanAll match {
+              case matches if matches.flatten.map(_._1).forall(contains) => filled
+              case matches => fillWithStatics(added.removePanels(filling.filterNot(puzzle.flatten.contains).map {
+                _._1
+              }))
+            }
+          }
+        }
+      fillWithStatics(puzzle).zipWithIndex.flatMap {
+        case (col, x) => col.zipWithIndex.collect {
+          case (panel, y) if !puzzle(x).contains(panel) => (panel, x, y)
+        }
       }
     }
-    //println(result)
-    result
-  }
 
-  /**
-   * @param puzzle
-   * @param panel
-   * @return index of given panel in a puzzle
-   */
-  def indexOfPanel(puzzle: Puzzle, panel: Panel): Either[Throwable, (Int, Int)] = {
-    //println(puzzle.flatten.contains(panel))
-    allCatch either {
-      val row = puzzle.filter {
-        _.contains(panel)
-      }.head
-      (puzzle.indexOf(row), row.indexOf(panel))
+    private def fillWithoutMatches(seed: () => Panel, size: Int): Puzzle = {
+      @tailrec
+      def recFWM(p:Puzzle):Puzzle ={
+        p.scanAll match{
+          case Seq() => p
+          case matches => recFWM(removePanels(matches.flatten.distinct.map {
+            case (p, x, y) => p
+          }))
+        }
+      }
+      recFWM(puzzle)
     }
-  }
 
-  /**
-   * swaps the give indices of puzzle, and returns new swapped puzzle
-   * @param puzzle
-   * @param ax
-   * @param ay
-   * @param bx
-   * @param by
-   * @return
-   */
-  def swap(puzzle: Puzzle, ax: Int, ay: Int, bx: Int, by: Int): Puzzle = {
-    val a = puzzle(ax)(ay)
-    val b = puzzle(bx)(by)
-    val puzzle1 = puzzle.updated(ax, puzzle(ax).updated(ay, b))
-    val puzzle2 = puzzle1.updated(bx, puzzle1(bx).updated(by, a))
-    puzzle2
-  }
-
-  def toString(puzzle: Puzzle): String = puzzle.map {
-    col => col.map {
-      _.toString
-    }.fold("") {
-      _ + "," + _
+    def scanAll: Seq[MatchedSet] = {
+      val result = mutable.ArrayBuffer[MatchedSet]()
+      for {
+        x <- 0 until puzzle.size
+        y <- 0 until puzzle(x).size
+        set <- true :: false :: Nil map (scan(x, y, _))} {
+        var i = 0
+        val l = result.length
+        var noNeedToAdd = false
+        while (i < l) {
+          val current = result(i)
+          val inc = included(result(i), set)
+          noNeedToAdd |= inc
+          val needReplace = current.size < set.size && inc
+          if (needReplace) result(i) = set
+          i += 1
+        }
+        if (!noNeedToAdd && set != Nil) {
+          result += set
+        }
+      }
+      //println(result)
+      result
     }
-  }.fold("") {
-    _ + "\n" + _
+
+    /**
+     * @param panel
+     * @return index of given panel in a puzzle
+     */
+    def indexOfPanel(panel: Panel): Either[Throwable, (Int, Int)] = {
+      //println(puzzle.flatten.contains(panel))
+      allCatch either {
+        val row = puzzle.filter {
+          _.contains(panel)
+        }.head
+        (puzzle.indexOf(row), row.indexOf(panel))
+      }
+    }
+
+    /**
+     * swaps the give indices of puzzle, and returns new swapped puzzle
+     * @param ax
+     * @param ay
+     * @param bx
+     * @param by
+     * @return
+     */
+    def swap(ax: Int, ay: Int, bx: Int, by: Int): Puzzle = {
+      val a = puzzle(ax)(ay)
+      val b = puzzle(bx)(by)
+      val puzzle1 = puzzle.updated(ax, puzzle(ax).updated(ay, b))
+      val puzzle2 = puzzle1.updated(bx, puzzle1(bx).updated(by, a))
+      puzzle2
+    }
+
+    //override def toString = Match3.toString(puzzle)
   }
 
-  implicit def indexedSeqToPuzzleImpl(p: Puzzle): PuzzleImpl = new PuzzleImpl(p)
-
-  class PuzzleImpl(puzzle: Puzzle) {
-    lazy val indexOfPanel: Panel => Either[Throwable, (Int, Int)] = Match3.indexOfPanel(puzzle, _)
-    lazy val swap: (Int, Int, Int, Int) => Puzzle = Match3.swap(puzzle, _, _, _, _)
-    override def toString = Match3.toString(puzzle)
-  }
 }

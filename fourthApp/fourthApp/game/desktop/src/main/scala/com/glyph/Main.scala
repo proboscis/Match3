@@ -17,5 +17,4 @@ object Main {
     //TexturePacker2.process("./","./skin","default")
     new LwjglApplication(new DebugGame(), cfg)
   }
-
 }

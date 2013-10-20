@@ -67,7 +67,7 @@ class SlideView(config: RJSON = SlideView.config) extends WidgetGroup with React
         def run() {
           //println("bf run:"+outs.size)
           outs = outs filter {
-            _ != view
+            case (v,f) => v != view
           }
           removed()
           //println("run:" + outs.size)
@@ -77,7 +77,7 @@ class SlideView(config: RJSON = SlideView.config) extends WidgetGroup with React
       view.setTouchable(Touchable.disabled)
       outs = pair :: outs
       ins = ins filter {
-        _ != view
+        case (v,f) => v != view
       }
     }
   }
@@ -107,7 +107,7 @@ class SlideView(config: RJSON = SlideView.config) extends WidgetGroup with React
         def run() {
           //println("in complete")
           ins = ins filter {
-            _ != view
+            case (v,f) => v != view
           }
           for(((prev,cb),listener) <- showing){prev.removeListener(listener)}
           showing = Some(pair,il)

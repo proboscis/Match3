@@ -19,8 +19,7 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
   type C = Card[PuzzleGameController]
   type PCard = C#PlayableCard
   import PuzzleGameController._
-  //sacrifice the spirits to either angel or demons
-  //TODO カードのことはすっぱり忘れる！！！
+
   /**
    * ３元の精霊を天使か悪魔に捧げることでカードを発動する。
    * カードには中立カード、天使カード、悪魔カードがある
@@ -35,15 +34,20 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
    * カードの取得方法：画面内のモンスターを、リソースを消費することでカード化する。
    * 敵ごとに必要なリソース数が決まっていることにするか。
    */
-  //TODO UI　デザイン
-
-
+  //TODO UI　デザ
   import game._
-
-  val swipeLength = new Var[Option[Int]](None, "PuzzleGameController:swipeLength"){
+  /**
+   * scalaz を使えば、このクラスをつくらなくてもよくなりそう（implicit new) =>気のせいか・・
+   * @param init
+   */
+  class OptIntVar(init:Option[Int] = None,name:String = "PuzzleGameController:undefined") extends Var[Option[Int]](init,name){
     def +=(a:Int){this ()= current map {_ + a}}
     def -=(a:Int){this ()= current map {_ - a}}
   }
+  val swipeLength = new OptIntVar
+  val actionPoint = new OptIntVar
+  swipeLength.update(_.map{_+1})
+
 
   //ゲームのロジックとアニメーションを分けたいんですよね。
   reactVar(player.experience) {
@@ -52,8 +56,8 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
         player.position() = floor
       }
   }
-  var destroyAnimation: DestroyAnimation = requests=> cb=>cb()
-  var fillAnimation: FillAnimation = filling => cb=>cb()
+  var destroyAnimation: DestroyAnimation = requests=> cb => cb()
+  var fillAnimation: FillAnimation = filling => cb => cb()
   var damageAnimation: DamageAnimation = {
     seq => {
       f => f()
@@ -73,10 +77,7 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
 
   def fill(filling:Events = puzzle.createFilling): Animation = {
     block => {
-      //println("fill")
       puzzle.fill(filling)
-      //println("fill=>")
-      //println(puzzle.panels().toStr)
       fillAnimation(filling){
         () => scan {
           () => block()
@@ -116,8 +117,6 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
   def destroy(indices: (Int, Int)*): Animation = {
     block => {
       val snapshot = puzzle.panels()
-      //println("destroy=>")
-      //println(snapshot.toStr)
       val panels = indices map {
         case (x, y) => (snapshot(x)(y), x, y)
       }
