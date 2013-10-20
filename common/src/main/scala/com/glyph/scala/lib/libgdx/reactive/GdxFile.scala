@@ -9,6 +9,7 @@ import com.badlogic.gdx.{Application, Gdx}
  */
 class GdxFile(filePath:String) extends RFile(GdxFile.open(filePath))
 object GdxFile{
+  //TODO fix resource not found errors...
   val debug = false
   def apply(filePath:String):GdxFile = new GdxFile(filePath)
   val absolute = {
@@ -19,7 +20,7 @@ object GdxFile{
     (path) => new FileAdapter {
       val handle = Gdx.app.getType match{
         case Application.ApplicationType.Android =>Gdx.files.internal(path)
-        case _=>Gdx.files.absolute(dir)
+        case _=>Gdx.files.internal(path)//Gdx.files.absolute(dir)
       }//if(debug)Gdx.files.external(dir) else Gdx.files.internal(path)
       def name: String = handle.name()
       def dir = absolute + "/" + path
