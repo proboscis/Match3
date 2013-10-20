@@ -1,10 +1,9 @@
 package com.glyph.scala
 
-import com.badlogic.gdx.{Gdx, Game}
+import com.badlogic.gdx.Game
 import com.badlogic.gdx.graphics.Texture
 import com.glyph.java.asset.AM
 import lib.libgdx.screen.LoadingScreen
-import com.badlogic.gdx.graphics.g2d.BitmapFont
 
 /**
  * @author glyph
@@ -17,6 +16,10 @@ class ScalaGame extends Game {
       //AM.instance().load("data/card" + i + ".png", classOf[Texture])
       i += 1
     }
+
+      /**
+       * testing comment
+       */
     /*
     AM.instance().load("sound/drawcard.mp3", classOf[Sound])
     AM.instance().load("sound/gore.wav", classOf[Sound])
