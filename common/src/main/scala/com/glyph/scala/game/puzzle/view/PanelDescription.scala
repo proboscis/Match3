@@ -5,8 +5,10 @@ import com.glyph.scala.lib.libgdx.actor.{TouchSource, OldDrawSprite}
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
 import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.lib.libgdx.TextureUtil
-import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
+import com.glyph.scala.lib.puzzle.Match3
 import Match3.Panel
+import com.glyph.scala.lib.puzzle.Match3
+
 /**
  * @author glyph
  */

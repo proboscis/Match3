@@ -1,4 +1,4 @@
-package com.glyph.scala.game.puzzle.model.match_puzzle
+package com.glyph.scala.lib.puzzle
 
 import scala.collection.mutable
 import com.glyph.scala.lib.util.reactive.{Var, EventSource}

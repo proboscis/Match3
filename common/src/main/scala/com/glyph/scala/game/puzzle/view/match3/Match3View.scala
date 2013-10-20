@@ -9,12 +9,12 @@ import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.libgdx.actor.action.Waiter
 import com.badlogic.gdx.math.{MathUtils, Interpolation}
 import com.glyph.scala.lib.util.reactive.{Var, Reactor, EventSource}
-import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
 import scala.collection.mutable.ListBuffer
 import com.glyph.scala.lib.libgdx.GdxUtil
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import scala.collection.mutable
 import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.lib.puzzle.Match3
 
 
 /**

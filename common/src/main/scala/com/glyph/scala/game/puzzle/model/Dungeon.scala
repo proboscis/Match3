@@ -3,8 +3,11 @@ package com.glyph.scala.game.puzzle.model
 import com.glyph.scala.game.puzzle.model.monsters.{Weapon, Worm, Slime, Monster}
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.scala.game.puzzle.model.Element.{Water, Thunder, Fire}
-import com.glyph.scala.game.puzzle.model.match_puzzle.{Life, Match3}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{Life}
+import com.glyph.scala.lib.puzzle.Match3
 import Match3.Panel
+import com.glyph.scala.lib.puzzle.Match3
+
 /**
  * @author glyph
  */

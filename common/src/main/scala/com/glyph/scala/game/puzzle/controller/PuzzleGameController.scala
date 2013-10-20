@@ -3,18 +3,22 @@ package com.glyph.scala.game.puzzle.controller
 import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
 import com.glyph.scala.game.puzzle.model.cards._
 import com.glyph.scala.lib.util.reactive.{Var, Reactor}
-import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, MaybeDestroyed, OnMatch, DestroyEffect}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{MaybeDestroyed, OnMatch, DestroyEffect}
 import com.glyph.scala.game.puzzle.model.monsters.Monster
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.scala.lib.util.Logging
-import com.glyph.scala.game.puzzle.model.match_puzzle.Match3.Events
+import com.glyph.scala.lib.puzzle.Match3
+import Match3.Events
 import scalaz.Scalaz
 import Scalaz._
+import com.glyph.scala.lib.puzzle.Match3
+
 /**
  * this is actually a game class...
  * @author glyph
  */
-class PuzzleGameController(val game: Game) extends Reactor with Logging{
+class
+PuzzleGameController(val game: Game) extends Reactor with Logging{
   val deck = new PlayableDeck[PuzzleGameController](this)
   type C = Card[PuzzleGameController]
   type PCard = C#PlayableCard
@@ -86,11 +90,11 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
     swipeLength += amount
   }
 
-
   def scan: Animation = {
     block => {
       val matchedSets = puzzle.findMatches
       val panelSets = (matchedSets.view map{sets=> sets map{case(p,x,y) => p}}).force
+
       panelSets.foreach{//do damage calculations and so on...
         sets => sets.collect{case p:OnMatch => p} foreach{_.onMatch(sets)}
       }

@@ -4,8 +4,10 @@ import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.lib.util.json.RJSON
 import com.glyph.scala.lib.util.reactive.Varying
-import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
+import com.glyph.scala.lib.puzzle.Match3
 import Match3.Panel
+import com.glyph.scala.lib.puzzle.Match3
+
 /**
  * @author glyph
  */

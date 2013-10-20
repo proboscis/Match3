@@ -1,7 +1,7 @@
 package com.glyph.scala.game.puzzle.model
 
 import com.glyph.scala.lib.util.reactive.RFile
-import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
+import com.glyph.scala.lib.puzzle.Match3
 
 /**
  * ゲームの目的：

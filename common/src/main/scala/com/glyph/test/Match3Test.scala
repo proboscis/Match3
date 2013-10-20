@@ -1,7 +1,7 @@
 package com.glyph.test
 
-import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
 import com.glyph.scala.game.puzzle.model.Dungeon
+import com.glyph.scala.lib.puzzle.Match3
 
 /**
  * @author glyph

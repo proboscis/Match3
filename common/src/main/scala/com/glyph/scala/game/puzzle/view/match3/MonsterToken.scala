@@ -4,11 +4,12 @@ import com.badlogic.gdx.graphics.g2d.{Sprite, BitmapFontCache, SpriteBatch}
 import com.badlogic.gdx.graphics.{Texture, Color}
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.scala.game.puzzle.view
-import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
+import com.glyph.scala.lib.puzzle.Match3
 import Match3.Panel
 import com.glyph.scala.lib.util.reactive.Reactor
 import com.glyph.scala.game.puzzle.model.monsters.Weapon
 import com.glyph.java.asset.AM
+import com.glyph.scala.lib.puzzle.Match3
 
 /**
  * @author glyph
