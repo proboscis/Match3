@@ -12,6 +12,7 @@ object Settings {
       //libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.10.1"
       //libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.10.3-RC2"
       libraryDependencies ++=  Seq(
+        "com.github.scopt" %% "scopt" % "3.1.0",  
         "org.scalaz" %% "scalaz-core" % "7.0.4",
         "org.scalaz" %% "scalaz-effect" % "7.0.4",
         "org.scalaz" %% "scalaz-typelevel" % "7.0.4",
