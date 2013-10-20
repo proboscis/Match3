@@ -1,0 +1,11 @@
+# Intellij
+.idea/
+.idea_modules/
+*.iml
+*.iws
+
+#sbt
+target/
+
+#scala/java
+.class
