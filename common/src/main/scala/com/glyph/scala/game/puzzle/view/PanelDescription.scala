@@ -1,14 +1,12 @@
 package com.glyph.scala.game.puzzle.view
 
-import com.badlogic.gdx.scenes.scene2d.ui.{Image, Table}
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph.scala.lib.libgdx.actor.{TouchSource, OldDrawSprite}
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
-import match3.PanelToken
 import com.badlogic.gdx.graphics.Color
-import com.glyph.scala.ScalaGame
-import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
 import com.glyph.scala.lib.libgdx.TextureUtil
-
+import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
+import Match3.Panel
 /**
  * @author glyph
  */

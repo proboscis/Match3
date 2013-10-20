@@ -5,15 +5,12 @@ import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 /**
  * @author glyph
  */
-trait Panel{
-  def matchTo(other:Panel):Boolean
+trait OnMatch extends Match3.Panel{
+  def onMatch(matched:Seq[Match3.Panel])
 }
-trait OnMatch extends Panel{
-  def onMatch(matched:Seq[Panel])
-}
-trait MaybeDestroyed extends Panel{
+trait MaybeDestroyed extends Match3.Panel{
   def isDestroyed:Boolean
 }
-trait DestroyEffect extends Panel{
+trait DestroyEffect extends Match3.Panel{
   def onDestroy(controller:PuzzleGameController)
 }

@@ -3,7 +3,7 @@ package com.glyph.scala.game.puzzle.controller
 import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
 import com.glyph.scala.game.puzzle.model.cards._
 import com.glyph.scala.lib.util.reactive.{Var, Reactor}
-import com.glyph.scala.game.puzzle.model.match_puzzle.{MaybeDestroyed, OnMatch, DestroyEffect, Panel}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, MaybeDestroyed, OnMatch, DestroyEffect}
 import com.glyph.scala.game.puzzle.model.monsters.Monster
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.scala.lib.util.Logging
@@ -36,10 +36,6 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
    */
   //TODO UI　デザ
   import game._
-  /**
-   * scalaz を使えば、このクラスをつくらなくてもよくなりそう（implicit new) =>気のせいか・・
-   * @param init
-   */
   class OptIntVar(init:Option[Int] = None,name:String = "PuzzleGameController:undefined") extends Var[Option[Int]](init,name){
     def +=(a:Int){this ()= current map {_ + a}}
     def -=(a:Int){this ()= current map {_ - a}}
@@ -243,6 +239,7 @@ class PuzzleGameController(val game: Game) extends Reactor with Logging{
 }
 
 object PuzzleGameController {
+  import Match3._
   type IdleInput = (Int) => (IdleEvent => Unit) => Unit
   type Animation = (() => Unit) => Unit
   type DestroyAnimation = Seq[(Panel, Int, Int)] => Animation

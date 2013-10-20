@@ -1,7 +1,8 @@
 package com.glyph.scala.game.puzzle.model.Element
 
-import com.glyph.scala.game.puzzle.model.match_puzzle.{DestroyEffect, Panel}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, DestroyEffect}
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
+import Match3.Panel
 
 /**
  * @author glyph

@@ -1,9 +1,9 @@
 package com.glyph.scala.game.puzzle.model.monsters
 
 import com.glyph.scala.lib.util.reactive.Var
-import com.glyph.scala.game.puzzle.model.match_puzzle.{MaybeDestroyed, DestroyEffect, OnMatch, Panel}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, MaybeDestroyed, DestroyEffect, OnMatch}
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
-
+import Match3._
 /**
  * @author glyph
  */

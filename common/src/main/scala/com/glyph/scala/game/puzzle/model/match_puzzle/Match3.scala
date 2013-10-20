@@ -1,7 +1,6 @@
 package com.glyph.scala.game.puzzle.model.match_puzzle
 
 import scala.collection.mutable
-import com.glyph.scala.lib.util.observer.Observable
 import com.glyph.scala.lib.util.reactive.{Var, EventSource}
 import scala.annotation.tailrec
 
@@ -9,15 +8,17 @@ import scala.annotation.tailrec
  * generic puzzle!
  * @author glyph
  */
-class Match3(panelSeed: () => Panel, val ROW: Int = 6, val COLUMN: Int = 6) {
+class Match3(panelSeed: () => Match3.Panel, val ROW: Int = 6, val COLUMN: Int = 6) {
+  type P = Match3.Panel
   import Match3._
+
   /**
    * should contain the data of puzzling panels
    **/
   val rawPanels = mutable.ArraySeq((1 to COLUMN) map {
-    _ => new mutable.ArrayBuffer[Panel]
+    _ => new mutable.ArrayBuffer[P]
   }: _*)
-  val panels = Var(Vector.empty[IndexedSeq[Panel]])
+  val panels = Var(Vector.empty[IndexedSeq[P]])
   val panelRemoveEvent = new EventSource[Events]
   val panelAddEvent = new EventSource[Events]
 
@@ -30,7 +31,7 @@ class Match3(panelSeed: () => Panel, val ROW: Int = 6, val COLUMN: Int = 6) {
     }: _*)
   }
 
-  def indexOf(panel: Panel): Option[(Int, Int)] = {
+  def indexOf(panel: P): Option[(Int, Int)] = {
     import scala.util.control.Exception._
     allCatch opt {
       val row = rawPanels.collect {
@@ -157,9 +158,11 @@ class Match3(panelSeed: () => Panel, val ROW: Int = 6, val COLUMN: Int = 6) {
 object Match3 {
 
   import scala.util.control.Exception._
-
-  type MatchedSet = Seq[Event]
+  trait Panel{
+    def matchTo(panel:Panel):Boolean
+  }
   type Event = (Panel, Int, Int)
+  type MatchedSet = Seq[Event]
   type Events = Seq[Event]
   type Puzzle = IndexedSeq[IndexedSeq[Panel]]
 
@@ -237,7 +240,7 @@ object Match3 {
         p.scanAll match{
           case Seq() => p
           case matches => recFWM(removePanels(matches.flatten.distinct.map {
-            case (p, x, y) => p
+            case (pp, x, y) => pp
           }))
         }
       }
@@ -270,7 +273,7 @@ object Match3 {
     }
 
     /**
-     * @param panel
+     * @param panel searched with _.contains
      * @return index of given panel in a puzzle
      */
     def indexOfPanel(panel: Panel): Either[Throwable, (Int, Int)] = {
@@ -285,10 +288,6 @@ object Match3 {
 
     /**
      * swaps the give indices of puzzle, and returns new swapped puzzle
-     * @param ax
-     * @param ay
-     * @param bx
-     * @param by
      * @return
      */
     def swap(ax: Int, ay: Int, bx: Int, by: Int): Puzzle = {

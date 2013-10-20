@@ -9,21 +9,23 @@ import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.libgdx.actor.action.Waiter
 import com.badlogic.gdx.math.{MathUtils, Interpolation}
 import com.glyph.scala.lib.util.reactive.{Var, Reactor, EventSource}
-import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, Panel}
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import com.glyph.scala.game.puzzle.model.match_puzzle.Match3
+import scala.collection.mutable.ListBuffer
 import com.glyph.scala.lib.libgdx.GdxUtil
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import scala.collection.mutable
 import com.glyph.scala.lib.util.Logging
-import scala.collection.immutable.Stack
+
 
 /**
  * @author glyph
  */
-class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating with Reactor with TouchSource with Logging{
+class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating with Reactor with TouchSource with Logging {
+
   import PuzzleGameController._
   import puzzle._
   import Match3._
+
   def marginX = getWidth / (COLUMN + COLUMN * 0.1f) * 0.1f
 
   def marginY = getHeight / (ROW + ROW * 0.1f) * 0.1f
@@ -49,7 +51,6 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
   val sequencer = new SequentialProcessor {}
   val panelTouch = new EventSource[PanelToken]
   this add sequencer
-
   /*
   val tokens = Array(puzzle.rawPanels map {
     column => ListBuffer.empty[PanelToken]
@@ -68,49 +69,58 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
     if (processingSetup) afterSetupQueue += (() => f) else f
   }
 
-  var puzzleBuffer:IndexedSeq[IndexedSeq[Panel]] = Vector()
-  reactVar(puzzle.panels){
-    ps=> puzzleBuffer = ps
+  var puzzleBuffer: IndexedSeq[IndexedSeq[Panel]] = Vector()
+  reactVar(puzzle.panels) {
+    ps => puzzleBuffer = ps
   }
 
-  var swipeListener:Option[InputListener] = None
-  def startSwipeCheck(length:Int)(callback:Seq[(Int,Int,Int,Int)] => Unit){
+  var swipeListener: Option[InputListener] = None
+
+  def startSwipeCheck(length: Int)(callback: Seq[(Int, Int, Int, Int)] => Unit) {
     //TODO make this not react while swiping...
     setTouchable(Touchable.enabled)
-    swipeListener match{
-      case Some(listener) =>{
+    swipeListener match {
+      case Some(listener) => {
         error("swipe already started... or previous swipeCheck is not finished correctly. ignoring start swipeCheck")
       }
       case None => {
-        visualSwipeLength ()= Some(length)
+        visualSwipeLength() = Some(length)
         swipeListener = Some(new InputListener {
-          val swipeRecord = mutable.Stack[(Int,Int,Int,Int)]()
+          val swipeRecord = mutable.Stack[(Int, Int, Int, Int)]()
           val record = mutable.Stack[(Int, Int)]()
           var current = (0, 0)
           val MAX_MOVE = length
+
           override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
             current = positionToIndex(x, y)
             record.clear()
             true
           }
+
           def diffAmount(a: (Int, Int), b: (Int, Int)) = Math.abs(a._1 - b._1) + Math.abs(a._2 - b._2)
+
           override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
             val next = positionToIndex(x, y)
-            if (diffAmount(current, next) == 1 && (record.size < MAX_MOVE || (record.headOption exists{
+            if (diffAmount(current, next) == 1 && (record.size < MAX_MOVE || (record.headOption exists {
               case head => head == next
             }))) {
               val ((a, b), (c, d)) = (current, next)
               record.headOption match {
-                case Some(head) if head == next =>swipeRecord.pop(); record.pop();visualSwipeLength() = visualSwipeLength().map{_+1}
-                case _ =>swipeRecord.push((a,b,c,d)); record.push(current);visualSwipeLength() = visualSwipeLength().map{_-1}
+                case Some(head) if head == next => swipeRecord.pop(); record.pop(); visualSwipeLength() = visualSwipeLength().map {
+                  _ + 1
+                }
+                case _ => swipeRecord.push((a, b, c, d)); record.push(current); visualSwipeLength() = visualSwipeLength().map {
+                  _ - 1
+                }
               }
-              puzzleBuffer = puzzleBuffer.swap(a,b,c,d)
+              puzzleBuffer = puzzleBuffer.swap(a, b, c, d)
               current = next
               setupTokenPosition()
             }
           }
+
           override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-            if(!record.isEmpty){
+            if (!record.isEmpty) {
               visualSwipeLength() = None
               postAfterSetup {
                 callback(swipeRecord.reverse)
@@ -122,11 +132,13 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
       }
     }
   }
-  def stopSwipeCheck(){
+
+  def stopSwipeCheck() {
     setTouchable(Touchable.disabled)
     swipeListener foreach removeListener
     swipeListener = None
   }
+
   //TODO implement this animation.
   val fillAnimation: FillAnimation = {
     events => {
@@ -140,7 +152,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
       }
     }
   }
-  val destroyAnimation:DestroyAnimation = {
+  val destroyAnimation: DestroyAnimation = {
     events => {
       callback => {
         sequencer add Sequence(
@@ -241,8 +253,8 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
         callback
       }
       for (token <- targets) {
-        puzzleBuffer.indexOfPanel(token.panel) match{
-          case Right((ix,iy))=>{
+        puzzleBuffer.indexOfPanel(token.panel) match {
+          case Right((ix, iy)) => {
             val move = action(classOf[MoveToAction])
             move.setPosition(calcPanelX(ix), calcPanelY(iy))
             move.setDuration(0.5f)
@@ -250,7 +262,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
             //token.clearActions()
             token.addAction(sequence(move, waiter.await()))
           }
-          case Left(failed)=>{
+          case Left(failed) => {
             failed.printStackTrace()
           }
         }

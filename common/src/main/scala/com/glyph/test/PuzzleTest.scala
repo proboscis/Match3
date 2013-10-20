@@ -3,8 +3,6 @@ package com.glyph.test
 import com.glyph.scala.game.puzzle.model.Game
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import com.glyph.scala.lib.util.reactive.RFile
-import com.glyph.scala.game.puzzle.model.match_puzzle.Panel
-
 /**
  * @author glyph
  */

@@ -1,5 +1,5 @@
 package com.glyph.scala.game.puzzle.model.match_puzzle
-
+import Match3.Panel
 /**
  * @author glyph
  */

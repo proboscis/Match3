@@ -3,7 +3,7 @@ package com.glyph.scala.game.puzzle.view.match3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph.scala.lib.libgdx.actor.{DrawSprite, TouchSource, ExplosionFadeout}
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
-import com.glyph.scala.game.puzzle.model.match_puzzle.{Move, Life, Panel}
+import com.glyph.scala.game.puzzle.model.match_puzzle.{Match3, Move, Life}
 import com.glyph.java.particle.{SpriteParticle, ParticlePool}
 import com.glyph.scala.game.puzzle.model.monsters.{MonsterLike, Weapon, Monster}
 import com.glyph.scala.lib.libgdx.TextureUtil
@@ -11,7 +11,7 @@ import com.glyph.scala.lib.util.reactive.{Var, Reactor, Varying}
 import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.lib.util.json.RJSON
 import com.glyph.scala.game.puzzle.model.Element.{Thunder, Water, Fire}
-
+import Match3.Panel
 /**
  * @author glyph
  */
