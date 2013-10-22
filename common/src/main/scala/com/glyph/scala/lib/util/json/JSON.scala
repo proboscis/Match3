@@ -10,7 +10,6 @@ import scalaz._
 import Scalaz._
 import RJSON.VNET
 import RJSON.VNETJ
-import org.mozilla.javascript.annotations.JSFunction
 
 /**
  * @author glyph
@@ -38,7 +37,11 @@ class JSON(o: Either[Throwable, Object], scope: ScriptableObject) extends Dynami
   }.fold(_.failNel, _.success)
 
 
-  def as[T: ClassTag]: Option[T] = o.right.flatMap {
+  def as[T: ClassTag]: Option[T] = asEither[T].fold[Option[T]]({
+    e => e.printStackTrace(); none
+  }, t => some(t))
+
+  def asEither[T: ClassTag]: Either[Throwable, T] = o.right.flatMap {
     t => allCatch either {
       val clazz = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
       //println("cast %s to %s".format(t.getClass, clazz))
@@ -57,7 +60,9 @@ class JSON(o: Either[Throwable, Object], scope: ScriptableObject) extends Dynami
       //println("success")
       result
     }
-  }.fold[Option[T]]({e => e.printStackTrace();none},t => some(t))
+  }
+
+  def asVnel[T: ClassTag]: VNET[T] = asEither[T].fold(_.failNel, _.success)
 
   def selectDynamic(name: String): JSON = apply(name)
 
@@ -94,7 +99,11 @@ object JSON {
 
 class RVJSON(o: Varying[VNETJ]) extends Varying[Option[JSON]] with Dynamic with Reactor {
   var variable: Option[JSON] = null
-  implicit def vnel2opt[T](vnel:VNET[T]):Option[T] =vnel.fold(nel=>{nel.foreach(_.printStackTrace());none},_.some)
+
+  implicit def vnel2opt[T](vnel: VNET[T]): Option[T] = vnel.fold(nel => {
+    nel.foreach(_.printStackTrace()); none
+  }, _.some)
+
   reactVar(o) {
     vnel => variable = vnel; notifyObservers(variable)
   }
@@ -120,14 +129,20 @@ class RVJSON(o: Varying[VNETJ]) extends Varying[Option[JSON]] with Dynamic with 
     case n: Int => apply(name)(n)
     case u: Unit => apply(name)
   }
-/*
-  def as[T: ClassTag]: Varying[VNET[T]] = o.map {
-    _.flatMap(_.as[T])
-  }*/
-  def as[T:ClassTag]:Varying[Option[T]] = o.map{_.fold({
-  nel => nel foreach(_.printStackTrace())
-  none
-},_.as[T])}
+  /*
+    def as[T: ClassTag]: Varying[VNET[T]] = o.map {
+      _.flatMap(_.as[T])
+    }*/
+  def as[T: ClassTag]: Varying[Option[T]] = o.map {
+    _.fold({
+      nel => nel foreach (_.printStackTrace())
+        none
+    }, _.as[T])
+  }
+
+  def asVnel[T: ClassTag]: Varying[VNET[T]] = o.map {
+    _.flatMap(_.asVnel[T])
+  }
 
   def asFunction: Varying[VNET[JSON#JSFunction]] = o.map(_.flatMap(_.asFunction))
 }
@@ -163,6 +178,7 @@ class RJSON(o: Varying[JSON]) extends Varying[JSON] with Dynamic with Reactor {
   def as[T: ClassTag]: Varying[Option[T]] = o.map {
     _.as[T]
   }
+
   def asFunction: Varying[VNET[JSON#JSFunction]] = o.map {
     _.asFunction
   }
@@ -180,8 +196,9 @@ object RJSON {
     })
   }
 }
+
 object RVJSON {
-  def apply(script:Varying[VNET[String]],env: Map[String, Any] = Map.empty):RVJSON = {
-    new RVJSON(script.map(_.map(JSON(_,env))))
+  def apply(script: Varying[VNET[String]], env: Map[String, Any] = Map.empty): RVJSON = {
+    new RVJSON(script.map(_.map(JSON(_, env))))
   }
 }

@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.libgdx
 
 import com.badlogic.gdx.graphics.{Texture, Color, Pixmap}
-import com.glyph.java.asset.AM
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * @author glyph
@@ -13,5 +13,5 @@ object TextureUtil {
   image.fillRectangle(0, 0, image.getWidth, image.getHeight)
   private val texture = new Texture(image)
 
-  def dummy = AM.instance.get[Texture]("data/dummy.png")//texture
+  def dummy(assets: AssetManager) = assets.get[Texture]("data/dummy.png") //texture
 }

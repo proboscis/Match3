@@ -11,11 +11,12 @@ import com.glyph.scala.lib.util.reactive.{Var, Reactor, EventSource}
 import com.badlogic.gdx.scenes.scene2d.{Touchable, Group, InputEvent, InputListener}
 import com.glyph.scala.lib.util.Logging
 import com.glyph.scala.game.puzzle.controller.PuzzleGameController
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * @author glyph
  */
-class CardTableView[T](deck: PlayableDeck[T]) extends Table with Updating with Reactor with Logging {
+class CardTableView[T](assets:AssetManager,deck: PlayableDeck[T]) extends Table with Updating with Reactor with Logging {
   type PCard = Card[T]#PlayableCard
   val updateQueue = new UpdateQueue(0.1f)
   this.add(updateQueue)
@@ -58,7 +59,7 @@ class CardTableView[T](deck: PlayableDeck[T]) extends Table with Updating with R
 
   def createToken(card: PCard) {
     log("createToken:" + card.source)
-    val token = new CardToken(card, cardW, cardH,checkingSwipe)
+    val token = new CardToken(assets,card, cardW, cardH,checkingSwipe)
     val offset = Offset(token)
     offset.setPosition(marginX + getWidth, marginY)
     tokens += offset

@@ -15,12 +15,13 @@ import com.glyph.scala.game.puzzle.controller.PuzzleGameController
 import scala.collection.mutable
 import com.glyph.scala.lib.util.Logging
 import com.glyph.scala.lib.puzzle.Match3
+import com.badlogic.gdx.assets.AssetManager
 
 
 /**
  * @author glyph
  */
-class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating with Reactor with TouchSource with Logging {
+class Match3View(assets:AssetManager,puzzle: Match3) extends WidgetGroup with Scissor with Updating with Reactor with TouchSource with Logging {
 
   import PuzzleGameController._
   import puzzle._
@@ -122,6 +123,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
           override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
             if (!record.isEmpty) {
               visualSwipeLength() = None
+              stopSwipeCheck()
               postAfterSetup {
                 callback(swipeRecord.reverse)
               }
@@ -212,7 +214,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
 
   def createPanelToken(panel: Panel, x: Int, y: Int) {
     //println("create panel token")
-    val p = PanelToken(panel)
+    val p = PanelToken(assets,panel)
     p.setTouchable(Touchable.disabled)
     reactEvent(p.press) {
       // position in the token

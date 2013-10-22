@@ -14,14 +14,15 @@ import com.glyph.scala.game.puzzle.model.Element.{Thunder, Water, Fire}
 import com.glyph.scala.lib.puzzle.Match3
 import Match3.Panel
 import com.glyph.scala.lib.puzzle.Match3
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * @author glyph
  */
-abstract class PanelToken(val panel: Panel)
+abstract class PanelToken(assets:AssetManager,val panel: Panel)
   extends Actor with DrawSprite with
   ExplosionFadeout with TouchSource with Reactor{
-  val sprite: Sprite = new Sprite(TextureUtil.dummy)
+  val sprite: Sprite = new Sprite(TextureUtil.dummy(assets))
 
   import PanelToken._
   val col:Varying[Color] = panel
@@ -45,10 +46,10 @@ abstract class PanelToken(val panel: Panel)
 object PanelToken {
   val pool = new ParticlePool(classOf[SpriteParticle], 1000)
 
-  def apply(panel: Panel): PanelToken = panel match {
-    case m: Monster => new MonsterToken(panel)
-    case w: Weapon => new WeaponToken(w)
-    case _ => new ElementToken(panel)
+  def apply(assets:AssetManager,panel: Panel): PanelToken = panel match {
+    case m: Monster => new MonsterToken(assets,panel)
+    case w: Weapon => new WeaponToken(assets,w)
+    case _ => new ElementToken(assets,panel)
   }
   implicit def json2Str(json:RJSON):Varying[Color] = json.as[String] map {str => Color.valueOf(str getOrElse "ffffff")}
   implicit def panel2Color(p:Panel):Color =panel2VaryingColor(p)()

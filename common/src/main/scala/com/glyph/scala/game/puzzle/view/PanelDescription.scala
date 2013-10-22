@@ -8,17 +8,19 @@ import com.glyph.scala.lib.libgdx.TextureUtil
 import com.glyph.scala.lib.puzzle.Match3
 import Match3.Panel
 import com.glyph.scala.lib.puzzle.Match3
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * @author glyph
  */
-class PanelDescription(panel:Panel) extends Table with OldDrawSprite with TouchSource{
-  val sprite: Sprite = new Sprite(TextureUtil.dummy)
+class PanelDescription(assets:AssetManager,panel:Panel) extends Table with OldDrawSprite with TouchSource{
+  val sprite: Sprite = new Sprite(TextureUtil.dummy(assets))
   setColor(Color.WHITE)
   val text = panel.toString
+  val font = commonFont(assets)
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
-    commonFont.setColor(Color.BLACK)
-    commonFont.draw(batch,""+text,getX,getY+getHeight/2)
+    font.setColor(Color.BLACK)
+    font.draw(batch,""+text,getX,getY+getHeight/2)
   }
 }

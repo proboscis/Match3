@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.{Color, GL20, GL10}
 import com.glyph.scala.lib.util.json.RVJSON
 import scalaz._
 import Scalaz._
+import com.glyph.scala.lib.util.reactive.{Varying, Var}
 
 /**
  * @author glyph
@@ -15,12 +16,9 @@ trait StagedScreen extends Screen {
   def configSrc: RVJSON
 
   val config = configSrc
-  val backgroundColor = Color.WHITE
+  var backgroundColor = Color.WHITE
   val stage = new Stage(STAGE_WIDTH, STAGE_HEIGHT, true)
-
   def STAGE_WIDTH = config().flatMap(_.width.as[Int])|(1080 / 2)
-
-
   def STAGE_HEIGHT = config().flatMap(_.height.as[Int])| (1920f * 15f / 16f / 2f).toInt
 
 

@@ -10,16 +10,17 @@ import com.glyph.scala.lib.util.reactive
 import com.glyph.scala.lib.libgdx.actor.{ReactiveSize, DrawSprite}
 import com.glyph.scala.lib.util.lifting.Clamp
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * @author glyph
  */
-class Gauge(alpha: Varying[Float],vertical:Boolean = false) extends WidgetGroup with ReactiveActor[Float] with ReactiveSize{
+class Gauge(assets:AssetManager,alpha: Varying[Float],vertical:Boolean = false) extends WidgetGroup with ReactiveActor[Float] with ReactiveSize{
   import reactive._
   val visualAlpha = new Var(alpha(),"Gauge:visualAlpha")
   val filling = new Actor with DrawSprite with Reactor {
     actor =>
-    val sprite = new Sprite(TextureUtil.dummy)
+    val sprite = new Sprite(TextureUtil.dummy(assets))
     val zero = math.max(_: Float, 0f)
     reactVar(alpha ~ rWidth ~ rHeight) {
       case a ~ w ~ h =>

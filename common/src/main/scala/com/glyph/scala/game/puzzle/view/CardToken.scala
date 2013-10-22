@@ -16,11 +16,12 @@ import com.glyph.scala.game.puzzle.model.cards.FireCost
 import com.glyph.scala.game.puzzle.model.cards.Fire
 import com.glyph.scala.lib.util.reactive
 import com.glyph.scala.lib.libgdx.TextureUtil
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * @author glyph
  */
-case class CardToken[T](card: Card[T]#PlayableCard, w: Float, h: Float, condition: Varying[Boolean])
+case class CardToken[T](assets:AssetManager,card: Card[T]#PlayableCard, w: Float, h: Float, condition: Varying[Boolean])
   extends WidgetGroup with Layered
   with ExplosionFadeout
   with Reactor {
@@ -40,13 +41,13 @@ case class CardToken[T](card: Card[T]#PlayableCard, w: Float, h: Float, conditio
   }) map {
     pf => src.costs.collect(pf).sum
   } map {
-    cost => new Label(cost + "", skin)
+    cost => new Label(cost + "", skin(assets))
   } foreach {
     label => label.setWrap(true)
       label.setFontScale(0.5f)
       root.add(label).expand.fillX.bottom()
   }
-  val img = new Image(texture)
+  val img = new Image(texture(assets))
   setSize(w, h)
   setOrigin(w / 2, h / 2)
 
@@ -67,7 +68,7 @@ case class CardToken[T](card: Card[T]#PlayableCard, w: Float, h: Float, conditio
   addActor(img)
   addActor(root)
   //root.debug()
-  val glyph = mapping.getOrElse(card.source.getClass.getSimpleName.charAt(0), mapping('?'))
+  val glyph = mapping.getOrElse(card.source.getClass.getSimpleName.charAt(0), mapping('?'))(assets)
 
   def dispose() {
     reactor.unSubscribe()
@@ -86,17 +87,20 @@ object CardToken {
   //val yggdrasil = new BitmapFont(Gdx.files.internal("font/yggdrasil.fnt"), false)
   val keys = "ABCDEFGHIJKLMNOPQRSTU?@".toCharArray
 
-  def random(): BitmapFontCache = {
-    mapping(keys(MathUtils.random(keys.length - 1)))
+  def random(assets:AssetManager): BitmapFontCache = {
+    mapping(keys(MathUtils.random(keys.length - 1)))(assets)
   }
 
   val mapping = Map(keys map {
     k =>
-      val cache = new BitmapFontCache(yggdrasilFont)
-      cache.setText("" + k, 0f, 0f)
-      k -> cache
+      val f =(assets:AssetManager)=>{
+        val cache = new BitmapFontCache(yggdrasilFont(assets))
+        cache.setText("" + k, 0f, 0f)
+        cache
+      }
+      k -> f
   }: _*)
 
-  def texture = TextureUtil.dummy
+  def texture(assets:AssetManager) = TextureUtil.dummy(assets)
 }
 

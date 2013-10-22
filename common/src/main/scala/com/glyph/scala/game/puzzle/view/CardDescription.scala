@@ -1,30 +1,29 @@
 package com.glyph.scala.game.puzzle.view
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.glyph.scala.lib.libgdx.actor.{TouchSource, OldDrawSprite, FuncTouchable}
+import com.glyph.scala.lib.libgdx.actor.OldDrawSprite
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
-import com.glyph.java.asset.AM
-import com.badlogic.gdx.graphics.{Color, Texture}
-import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.game.puzzle.model.cards.Card
-import match3.PanelToken
-import com.glyph.scala.ScalaGame
 import com.glyph.scala.lib.util.reactive.Reactor
 import com.glyph.scala.lib.libgdx.TextureUtil
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * カードの説明を表示しまっせ
  * @author glyph
  */
-abstract class BaseCardDescription(card:Card[_]) extends Table with OldDrawSprite  with Reactor{
-  val sprite: Sprite = new Sprite(TextureUtil.dummy)
+abstract class BaseCardDescription(assets:AssetManager,card: Card[_]) extends Table with OldDrawSprite with Reactor {
+  val sprite: Sprite = new Sprite(TextureUtil.dummy(assets))
   debug()
   setColor(Color.WHITE)
   val text = card.getClass.getSimpleName
+  val font = commonFont(assets)
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
-    commonFont.setColor(Color.BLACK)
-    commonFont.draw(batch,text,getX,getY+getHeight/2)
+    font.setColor(Color.BLACK)
+    font.draw(batch, text, getX, getY + getHeight / 2)
   }
 }
-case class CardDescription(card: Card[_]) extends BaseCardDescription(card)
+
+case class CardDescription(assets:AssetManager,card: Card[_]) extends BaseCardDescription(assets,card)

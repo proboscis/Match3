@@ -2,15 +2,12 @@ package testing
 
 import com.glyph.scala.lib.libgdx.game.ScreenGame
 import com.glyph.scala.lib.libgdx.screen.TabledScreen
-import com.glyph.scala.ScalaGame
 import com.badlogic.gdx.graphics.Texture
-import com.glyph.scala.game.puzzle.view.CardToken
-import com.glyph.scala.lib.util.observer.Observing
 import com.badlogic.gdx.scenes.scene2d.{Touchable, InputEvent, InputListener}
 import com.glyph.scala.game.puzzle.model.cards.Charge
 import com.glyph.scala.lib.util.reactive.{Var, Reactor}
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
-import com.glyph.scala.lib.util.json.{RVJSON, RJSON}
+import com.glyph.scala.lib.util.json.RVJSON
 
 
 /**

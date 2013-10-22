@@ -8,11 +8,12 @@ import reactive._
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.util.updatable.reactive.Easing
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * @author glyph
  */
-class StatusView(game: Game, deck: PlayableDeck[_]) extends Table with Reactor with Tasking {
+class StatusView(assets:AssetManager,game: Game, deck: PlayableDeck[_]) extends Table with Reactor with Tasking {
   debug()
   val visualLife = Easing(this)(game.player.hp)(_ / 100f * 0.7f + 0.3f, 0)(Interpolation.linear) map {
     _.toInt
@@ -37,7 +38,7 @@ class StatusView(game: Game, deck: PlayableDeck[_]) extends Table with Reactor w
         case a ~ b => a + "/" + b
       })) ::
       ("discardText" -> discardText) ::
-      ("skin" -> skin) ::
+      ("skin" -> skin(assets)) ::
       ("table" -> this) ::
       ("layers" -> new Layered {}) ::
       ("wrapper" -> new Table) :: Nil)

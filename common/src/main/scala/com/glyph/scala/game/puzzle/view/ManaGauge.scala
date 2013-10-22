@@ -10,14 +10,15 @@ import com.glyph.scala.lib.libgdx.actor.{Layered, ReactiveSize}
 import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.game.puzzle.view.match3.ElementToken
+import com.badlogic.gdx.assets.AssetManager
 
 /**
  * @author glyph
  */
-class ManaGauge(mana: Varying[Int],color:Varying[Color]) extends WidgetGroup with Layered with Reactor{
+class ManaGauge(assets:AssetManager,mana: Varying[Int],color:Varying[Color]) extends WidgetGroup with Layered with Reactor{
 
   val config = RVJSON(GdxFile("js/view/manaGauge.js"))
-  val label = new RLabel(skin, mana.map {
+  val label = new RLabel(skin(assets), mana.map {
     _ + ""
   }) with Reaction[String] {
     def reaction: Action = (for {
