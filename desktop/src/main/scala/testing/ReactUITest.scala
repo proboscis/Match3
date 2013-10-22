@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.{Touchable, InputEvent, InputListener}
 import com.glyph.scala.game.puzzle.model.cards.Charge
 import com.glyph.scala.lib.util.reactive.{Var, Reactor}
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
-import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.util.json.{RVJSON, RJSON}
 
 
 /**
@@ -24,7 +24,7 @@ object ReactUITest extends ScreenGame(am => {
     i += 1
   }
 }, new TabledScreen with Reactor {
-  def configSrc = RJSON(GdxFile("json/gameConfig.json").getString)
+  def configSrc = RVJSON(GdxFile("json/gameConfig.json"))
 
   val deck = Var((1 to 2) map {
     i => new Charge

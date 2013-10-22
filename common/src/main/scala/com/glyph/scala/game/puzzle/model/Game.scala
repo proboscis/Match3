@@ -12,7 +12,5 @@ import com.glyph.scala.lib.puzzle.Match3
 class Game(fileSrc: String => RFile) {
   val player = new Player(fileSrc("json/player.json"))
   val dungeon = new Dungeon
-  val puzzle = new Match3(() => {
-    dungeon.getPanel(player.position())
-  })
+  val puzzle = new Match3
 }

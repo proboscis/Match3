@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.glyph.scala.lib.util.reactive.{EventSource, Var, Reactor}
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Touchable, Actor}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.util.json.{RVJSON, RJSON}
 import scala.language.dynamics
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.libgdx.GdxUtil
@@ -12,7 +12,7 @@ import com.glyph.scala.lib.libgdx.GdxUtil
 /**
  * @author glyph
  */
-class SlideView(config: RJSON = SlideView.config) extends WidgetGroup with Reactor {
+class SlideView(config: RVJSON = SlideView.config) extends WidgetGroup with Reactor {
   type View = Actor
   type Pair = (View, () => Unit)
   type ?[A] = Option[A]
@@ -127,12 +127,14 @@ class SlideView(config: RJSON = SlideView.config) extends WidgetGroup with React
 }
 
 object SlideView {
-  val config = RJSON(Var(
+  import scalaz._
+  import Scalaz._
+  val config = RVJSON(Var(
     """
       |config = {
       |  viewWidth:0.6,
       |  duration:0.3,
       |  interpolation:Packages.com.badlogic.gdx.math.Interpolation.exp10Out
       |}
-    """.stripMargin))
+    """.stripMargin.success))
 }

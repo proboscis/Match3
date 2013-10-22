@@ -23,6 +23,7 @@ PuzzleGameController(val game: Game) extends Reactor with Logging{
   type C = Card[PuzzleGameController]
   type PCard = C#PlayableCard
   import PuzzleGameController._
+  import Match3._
 
   /**
    * ３元の精霊を天使か悪魔に捧げることでカードを発動する。
@@ -48,6 +49,7 @@ PuzzleGameController(val game: Game) extends Reactor with Logging{
   val actionPoint = new OptIntVar
   swipeLength.update(_.map{_+1})
 
+  val seed = ()=>dungeon.getPanel(player.position())
 
   //ゲームのロジックとアニメーションを分けたいんですよね。
   reactVar(player.experience) {
@@ -75,8 +77,10 @@ PuzzleGameController(val game: Game) extends Reactor with Logging{
     }
   }
 
-  def fill(filling:Events = puzzle.createFilling): Animation = {
+  def fill(filling:Events = puzzle.createFilling(seed)): Animation = {
     block => {
+      log("fill")
+      log(filling)
       puzzle.fill(filling)
       fillAnimation(filling){
         () => scan {
@@ -157,6 +161,7 @@ PuzzleGameController(val game: Game) extends Reactor with Logging{
   }
 
   def initialize() {
+    log("initializing game...")
     (1 to 40) foreach {
       _ =>
         deck.addCard(cardSeed().createPlayable(this))
@@ -164,12 +169,13 @@ PuzzleGameController(val game: Game) extends Reactor with Logging{
     (1 to 5) foreach {
       _ => deck.drawCard()
     }
-    fill(puzzle.createNoMatchFilling){
+    fill(puzzle.createNoMatchFilling(seed)){
       () =>
         idle {
           result =>
         }
     }
+    log("initialized")
   }
 
   def idle(f: (Any) => Unit) {

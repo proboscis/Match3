@@ -5,14 +5,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.Color
 import com.glyph.java.asset.AM
 import com.glyph.scala.game.puzzle.view
-import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.util.json.{RVJSON, RJSON}
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 
 /**
  * @author glyph
  */
 class LoadingScreen(onFinish:() => Unit) extends StagedScreen {
-  def configSrc: RJSON = RJSON(GdxFile("json/gameConfig.json").getString)
+  def configSrc: RVJSON = RVJSON(GdxFile("json/gameConfig.json"))
   println("Created LoadingScreen")
   var font = view.commonFont
   //view.commonFont

@@ -1,33 +1,46 @@
 package com.glyph.scala.lib.libgdx.reactive
 
-import com.glyph.scala.lib.util.reactive.{Varying, FileAdapter, RFile}
+import com.glyph.scala.lib.util.reactive.{FileAdapter, RFile}
 import java.io.File
 import com.badlogic.gdx.{Application, Gdx}
+import scalaz._
+import Scalaz._
 
 /**
  * @author glyph
  */
-class GdxFile(filePath:String) extends RFile(GdxFile.open(filePath))
-object GdxFile{
+class GdxFile(filePath: String) extends RFile(GdxFile.open(filePath))
+
+object GdxFile {
   //TODO fix resource not found errors...
-  val debug = false
-  def apply(filePath:String):GdxFile = new GdxFile(filePath)
+  var absResourceDir: Option[String] = None
+
+  def apply(filePath: String): GdxFile = new GdxFile(filePath)
+
   val absolute = {
-    new File("").getAbsolutePath.replace(Gdx.files.getExternalStoragePath, "")
+    //new File("").getAbsolutePath.replace(Gdx.files.getExternalStoragePath, "")
     new File("").getAbsolutePath
   }
+
   def open: (String) => FileAdapter = {
     (path) => new FileAdapter {
-      val handle = Gdx.app.getType match{
-        case Application.ApplicationType.Android =>Gdx.files.internal(path)
-        case _=>Gdx.files.internal(path)//Gdx.files.absolute(dir)
-      }//if(debug)Gdx.files.external(dir) else Gdx.files.internal(path)
+      val handle = Gdx.app.getType match {
+        case Application.ApplicationType.Android => Gdx.files.internal(path)
+        case _ => if (RFile.fileChecker.isDefined) Gdx.files.absolute(dir) else Gdx.files.internal(path)
+      }
+
+      //if(debug)Gdx.files.external(dir) else Gdx.files.internal(path)
       def name: String = handle.name()
-      def dir = absolute + "/" + path
-      println("GdxFilePath:"+dir)
+
+      def dir = (absResourceDir | absolute) + "/" + path
+
+      println("GdxFilePath:" + dir)
+
       def lastModified: Long = handle.lastModified()
+
       import util.control.Exception._
-      def readString = allCatch either handle.readString
+
+      def readString = allCatch.either(handle.readString) fold (_.failNel,_.success)
     }
   }
 }

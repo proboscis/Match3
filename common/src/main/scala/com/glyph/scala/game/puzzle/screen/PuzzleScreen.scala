@@ -8,13 +8,13 @@ import com.glyph.scala.lib.libgdx.actor.Scissor
 import com.badlogic.gdx.graphics.{Color, FPSLogger}
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.game.puzzle.view.PuzzleGameView
-import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.util.json.{RVJSON, RJSON}
 
 /**
  * @author glyph
  */
 class PuzzleScreen extends TabledScreen {
-  def configSrc = RJSON(GdxFile("json/gameConfig.json").getString)
+  def configSrc = RVJSON(GdxFile("json/gameConfig.json"))
   //TODO ControllerはViewのイベントをModelに渡すためのもの。
   //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。
   override val backgroundColor: Color = Color.DARK_GRAY

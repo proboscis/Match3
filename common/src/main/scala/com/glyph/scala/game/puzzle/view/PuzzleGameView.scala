@@ -1,13 +1,13 @@
 package com.glyph.scala.game.puzzle.view
 
-import com.badlogic.gdx.scenes.scene2d.ui.{Label, Image, WidgetGroup, Table}
+import com.badlogic.gdx.scenes.scene2d.ui.{Image, WidgetGroup, Table}
 import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
 import com.glyph.scala.lib.libgdx.actor.{ReactiveSize, TouchSource, Layered}
 import com.glyph.scala.game.puzzle.controller.{IdleEvent, Swiped, UseCard, PuzzleGameController}
 import com.glyph.scala.lib.util.{Logging, reactive}
 import reactive._
 import com.glyph.scala.lib.libgdx.actor.ui.{Reaction, RLabel, Gauge, SlideView}
-import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.{Texture, Color}
@@ -15,7 +15,7 @@ import com.badlogic.gdx.math.{MathUtils, Rectangle, Vector2, Interpolation}
 import com.glyph.scala.lib.libgdx.{GdxUtil, TextureUtil}
 import com.badlogic.gdx.scenes.scene2d.{Action, Touchable}
 import com.glyph.scala.lib.util.rhino.Rhino
-import com.glyph.scala.game.puzzle.view.match3.{ColorTheme, ElementToken, Match3View}
+import com.glyph.scala.game.puzzle.view.match3.{ColorTheme, Match3View}
 import com.glyph.scala.lib.libgdx.actor.action.{MyActions, Oscillator}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -25,7 +25,7 @@ import com.glyph.scala.game.puzzle.model.match_puzzle.Life
 import com.glyph.scala.game.puzzle.model.monsters.Monster
 import com.glyph.scala.lib.libgdx.particle.Emission
 import com.glyph.java.particle.{SpriteParticle, ParticlePool}
-import com.glyph.scala.game.puzzle.model.cards.{Card, PuzzleCard}
+import com.glyph.scala.game.puzzle.model.cards.Card
 
 /**
  * ここでcontrollerを渡したことが間違いだった!
@@ -33,14 +33,15 @@ import com.glyph.scala.game.puzzle.model.cards.{Card, PuzzleCard}
  */
 class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], size: (Int, Int)) extends Table with TouchSource with Reactor with Logging {
 
+
   import PuzzleGameController._
 
   /**
    * 面白さを煮詰めたミニゲームの予定ではなかったのか！？
    * ということで、そうする。
    *
-   * カードゲームを一人で行うには、ルールが必要となる。
-   * カードだけで操作を行う点を考慮しPuaaaaなければ。RPG的な世界観は別にどうでもいい。
+   * カードゲームを一人で行うには、ルールが必要となる
+   * カードだけで操作を行う点を考慮しなければ。RPG的な世界観は別にどうでもいい。
    * インフレエンドレスか？１ゲーム制か？
    * 意外と、カードでコンボし続ける状況は悪くない。
    * カードでコンボした後、さらに考えて行動しなければならない点が良くない！
@@ -62,8 +63,8 @@ class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], s
   val headerView = new HeaderView(game) with ReactiveSize
   val puzzleView = new Match3View(game.puzzle)
   val puzzleGroup = new WidgetGroup with Layered
-  val slideView = new SlideView(RJSON(GdxFile("js/view/slideView.js").getString))
-  val config = RJSON(GdxFile("js/view/manaGauge.js").getString)
+  val slideView = new SlideView(RVJSON(GdxFile("js/view/slideView.js")))
+  val config = RVJSON(GdxFile("js/view/manaGauge.js"))
 
   val swipeLength = new Table() {
     add(new RLabel(skin, puzzleView.visualSwipeLength.map {
@@ -71,8 +72,9 @@ class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], s
       case None => "*"
     }) with Reaction[String] {
       def reaction: Action = (for {
-        height <- config().height.as[Float]
-        duration <- config().duration.as[Float]
+        conf <- config()
+        height <- conf.height.as[Float]
+        duration <- conf.duration.as[Float]
       } yield {
         MyActions.jump(height, duration)
       }) getOrElse MyActions.NullAction
@@ -85,16 +87,17 @@ class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], s
   val waterGauge = new ManaGauge(game.player.waterMana, ET.water) with ReactiveSize
   val thunderGauge = new ManaGauge(game.player.thunderMana, ET.thunder) with ReactiveSize
 
-  val colors = RJSON(GdxFile("js/view/panelView.js").getString)
+  val colors = RVJSON(GdxFile("js/view/panelView.js"))
 
   implicit def strToColor(hex: String): Color = Color.valueOf(hex)
 
   reactVar(colors) {
     scheme => for {
-      fire <- scheme.fire.as[String]
-      water <- scheme.water.as[String]
-      thunder <- scheme.thunder.as[String]
-      life <- scheme.life.as[String]
+      schm <- scheme
+      fire <- schm.fire.as[String]
+      water <- schm.water.as[String]
+      thunder <- schm.thunder.as[String]
+      life <- schm.life.as[String]
     } {
       fireGauge.setColor(fire)
       waterGauge.setColor(water)
@@ -105,7 +108,9 @@ class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], s
 
   log("PuzzleGameView:w,h=>" + getWidth + "," + getHeight)
 
-  val setup = Rhino(GdxFile("js/view/gameView.js").getString, Map(
+  val setup = Rhino(GdxFile("js/view/gameView.js").map {
+    _ | ""
+  }, Map(
     "self" -> this,
     "root" -> root,
     "table" -> table,
@@ -122,7 +127,11 @@ class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], s
     "VIRTUAL_WIDTH" -> getWidth,
     "VIRTUAL_HEIGHT" -> getHeight)
   ).asFunction
-  reactSome(setup)(_())
+  reactVar(setup) {
+    _.foreach {
+      _()
+    }
+  }
   //logic for gameover... this should not be here.
   once((game.player.hp ~ lifeGauge.visualAlpha).toEvents.filter {
     case hp ~ a => hp <= 0 && a <= 0
@@ -196,17 +205,18 @@ class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], s
     slideView.slideOut()
   }
 
-  val dmgEffect = RJSON(GdxFile("js/effect/dmgEffect.js").getString)
+  val dmgEffect = RVJSON(GdxFile("js/effect/dmgEffect.js"))
   val damageAnimation: DamageAnimation = {
     monsters => {
       callback => {
         for {
-          a <- dmgEffect().alpha.as[Float]
-          col <- dmgEffect().color.as[Color]
-          inD <- dmgEffect().in.duration.as[Float]
-          outD <- dmgEffect().out.duration.as[Float]
-          inI <- dmgEffect().in.interpolation.as[Interpolation]
-          outI <- dmgEffect().out.interpolation.as[Interpolation]
+          de <- dmgEffect()
+          a <- de.alpha.as[Float]
+          col <- de.color.as[Color]
+          inD <- de.in.duration.as[Float]
+          outD <- de.out.duration.as[Float]
+          inI <- de.in.interpolation.as[Interpolation]
+          outI <- de.out.interpolation.as[Interpolation]
         } {
           val oscillator = new Oscillator(0, 5, 10)
           oscillator.setDuration(0.4f)
@@ -228,19 +238,19 @@ class PuzzleGameView(val game: Game, deck: PlayableDeck[PuzzleGameController], s
     }
   }
   val pool = new ParticlePool(classOf[SpriteParticle], 1000)
-  val expEffect = RJSON(GdxFile("js/effect/expParticle.js").getString)
+  val expEffect = RVJSON(GdxFile("js/effect/expParticle.js"))
   lazy val region: TextureRegion = new TextureRegion(AM.instance().get("data/particle.png", classOf[Texture]))
   reactEvent(puzzleView.tokenExplosion) {
     token =>
       for {
-        speed <- expEffect().speed.as[Float]
-        alpha <- expEffect().alpha.as[Float]
-        power <- expEffect().power.as[Float]
-        duration <- expEffect().duration.as[Float]
-        minN <- expEffect().minNumber.as[Int]
-        maxN <- expEffect().maxNumber.as[Int]
-        minSize <- expEffect().minSize.as[Int]
-        maxSize <- expEffect().maxSize.as[Int]
+        speed <- expEffect.speed.as[Float].current
+        alpha <- expEffect.alpha.as[Float].current
+        power <- expEffect.power.as[Float].current
+        duration <- expEffect.duration.as[Float].current
+        minN <- expEffect.minNumber.as[Int].current
+        maxN <- expEffect.maxNumber.as[Int].current
+        minSize <- expEffect.minSize.as[Int].current
+        maxSize <- expEffect.maxSize.as[Int].current
       } {
         val view = token.panel match {
           case t: Thunder => thunderGauge

@@ -3,83 +3,94 @@ package com.glyph.scala.lib.util.reactive
 import java.io.File
 import ref.WeakReference
 import io.Source
-
+import scalaz._
+import Scalaz._
 trait FileAdapter {
-  def name:String
-  def readString: Either[Throwable,String]
+  def name: String
+
+  def readString: ValidationNel[Throwable,String]
+
   def lastModified: Long
 }
+
 /**
  * reads file and update if necessary
  * @author glyph
  */
-class RFile(val adapter: FileAdapter) extends Varying[Either[Throwable,String]] {
-
+class RFile(val adapter: FileAdapter) extends Varying[ValidationNel[Throwable, String]] {
+  //TODO this class may not be releasing the file string after used...
   def this(filePath: String) = {
     this(new FileAdapter {
+
       import util.control.Exception._
+
       val file = new File(filePath)
+
       def name: String = file.getName
+
       def lastModified = file.lastModified()
-      def readString = allCatch either {
+
+      def readString = allCatch.either {
         Source.fromFile(file).getLines().reduceOption {
-            _ + "\n" + _
-          }.getOrElse("")
-        }
+          _ + "\n" + _
+        }.getOrElse("")
+      } fold (_.failNel,_.success)
     })
   }
-  var _string: Either[Throwable,String] = null
 
-  def string_=(str: Either[Throwable,String]) {
-    if (RFile.DEBUG)println("load RFile:\n"+adapter.name)
+  var _string: ValidationNel[Throwable, String] = null
+
+  def string_=(str: ValidationNel[Throwable, String]) {
+    println("load RFile:\n" + adapter.name)
     _string = str
     //println("inDone:"+str)
     notifyObservers(string)
   }
+
   //this is ok.
   string = adapter.readString
 
   def string = _string
 
-  def current: Either[Throwable,String] = string
-
-  /**
-   *
-   * @return empty String if failed to load
-   */
-  def getString:Varying[String] = map{_.fold(err =>{err.printStackTrace();""},identity)}
+  def current: ValidationNel[Throwable, String] = _string
 
   RFile.register(this)
+
 }
 
 
-
-object RFile {
-  val DEBUG = false
-  val POLL_INTERVAL = 1000
+object RFile extends Reactor{
   var watchingFiles: List[(WeakReference[RFile], Long)] = Nil
-  println("FileChecker enabled. polling interval:" + POLL_INTERVAL)
-  new Thread(new Runnable {
-    def run() {
-      while (true) {
-        Thread.sleep(POLL_INTERVAL)
-        //println("RFile=>file check")
-        watchingFiles.synchronized {
-          watchingFiles = watchingFiles.collect {
-            case (weak@WeakReference(file), lastModified) => {
-              val handle = file.adapter
-              //println(handle.file().lastModified())
-              //println(file,handle.lastModified())
-              if (handle.lastModified != lastModified) {
-                file.string = handle.readString
+  var fileChecker: Option[Thread] = None
+  def enableChecking(interval:Long) {
+    fileChecker = (fileChecker | {
+      val t = new Thread(new Runnable {
+        def run() {
+          while (true) {
+            Thread.sleep(interval)
+            //println("RFile=>file check")
+            watchingFiles.synchronized {
+              watchingFiles = watchingFiles.collect {
+                case (weak@WeakReference(file), lastModified) => {
+                  val handle = file.adapter
+                  //println(handle.file().lastModified())
+                  //println(file,handle.lastModified())
+                  if (handle.lastModified != lastModified) {
+                    file.string = handle.readString
+                  }
+                  (weak, handle.lastModified)
+                }
               }
-              (weak, handle.lastModified)
             }
           }
         }
-      }
-    }
-  }).start()
+      })
+      println("FileChecker enabled. polling interval:" + interval)
+      t.start();
+      t
+    }).some
+  }
+
   def register(file: RFile) {
     //TODO register with weak references
     watchingFiles.synchronized {

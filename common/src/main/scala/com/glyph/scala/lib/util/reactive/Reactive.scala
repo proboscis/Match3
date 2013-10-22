@@ -8,6 +8,7 @@ import ref.WeakReference
  * @author glyph
  */
 trait Reactive[T] {
+  //TODO observerやリスト、コールバックの処理を最適化する
   import Reactive._
   private var observers: List[WeakReference[T => Unit]] = Nil
   private var removeQueue: List[T => Unit] = Nil

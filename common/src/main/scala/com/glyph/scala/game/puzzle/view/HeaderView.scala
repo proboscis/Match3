@@ -14,7 +14,7 @@ import com.glyph.scala.lib.libgdx.actor.action.MyActions
  */
 class HeaderView(game: Game) extends Table {
   //TODO　リセット時に配置がずれる問題の解決
-  val script = new RJS[Any](new GdxFile("js/view/headerView.js").getString,
+  val script = new RJS[Any](new GdxFile("js/view/headerView.js"),
     ("table" -> this) ::
       ("root" -> new WidgetGroup with Layered) ::
       ("levelLabel" -> new RLabel(skin, game.player.position map {

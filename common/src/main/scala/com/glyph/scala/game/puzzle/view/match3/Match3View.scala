@@ -228,7 +228,7 @@ class Match3View(puzzle: Match3) extends WidgetGroup with Scissor with Updating 
     //拡大原点の設定
     p.setOrigin(p.getWidth / 2, p.getHeight / 2)
     //列の上部に初期配置する。
-    p.setPosition(calcPanelX(x), calcPanelY(puzzle.ROW - puzzle.rawPanels(x).size + puzzle.ROW))
+    p.setPosition(calcPanelX(x), calcPanelY(puzzle.ROW - puzzle.panels()(x).size + puzzle.ROW))
     tokens += p
     GdxUtil.post {
       //追加処理はrenderスレッド前で

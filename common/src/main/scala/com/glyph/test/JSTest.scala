@@ -2,7 +2,7 @@ package com.glyph.test
 
 import com.glyph.scala.lib.util.DebugUtil
 import com.glyph.scala.lib.util.reactive.{Reactor, RFile}
-import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.util.json.{RVJSON, RJSON}
 
 /**
  * @author glyph
@@ -35,11 +35,11 @@ object JSTest extends Reactor {
       def getClassName: String = "A"
     }
     */
-    val rjson = RJSON(script.getString)
+    val rjson = RVJSON(script)
     reactVar(rjson) {
       json => for {
-        first <- json.first.as[String]
-        last <- json.last.as[String]
+        first <- json.flatMap{_.first.as[String]}
+        last <- json.flatMap{_.last.as[String]}
       } {
         println(first + "," + last)
       }
