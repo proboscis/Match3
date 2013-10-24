@@ -7,15 +7,11 @@ import lib.libgdx.screen.LoadingScreen
 import lib.util.MemoryAnalyzer
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.glyph.scala.lib.libgdx.game.ScreenBuilderSupport
-
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 /**
  * @author glyph
  */
 class DebugGame extends Game with ScreenBuilderSupport{
-
-
-
-
   override def create() {
     super.create()
     Gdx.app.log("DebugGame", "CreatedDebugGame")
@@ -78,11 +74,5 @@ class DebugGame extends Game with ScreenBuilderSupport{
       }
     }).start()
     */
-  }
-
-  override def render() {
-    Gdx.gl.glClearColor(0, 0, 0, 0)
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT)
-    super.render()
   }
 }

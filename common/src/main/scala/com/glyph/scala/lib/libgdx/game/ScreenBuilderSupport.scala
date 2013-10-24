@@ -7,14 +7,25 @@ import com.glyph.scala.lib.libgdx.screen.{LoadingScreen, ScreenBuilder}
  */
 trait ScreenBuilderSupport extends ReloadOnPause {
   def setBuilder(builder: ScreenBuilder) {
+    //if all resources are ready
     if (builder.requiredAssets forall {
-      case (fileName, clazz) => assetManager.isLoaded(fileName, clazz)
+      case (clazz, fileNames) => fileNames forall {
+        assetManager.isLoaded(_, clazz)
+      }
     }) {
+      //set screen immediately
       setScreen(builder.create(assetManager))
     } else {
+      // enqueue resources and set loading screen
+      builder.requiredAssets foreach {
+        case (clazz, fileNames) => fileNames foreach {
+          assetManager.load(_, clazz)
+        }
+      }
       setScreen(new LoadingScreen(() => {
         setScreen(builder.create(assetManager))
       }, assetManager))
     }
   }
 }
+

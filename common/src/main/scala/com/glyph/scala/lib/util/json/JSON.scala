@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.util.json
 
 import scala.language.dynamics
-import org.mozilla.javascript.{ScriptableObject, Context, NativeObject}
+import org.mozilla.javascript.{NativeArray, ScriptableObject, Context, NativeObject}
 import com.glyph.scala.lib.util.reactive.{Reactor, Varying}
 import com.glyph.scala.lib.util.rhino.Rhino
 import util.control.Exception._
@@ -10,6 +10,7 @@ import scalaz._
 import Scalaz._
 import RJSON.VNET
 import RJSON.VNETJ
+import java.util.Map.Entry
 
 /**
  * @author glyph
@@ -29,6 +30,32 @@ class JSON(o: Either[Throwable, Object], scope: ScriptableObject) extends Dynami
     }, scope)
   }
 
+  def asMap: VNET[Map[String, JSON]] = o.right.flatMap {
+    t => allCatch.either {
+      t.asInstanceOf[NativeObject].entrySet().toArray(Array[Entry[Object, Object]]()).foldLeft(Map[String, JSON]()) {
+        case (map, set) =>
+          map + (set.getKey.asInstanceOf[String] -> new JSON(Right[Throwable, Object](set.getValue), scope))
+      }
+    }
+  }.fold(_.failNel, _.success)
+
+  def toArray[T: ClassTag]: VNET[Array[T]] = o.right.flatMap {
+    t => allCatch.either {
+
+      val classT = implicitly[ClassTag[T]].runtimeClass
+      val ids = t.asInstanceOf[NativeArray].toArray
+      val l = ids.length
+      var i = 0
+      val ary = new Array[T](ids.length)
+      while (i < l) {
+        println("ids =>" + ids(i) + ":" + ids(i).getClass.getCanonicalName)
+        println("classT => " + classT)
+        ary(i) = classT.cast(ids(i)).asInstanceOf[T]
+        i += 1
+      }
+      ary
+    }
+  }.fold(_.failNel, _.success)
 
   def asFunction: VNET[JSFunction] = o.right.flatMap {
     t => allCatch either {
@@ -101,7 +128,8 @@ class RVJSON(o: Varying[VNETJ]) extends Varying[Option[JSON]] with Dynamic with 
   var variable: Option[JSON] = null
 
   implicit def vnel2opt[T](vnel: VNET[T]): Option[T] = vnel.fold(nel => {
-    nel.foreach(_.printStackTrace()); none
+    nel.foreach(_.printStackTrace());
+    none
   }, _.some)
 
   reactVar(o) {
@@ -129,6 +157,7 @@ class RVJSON(o: Varying[VNETJ]) extends Varying[Option[JSON]] with Dynamic with 
     case n: Int => apply(name)(n)
     case u: Unit => apply(name)
   }
+
   /*
     def as[T: ClassTag]: Varying[VNET[T]] = o.map {
       _.flatMap(_.as[T])
