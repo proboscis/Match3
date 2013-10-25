@@ -9,8 +9,6 @@ object Settings {
     version := "0.1",
     scalaVersion := "2.10.3-RC2",
     {
-      //libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.10.1"
-      //libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.10.3-RC2"
       libraryDependencies ++=  Seq(
         "com.github.scopt" %% "scopt" % "3.1.0",  
         "org.scalaz" %% "scalaz-core" % "7.0.4",
@@ -177,11 +175,13 @@ object Settings {
 }
 
 object LibgdxBuild extends Build {
+  val jerkson = RootProject(uri("https://github.com/randhindi/jerkson.git"))
+
   val common = Project (
     "common",
     file("common"),
     settings = Settings.common
-  )
+  ) dependsOn jerkson
 
   lazy val desktop = Project (
     "desktop",
