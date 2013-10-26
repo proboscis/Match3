@@ -7,11 +7,20 @@ import com.glyph.scala.lib.util.reactive.RFile
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import scalaz._
 import Scalaz._
-import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
+import com.glyph.scala.lib.libgdx.screen.{ScreenConfig, ScreenBuilder}
 import com.glyph.scala.lib.libgdx.game.ScreenTester
+import com.glyph.scala.game.action_puzzle.ActionPuzzle
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.glyph.scala.game.action_puzzle.screen.ActionScreen
 
 object Main {
-
+  val actionScreenConfig = ScreenConfig(classOf[ActionScreen],Map(classOf[Texture]->Array(
+    "data/dummy.png",
+    "data/particle.png",
+    "data/sword.png"),
+    classOf[Skin]->Array("skin/default.json")))
+  println(actionScreenConfig)
   //TODO どうやってスクリーンを決定するかね
   case class Config(screenFile: String = "screens/action.js", resDir: File = new File(""), fileCheck: Boolean = false, packTexture: Boolean = false)
 
@@ -51,7 +60,7 @@ object Main {
           println("specified resource directory:" + resDir + "=>" + result)
           result.some
         }
-        val builder = ScreenBuilder.createBuilder(resDir.getAbsolutePath+"/"+screenFileName)
+        val builder = ScreenBuilder.createFromJson(resDir.getAbsolutePath+"/"+screenFileName)
         builder match {
           case Success(b) =>{
             if (fileCheck) RFile.enableChecking(1000)

@@ -7,6 +7,8 @@ import scalaz._
 import scala.util.control.Exception._
 import scala.io.Source
 import com.badlogic.gdx.Screen
+import com.codahale.jerkson.Json._
+import com.glyph.scala.lib.libgdx.screen.ScreenConfig
 
 /**
  * @author glyph
@@ -18,18 +20,11 @@ trait ScreenBuilder {
 
   def create(assetManager: AssetManager): Screen
 }
-
+case class ScreenConfig(screenClass: Class[_], assets: Map[Class[_], Array[String]])
 object ScreenBuilder {
   type Vnelt[T] = ValidationNel[Throwable, T]
 
   def createBuilder(filePath: String): Vnelt[ScreenBuilder] = {
-    /*
-    for {
-      json <- (filePath |> readFile).map(src => JSON(src))
-      map <- json |> json2Resources
-      className <- json.screenClass.asVnel[String]}{
-      println("className:"+className)
-    }*/
     for {
       json <- (filePath |> readFile).map(src => JSON(src))
       className <- json.screenClass.asVnel[String]
@@ -42,6 +37,26 @@ object ScreenBuilder {
       def create(assetManager: AssetManager): Screen = constructor(assetManager)
     }
   }
+
+  import com.codahale.jerkson.Json._
+
+  def createFromJson(filePath: String): Vnelt[ScreenBuilder] = readFile(filePath).flatMap {
+    jsonString => allCatch.either {
+      println(jsonString)
+      parse[ScreenConfig](jsonString)
+    } |> eitherToVnelt flatMap {
+      case ScreenConfig(screenClass, assets) => (for {
+        constructor <- classToConstructor(screenClass)
+      } yield (constructor, assets)) map {
+        case (constructor, assets) => new ScreenBuilder {
+          def create(assetManager: AssetManager): Screen = constructor(assetManager)
+
+          def requiredAssets: Map[Class[_], Array[this.type#FileName]] = assets
+        }
+      }
+    }
+  }
+
 
   private def v2o[T](vnel: Vnelt[T]): Option[T] = vnel.fold(
     errors => {
@@ -66,7 +81,7 @@ object ScreenBuilder {
 
 
   private def strToClass(str: String): Vnelt[Class[_]] = allCatch.either {
-    "strToClass:"+str |> println
+    "strToClass:" + str |> println
     Class.forName(str)
   }
 
@@ -84,5 +99,5 @@ object ScreenBuilder {
     clazz.getConstructor(classOf[AssetManager]).newInstance(am).asInstanceOf[Screen]
   }
 
-  private implicit def eitherToVnelt[T](either: Either[Throwable, T]): Vnelt[T] = either fold(_.failNel, _.success)
+  private implicit def eitherToVnelt[T](either: Either[Throwable, T]): Validation[NonEmptyList[Throwable], T] = either fold(_.failNel, _.success)
 }
