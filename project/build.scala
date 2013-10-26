@@ -14,6 +14,7 @@ object Settings {
         "org.scalaz" %% "scalaz-core" % "7.0.4",
         "org.scalaz" %% "scalaz-effect" % "7.0.4",
         "org.scalaz" %% "scalaz-typelevel" % "7.0.4",
+        "net.liftweb" %% "lift-json" % "2.5",
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test")
 
       //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
@@ -175,13 +176,13 @@ object Settings {
 }
 
 object LibgdxBuild extends Build {
-  val jerkson = RootProject(uri("https://github.com/randhindi/jerkson.git"))
+  //val jerkson = RootProject(uri("https://github.com/randhindi/jerkson.git"))
 
   val common = Project (
     "common",
     file("common"),
     settings = Settings.common
-  ) dependsOn jerkson
+  )// dependsOn jerkson
 
   lazy val desktop = Project (
     "desktop",

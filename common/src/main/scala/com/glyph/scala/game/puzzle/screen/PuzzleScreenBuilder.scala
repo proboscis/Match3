@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.Texture
  */
 class PuzzleScreenBuilder extends ScreenBuilder {
   //I guess this can be written in the json too...
-  def requiredAssets = Map(
+  def requiredAssets = Set(
     classOf[Skin] -> Array("skin/default.json"),
     classOf[Texture] -> Array(
       "data/particle.png",

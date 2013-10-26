@@ -1,103 +1,60 @@
 package com.glyph.scala.lib.libgdx.screen
 
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph.scala.lib.util.json.JSON
 import scalaz.Scalaz._
 import scalaz._
 import scala.util.control.Exception._
 import scala.io.Source
 import com.badlogic.gdx.Screen
-import com.codahale.jerkson.Json._
-import com.glyph.scala.lib.libgdx.screen.ScreenConfig
-
+import net.liftweb.json._
+import net.liftweb.json.Serialization._
+import net.liftweb.json.TypeInfo
+import net.liftweb.json.MappingException
 /**
  * @author glyph
  */
 trait ScreenBuilder {
   type FileName = String
-
-  def requiredAssets: Map[Class[_], Array[FileName]]
-
+  def requiredAssets: Set[(Class[_], Array[FileName])]
   def create(assetManager: AssetManager): Screen
 }
-case class ScreenConfig(screenClass: Class[_], assets: Map[Class[_], Array[String]])
+
 object ScreenBuilder {
+  implicit val JsonFormat = Serialization.formats(NoTypeHints) + ClassSerializer
+  case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_], Array[String])])
+  def writeConfig(config: ScreenConfig) = write(config)
   type Vnelt[T] = ValidationNel[Throwable, T]
-
-  def createBuilder(filePath: String): Vnelt[ScreenBuilder] = {
-    for {
-      json <- (filePath |> readFile).map(src => JSON(src))
-      className <- json.screenClass.asVnel[String]
-      screenClass <- className |> strToClass
-      assets <- json.assets |> json2Resources
-      constructor <- screenClass |> classToConstructor
-    } yield new ScreenBuilder {
-      def requiredAssets: Map[Class[_], Array[FileName]] = assets
-
+  def createFromJson(filePath: String): Vnelt[ScreenBuilder] = for {
+    json <- readFile(filePath)
+    config<- jsonToConfig(json)
+    constructor <- classToConstructor(config.screenClass)
+  } yield new ScreenBuilder {
       def create(assetManager: AssetManager): Screen = constructor(assetManager)
+      def requiredAssets = config.assets
     }
+  def jsonToConfig(json:String):Vnelt[ScreenConfig] = allCatch.either{
+    read[ScreenConfig](json)
   }
-
-  import com.codahale.jerkson.Json._
-
-  def createFromJson(filePath: String): Vnelt[ScreenBuilder] = readFile(filePath).flatMap {
-    jsonString => allCatch.either {
-      println(jsonString)
-      parse[ScreenConfig](jsonString)
-    } |> eitherToVnelt flatMap {
-      case ScreenConfig(screenClass, assets) => (for {
-        constructor <- classToConstructor(screenClass)
-      } yield (constructor, assets)) map {
-        case (constructor, assets) => new ScreenBuilder {
-          def create(assetManager: AssetManager): Screen = constructor(assetManager)
-
-          def requiredAssets: Map[Class[_], Array[this.type#FileName]] = assets
-        }
-      }
-    }
-  }
-
-
-  private def v2o[T](vnel: Vnelt[T]): Option[T] = vnel.fold(
-    errors => {
-      for (e <- errors) {
-        e.printStackTrace()
-      }
-      none
-    }, _.some)
-
-  private def json2Resources(json: JSON): Vnelt[Map[Class[_], Array[String]]] = json.asMap.flatMap {
-    map =>
-      def vsjSetToVcsSet(set: Set[(String, JSON)]): Vnelt[Set[(Class[_], Array[String])]] = {
-        set.map {
-          case (str, json) => for (cls <- strToClass(str); ary <- json.toArray[String]) yield (cls, ary)
-        }.foldLeft(Set.empty[(Class[_], Array[String])].successNel[Throwable]) {
-          (vnelList, vnelSet) => for (list <- vnelList; s <- vnelSet) yield list + s
-        }
-      }
-      //.sequence[({type l[a] = ValidationNel[Throwable,a]})#l, (Class[_], Seq[String])].map{_.toSet}
-      map.toSet |> vsjSetToVcsSet map (_.toMap)
-  }
-
-
-  private def strToClass(str: String): Vnelt[Class[_]] = allCatch.either {
-    "strToClass:" + str |> println
-    Class.forName(str)
-  }
-
   private def readFile(path: String): Vnelt[String] = allCatch.either {
     Source.fromFile(path).getLines().mkString("\n")
   }
-
   private def classToConstructor(clazz: Class[_]): Vnelt[AssetManager => Screen] = allCatch.either {
     if (!classOf[Screen].isAssignableFrom(clazz)) throw new RuntimeException("specified class is not a subclass of Screen! : " + clazz.getCanonicalName)
     val constructor = clazz.getConstructor(classOf[AssetManager])
     (am: AssetManager) => constructor.newInstance(am).asInstanceOf[Screen]
   }
-
-  private def classToInstance(am: AssetManager)(clazz: Class[_]): Vnelt[Screen] = allCatch.either {
-    clazz.getConstructor(classOf[AssetManager]).newInstance(am).asInstanceOf[Screen]
+  object ClassSerializer extends Serializer[Class[_]] {
+    private val ClassClass = classOf[Class[_]]
+    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Class[_]] = {
+      case (TypeInfo(ClassClass, _), json) => json match {
+        case JObject(JField("class", JString(className)) :: Nil) => Class.forName(className)
+        case x => throw new MappingException("Can't convert " + x + " to class")
+      }
+    }
+    def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
+      case x: Class[_] =>
+        JObject(JField("class", JString(x.getCanonicalName)) :: Nil)
+    }
   }
-
   private implicit def eitherToVnelt[T](either: Either[Throwable, T]): Validation[NonEmptyList[Throwable], T] = either fold(_.failNel, _.success)
 }

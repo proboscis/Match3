@@ -7,26 +7,25 @@ import com.glyph.scala.lib.util.reactive.RFile
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import scalaz._
 import Scalaz._
-import com.glyph.scala.lib.libgdx.screen.{ScreenConfig, ScreenBuilder}
+import com.glyph.scala.lib.libgdx.screen.{ScreenBuilder}
 import com.glyph.scala.lib.libgdx.game.ScreenTester
-import com.glyph.scala.game.action_puzzle.ActionPuzzle
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.glyph.scala.game.action_puzzle.screen.ActionScreen
+import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.ScreenConfig
 
 object Main {
-  val actionScreenConfig = ScreenConfig(classOf[ActionScreen],Map(classOf[Texture]->Array(
+  val actionScreenConfig = ScreenConfig(classOf[ActionScreen],Set(classOf[Texture]->Array(
     "data/dummy.png",
     "data/particle.png",
     "data/sword.png"),
     classOf[Skin]->Array("skin/default.json")))
-  println(actionScreenConfig)
+  println(ScreenBuilder.writeConfig(actionScreenConfig))
   //TODO どうやってスクリーンを決定するかね
   case class Config(screenFile: String = "screens/action.js", resDir: File = new File(""), fileCheck: Boolean = false, packTexture: Boolean = false)
 
   implicit object ScoptClass extends scopt.Read[Class[_ <: ScreenBuilder]] {
     def arity: Int = 1
-
     def reads: (String) => Class[_ <: ScreenBuilder] = clsName => Class.forName(clsName, false, ClassLoader.getSystemClassLoader).asInstanceOf[Class[_ <: ScreenBuilder]]
   }
 
