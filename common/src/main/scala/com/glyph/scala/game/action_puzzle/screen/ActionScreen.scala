@@ -18,7 +18,7 @@ import com.badlogic.gdx.assets.AssetManager
  */
 class ActionScreen(assets:AssetManager) extends TabledScreen with Reactor{
   val constants = RVJSON(GdxFile("constants/string.js"))
-  val colors = RVJSON(constants.colors.asVnel[String])
+  val colors = RVJSON(GdxFile("constants/colors.js"))//RVJSON(constants.colors.asVnel[String])
   def configSrc = RVJSON(GdxFile("json/gameConfig.json"))
   //TODO ControllerはViewのイベントをModelに渡すためのもの。
   //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。

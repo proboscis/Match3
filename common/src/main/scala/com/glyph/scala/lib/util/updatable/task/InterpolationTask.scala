@@ -23,7 +23,9 @@ trait InterpolationTask extends TimedTask {
 
   def apply(alpha: Float)
 
-  def onStart() {}
+  override def onStart() {
+    super.onStart()
+  }
 
   def onEnd() {}
 

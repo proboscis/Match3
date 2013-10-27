@@ -7,4 +7,6 @@ import com.glyph.scala.lib.util.updatable.Updatable
  */
 trait Task extends Updatable{
   def isCompleted:Boolean
+  def onStart(){}
+  def onFinish(){}
 }

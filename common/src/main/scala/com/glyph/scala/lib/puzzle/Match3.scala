@@ -6,6 +6,7 @@ import scala.annotation.tailrec
 import scalaz._
 import Scalaz._
 import com.glyph.scala.lib.util.Logging
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * generic puzzle!
@@ -13,7 +14,9 @@ import com.glyph.scala.lib.util.Logging
  */
 class Match3(val ROW: Int = 6, val COLUMN: Int = 6) extends Logging {
   type P = Match3.Panel
+
   import Match3._
+
   val panels: Var[IndexedSeq[IndexedSeq[P]]] = Var(Vector(1 to ROW map {
     _ => Vector.empty[P]
   }: _*))
@@ -41,9 +44,9 @@ class Match3(val ROW: Int = 6, val COLUMN: Int = 6) extends Logging {
     }) |> panels().removePanels
   }
 
-  def createFilling(seed:()=>Panel): Events = panels().createFilling(seed, COLUMN)
+  def createFilling(seed: () => Panel): Events = panels().createFilling(seed, COLUMN)
 
-  def createNoMatchFilling(seed:()=>Panel): Events = panels().createNoMatchFilling(seed, ROW)
+  def createNoMatchFilling(seed: () => Panel): Events = panels().createNoMatchFilling(seed, ROW)
 
   def fill(filling: Events) {
     log("fill=>")
@@ -113,6 +116,24 @@ object Match3 {
     def removePanels(panels: Seq[Panel]): Puzzle = puzzle.map {
       column => column.collect {
         case p if !panels.contains(p) => p
+      }
+    }
+
+    /**
+     * @param panels to be removed
+     * @return (leftPanels, floatingPanels)
+     */
+    def remove(panels: Seq[Panel]): (Puzzle, Puzzle) = {
+      val f = (p: Panel) => panels.contains(p)
+      puzzle.unzip {
+        col => col.span {
+          var found = false
+          (panel) => found || {
+            found = !panels.contains(panel); found
+          }
+        } match {
+          case (left,float) => (left filterNot f,float filterNot f)
+        }
       }
     }
 

@@ -4,32 +4,48 @@ import com.glyph.scala.lib.puzzle.Match3._
 import Animation._
 import com.glyph.scala.game.action_puzzle.ActionPuzzle._
 import com.glyph.scala.lib.util.reactive.Var
+import com.glyph.scala.lib.puzzle.Match3
+import scala.math.Ordering.String
 
 /**
  * @author glyph
  */
 class ActionPuzzle {
-  val puzzle = Var(Vector(0 to 5 map Vector.empty[IntPanel] :_*))
-  val setup: Unit ~> Unit = ???
-  val idle: Unit ~> GameResult = ???
-  val chaining: Unit ~> Unit = ???
-  val start: Unit ~> GameResult = setup ~> idle
+  var puzzle:Puzzle = ???
+  def update(dt:Float){}
+  def panelFall(duration:Float,y:Int,p:Panel) = ???
+  def userInput:Unit~>PuzzleInput = ???
+  def idle:Unit~>GameResult = _=>cb=> {
+    userInput(){
+      case Swipe(ax,ay,bx,by) => {
+        puzzle.swap(ax,ay,bx,by)
+        val scanned = puzzle.scanAll.flatten.map{case(p,x,y) =>p}.distinct
+        val (left,floating) = puzzle.remove(scanned)
+
+      }
+    }
+  }
+  class P{
+    val timer = Var(0f)
+  }
 }
 
 object ActionPuzzle {
+  trait PuzzleInput
+  case class Swipe(ax:Int,ay:Int,bx:Int,by:Int) extends PuzzleInput
 
   trait GameResult
-
   object GameOver extends GameResult
-
-  case class IntPanel(n: Int) extends Panel {
+  class IntPanel(val n: Int) extends Panel {
     def matchTo(panel: Panel): Boolean = panel match {
-      case IntPanel(i) => i == n
+      case  ip:IntPanel => ip.n == n
       case _ => false
     }
+
+    override def toString:String = n + ""
   }
 
-  implicit def intToPanel(i: Int): Panel = IntPanel(i)
+  implicit def intToPanel(i: Int): Panel = new IntPanel(i)
 }
 
 object Animation {

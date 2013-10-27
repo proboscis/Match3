@@ -15,11 +15,13 @@ trait SequentialProcessor extends TaskProcessor {
     if (current == null) {
       if (!tasks.isEmpty) {
         current = tasks.dequeue()
+        current.onStart()
       }
     }
     if (current != null) {
       current.update(delta)
       if (current.isCompleted) {
+        current.onFinish()
         current = null
       }
     }
