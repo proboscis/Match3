@@ -1,7 +1,5 @@
 package com.glyph.scala.lib.util.updatable.task
-
 import com.glyph.scala.lib.util.collection.list.DoubleLinkedQueue
-
 
 /**
  * @author glyph
@@ -9,7 +7,6 @@ import com.glyph.scala.lib.util.collection.list.DoubleLinkedQueue
 trait SequentialProcessor extends TaskProcessor {
   val tasks = new DoubleLinkedQueue[Task]()
   var current: Task = null
-
   override def update(delta: Float) {
     super.update(delta)
     if (current == null) {

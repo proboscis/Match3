@@ -141,7 +141,6 @@ class Match3View(assets:AssetManager,puzzle: Match3) extends WidgetGroup with Sc
     swipeListener = None
   }
 
-  //TODO implement this animation.
   val fillAnimation: FillAnimation = {
     events => {
       callback => {

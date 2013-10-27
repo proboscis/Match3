@@ -108,7 +108,7 @@ object Match3 {
     }
 
     def createFilling(seed: () => Panel, size: Int): Events = for (x <- 0 until puzzle.size; y <- puzzle(x).size - 1 until size - 1) yield (seed(), x, y)
-
+    def createFillingPuzzle(seed:()=>Panel,size:Int):Puzzle = for (x <- 0 until puzzle.size)yield for( y <- puzzle(x).size - 1 until size - 1) yield seed()
     def fill(filling: Events): Puzzle = filling.foldLeft(puzzle) {
       case (p, (panel, x, _)) => p.updated(x, p(x) :+ panel)
     }
@@ -209,6 +209,12 @@ object Match3 {
         (puzzle.indexOf(row), row.indexOf(panel))
       }
     }
+    def indexOfPanelUnhandled(panel:Panel):(Int,Int) ={
+      val row = puzzle.filter {
+        _.contains(panel)
+      }.head
+      (puzzle.indexOf(row), row.indexOf(panel))
+    }
 
     /**
      * swaps the give indices of puzzle, and returns new swapped puzzle
@@ -221,6 +227,13 @@ object Match3 {
       val puzzle2 = puzzle1.updated(bx, puzzle1(bx).updated(by, a))
       puzzle2
     }
-  }
 
+    def append(p:Puzzle):Puzzle = puzzle.zipWithIndex.map{
+      case(col,x) => col ++ p(x)
+    }
+  }
+  def calcNextIndices(left:Puzzle)(floatings:Puzzle):Seq[(Panel,(Int,Int))] = {
+    val appended = left append floatings
+    floatings.flatten.map{p => (p,appended.indexOfPanelUnhandled(p))}
+  }
 }
