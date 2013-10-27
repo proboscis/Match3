@@ -24,7 +24,6 @@ class Easing(processor: ParallelProcessor)(private var variable: Float)(duration
   }
 
   class Easier(start: Float, end: Float) extends InterpolationTask {
-    var duration: Float = 0
     def apply(alpha: Float) {
       //println("alpha:"+alpha)
       current = interpolation.apply(start, end, alpha)

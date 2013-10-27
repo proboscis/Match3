@@ -5,8 +5,8 @@ package com.glyph.scala.lib.util.updatable.task
  */
 trait TimedTask extends Task {
   self =>
-  var duration: Float
-  var time = 0f
+  protected var duration: Float = 0f
+  protected var time = 0f
   protected var completed = false
 
   override def update(delta: Float) {
@@ -14,6 +14,11 @@ trait TimedTask extends Task {
       time += delta
       completed = time >= duration
     }
+  }
+
+  def in(d:Float):this.type = {
+    duration = d
+    this
   }
 
   def for_(d: Float):this.type = {

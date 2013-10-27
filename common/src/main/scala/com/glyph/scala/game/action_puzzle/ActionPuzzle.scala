@@ -4,14 +4,20 @@ import com.glyph.scala.lib.puzzle.Match3._
 import Animation._
 import com.glyph.scala.game.action_puzzle.ActionPuzzle._
 import com.glyph.scala.lib.util.reactive.Var
-import com.glyph.scala.lib.puzzle.Match3
-import scala.math.Ordering.String
+import com.glyph.scala.lib.util.updatable.task.ParallelProcessor
+import com.glyph.scala.lib.util.updatable.reactive.Animator
 
 /**
  * @author glyph
  */
 class ActionPuzzle {
+  import Animator._
+  import com.badlogic.gdx.math.Interpolation._
+  val x = Var(0f)
+  val anim = interpolate(x) to 3 in 3 using exp10Out
+
   var puzzle:Puzzle = ???
+  var processor = new ParallelProcessor {}
   def update(dt:Float){}
   def panelFall(duration:Float,y:Int,p:Panel) = ???
   def userInput:Unit~>PuzzleInput = ???

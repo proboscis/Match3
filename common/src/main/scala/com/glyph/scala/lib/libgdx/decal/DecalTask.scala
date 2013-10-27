@@ -12,7 +12,6 @@ trait DecalTask extends Task {
 }
 
 object DecalTask {
-
   trait MoveTo extends DecalInterpolation {
     var start: Vector3 = new Vector3
     var end: Vector3 = new Vector3()
@@ -38,7 +37,6 @@ object DecalTask {
     def apply(d:Decal):MoveTo={
       new MoveTo {
         val decal: Decal = d
-        var duration: Float = 0
       }
     }
   }

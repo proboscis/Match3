@@ -7,27 +7,18 @@ import com.badlogic.gdx.math.Interpolation
  */
 trait InterpolationTask extends TimedTask {
   var interpolation = Interpolation.linear
-
   override def update(delta: Float) {
     if (!completed) {
-      if (time == 0) onStart()
       super.update(delta)
       if (!completed) {
         this.apply(interpolation(time / duration))
       } else {
         this.apply(interpolation(1))
       }
-      if (completed) onEnd()
     }
   }
 
   def apply(alpha: Float)
-
-  override def onStart() {
-    super.onStart()
-  }
-
-  def onEnd() {}
 
   def using(i: Interpolation): this.type = {
     interpolation = i
