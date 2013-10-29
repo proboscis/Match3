@@ -1,13 +1,12 @@
 package com.glyph.scala.game.action_puzzle
 
-import com.glyph.scala.game.action_puzzle.ActionPuzzle._
 import com.glyph.scala.lib.util.updatable.task.{InterpolationTask, Sequence, Do, ParallelProcessor}
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import scalaz._
 import Scalaz._
-import com.glyph.scala.game.action_puzzle.GMatch3.Panel
-import com.glyph.scala.lib.util.updatable.reactive.Animator
 import scala.collection.mutable.ListBuffer
+import GMatch3._
+import ActionPuzzle._
 
 /**
  * @author glyph
@@ -15,7 +14,6 @@ import scala.collection.mutable.ListBuffer
 class ActionPuzzle {
 
   import Animation._
-  import GMatch3._
 
   type APuzzle = Puzzle[APanel]
   val SIZE = 6
@@ -23,7 +21,6 @@ class ActionPuzzle {
   var future: APuzzle = Vector()
   var floatings: APuzzle = Vector()
   val panels = ListBuffer[APanel]()
-
   type Timed[P, R] = (Float => Unit) => (P => R) => Float => Unit
 
   def seed() = MathUtils.random(0, 5) |> (new APanel(_))
@@ -33,6 +30,7 @@ class ActionPuzzle {
       _.update(dt)
     }
   }
+
   def userInput: Unit ~> PuzzleInput = ???
 
   def idle: Unit ~> GameResult = _ => cb => {
@@ -42,7 +40,6 @@ class ActionPuzzle {
         val scanned = statics.scanAll.flatten.map {
           case (p, x, y) => p
         }.distinct
-
         idle()(cb)
       }
     }
@@ -52,17 +49,21 @@ class ActionPuzzle {
     def clearAnimation() = queuedTasks ++ startedTasks foreach removeTask
   }
 
-  val dummy = new TimedAnimation{
+  val dummy = new TimedAnimation {
     def onStart(): Unit = {}
 
     def onFinish(): Unit = {}
 
     def update(alpha: Float): Unit = {}
   }
-  var panelMove:(APanel,Int,Int)=>TimedAnimation = (p,x,y) => dummy
-  def removePanels(removing:Seq[APanel]){
+  var panelAdd: (APanel, Int, Int) => TimedAnimation = (p, x, y) => dummy
+  var panelMove: (APanel, Int, Int) => TimedAnimation = (p, x, y) => dummy
+  var panelRemove: (APanel) => TimedAnimation = (p) => dummy
+
+  def removePanels(removing: Seq[APanel]) {
     //TODO do some explosion before removing tokens..
     panels --= removing
+    removing foreach panelRemove //removingAnimation
     val (left, floats) = statics.remove(removing)
     val nextIndices = calcNextIndices(left)(floats)
     nextIndices foreach {
@@ -71,15 +72,25 @@ class ActionPuzzle {
     statics = left
     floatings = floats append floatings
     future = left append floatings
+  }
 
-  }
-  def fillPanels(){
+  def fillPanels() {
     val filling = future.createFillingPuzzle(seed, SIZE)
-    panels ++= filling.flatten
+    val flat = filling.flatten
+    panels ++= flat
     future = future append filling
-    floatings append filling
-    //TODO update the animation of floatings
+    def tmp(f: (APanel, Int, Int) => TimedAnimation, target: Puzzle[APanel]) {
+      target.flatten.foreach {
+        p =>
+          val (x, y) = future.indexOfPanelUnhandled(p)
+          p.add(new TimedHandler(f(p, x, y), () => {}) in 0.5f)
+      }
+    }
+    tmp(panelAdd, filling)
+    tmp(panelMove, filling)
+    floatings = floatings append filling
   }
+
   //TODO 時間指定のanimationはdurationを1とした関数として定義すれば良い
   def updateFloatingAnimation(floats: Puzzle[APanel] = floatings) {
     import Interpolation._
@@ -89,7 +100,7 @@ class ActionPuzzle {
       for (panel <- col) {
         val (fx, fy) = future.indexOfPanelUnhandled(panel)
         panel.clearAnimation()
-        panel.add(new TimedHandler(panelMove(panel,fx,fy),()=>{
+        panel.add(new TimedHandler(panelMove(panel, fx, fy), () => {
           assert(statics(x).contains(panel))
           statics = statics.updated(x, statics(x) :+ panel)
         }) in y * 0.3f using exp10Out)
@@ -129,7 +140,7 @@ object ActionPuzzle {
     def update(alpha: Float)
   }
 
-  class TimedHandler( timed: TimedAnimation,cb: () => Unit) extends InterpolationTask {
+  class TimedHandler(timed: TimedAnimation, cb: () => Unit) extends InterpolationTask {
     override def onStart(): Unit = {
       super.onStart()
       timed.onStart()
@@ -159,5 +170,4 @@ object Animation {
   }
 
   def concat[P, R, S](fa: P ~> R, fb: R ~> S): P ~> S = paramA => callback => fa(paramA)(fb(_)(callback))
-
 }

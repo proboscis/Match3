@@ -12,6 +12,8 @@ import com.glyph.scala.lib.util.reactive.{Reactor, Varying}
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
+import com.glyph.scala.game.action_puzzle.ActionPuzzle
+import com.glyph.scala.game.action_puzzle.view.ActionPuzzleView
 
 /**
  * @author glyph
@@ -26,28 +28,13 @@ class ActionScreen(assets:AssetManager) extends TabledScreen with Reactor{
     color => backgroundColor = color
   }
 
-  //Model
-  val game = new Game(GdxFile(_))
-  //Controller
-  val gameController = new PuzzleGameController(game)
-  //TODO make View Controller
-  //View
-  val gameView = new PuzzleGameView(assets,game, gameController.deck, (STAGE_WIDTH, STAGE_HEIGHT)) with Scissor
-  //gameView.setSize(STAGE_WIDTH,STAGE_HEIGHT)
+  val puzzle = new ActionPuzzle
+  val view = new ActionPuzzleView(assets,puzzle)
   /*
    init layout
    */
-  root.add(gameView).fill().expand()
+  root.add(view).fill().expand()
   root.invalidate()
   root.layout()
-  /*
-  init game
-   */
-  gameController.destroyAnimation = gameView.puzzleView.destroyAnimation
-  gameController.fillAnimation = gameView.puzzleView.fillAnimation
-  gameController.damageAnimation = gameView.damageAnimation
-  gameController.idleInput = gameView.idleInput
-
-  gameController.initialize()
   val fps = new FPSLogger
 }

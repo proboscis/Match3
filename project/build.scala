@@ -121,7 +121,6 @@ object Settings {
 
       """
     )
-
   val updateLibgdx = TaskKey[Unit]("update-gdx", "Updates libgdx")
 
   val updateLibgdxTask = updateLibgdx <<= streams map { (s: TaskStreams) =>

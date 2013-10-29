@@ -75,7 +75,6 @@ object Main {
           }
           case Failure(errors) =>  errors foreach(_.printStackTrace())
         }
-
       }
     }
   }
