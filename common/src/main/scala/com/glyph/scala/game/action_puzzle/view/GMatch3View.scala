@@ -2,16 +2,19 @@ package com.glyph.scala.game.action_puzzle.view
 
 import com.glyph.scala.game.action_puzzle.GMatch3._
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
-import com.glyph.scala.lib.libgdx.actor.{TouchSource, Updating, Scissor}
 import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.scenes.scene2d._
-import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction
+import com.badlogic.gdx.scenes.scene2d.actions.{Actions, MoveToAction}
 import com.glyph.scala.lib.util.updatable.task._
 import scala.collection.mutable.ListBuffer
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.libgdx.GdxUtil
 import com.badlogic.gdx.math.MathUtils._
 import com.badlogic.gdx.scenes.scene2d.actions.Actions._
+import com.glyph.scala.game.action_puzzle.ActionPuzzle
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Sprite
+import com.glyph.scala.lib.libgdx.actor._
 
 trait Grid extends WidgetGroup {
   val puzzleGroup = new Group with Scissor
@@ -68,7 +71,7 @@ trait Paneled[T <: Actor] extends Grid with Updating {
   val tokens = ListBuffer.empty[T]
 
   def moveTokenToIndex(token: T, x: Int, y: Int, callback: () => Unit = () => {}) {
-    val move = action(classOf[MoveToAction])
+    val move = Actions.action(classOf[MoveToAction])
     move.setPosition(calcPanelX(x), calcPanelY(y))
     move.setDuration(0.5f)
     move.setInterpolation(Interpolation.exp10Out)
@@ -97,10 +100,70 @@ trait Paneled[T <: Actor] extends Grid with Updating {
   }
 }
 
-class GMatch3View[T <: Panel](ROW: Int, COLUMN: Int, panelSeed: T => GMatch3View.PanelToken[T]) extends  Paneled[GMatch3View.PanelToken[T]] with Scissor with Logging{
+class GMatch3View[T <: Panel](ROW: Int, COLUMN: Int, panelSeed: T => GMatch3View.PanelToken[T]) extends Paneled[GMatch3View.PanelToken[T]] with Scissor with Logging {
   def row: Int = ROW
+
   def column: Int = COLUMN
+
+  import ActionPuzzle._
+
+  val panelMove: PanelMove[T] = (p, x, y) => new TA {
+    var startX, startY = 0f
+    var actor: Option[Actor] = None
+    val targetX = calcPanelX(x)
+    val targetY = calcPanelY(y)
+
+    override def onStart() {
+      super.onStart()
+      actor = tokens.find(_.panel == p)
+      for (a <- actor) {
+        startX = a.getX
+        startY = a.getY
+      }
+    }
+
+    def update(alpha: Float) {
+      for (a <- actor) {
+        a.setPosition(startX + alpha * (targetX - startX), startY + alpha * (targetY - startY))
+      }
+    }
+
+    override def onFinish() {
+      super.onFinish()
+      for (a <- actor) {
+        a.setPosition(targetX, targetY)
+      }
+    }
+  }
+
+  val panelAdd: PanelAdd[T] = (p, x, y) => {
+    val token = panelSeed(p)
+    tokens += token
+    token.setPosition(x, ROW + y)
+    panelMove(p, x, y)
+  }
+
+  val panelRemove: PanelRemove[T] = p => {
+    for (token <- tokens.find(_.panel == p)) {
+      tokens -= token
+    }
+    new TA {
+      def update(alpha: Float) {
+        //do nothing...
+      }
+    }
+  }
+
+  trait TA extends TimedAnimation {
+    def onStart() {}
+
+    def onFinish() {}
+  }
+
 }
+
 object GMatch3View {
-  class PanelToken[T](val panel: T) extends TouchSource
+
+  class PanelToken[T](texture: Texture, val panel: T) extends SpriteActor(new Sprite(texture)) with TouchSource with ExplosionFadeout
+
 }

@@ -12,9 +12,7 @@ import ActionPuzzle._
  * @author glyph
  */
 class ActionPuzzle {
-
   import Animation._
-
   type APuzzle = Puzzle[APanel]
   val SIZE = 6
   var statics: APuzzle = Vector(Vector(new APanel(1)))
@@ -40,13 +38,16 @@ class ActionPuzzle {
         val scanned = statics.scanAll.flatten.map {
           case (p, x, y) => p
         }.distinct
+        removePanels(scanned)
+        fillPanels()
         idle()(cb)
       }
     }
   }
 
-  class APanel(i: Int) extends IntPanel(i) with ParallelProcessor {
-    def clearAnimation() = queuedTasks ++ startedTasks foreach removeTask
+  def initialize:Unit~>GameResult= _=>cb=>{
+    fillPanels()
+    idle(cb)
   }
 
   val dummy = new TimedAnimation {
@@ -56,9 +57,10 @@ class ActionPuzzle {
 
     def update(alpha: Float): Unit = {}
   }
-  var panelAdd: (APanel, Int, Int) => TimedAnimation = (p, x, y) => dummy
-  var panelMove: (APanel, Int, Int) => TimedAnimation = (p, x, y) => dummy
-  var panelRemove: (APanel) => TimedAnimation = (p) => dummy
+
+  var panelAdd: PanelAdd[APanel] = (p, x, y) => dummy
+  var panelMove: PanelMove[APanel] = (p, x, y) => dummy
+  var panelRemove: PanelRemove[APanel] = (p) => dummy
 
   def removePanels(removing: Seq[APanel]) {
     //TODO do some explosion before removing tokens..
@@ -112,6 +114,9 @@ class ActionPuzzle {
 }
 
 object ActionPuzzle {
+  type PanelAdd[T<:Panel] = (T, Int, Int) => TimedAnimation
+  type PanelMove[T<:Panel] = (T, Int, Int) => TimedAnimation
+  type PanelRemove[T<:Panel] = (T) => TimedAnimation
 
   trait PuzzleInput
 
@@ -121,6 +126,9 @@ object ActionPuzzle {
 
   object GameOver extends GameResult
 
+  class APanel(i: Int) extends IntPanel(i) with ParallelProcessor {
+    def clearAnimation() = queuedTasks ++ startedTasks foreach removeTask
+  }
   class IntPanel(val n: Int) extends Panel {
     def matchTo(panel: Panel): Boolean = panel match {
       case ip: IntPanel => ip.n == n

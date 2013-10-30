@@ -37,4 +37,11 @@ class ActionScreen(assets:AssetManager) extends TabledScreen with Reactor{
   root.invalidate()
   root.layout()
   val fps = new FPSLogger
+
+  /*
+    start game
+   */
+  puzzle.initialize(){
+    case result => println(result)
+  }
 }

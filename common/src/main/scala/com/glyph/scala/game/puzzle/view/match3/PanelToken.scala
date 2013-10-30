@@ -38,9 +38,6 @@ abstract class PanelToken(assets:AssetManager,val panel: Panel)
     drawSprite(batch, sprite, parentAlpha)
   }
 
-  override def explode(f: => Unit) {
-    super.explode(f)
-  }
 }
 
 object PanelToken {

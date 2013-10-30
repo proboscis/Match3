@@ -1,5 +1,5 @@
 params = {
-    background:"222222",
+   background:"222222",
    fire:"ff8800",
    water:"88e02e",
    //water:"0000ff",

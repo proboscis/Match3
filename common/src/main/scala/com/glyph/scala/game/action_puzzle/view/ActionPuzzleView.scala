@@ -12,5 +12,9 @@ import com.glyph.scala.lib.libgdx.actor.Layered
 class ActionPuzzleView(assets:AssetManager,puzzle:ActionPuzzle) extends WidgetGroup{
   val root = new WidgetGroup with Layered
   val table = new Table
-  val puzzleView = new GMatch3View[ActionPuzzle#APanel](6,6,_=>null)
+  val size = puzzle.SIZE
+  val puzzleView = new GMatch3View[ActionPuzzle.APanel](size,size,_=>null)
+  puzzle.panelAdd = puzzleView.panelAdd
+  puzzle.panelRemove = puzzleView.panelRemove
+  puzzle.panelMove = puzzleView.panelMove
 }
