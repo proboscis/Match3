@@ -12,7 +12,7 @@ import com.glyph.scala.lib.util.reactive.{Reactor, Varying}
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph.scala.game.action_puzzle.ActionPuzzle
+import com.glyph.scala.game.action_puzzle.{GMatch3, ActionPuzzle}
 import com.glyph.scala.game.action_puzzle.view.ActionPuzzleView
 
 /**
@@ -27,9 +27,18 @@ class ActionScreen(assets:AssetManager) extends TabledScreen with Reactor{
   reactVar(colors.background.as[String].map{opt => opt.map(Color.valueOf)|Color.WHITE}){
     color => backgroundColor = color
   }
-
+  import GMatch3._
   val puzzle = new ActionPuzzle
-  val view = new ActionPuzzleView(assets,puzzle)
+  reactVar(puzzle.statics){
+    s => println("statics:"+s.text)
+  }
+  reactVar(puzzle.floatings){
+    s => println("floating:"+s.text)
+  }
+  reactVar(puzzle.future){
+    s => println("future:"+s.text)
+  }
+  val view = new ActionPuzzleView(assets,puzzle,STAGE_WIDTH,STAGE_HEIGHT)
   /*
    init layout
    */
@@ -38,10 +47,16 @@ class ActionScreen(assets:AssetManager) extends TabledScreen with Reactor{
   root.layout()
   val fps = new FPSLogger
 
+
   /*
     start game
    */
   puzzle.initialize(){
     case result => println(result)
+  }
+
+  override def render(delta: Float): Unit = {
+    super.render(delta)
+    puzzle.update(delta)
   }
 }

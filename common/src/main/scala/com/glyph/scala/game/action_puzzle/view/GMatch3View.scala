@@ -139,17 +139,27 @@ class GMatch3View[T <: Panel](ROW: Int, COLUMN: Int, panelSeed: T => GMatch3View
   val panelAdd: PanelAdd[T] = (p, x, y) => {
     val token = panelSeed(p)
     tokens += token
-    token.setPosition(x, ROW + y)
+    addActor(token)
+    token.setPosition(calcPanelX(x), calcPanelY(ROW + y))
+    token.setSize(panelW,panelH)
     panelMove(p, x, y)
   }
 
   val panelRemove: PanelRemove[T] = p => {
-    for (token <- tokens.find(_.panel == p)) {
+    log("create panelRemove Animation")
+    val tokenOpt = tokens.find(_.panel == p)
+    for (token <- tokenOpt) {
       tokens -= token
     }
     new TA {
+      override def onStart(){
+        super.onStart()
+        for(token<-tokenOpt)token.explode{
+          log("explode!")
+          token.remove()
+        }
+      }
       def update(alpha: Float) {
-        //do nothing...
       }
     }
   }
@@ -163,7 +173,7 @@ class GMatch3View[T <: Panel](ROW: Int, COLUMN: Int, panelSeed: T => GMatch3View
 }
 
 object GMatch3View {
-
-  class PanelToken[T](texture: Texture, val panel: T) extends SpriteActor(new Sprite(texture)) with TouchSource with ExplosionFadeout
-
+  trait PanelToken[T<:Panel]extends TouchSource with ExplosionFadeout{
+    def panel:T
+  }
 }

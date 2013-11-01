@@ -83,7 +83,7 @@ trait Reactor {
     }
   }
 
-  protected def clearReaction() {
+  def clearReaction() {
     //println("Reactor:clearReactions:" + this)
     observers foreach {
       _.unSubscribe()
@@ -94,7 +94,7 @@ trait Reactor {
     }*/
   }
 
-  protected def stopReact(r: Reactive[_]) {
+  def stopReact(r: Reactive[_]) {
     for (obs <- observers if obs.reactive eq r) {
       obs.unSubscribe()
     }

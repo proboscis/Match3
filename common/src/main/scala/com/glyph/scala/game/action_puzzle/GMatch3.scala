@@ -38,15 +38,17 @@ object GMatch3 {
       val H = puzzle.head.size
       val panel = puzzle(x)(y)
       var matching = (puzzle(x)(y), x, y) :: Nil
+      //TODO check nonempty
       if (right) {
         var nx = x + 1
-        while (nx < W && panel.matchTo(puzzle(nx)(y))) {
+        while (nx < W &&  y < puzzle(nx).size && panel.matchTo(puzzle(nx)(y))) {
           matching ::=(puzzle(nx)(y), nx, y)
           nx += 1
         }
       } else {
         var ny = y + 1
-        while (ny < H && panel.matchTo(puzzle(x)(ny))) {
+        val size = puzzle(x).size
+        while (ny < H && ny < size && panel.matchTo(puzzle(x)(ny))) {
           matching ::=(puzzle(x)(ny), x, ny)
           ny += 1
         }
@@ -54,9 +56,9 @@ object GMatch3 {
       if (matching.size >= 3) matching else Nil
     }
 
-    def createFilling(seed: () => T, size: Int): Events[T] = for (x <- 0 until puzzle.size; y <- puzzle(x).size - 1 until size - 1) yield (seed(), x, y)
+    def createFilling(seed: () => T, col: Int): Events[T] = for (x <- 0 until puzzle.size; y <- puzzle(x).size until col) yield (seed(), x, y)
 
-    def createFillingPuzzle(seed: () => T, size: Int): Puzzle[T] = for (x <- 0 until puzzle.size) yield for (y <- puzzle(x).size - 1 until size - 1) yield seed()
+    def createFillingPuzzle(seed: () => T,col:Int): Puzzle[T] = for (x <- 0 until puzzle.size) yield for (y <- puzzle(x).size until col) yield seed()
 
     def fill(filling: Events[T]): Puzzle[T] = filling.foldLeft(puzzle) {
       case (p, (panel, x, _)) => p.updated(x, p(x) :+ panel)
@@ -83,11 +85,11 @@ object GMatch3 {
       }
     }
 
-    def createNoMatchFilling(seed: () => T, size: Int): Events[T] = {
+    def createNoMatchFilling(seed: () => T, col: Int): Events[T] = {
       val contains = puzzle.flatten.contains _
       @tailrec
       def fillWithStatics(added: Puzzle[T]): Puzzle[T] =
-        added.createFilling(seed, size) match {
+        added.createFilling(seed,col) match {
           case filling => added.fill(filling) match {
             case filled => filled.scanAll match {
               case matches if matches.flatten.map(_._1).forall(contains) => filled
