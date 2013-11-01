@@ -124,6 +124,11 @@ class ActionPuzzle extends Logging {
     floatings() = floatings() append filling
   }
 
+  def updateAnimation(p:Panel){
+    p.add(new TimedHandler())
+  }
+
+
   //TODO 時間指定のanimationはdurationを1とした関数として定義すれば良い
   def updateFloatingAnimation(floats: Puzzle[APanel] = floatings()) {
     import Interpolation._
