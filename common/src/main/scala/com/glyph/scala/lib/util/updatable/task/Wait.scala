@@ -1,5 +1,7 @@
 package com.glyph.scala.lib.util.updatable.task
 
+import scala.collection.mutable.ListBuffer
+
 /**
  * @author glyph
  */
@@ -22,4 +24,27 @@ object Wait{
   def apply(w:(Wait)=>Unit):Wait={
     new Wait(w)
   }
+}
+class WaitAll(waiting:Task*) extends Task{
+  val tasks = ListBuffer(waiting:_*)
+  override def onStart(){
+    super.onStart()
+    waiting foreach{_.onStart()}
+  }
+  def isCompleted: Boolean = waiting forall(_.isCompleted)
+  override def update(delta: Float){
+    super.update(delta)
+    for(task <- tasks){
+      if(!task.isCompleted){
+        task.update(delta)
+      }else{
+        tasks -= task
+        task.onFinish()
+      }
+    }
+  }
+}
+
+object WaitAll{
+  def apply(tasks:Task*) = new WaitAll(tasks:_*)
 }

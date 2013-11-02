@@ -12,11 +12,10 @@ import com.glyph.scala.lib.libgdx.GdxUtil
 import com.badlogic.gdx.math.MathUtils._
 import com.badlogic.gdx.scenes.scene2d.actions.Actions._
 import com.glyph.scala.game.action_puzzle.ActionPuzzle
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.glyph.scala.lib.libgdx.actor._
-
-trait Grid extends WidgetGroup {
+import scalaz._
+import Scalaz._
+trait Grid extends WidgetGroup with Logging{
   val puzzleGroup = new Group with Scissor
   this.addActor(puzzleGroup)
 
@@ -36,9 +35,9 @@ trait Grid extends WidgetGroup {
 
   def divY = puzzleGroup.getHeight / row
 
-  def calcPanelX(x: Int): Float = divX * (x + 0.5f) - panelW / 2f
+  def calcPanelX(x: Float): Float = divX * (x + 0.5f) - panelW / 2f
 
-  def calcPanelY(y: Int): Float = divY * (y + 0.5f) - panelH / 2f
+  def calcPanelY(y: Float): Float = divY * (y + 0.5f) - panelH / 2f
 
   def positionToIndex(px: Float, py: Float): (Int, Int) = (clamp((px / divX).toInt, 0, row - 1), clamp((py / divY).toInt, 0, column - 1))
 
@@ -60,6 +59,14 @@ trait Grid extends WidgetGroup {
   }
 
 
+  override def setSize(width: Float, height: Float){
+    super.setSize(width,height)
+   // val needSetup = getWidth != width || getHeight != height
+    puzzleGroup.setWidth(getWidth - marginX)
+    puzzleGroup.setHeight(getHeight - marginY)
+    onSetupPosition()
+  }
+
   def onSetupPosition() {
     setPosition(marginX / 2f, marginY / 2f)
   }
@@ -69,7 +76,7 @@ trait Paneled[T <: Actor] extends Grid with Updating {
   val sequencer = new SequentialProcessor {}
   this add sequencer
   val tokens = ListBuffer.empty[T]
-
+  var swipeListener:Option[InputListener] = None
   def moveTokenToIndex(token: T, x: Int, y: Int, callback: () => Unit = () => {}) {
     val move = Actions.action(classOf[MoveToAction])
     move.setPosition(calcPanelX(x), calcPanelY(y))
@@ -98,6 +105,46 @@ trait Paneled[T <: Actor] extends Grid with Updating {
       puzzleGroup.addActor(p)
     }
   }
+
+  def startSwipeCheck(callback:(Int,Int,Int,Int)=>Unit){
+    swipeListener match{
+      case Some(l) => throw new IllegalStateException("swipe is already started!!!")
+      case None => {
+        val listener = new InputListener {
+          var current = (0, 0)
+
+          override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
+            current = positionToIndex(x, y)
+            true
+          }
+
+          def diffAmount(a: (Int, Int), b: (Int, Int)) = Math.abs(a._1 - b._1) + Math.abs(a._2 - b._2)
+
+          override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
+            val next = positionToIndex(x, y)
+            if (diffAmount(current, next) == 1) {
+              callback(current._1,current._2,next._1,next._2)
+              current = next
+            }
+          }
+        }
+        addListener(listener)
+        swipeListener = listener.some
+      }
+
+    }
+
+  }
+  def stopSwipeCheck(){
+    swipeListener match{
+      case Some(l) => {
+        removeListener(l)
+        swipeListener = None
+      }
+      case None => throw new IllegalStateException("swipeListener is not started yet!!!")
+    }
+  }
+
 }
 
 class GMatch3View[T <: Panel](ROW: Int, COLUMN: Int, panelSeed: T => GMatch3View.PanelToken[T]) extends Paneled[GMatch3View.PanelToken[T]] with Scissor with Logging {
@@ -166,10 +213,8 @@ class GMatch3View[T <: Panel](ROW: Int, COLUMN: Int, panelSeed: T => GMatch3View
 
   trait TA extends TimedAnimation {
     def onStart() {}
-
     def onFinish() {}
   }
-
 }
 
 object GMatch3View {

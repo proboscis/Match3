@@ -124,11 +124,6 @@ class ActionPuzzle extends Logging {
     floatings() = floatings() append filling
   }
 
-  def updateAnimation(p:Panel){
-    p.add(new TimedHandler())
-  }
-
-
   //TODO 時間指定のanimationはdurationを1とした関数として定義すれば良い
   def updateFloatingAnimation(floats: Puzzle[APanel] = floatings()) {
     import Interpolation._
@@ -205,7 +200,6 @@ object ActionPuzzle {
 object Animation {
   type Callback[R] = R => Unit
   type ~>[P, R] = P => Callback[R] => Unit
-
   trait AnimationOps[P, R] {
     def ~>[S](fb: R ~> S): P ~> S
   }
