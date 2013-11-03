@@ -132,7 +132,7 @@ class ActionPuzzle2 extends Logging {
           nextOpt match {
             case Some(next) => if (ny - next.y() < 1) {
               ny = next.y() + 1 //常に上にいると仮定
-              if (next.stopped()) {
+              if (next.stopped() && !next.modifying()) {
                 //TODO stop and do scan!
                 stopped() = true
                 onStop()
@@ -148,7 +148,7 @@ class ActionPuzzle2 extends Logging {
           y() = ny
         } else {
           nextOpt match {
-            case Some(next) => if (y() - next.y() > 1) {
+            case Some(next) => if (y() - next.y() > 1 && !next.modifying()) {
               stopped() = false
             }
             case None => if (y() > 0) {
