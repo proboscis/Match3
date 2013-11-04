@@ -29,6 +29,7 @@ class ActionPuzzle extends Logging {
     _ => Vector()
   }: _*))
   val panels = ListBuffer[APanel]()
+
   type Timed[P, R] = (Float => Unit) => (P => R) => Float => Unit
 
   def seed() = MathUtils.random(0, 2) |> (new APanel(_))

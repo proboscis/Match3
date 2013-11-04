@@ -2,6 +2,8 @@ package com.glyph.scala.game.action_puzzle
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scalaz._
+import Scalaz._
 
 /**
  * @author glyph
@@ -20,7 +22,54 @@ object GMatch3 {
   type Puzzle[T <: Panel] = IndexedSeq[IndexedSeq[T]]
 
   def included[T <: Panel](sets: MatchedSet[T], target: MatchedSet[T]): Boolean = target forall sets.contains
-
+  def scanWithException[T<:Panel](puzzle:Puzzle[T])(x:Int)(y:Int)(exception:T=>Boolean)(right:Boolean):MatchedSet[T]={
+    val W = puzzle.size
+    if(x < W){
+      val H = puzzle(x).size
+      var current = puzzle(x)(y)
+      var matches = (puzzle(x)(y),x,y)::Nil
+      if(right){//right direction
+      var nx = x + 1
+        while(nx < W && y < puzzle(nx).size && current.matchTo(puzzle(nx)(y)) && exception(current)){
+          matches ::= (puzzle(nx)(y),x,y)
+          nx += 1
+          current = puzzle(nx)(y)
+        }
+      }else{//left direction
+      var ny = y + 1
+        while(ny < H && current.matchTo(puzzle(x)(ny)) && exception(current)){
+          matches ::=(puzzle(x)(ny),x,y)
+          ny += 1
+          current = puzzle(x)(ny)
+        }
+      }
+    }
+    matches
+  }
+  def scanBy[T<:Panel](puzzle:Puzzle[T])(scanner:Int=>Int=>Boolean=>MatchedSet[T]):Seq[MatchedSet[T]]={
+    val result = mutable.ArrayBuffer[MatchedSet[T]]()
+    for {
+      x <- 0 until puzzle.size
+      y <- 0 until puzzle(x).size
+      set <- true :: false :: Nil map (scanner(x)(y)(_))} {
+      var i = 0
+      val l = result.length
+      var noNeedToAdd = false
+      while (i < l) {
+        val current = result(i)
+        val inc = included(result(i), set)
+        noNeedToAdd |= inc
+        val needReplace = current.size < set.size && inc
+        if (needReplace) result(i) = set
+        i += 1
+      }
+      if (!noNeedToAdd && set != Nil) {
+        result += set
+      }
+    }
+    //println(result)
+    result
+  }
   implicit class PuzzleImpl[T <: Panel](val puzzle: Puzzle[T]) extends AnyVal {
     def text: String = puzzle.map {
       col => col.map {
@@ -31,6 +80,8 @@ object GMatch3 {
     }.fold("") {
       _ + "\n" + _
     }
+
+    def scanWithException = puzzle |> GMatch3.scanWithException
 
     //TODO scannerを使うと動かしたときに消せるパネルを表示できるようにしたいね
     def scan(x: Int, y: Int, right: Boolean): MatchedSet[T] = {
@@ -118,31 +169,9 @@ object GMatch3 {
       recFWM(puzzle)
     }
 
-    def scanAll: Seq[MatchedSet[T]] = {
-      val result = mutable.ArrayBuffer[MatchedSet[T]]()
-      for {
-        x <- 0 until puzzle.size
-        y <- 0 until puzzle(x).size
-        set <- true :: false :: Nil map (scan(x, y, _))} {
-        var i = 0
-        val l = result.length
-        var noNeedToAdd = false
-        while (i < l) {
-          val current = result(i)
-          val inc = included(result(i), set)
-          noNeedToAdd |= inc
-          val needReplace = current.size < set.size && inc
-          if (needReplace) result(i) = set
-          i += 1
-        }
-        if (!noNeedToAdd && set != Nil) {
-          result += set
-        }
-      }
-      //println(result)
-      result
-    }
-
+    def scanBy(scanner:Int=>Int=>Boolean=>MatchedSet[T]):Seq[MatchedSet[T]] = GMatch3.scanBy(puzzle)
+    def scanAllWithException(matchLength:Int)(exception:T=>Boolean) = scanBy(scanWithException(_)(_)(exception)(_)).filter{_.size >= matchLength}
+    def scanAll:Seq[MatchedSet[T]] = scanBy(scan)
     /**
      * @param panel searched with _.contains
      * @return index of given panel in a puzzle
