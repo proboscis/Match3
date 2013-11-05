@@ -37,59 +37,10 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   val puzzle = new ActionPuzzle3
   val view = new APView(puzzle,assets)
   /*
-  val puzzle = new ActionPuzzle2
-  class Token(val panel: puzzle.P) extends Label(panel.n + "", skin) with Reactor
-
-  //  class Token(panel:puzzle.P) extends SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png"))) with Reactor{
-  //    setColor(40*panel.n,40*panel.n,40*panel.n,40*panel.n)
-  //  }
-  val view = new Paneled[Token] with Scissor {
-    def row: Int = puzzle.SIZE
-    def column: Int = puzzle.SIZE
-    puzzle.startSwipeCheck = startSwipeCheck
-    puzzle.stopSwipeCheck = stopSwipeCheck
-    puzzle.addPanel = (p, x, y) => {
-      val token = new Token(p)
-      token.setSize(panelW, panelH)
-      log(panelW, panelH)
-      token.reactVar(p.x) {
-        x => {
-          //log("width"+getWidth)
-          //log("divX"+divX)
-          //log("x:"+calcPanelX(x))
-          token.setX(calcPanelX(x))
-        }
-      }
-      token.reactVar(p.y) {
-        y => {
-          //log("y:"+calcPanelX(y))
-          token.setY(calcPanelY(y))
-        }
-      }
-      GdxUtil.post {
-        puzzleGroup.addActor(token)
-      }
-      tokens += token
-    }
-    puzzle.removePanel = (panel) =>{
-      for(t <- tokens.find(_.panel == panel)){
-        t.remove()
-        tokens -= t
-      }
-    }
-  }
-  //  val token = new SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
-  //  token.setSize(100,100)
-  //  view.puzzleGroup.addActor(token)
-
-  //val view = new Box2DBed(puzzle.world)
-  //view.setSize(STAGE_WIDTH,STAGE_HEIGHT)
-  /*
    init layout
    */
-   * */
 
-  root.add(view).fill().expand()
+  root.add(view).fill().expand().width(STAGE_WIDTH).height(STAGE_WIDTH)
   root.invalidate()
   root.layout()
 
@@ -100,6 +51,7 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   }
   puzzle.panelAdd = view.panelAdd
   puzzle.panelRemove = view.panelRemove
+  view.startSwipeCheck(puzzle.swipe)
   /*
   init after the layout is setup
    */

@@ -11,6 +11,7 @@ import com.glyph.scala.lib.util.updatable.task.ParallelProcessor
 import com.glyph.scala.game.action_puzzle.view.Paneled
 import com.glyph.scala.lib.util.Logging
 import com.glyph.scala.lib.libgdx.actor.ui.RLabel
+import scala.util.Try
 
 /**
  * @author glyph
@@ -38,7 +39,17 @@ class ActionPuzzle3 extends Reactor{
     remove(scanAllDistinct)
     fill()
   }
-  def swipe(x:Int,y:Int,nx:Int,ny:Int) = ???
+  def swipe(x:Int,y:Int,nx:Int,ny:Int) = {
+    try{
+      val pa = fixed()(x)(y)
+      val pb = fixed()(nx)(ny)
+      fixed() = fixed().updated(x,fixed()(x).updated(y,pb))
+      fixed() = fixed().updated(nx,fixed()(nx).updated(ny,pa))
+      scanRemoveFill()
+    }catch{
+      case e:Exception => e.printStackTrace()
+    }
+  }
   def fill(){
     val filling = future() createFillingPuzzle(seed,COLUMN)
     if(filling.exists(!_.isEmpty)){
@@ -56,7 +67,7 @@ class ActionPuzzle3 extends Reactor{
     }
     updateTargetPosition()
   }
-  def seed:()=>AP=()=>MathUtils.random(0,1) |> (new AP(_))
+  def seed:()=>AP=()=>MathUtils.random(0,2) |> (new AP(_))
   def remove(panels:Seq[AP]){
     if(!panels.isEmpty){
       val (left,fallen) = fixed().remove(panels)
