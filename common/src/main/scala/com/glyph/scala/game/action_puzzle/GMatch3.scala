@@ -9,9 +9,7 @@ import Scalaz._
  * @author glyph
  */
 object GMatch3 {
-
   import scala.util.control.Exception._
-
   trait Panel {
     def matchTo(panel: Panel): Boolean
   }
@@ -24,26 +22,27 @@ object GMatch3 {
   def included[T <: Panel](sets: MatchedSet[T], target: MatchedSet[T]): Boolean = target forall sets.contains
   def scanWithException[T<:Panel](puzzle:Puzzle[T])(x:Int)(y:Int)(exception:T=>Boolean)(right:Boolean):MatchedSet[T]={
     val W = puzzle.size
+    var matches = (puzzle(x)(y),x,y)::Nil
     if(x < W){
       val H = puzzle(x).size
       var current = puzzle(x)(y)
-      var matches = (puzzle(x)(y),x,y)::Nil
       if(right){//right direction
       var nx = x + 1
-        while(nx < W && y < puzzle(nx).size && current.matchTo(puzzle(nx)(y)) && exception(current)){
-          matches ::= (puzzle(nx)(y),x,y)
-          nx += 1
+        while(nx < W  && y < puzzle(nx).size &&current.matchTo(puzzle(nx)(y)) && !exception(current)){
+          matches ::= (puzzle(nx)(y),nx,y)
           current = puzzle(nx)(y)
+          nx += 1
         }
       }else{//left direction
       var ny = y + 1
-        while(ny < H && current.matchTo(puzzle(x)(ny)) && exception(current)){
-          matches ::=(puzzle(x)(ny),x,y)
-          ny += 1
+        while(ny < H&&current.matchTo(puzzle(x)(ny)) && !exception(current)){
+          matches ::=(puzzle(x)(ny),x,ny)
           current = puzzle(x)(ny)
+          ny += 1
         }
       }
     }
+    //println(matches)
     matches
   }
   def scanBy[T<:Panel](puzzle:Puzzle[T])(scanner:Int=>Int=>Boolean=>MatchedSet[T]):Seq[MatchedSet[T]]={
@@ -70,6 +69,10 @@ object GMatch3 {
     //println(result)
     result
   }
+  def createFilling[T<:Panel](puzzle:Puzzle[T])(seed: () => T, col: Int): Events[T] = for (x <- 0 until puzzle.size; y <- puzzle(x).size until col) yield (seed(), x, y)
+  def createFillingPuzzle[T<:Panel](puzzle:Puzzle[T])(seed: () => T,col:Int): Puzzle[T] = for (x <- 0 until puzzle.size) yield for (y <- puzzle(x).size until col) yield seed()
+
+  def scanAllWithException[T<:Panel](puzzle:Puzzle[T])(matchLength:Int)(exception:T=>Boolean) = scanBy(puzzle)(x => y => right => scanWithException(puzzle)(x)(y)(exception)(right)).filter{_.length >= matchLength}
   implicit class PuzzleImpl[T <: Panel](val puzzle: Puzzle[T]) extends AnyVal {
     def text: String = puzzle.map {
       col => col.map {
@@ -81,10 +84,10 @@ object GMatch3 {
       _ + "\n" + _
     }
 
-    def scanWithException = puzzle |> GMatch3.scanWithException
+    def scanWithException = GMatch3.scanWithException(puzzle)_
 
     //TODO scannerを使うと動かしたときに消せるパネルを表示できるようにしたいね
-    def scan(x: Int, y: Int, right: Boolean): MatchedSet[T] = {
+    def scan(x: Int)( y: Int)(right: Boolean): MatchedSet[T] = {
       val W = puzzle.size
       val H = puzzle.head.size
       val panel = puzzle(x)(y)
@@ -107,9 +110,9 @@ object GMatch3 {
       if (matching.size >= 3) matching else Nil
     }
 
-    def createFilling(seed: () => T, col: Int): Events[T] = for (x <- 0 until puzzle.size; y <- puzzle(x).size until col) yield (seed(), x, y)
+    def createFilling = GMatch3.createFilling(puzzle)_
 
-    def createFillingPuzzle(seed: () => T,col:Int): Puzzle[T] = for (x <- 0 until puzzle.size) yield for (y <- puzzle(x).size until col) yield seed()
+    def createFillingPuzzle = GMatch3.createFillingPuzzle(puzzle)_
 
     def fill(filling: Events[T]): Puzzle[T] = filling.foldLeft(puzzle) {
       case (p, (panel, x, _)) => p.updated(x, p(x) :+ panel)
@@ -124,14 +127,8 @@ object GMatch3 {
     def remove(panels: Seq[T]): (Puzzle[T], Puzzle[T]) = {
       val f = (p: Panel) => panels.contains(p)
       puzzle.unzip {
-        col => col.span {
-          var found = false
-          (panel) => found || {
-            found = !panels.contains(panel);
-            found
-          }
-        } match {
-          case (left, float) => (left filterNot f, float filterNot f)
+        col => col.span(!f(_)) match {
+          case (left, float) => (left, float filterNot f)
         }
       }
     }
@@ -169,9 +166,9 @@ object GMatch3 {
       recFWM(puzzle)
     }
 
-    def scanBy(scanner:Int=>Int=>Boolean=>MatchedSet[T]):Seq[MatchedSet[T]] = GMatch3.scanBy(puzzle)
-    def scanAllWithException(matchLength:Int)(exception:T=>Boolean) = scanBy(scanWithException(_)(_)(exception)(_)).filter{_.size >= matchLength}
-    def scanAll:Seq[MatchedSet[T]] = scanBy(scan)
+    def scanBy = GMatch3.scanBy(puzzle)_
+    def scanAllWithException(matchLength:Int)(exception:T=>Boolean) = scanBy(x => y => right=>scanWithException(x)(y)(exception)(right)).filter{_.size >= matchLength}
+    def scanAll = scanBy(scan)
     /**
      * @param panel searched with _.contains
      * @return index of given panel in a puzzle
@@ -185,7 +182,12 @@ object GMatch3 {
         (puzzle.indexOf(row), row.indexOf(panel))
       }
     }
-
+    def indexOfPanelOpt(panel:T):Option[(Int,Int)]=allCatch opt {
+      val row = puzzle.filter {
+        _.contains(panel)
+      }.head
+      (puzzle.indexOf(row), row.indexOf(panel))
+    }
     def indexOfPanelUnhandled(panel: Panel): (Int, Int) = {
       val row = puzzle.filter {
         _.contains(panel)

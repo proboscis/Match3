@@ -3,7 +3,12 @@
 .idea_modules/
 *.iml
 *.iws
-
+#ensime
+.ensime
+.ensime_lucene/
+#eclipse
+.project
+.classpath
 #sbt
 target/
 

@@ -9,10 +9,10 @@ import com.glyph.scala.lib.util.reactive.Reactor
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph.scala.game.action_puzzle.ActionPuzzle2
+import com.glyph.scala.game.action_puzzle.{APView, ActionPuzzle3, ActionPuzzle2}
 import com.glyph.scala.game.action_puzzle.view.Paneled
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Label}
-import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.lib.util.{reactive, Logging}
 import com.glyph.scala.lib.libgdx.GdxUtil
 
 /**
@@ -33,9 +33,11 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   }) {
     color => backgroundColor = color
   }
-  val puzzle = new ActionPuzzle2
   val skin = assets.get[Skin]("skin/default.json")
-
+  val puzzle = new ActionPuzzle3
+  val view = new APView(puzzle,assets)
+  /*
+  val puzzle = new ActionPuzzle2
   class Token(val panel: puzzle.P) extends Label(panel.n + "", skin) with Reactor
 
   //  class Token(panel:puzzle.P) extends SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png"))) with Reactor{
@@ -85,11 +87,23 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   /*
    init layout
    */
+   * */
+
   root.add(view).fill().expand()
   root.invalidate()
   root.layout()
-  puzzle.initialize()
 
+  import reactive._
+  import puzzle._
+  reactVar(fixed~falling~future){
+    case a~b~c=> "====================="::(a::b::c::Nil map(_.text)) foreach log
+  }
+  puzzle.panelAdd = view.panelAdd
+  puzzle.panelRemove = view.panelRemove
+  /*
+  init after the layout is setup
+   */
+  puzzle.initialize()
 
   override def render(delta: Float): Unit = {
     super.render(delta)
