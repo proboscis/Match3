@@ -8,7 +8,7 @@ import Scalaz._
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.game.action_puzzle.view.Paneled
-import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.lib.util.{reactive, Logging}
 import com.glyph.scala.lib.util.updatable.reactive.Animator
 import com.badlogic.gdx.graphics.{Color, Texture}
 import com.glyph.scala.lib.libgdx.actor.{ExplosionFadeout, SpriteActor}
@@ -20,20 +20,15 @@ import scala.Some
  * @author glyph
  */
 class ActionPuzzle3 extends Reactor with Logging{
-  //TODO futureとfixedがたまにずれてしまう問題について
+  //TODO マクロでコンパイル時に実行時間計測プログラムを追加する。
   import GMatch3._
-  //TODO swipingからもどってこれていない奴がいる
-  //Swipeであさってのパネルがスワイプされたりする
-  //list up the state of panels!
-  val ROW = 6
-  val COLUMN = 6
+  //TODO it's time to make this fast!
+  val ROW = 8
+  val COLUMN = 8
   val gravity = -10f
   val processor = new ParallelProcessor {}
-
   def initializer: Var[Puzzle[AP]] = Var(GMatch3.initialize(COLUMN))
-
   def seed: () => AP = () => MathUtils.random(0, 3) |> (new AP(_))
-
   val fixed = initializer
   val falling = initializer
   val swiping: Var[AP Map Seq[Task]] = Var(Map.empty)
@@ -43,19 +38,23 @@ class ActionPuzzle3 extends Reactor with Logging{
   var panelRemove = (panels: Seq[AP]) => {}
 
   //util functions
-  def scanAll = scanAllWithException(fixed())(3)(swiping().get(_) | Nil |> (!_.isEmpty))
-
+  def scanAll = scanAllWithException(fixedFuture)(3)(swiping().get(_) | Nil |> (!_.isEmpty))
   def scanAllDistinct = scanAll.flatten.map(_._1).distinct
-
+  def fixedFuture = {
+    fixed().zipWithIndex.map{
+      case (row,x)=> row.zipWithIndex.map{
+        case (p,y) => future()(x)(y)
+      }
+    }
+  }
   def scanRemoveFill() {
     //println(scanAll)
     remove(scanAllDistinct)
     fill()
   }
-
   def swipe(x: Int, y: Int, nx: Int, ny: Int) = {
     try {
-      def verified = fixed()(x).size < y && fixed()(nx).size < ny
+      def verified = y < fixed()(x).size  && ny < fixed()(nx).size
       if (verified) {
         val pa = future()(x)(y)
         val pb = future()(nx)(ny)
@@ -65,7 +64,7 @@ class ActionPuzzle3 extends Reactor with Logging{
         val task = (((pa.x, nx) ::(pa.y, ny) ::(pb.x, x) ::(pb.y, y) :: Nil map {
           case (v, tgt) => interpolate(v) to tgt in 0.3f using exp10Out
         }) |> (WaitAll(_: _*))) :: Do {
-          swiping() ++= (pa -> (swiping()(pa) filterNot(_ == pTask))) :: (pb -> (swiping()(pb) filterNot(_==pTask))) :: Nil
+          swiping() ++= (pa -> (swiping().get(pa).map(_.filterNot(_ == pTask))|Nil)) :: (pb -> (swiping().get(pb).map(_.filterNot(_==pTask))|Nil)) :: Nil
           swiping() = swiping().filterNot(_._2.isEmpty)
           if (verified) {
             fixed() = fixed().swap(x, y, nx, ny)
@@ -110,20 +109,14 @@ class ActionPuzzle3 extends Reactor with Logging{
       log("canceled!"+panel)
       swiping() += (panel->(swiping().get(panel).map(_.filterNot(_==task))|Nil))
       //TODO remove task from the map.
-      processor.removeTask(task)
+      //processor.removeTask(task)
     }
   }
-  def fixedFuture = {
-    fixed().zipWithIndex.map{
-      case (row,x)=> row.zipWithIndex.map{
-        case (p,y) => future()(x)(y)
-      }
-    }
-  }
+
   def remove(panels: Seq[AP]) {
     if (!panels.isEmpty) {
       val (left, fallen) = fixedFuture.remove(panels)
-      fallen foreach(_.foreach(cancelSwipingAnimation))
+      fallen.foreach(_.foreach(cancelSwipingAnimation))
       panelRemove(panels)
       fixed() = left//TODO wait中にfixedを変更するとバグが発生するおそれがある。　要チェック
       falling() = fallen append falling()
@@ -170,13 +163,15 @@ class ActionPuzzle3 extends Reactor with Logging{
     }
   }
 
-  class AP(val n: Int) extends GMatch3.Panel {
+  class AP(val n: Int) extends GMatch3.Panel with Reactor{
     val x = Var(0f)
     val y = Var(0f)
     val vx = Var(0f)
     val vy = Var(0f)
     val tx = Var(0)
     val ty = Var(0)
+    lazy val isSwiping = swiping.map(_.get(AP.this).map(!_.isEmpty)|false)
+    lazy val isFalling = falling.map(_.exists(_.contains(AP.this)))
 
     def matchTo(panel: Panel): Boolean = panel match {
       case p: AP => n == p.n
@@ -248,20 +243,11 @@ class Token(val panel: ActionPuzzle3#AP, assets: AssetManager)
   with Reactor
   with ExplosionFadeout{
   import ColorTheme._
+  import reactive._
   val colorMap: Int Map Varying[Color] = Map(0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
-  reactVar(colorMap.get(panel.n) | Var(Color.WHITE))(setColor)
+  val c = (colorMap.get(panel.n) | Var(Color.WHITE))~panel.isSwiping~panel.isFalling map {
+    case col~swiping~falling =>(swiping | falling)?col.cpy().mul(0.7f)|col
+  }
+  reactVar(c)(setColor)
   //debug()
 }
-
-/*
-class Token(val panel: ActionPuzzle3#AP, skin: Skin) extends Table with Reactor {
-  val rabel = new RLabel(skin, panel.ty.map("%d".format(_)))
-  val label = new Label(panel.n + "", skin)
-  rabel :: label :: Nil foreach {
-    _.setFontScale(0.7f)
-  }
-  add(label).fill.expand(1, 5) //.row()
-  //add(rabel).fill.expand(1,1)
-  debug()
-}
-*/

@@ -40,12 +40,13 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   root.add(view).fill().expand().width(STAGE_WIDTH).height(STAGE_WIDTH)
   root.invalidate()
   root.layout()
-
+  /*
     import reactive._
     import puzzle._
     reactVar(fixed~falling~future~swiping){
       case a~b~c~d=> "====================="::(a::b::c::Nil map(_.text))::d::Nil foreach log
     }
+    */
   puzzle.panelAdd = view.panelAdd
   puzzle.panelRemove = view.panelRemove
   view.startSwipeCheck(puzzle.swipe)
@@ -56,6 +57,6 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
 
   override def render(delta: Float): Unit = {
     super.render(delta)
-    puzzle.update(delta*0.6f)
+    puzzle.update(delta)
   }
 }
