@@ -46,5 +46,6 @@ class WaitAll(waiting:Task*) extends Task{
 }
 
 object WaitAll{
+  //def apply(tasks:Seq[Task]) = new WaitAll(tasks:_*)
   def apply(tasks:Task*) = new WaitAll(tasks:_*)
 }

@@ -18,26 +18,23 @@ trait ScreenBuilder {
   def requiredAssets: Set[(Class[_], Array[FileName])]
   def create(assetManager: AssetManager): Screen
 }
-
 object ScreenBuilder {
   implicit val JsonFormat = Serialization.formats(NoTypeHints) + ClassSerializer
-  case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_], Array[String])])
-  def writeConfig(config: ScreenConfig) = write(config)
   type Vnelt[T] = ValidationNel[Throwable, T]
-  def createFromJson(filePath: String): Vnelt[ScreenBuilder] = for {
-    json <- readFile(filePath)
-    config<- jsonToConfig(json)
-    constructor <- classToConstructor(config.screenClass)
-  } yield new ScreenBuilder {
-      def create(assetManager: AssetManager): Screen = constructor(assetManager)
-      def requiredAssets = config.assets
-    }
-  def jsonToConfig(json:String):Vnelt[ScreenConfig] = allCatch.either{
-    read[ScreenConfig](json)
+  type Assets = Set[(Class[_], Array[String])]
+  case class ScreenConfig(screenClass: Class[_], assets: Assets){
+    def toBuilder:Vnelt[ScreenBuilder] = screenClass |> classToConstructor map ScreenBuilder.apply(assets)
   }
-  private def readFile(path: String): Vnelt[String] = allCatch.either {
-    Source.fromFile(path).getLines().mkString("\n")
+  def apply(assets:Assets)(constructor:AssetManager => Screen):ScreenBuilder =new ScreenBuilder{
+    def requiredAssets: Assets = assets
+    def create(assetManager: AssetManager): Screen = constructor(assetManager)
   }
+  def configToBuilder(config:ScreenConfig):Vnelt[ScreenBuilder] = config.screenClass |> classToConstructor map ScreenBuilder(config.assets)
+  def writeConfig(config: ScreenConfig) = write(config)
+  def createFromFile(filePath: String): Vnelt[ScreenBuilder] = filePath |> readFile flatMap createFromJson
+  def createFromJson(json:String):Vnelt[ScreenBuilder] = json |> jsonToConfig flatMap configToBuilder
+  def jsonToConfig(json:String):Vnelt[ScreenConfig] = allCatch.either(read[ScreenConfig](json))
+  private def readFile(path: String): Vnelt[String] = allCatch.either(Source.fromFile(path).getLines().mkString("\n"))
   private def classToConstructor(clazz: Class[_]): Vnelt[AssetManager => Screen] = allCatch.either {
     if (!classOf[Screen].isAssignableFrom(clazz)) throw new RuntimeException("specified class is not a subclass of Screen! : " + clazz.getCanonicalName)
     val constructor = clazz.getConstructor(classOf[AssetManager])

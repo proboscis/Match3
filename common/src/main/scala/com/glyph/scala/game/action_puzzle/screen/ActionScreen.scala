@@ -4,16 +4,13 @@ import com.glyph.scala.lib.libgdx.screen.TabledScreen
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.graphics._
-import com.glyph.scala.lib.libgdx.actor.Scissor
 import com.glyph.scala.lib.util.reactive.Reactor
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph.scala.game.action_puzzle.{APView, ActionPuzzle3, ActionPuzzle2}
-import com.glyph.scala.game.action_puzzle.view.Paneled
-import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Label}
+import com.glyph.scala.game.action_puzzle.{APView, ActionPuzzle3}
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.glyph.scala.lib.util.{reactive, Logging}
-import com.glyph.scala.lib.libgdx.GdxUtil
 
 /**
  * @author glyph
@@ -35,7 +32,7 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   }
   val skin = assets.get[Skin]("skin/default.json")
   val puzzle = new ActionPuzzle3
-  val view = new APView(puzzle,assets)
+  val view = new APView(puzzle, assets)
   /*
    init layout
    */
@@ -44,11 +41,11 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   root.invalidate()
   root.layout()
 
-  import reactive._
-  import puzzle._
-  reactVar(fixed~falling~future){
-    case a~b~c=> "====================="::(a::b::c::Nil map(_.text)) foreach log
-  }
+    import reactive._
+    import puzzle._
+    reactVar(fixed~falling~future~swiping){
+      case a~b~c~d=> "====================="::(a::b::c::Nil map(_.text))::d::Nil foreach log
+    }
   puzzle.panelAdd = view.panelAdd
   puzzle.panelRemove = view.panelRemove
   view.startSwipeCheck(puzzle.swipe)
@@ -59,6 +56,6 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
 
   override def render(delta: Float): Unit = {
     super.render(delta)
-    puzzle.update(delta)
+    puzzle.update(delta*0.6f)
   }
 }

@@ -1,65 +1,99 @@
 package com.glyph.scala.game.action_puzzle
 
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.scenes.scene2d.ui.{Table, Label, Skin, WidgetGroup}
-import com.glyph.scala.lib.util.reactive.{Reactor, Var}
-import com.glyph.scala.game.action_puzzle.GMatch3.Panel
+import com.badlogic.gdx.scenes.scene2d.ui.{Skin, WidgetGroup}
+import com.glyph.scala.lib.util.reactive.{Varying, Reactor, Var}
 import scalaz._
 import Scalaz._
-import com.badlogic.gdx.math.MathUtils
-import com.glyph.scala.lib.util.updatable.task.ParallelProcessor
+import com.badlogic.gdx.math.{Interpolation, MathUtils}
+import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.game.action_puzzle.view.Paneled
 import com.glyph.scala.lib.util.Logging
-import com.glyph.scala.lib.libgdx.actor.ui.RLabel
-import scala.util.Try
+import com.glyph.scala.lib.util.updatable.reactive.Animator
+import com.badlogic.gdx.graphics.{Color, Texture}
+import com.glyph.scala.lib.libgdx.actor.{ExplosionFadeout, SpriteActor}
+import com.glyph.scala.game.puzzle.view.match3.ColorTheme
+import com.badlogic.gdx.graphics.g2d.Sprite
+import scala.Some
 
 /**
  * @author glyph
  */
-class ActionPuzzle3 extends Reactor{
+class ActionPuzzle3 extends Reactor with Logging{
+  //TODO futureとfixedがたまにずれてしまう問題について
   import GMatch3._
+  //TODO swipingからもどってこれていない奴がいる
+  //Swipeであさってのパネルがスワイプされたりする
   //list up the state of panels!
   val ROW = 6
   val COLUMN = 6
   val gravity = -10f
-  val processor = new ParallelProcessor{}
-  def initializer:Var[Puzzle[AP]]= Var(Vector(0 until ROW map{_=>Vector()}:_*))
+  val processor = new ParallelProcessor {}
+
+  def initializer: Var[Puzzle[AP]] = Var(GMatch3.initialize(COLUMN))
+
+  def seed: () => AP = () => MathUtils.random(0, 3) |> (new AP(_))
+
   val fixed = initializer
-  val falling= initializer
-  val swiping= initializer// swiping < fixed
-  val future= initializer
+  val falling = initializer
+  val swiping: Var[AP Map Seq[Task]] = Var(Map.empty)
+  val future = initializer
   //callbacks
-  var panelAdd = (panels:Seq[(AP,Int,Int)]) => {}
-  var panelRemove = (panels:Seq[AP])=>{}
+  var panelAdd = (panels: Seq[(AP, Int, Int)]) => {}
+  var panelRemove = (panels: Seq[AP]) => {}
+
   //util functions
-  def scanAll = scanAllWithException(fixed())(3)(swiping().contains)
-  def scanAllDistinct = scanAll.flatten.map{_._1}.distinct
-  def scanRemoveFill(){
-    println(scanAll)
+  def scanAll = scanAllWithException(fixed())(3)(swiping().get(_) | Nil |> (!_.isEmpty))
+
+  def scanAllDistinct = scanAll.flatten.map(_._1).distinct
+
+  def scanRemoveFill() {
+    //println(scanAll)
     remove(scanAllDistinct)
     fill()
   }
-  def swipe(x:Int,y:Int,nx:Int,ny:Int) = {
-    try{
-      val pa = fixed()(x)(y)
-      val pb = fixed()(nx)(ny)
-      fixed() = fixed().updated(x,fixed()(x).updated(y,pb))
-      fixed() = fixed().updated(nx,fixed()(nx).updated(ny,pa))
-      scanRemoveFill()
-    }catch{
-      case e:Exception => e.printStackTrace()
+
+  def swipe(x: Int, y: Int, nx: Int, ny: Int) = {
+    try {
+      def verified = fixed()(x).size < y && fixed()(nx).size < ny
+      if (verified) {
+        val pa = future()(x)(y)
+        val pb = future()(nx)(ny)
+        import Animator._
+        import Interpolation._
+        var pTask:Task = null
+        val task = (((pa.x, nx) ::(pa.y, ny) ::(pb.x, x) ::(pb.y, y) :: Nil map {
+          case (v, tgt) => interpolate(v) to tgt in 0.3f using exp10Out
+        }) |> (WaitAll(_: _*))) :: Do {
+          swiping() ++= (pa -> (swiping()(pa) filterNot(_ == pTask))) :: (pb -> (swiping()(pb) filterNot(_==pTask))) :: Nil
+          swiping() = swiping().filterNot(_._2.isEmpty)
+          if (verified) {
+            fixed() = fixed().swap(x, y, nx, ny)
+            scanRemoveFill()
+          }
+        } :: Nil |> (Sequence(_: _*))
+        pTask = task
+        swiping() ++= (pa -> ((swiping().get(pa) | Nil) :+ task)) :: (pb -> ((swiping().get(pb) | Nil) :+ task)) :: Nil
+        future() = future().swap(x, y, nx, ny)
+        processor.add(task)
+      }
+    } catch {
+      case e: Exception => e.printStackTrace()
     }
   }
-  def fill(){
-    val filling = future() createFillingPuzzle(seed,COLUMN)
-    if(filling.exists(!_.isEmpty)){
+
+  def fill() {
+    val filling = future() createFillingPuzzle(seed, COLUMN)
+    if (filling.exists(!_.isEmpty)) {
       falling() = falling() append filling
       future() = fixed() append falling()
-      val indexed = filling.flatten.map{p => val (x,y) = filling.indexOfPanelUnhandled(p);(p,x,y)}
-      val futureIndexed = filling.flatten.map{
-        p => val(x,y) = future().indexOfPanelUnhandled(p);(p,x,y)
+      val indexed = filling.flatten.map {
+        p => val (x, y) = filling.indexOfPanelUnhandled(p); (p, x, y)
       }
-      for((p,x,y) <- indexed){
+      val futureIndexed = filling.flatten.map {
+        p => val (x, y) = future().indexOfPanelUnhandled(p); (p, x, y)
+      }
+      for ((p, x, y) <- indexed) {
         p.x() = x
         p.y() = COLUMN + y
       }
@@ -67,66 +101,96 @@ class ActionPuzzle3 extends Reactor{
     }
     updateTargetPosition()
   }
-  def seed:()=>AP=()=>MathUtils.random(0,2) |> (new AP(_))
-  def remove(panels:Seq[AP]){
-    if(!panels.isEmpty){
-      val (left,fallen) = fixed().remove(panels)
-      panels |> panelRemove
-      fixed() = left
+  def cancelSwipingAnimation(panel:AP){
+    //TODO set a panel to appropriate position
+    for{
+      tasks <- swiping().get(panel)
+      task <- tasks
+    }{
+      log("canceled!"+panel)
+      swiping() += (panel->(swiping().get(panel).map(_.filterNot(_==task))|Nil))
+      //TODO remove task from the map.
+      processor.removeTask(task)
+    }
+  }
+  def fixedFuture = {
+    fixed().zipWithIndex.map{
+      case (row,x)=> row.zipWithIndex.map{
+        case (p,y) => future()(x)(y)
+      }
+    }
+  }
+  def remove(panels: Seq[AP]) {
+    if (!panels.isEmpty) {
+      val (left, fallen) = fixedFuture.remove(panels)
+      fallen foreach(_.foreach(cancelSwipingAnimation))
+      panelRemove(panels)
+      fixed() = left//TODO wait中にfixedを変更するとバグが発生するおそれがある。　要チェック
       falling() = fallen append falling()
       future() = fixed() append falling()
     }
     updateTargetPosition()
   }
-  def updateTargetPosition(){
-    for(row <- falling();p<-row){
-      for((tx,ty)<- future().indexOfPanelOpt(p)){
-        p.tx() = tx
-        p.ty() = ty
-      }
+
+  def updateTargetPosition() {
+    for {
+      row <- falling()
+      p <- row
+      (tx,ty)<- future().indexOfPanelOpt(p)
+    } {
+      p.tx() = tx
+      p.ty() = ty
     }
   }
-  def initialize(){
+
+  def initialize() {
     fill()
   }
-  def update(delta:Float){
-    val (finished,continued) = falling().unzip{
-      _.partition(p=>{
-        p.vy() += gravity*delta
+
+  def update(delta: Float) {
+    updateFalling(delta)
+    processor.update(delta)
+  }
+
+  def updateFalling(delta: Float) {
+    val (finished, continued) = falling().unzip {
+      _.partition(p => {
+        p.vy() += gravity * delta
         p.update(delta)
       })
     }
     //println("continued:"+continued.text)
-    if(finished.exists(!_.isEmpty)){
-      println("finished:"+finished.text)
+    if (finished.exists(!_.isEmpty)) {
+      //println("finished:" + finished.text)
       falling() = continued
-      for(row <- finished;p <- row){
-        fixed() = fixed().updated(p.tx(),fixed()(p.tx()):+p)
+      for (row <- finished; p <- row) {
+        fixed() = fixed().updated(p.tx(), fixed()(p.tx()) :+ p)
       }
       scanRemoveFill()
     }
   }
-  class AP(val n:Int) extends GMatch3.Panel{
+
+  class AP(val n: Int) extends GMatch3.Panel {
     val x = Var(0f)
     val y = Var(0f)
     val vx = Var(0f)
     val vy = Var(0f)
     val tx = Var(0)
     val ty = Var(0)
-    def matchTo(panel: Panel): Boolean = panel match{
-      case p:AP => n == p.n
+
+    def matchTo(panel: Panel): Boolean = panel match {
+      case p: AP => n == p.n
       case _ => false
     }
-    def update(delta:Float):Boolean = {
-      val nx = x()+ vx()*delta
-      var ny = y()+ vy()*delta
-      //TODO make sure not to fall faster than the next panels
-      //if about to cross another panel
 
-      val next = PartialFunction.condOpt(ty()-1)(future()(tx()))
-      val finished = next match{
-        case Some(p) if fixed().exists(_.contains(p)) =>(ny - ty()) < 0f
-        case Some(p) if ny - p.y() < 1f => {//if above the next panel
+    def update(delta: Float): Boolean = {
+      val nx = x() + vx() * delta
+      var ny = y() + vy() * delta
+      val next = PartialFunction.condOpt(ty() - 1)(future()(tx()))
+      val finished = next match {
+        case Some(p) if fixed().exists(_.contains(p)) => (ny - ty()) < 0f
+        case Some(p) if ny - p.y() < 1f => {
+          //if above the next panel
           ny = p.y() + 1
           vy() = p.vy()
           //clear()
@@ -134,7 +198,7 @@ class ActionPuzzle3 extends Reactor{
         }
         case _ => (ny - ty()) < 0f
       }
-      if(finished){
+      if (finished) {
         ny = ty()
         clear()
       }
@@ -143,7 +207,8 @@ class ActionPuzzle3 extends Reactor{
       //println(y(),vy())
       finished
     }
-    def clear(){
+
+    def clear() {
       vx() = 0
       vy() = 0
     }
@@ -151,41 +216,52 @@ class ActionPuzzle3 extends Reactor{
   }
 }
 
-class APView(puzzle:ActionPuzzle3,assets:AssetManager) extends WidgetGroup with Paneled[Token] with Reactor with Logging{
+class APView(puzzle: ActionPuzzle3, assets: AssetManager) extends WidgetGroup with Paneled[Token] with Reactor with Logging {
   def row: Int = puzzle.ROW
+
   def column: Int = puzzle.COLUMN
+
   val skin = assets.get[Skin]("skin/default.json")
-  val panelAdd = (added:Seq[(ActionPuzzle3#AP,Int,Int)])=>{
-    for((p,x,y) <- added){
-      val token = new Token(p,skin){
-        override def act(delta: Float){
-          super.act(delta)
-          setX(calcPanelX(p.x()))
-          setY(calcPanelY(p.y()))
-        }
-      }
-      token.setSize(panelW,panelH)
-      //token.reactVar(p.x)(calcPanelX(_) |> token.setX)
-      //token.reactVar(p.y)(calcPanelY(_) |> token.setY)
-      //token.reactVar(p.y)(log)
+  val panelAdd = (added: Seq[(ActionPuzzle3#AP, Int, Int)]) => {
+    for ((p, x, y) <- added) {
+      val token = new Token(p, assets)
+      token.reactVar(p.x)(calcPanelX(_)|>token.setX)
+      token.reactVar(p.y)(calcPanelY(_)|>token.setY)
+      token.setSize(panelW, panelH)
+      token.setOrigin(panelW/2,panelH/2)
       tokens += token
       puzzleGroup.addActor(token)
     }
   }
-  val panelRemove = (removed:Seq[ActionPuzzle3#AP]) => {
-    for(panel <- removed){
-      for(token <- tokens.find(_.panel == panel)){
-        tokens -= token
+  val panelRemove = (removed: Seq[ActionPuzzle3#AP]) => {
+    for (panel <- removed; token <- tokens.find(_.panel == panel)) {
+      tokens -= token
+      token.explode{
         token.remove()
       }
     }
   }
 }
-class Token(val panel:ActionPuzzle3#AP,skin:Skin)extends Table with Reactor{
-  val rabel = new RLabel(skin,panel.ty.map("%d".format(_)))
-  val label = new Label(panel.n+"",skin)
-  rabel::label::Nil foreach{_.setFontScale(0.7f)}
-  add(label).fill.expand(1,5)//.row()
-  //add(rabel).fill.expand(1,1)
+
+class Token(val panel: ActionPuzzle3#AP, assets: AssetManager)
+  extends SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
+  with Reactor
+  with ExplosionFadeout{
+  import ColorTheme._
+  val colorMap: Int Map Varying[Color] = Map(0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
+  reactVar(colorMap.get(panel.n) | Var(Color.WHITE))(setColor)
+  //debug()
 }
 
+/*
+class Token(val panel: ActionPuzzle3#AP, skin: Skin) extends Table with Reactor {
+  val rabel = new RLabel(skin, panel.ty.map("%d".format(_)))
+  val label = new Label(panel.n + "", skin)
+  rabel :: label :: Nil foreach {
+    _.setFontScale(0.7f)
+  }
+  add(label).fill.expand(1, 5) //.row()
+  //add(rabel).fill.expand(1,1)
+  debug()
+}
+*/

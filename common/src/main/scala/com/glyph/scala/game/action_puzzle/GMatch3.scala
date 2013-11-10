@@ -13,12 +13,11 @@ object GMatch3 {
   trait Panel {
     def matchTo(panel: Panel): Boolean
   }
-
   type Event[T <: Panel] = (T, Int, Int)
   type MatchedSet[T <: Panel] = Seq[Event[T]]
   type Events[T <: Panel] = Seq[Event[T]]
   type Puzzle[T <: Panel] = IndexedSeq[IndexedSeq[T]]
-
+  def initialize[T<:Panel](size:Int):Puzzle[T] =Vector(0 until size map(_=>Vector()):_*)
   def included[T <: Panel](sets: MatchedSet[T], target: MatchedSet[T]): Boolean = target forall sets.contains
   def scanWithException[T<:Panel](puzzle:Puzzle[T])(x:Int)(y:Int)(exception:T=>Boolean)(right:Boolean):MatchedSet[T]={
     val W = puzzle.size
