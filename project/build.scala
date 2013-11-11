@@ -7,7 +7,7 @@ import org.scalasbt.androidplugin.AndroidKeys._
 object Settings {
   lazy val common = Defaults.defaultSettings ++ Seq (
     version := "0.1",
-    scalaVersion := "2.10.3-RC2",
+    scalaVersion := "2.10.3",
     {
       libraryDependencies ++=  Seq(
         "com.github.scopt" %% "scopt" % "3.1.0",  
@@ -18,7 +18,10 @@ object Settings {
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test")
 
       //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
-    }
+    },
+    resolvers += Resolver.sonatypeRepo("snapshots")
+    ,
+    addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise" % "2.0.0-SNAPSHOT" cross CrossVersion.full)
     ,
     updateLibgdxTask
    )
@@ -175,13 +178,12 @@ object Settings {
 }
 
 object LibgdxBuild extends Build {
-  //val jerkson = RootProject(uri("https://github.com/randhindi/jerkson.git"))
 
   val common = Project (
     "common",
     file("common"),
     settings = Settings.common
-  )// dependsOn jerkson
+  )
 
   lazy val desktop = Project (
     "desktop",
