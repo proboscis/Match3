@@ -32,12 +32,11 @@ trait Reactive[T] {
     }
   }
   private def addObserver(f:T=>Unit){
-    observers = WeakReference(f) :: observers
+    observers::= WeakReference(f)
   }
   private def removeObserver(f:T=>Unit){
-    observers = observers filter {
-      case WeakReference(ref) => ref != f
-      case _ => false
+    observers = observers collect{
+      case weak@WeakReference(ref) if ref != f => weak
     }
   }
 
@@ -45,7 +44,7 @@ trait Reactive[T] {
 
   def unSubscribe(callback: T => Unit) {
     if (concurrent > 0) {
-      removeQueue = callback :: removeQueue
+      removeQueue::=callback
       //throw new RuntimeException("concurrent modification exception!")
     }else{
       removeObserver(callback)
@@ -60,18 +59,12 @@ trait Reactive[T] {
       addQueue = Nil
       observers = Nil
     } else {
-      removeQueue foreach {
-        func =>
-          removeObserver(func)
-      }
+      removeQueue foreach removeObserver
       removeQueue = Nil
-      addQueue foreach {
-        f => addObserver(f)
-      }
+      addQueue foreach addObserver
       addQueue = Nil
     }
   }
-
   def notifyObservers(t: T) {
 
     stack += 1
@@ -83,11 +76,8 @@ trait Reactive[T] {
     }
     validateObserver()
     concurrent += 1
-    observers = observers filter {
-      wRef => wRef.get match {
-        case Some(ref) => ref(t); true
-        case _ => false
-      }
+    observers = observers collect {
+      case weak@WeakReference(ref) =>ref(t); weak
     }
     concurrent -= 1
     validateObserver()

@@ -8,21 +8,26 @@ import Scalaz._
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.game.action_puzzle.view.Paneled
-import com.glyph.scala.lib.util.{reactive, Logging}
+import com.glyph.scala.lib.util.{Timing, reactive, Logging}
 import com.glyph.scala.lib.util.updatable.reactive.Animator
 import com.badlogic.gdx.graphics.{Color, Texture}
 import com.glyph.scala.lib.libgdx.actor.{ExplosionFadeout, SpriteActor}
 import com.glyph.scala.game.puzzle.view.match3.ColorTheme
 import com.badlogic.gdx.graphics.g2d.Sprite
 import scala.Some
+import com.glyph.hello
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.collection.mutable
 
 /**
  * @author glyph
  */
-class ActionPuzzle3 extends Reactor with Logging {
-  //TODO マクロでコンパイル時に実行時間計測プログラムを追加する。
+//@hello
+class ActionPuzzle3 extends Reactor with Logging with Timing{
+  //TODO マクロについて、ログ関数へ対応させる
 
   import GMatch3._
+
 
   //TODO it's time to make this fast!
   val ROW = 8
@@ -30,24 +35,47 @@ class ActionPuzzle3 extends Reactor with Logging {
   val gravity = -10f
   val processor = new ParallelProcessor {}
 
-  def initializer: Var[Puzzle[AP]] = Var(GMatch3.initialize(COLUMN))
+  def initializer: Var[Puzzle[AP]] = Var(GMatch3.initialize(COLUMN)(new IndexedSeqGen{
+    def convert[T](seq: Seq[T]): IndexedSeq[T] = ArrayBuffer.apply(seq:_*)
+  }))
 
-  def seed: () => AP = () => MathUtils.random(0, 3) |> (new AP(_))
+  def seed: () => AP = () => new AP(MathUtils.random(0, 3))
 
   val fixed = initializer
   val falling = initializer
-  val swiping: Var[AP Map Seq[Task]] = Var(Map.empty)
+  val swiping: Var[AP Map Seq[Task]] = Var(Map.empty.withDefaultValue(Nil))
   val future = initializer
+  val futureIndices = future map GMatch3.toIndexMap
+  val fallingFlagMap = falling map GMatch3.toContainsMap
+
   //callbacks
   var panelAdd = (panels: Seq[(AP, Int, Int)]) => {}
   var panelRemove = (panels: Seq[AP]) => {}
 
   //util functions
-  def scanAll = scanAllWithException(fixedFuture)(3)(swiping().get(_) | Nil |> (!_.isEmpty))
+  def scanAll = {
+    val cpy = swiping()
+    scanAllWithException(fixedFuture)(3){
+      p => !cpy(p).isEmpty
+    }
+  }
 
   def scanAllDistinct = scanAll.flatten.map(_._1).distinct
 
-  def fixedFuture = {
+  def scanAllDistinct2 ={
+    val cpy = swiping()
+    GMatch3.scanAll(fixedFuture)(ROW)(COLUMN){
+      (a,b) => {
+        if(a != null && b != null && cpy(a).isEmpty && cpy(b).isEmpty){
+          a.n == b.n
+        }else{
+          false
+        }
+      }
+    }.filter(_.size>2).flatten
+  }
+
+  def fixedFuture = {//こいｔも遅い
     fixed().zipWithIndex.map {
       case (row, x) => row.zipWithIndex.map {
         case (p, y) => future()(x)(y)
@@ -56,8 +84,8 @@ class ActionPuzzle3 extends Reactor with Logging {
   }
 
   def scanRemoveFill() {
-    //println(scanAll)
-    remove(scanAllDistinct)
+    //TODO removeとfillの高速化
+    remove(scanAllDistinct2)
     fill()
   }
 
@@ -91,21 +119,27 @@ class ActionPuzzle3 extends Reactor with Logging {
   }
 
   def fill() {
-    val filling = future() createFillingPuzzle(seed, COLUMN)
+    val filling = future() createFillingPuzzle(seed, COLUMN) //no cost
     if (filling.exists(!_.isEmpty)) {
-      falling() = falling() append filling
-      future() = fixed() append falling()
+      //printTime("fill:update failling"){
+        falling() = falling() append filling // howmuch?
+      //}
+      //printTime("fill:update future"){
+        future() = fixed() append falling() //costs 1ms
+      //}
+      val fillingMap = filling.toIndexMap // costs 1ms
       val indexed = filling.flatten.map {
-        p => val (x, y) = filling.indexOfPanelUnhandled(p); (p, x, y)
+        p => val (x, y) = fillingMap(p); (p, x, y)
       }
+      val futureMap = futureIndices()
       val futureIndexed = filling.flatten.map {
-        p => val (x, y) = future().indexOfPanelUnhandled(p); (p, x, y)
+        p => val (x, y) = futureMap(p); (p, x, y)
       }
       for ((p, x, y) <- indexed) {
         p.x() = x
         p.y() = COLUMN + y
       }
-      futureIndexed |> panelAdd
+      panelAdd(futureIndexed)
     }
     updateTargetPosition()
   }
@@ -117,7 +151,7 @@ class ActionPuzzle3 extends Reactor with Logging {
       task <- tasks
     } {
       log("canceled!" + panel)
-      swiping() += (panel -> (swiping().get(panel).map(_.filterNot(_ == task)) | Nil))
+      swiping() += (panel -> (swiping()(panel).filterNot(_ == task)))
       //TODO remove task from the map.
       //processor.removeTask(task)
     }
@@ -135,15 +169,17 @@ class ActionPuzzle3 extends Reactor with Logging {
     updateTargetPosition()
   }
 
-  def updateTargetPosition() {
+  def updateTargetPosition() {//this is a bit heavy opreation....
+    val indices = futureIndices()
     for {
       row <- falling()
       p <- row
-      (tx, ty) <- future().indexOfPanelOpt(p)
     } {
+      val (tx, ty) = indices(p) //future().indexOfPanelUnhandled(p)
       p.tx() = tx
       p.ty() = ty
     }
+
   }
 
   def initialize() {
@@ -155,22 +191,95 @@ class ActionPuzzle3 extends Reactor with Logging {
     processor.update(delta)
   }
 
+  //for optimization
+  def newPuzzleBuffer: ArrayBuffer[ArrayBuffer[AP]] = ArrayBuffer((0 until ROW).map(_ => ArrayBuffer.empty[AP]): _*)
+  val finishedBuf = ListBuffer.empty[AP]
+  val continuedBuf = newPuzzleBuffer
+  val fallingBuffer = ArrayBuffer((0 until ROW).map(_ => ArrayBuffer.empty[AP]): _*)
+  val fixedBuf = newPuzzleBuffer
+  val fixedTemp = mutable.Stack.empty[AP]
   def updateFalling(delta: Float) {
+    {
+      val fallingCpy = falling()
+      val width = fallingCpy.size
+      var x = 0
+      while (x < width) {
+        val applied = fallingCpy(x)
+        val height = applied.size
+        var y = 0
+        while (y < height) {
+          val p = applied(y)
+          p.vy() += gravity * delta
+          if (p.update(delta)) {
+            finishedBuf += p
+          } else {
+            continuedBuf(x) += p
+          }
+          y += 1
+        }
+        x += 1
+      }
+    }
+    /*
     val (finished, continued) = falling().unzip {
       _.partition(p => {
         p.vy() += gravity * delta
         p.update(delta)
       })
     }
+    */
     //println("continued:"+continued.text)
-    if (finished.exists(!_.isEmpty)) {
+    if (!finishedBuf.isEmpty) {
       //println("finished:" + finished.text)
-      falling() = continued
-      for (row <- finished; p <- row) {
-        fixed() = fixed().updated(p.tx(), fixed()(p.tx()) :+ p)
+      {
+        var x = 0
+        while (x < ROW) {
+          val row = fallingBuffer(x)
+          row.clear()
+          var y = 0
+          val conRow = continuedBuf(x)
+          val height = conRow.size
+          while (y < height) {
+            row += conRow(y)
+            y += 1
+          }
+          x += 1
+        }
+        falling() = fallingBuffer
       }
+      //TODO make this mutable and fast!
+      {
+        var x = 0
+        while(x < ROW){
+          val row = fixed()(x)
+          val length = row.size
+          val buf = fixedBuf(x)
+          fixedTemp.clear()
+          var y = 0
+          while(y < length){
+            fixedTemp.push(row(y))
+            y += 1
+          }
+          buf.clear()
+          while(!fixedTemp.isEmpty){
+            buf += fixedTemp.pop()
+          }
+          x += 1
+        }
+      }
+      for (p <- finishedBuf) {
+        fixedBuf(p.tx()) += p
+        //fixed() = fixed().updated(p.tx(), fixed()(p.tx()) :+ p)
+      }
+      fixed() = fixedBuf
       scanRemoveFill()
     }
+    var i = 0
+    while (i < ROW) {
+      continuedBuf(i).clear()
+      i += 1
+    }
+    finishedBuf.clear()
   }
 
   class AP(val n: Int) extends GMatch3.Panel with Reactor {
@@ -180,8 +289,8 @@ class ActionPuzzle3 extends Reactor with Logging {
     val vy = Var(0f)
     val tx = Var(0)
     val ty = Var(0)
-    lazy val isSwiping = swiping.map(_.get(AP.this).map(!_.isEmpty) | false)
-    lazy val isFalling = falling.map(_.exists(_.contains(AP.this)))
+    lazy val isSwiping = swiping.map(!_(this).isEmpty)
+    lazy val isFalling = fallingFlagMap.map(_(this))
 
     def matchTo(panel: Panel): Boolean = panel match {
       case p: AP => n == p.n

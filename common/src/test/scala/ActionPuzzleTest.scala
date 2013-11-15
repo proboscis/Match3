@@ -15,7 +15,6 @@ object ActionPuzzleTest extends Logging{
       reactVar(puzzle.statics) {
         s => log("statics:" + s.text)
       }
-
       reactVar(puzzle.floatings) {
         s => //log("floating:" + s.text)
       }

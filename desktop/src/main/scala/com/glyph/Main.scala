@@ -23,11 +23,10 @@ object Main {
   println(ScreenBuilder.writeConfig(actionScreenConfig))
 
   //TODO どうやってスクリーンを決定するかね
-  case class Config(screenFile: String = "screens/action.js", resDir: File = new File(""), fileCheck: Boolean = false, packTexture: Boolean = false)
+  case class Config(screenFile: String = "screens/action.js", resDir: File = new File("../common/src/main/resources/"), fileCheck: Boolean = false, packTexture: Boolean = false)
 
   implicit object ScoptClass extends scopt.Read[Class[_ <: ScreenBuilder]] {
     def arity: Int = 1
-
     def reads: (String) => Class[_ <: ScreenBuilder] = clsName => Class.forName(clsName, false, ClassLoader.getSystemClassLoader).asInstanceOf[Class[_ <: ScreenBuilder]]
   }
 

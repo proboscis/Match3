@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
  * @author glyph
  */
 class Box2DBed(world:World) extends WidgetGroup{
-  val renderer = new Box2DDebugRenderer(true,true,true,true,true)
+  val renderer = new Box2DDebugRenderer(true,true,true,true,true,true)
   override def draw(batch: SpriteBatch, parentAlpha: Float){
     batch.flush()
     val proj = batch.getProjectionMatrix

@@ -33,7 +33,7 @@ object Settings {
   lazy val android = Settings.common ++
     AndroidProject.androidSettings ++
     AndroidMarketPublish.settings ++ Seq (
-      platformName in Android := "android-10",
+      platformName in Android := "android-17",
       keyalias in Android := "change-me",
       mainAssetsPath in Android := file("common/src/main/resources"),
       unmanagedBase <<= baseDirectory( _ /"src/main/libs" ),
@@ -179,11 +179,17 @@ object Settings {
 
 object LibgdxBuild extends Build {
 
+  lazy val macros = Project(
+    "macros",
+    file("macros"),
+    settings = Settings.common ++ Seq(libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _))
+  )
+
   val common = Project (
     "common",
     file("common"),
     settings = Settings.common
-  )
+  ) dependsOn macros
 
   lazy val desktop = Project (
     "desktop",

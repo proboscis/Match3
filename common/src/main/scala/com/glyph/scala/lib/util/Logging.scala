@@ -31,3 +31,12 @@ trait Logging {
   def debE = appDebugE |> toAnyDefaultE
   def errE = appErrorE |> toAnyDefaultE
 }
+trait Timing{
+  self:Logging=>
+  def printTime(tag:String)(block: =>Unit){
+    val prev = System.nanoTime()
+    block
+    val finish = System.nanoTime()
+    log("(%s,%s)".format(getClass.getSimpleName,tag)+(finish-prev))
+  }
+}
