@@ -1,11 +1,12 @@
 package com.glyph.scala.lib.util.updatable.task
 
 import scala.collection.mutable.ListBuffer
+import com.glyph.scala.lib.util.Logging
 
 /**
  * @author glyph
  */
-class Wait(w:(Wait)=> Unit) extends Task{
+class Wait(w:(Wait)=> Unit) extends Task with Logging{
   var invoked = false
   var woken = false
   def isCompleted: Boolean = invoked && woken
@@ -25,13 +26,13 @@ object Wait{
     new Wait(w)
   }
 }
-class WaitAll(waiting:Task*) extends Task{
+class WaitAll(waiting:Task*) extends Task with Logging{
   val tasks = ListBuffer(waiting:_*)
   override def onStart(){
     super.onStart()
-    waiting foreach{_.onStart()}
+    tasks foreach{_.onStart()}
   }
-  def isCompleted: Boolean = waiting forall(_.isCompleted)
+  def isCompleted: Boolean = tasks forall(_.isCompleted)
   override def update(delta: Float){
     super.update(delta)
     for(task <- tasks){
@@ -42,6 +43,15 @@ class WaitAll(waiting:Task*) extends Task{
         task.onFinish()
       }
     }
+  }
+
+  def add(t:Task){
+    tasks += t
+  }
+
+  override def reset(): Unit = {
+    super.reset()
+    tasks.clear()
   }
 }
 

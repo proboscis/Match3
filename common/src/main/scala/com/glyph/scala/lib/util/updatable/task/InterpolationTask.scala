@@ -24,4 +24,9 @@ trait InterpolationTask extends TimedTask {
     interpolation = i
     this
   }
+
+  override def reset(){
+    super.reset()
+    interpolation = Interpolation.linear
+  }
 }

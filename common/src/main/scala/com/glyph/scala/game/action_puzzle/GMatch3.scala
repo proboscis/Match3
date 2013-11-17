@@ -37,7 +37,6 @@ object GMatch3 {
   //includedはフラグ表をつかって高速化する必要がある
   def included[T <: Panel](sets: MatchedSet[T], target: MatchedSet[T]): Boolean = target forall sets.contains
 
-
   def toIndexMap[T](puzzle:IndexedSeq[IndexedSeq[T]]): T Map (Int,Int) = puzzle.zipWithIndex.flatMap{
     case (row,x) => row.zipWithIndex.map{
       case (p,y) => p->(x,y)

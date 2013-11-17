@@ -50,7 +50,7 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
 */
   puzzle.panelAdd = view.panelAdd
   puzzle.panelRemove = view.panelRemove
-  view.startSwipeCheck(puzzle.swipe)
+  view.startSwipeCheck(puzzle.pooledSwipe)
   /*
   init after the layout is setup
    */

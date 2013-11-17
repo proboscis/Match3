@@ -25,7 +25,10 @@ object Match3Test extends Properties("Match3"){
       val ROW = 6
       val COLUMN = 6
       val reactor = new Reactor{}
-      val puzzle:Var[Puzzle[P]] = Var(GMatch3.initialize[P](ROW))
+      def initialize[T<:Panel] = GMatch3.initialize[T](ROW)(new IndexedSeqGen {
+        def convert[T](seq: Seq[T]): IndexedSeq[T] = ArrayBuffer(seq:_*)
+      })
+      val puzzle:Var[Puzzle[P]] = Var(initialize[P])
       reactor.reactVar(puzzle)(p => println(p.text))
       val seed = () => new P(MathUtils.random(0,5))
       puzzle() = puzzle().createFillingPuzzle(seed,COLUMN)

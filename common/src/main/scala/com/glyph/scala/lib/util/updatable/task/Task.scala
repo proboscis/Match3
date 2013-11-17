@@ -9,4 +9,5 @@ trait Task extends Updatable{
   def isCompleted:Boolean
   def onStart(){}
   def onFinish(){}
+  def reset(){}
 }

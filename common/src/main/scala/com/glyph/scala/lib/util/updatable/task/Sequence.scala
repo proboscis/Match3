@@ -6,6 +6,10 @@ package com.glyph.scala.lib.util.updatable.task
 class Sequence(task:Task*) extends SequentialProcessor with Task{
   task foreach add
   def isCompleted: Boolean = current == null && tasks.isEmpty
+  override def reset(): Unit = {
+    super.reset()
+    tasks.clear()
+  }
 }
 object Sequence{
   def apply(tasks:Task*):Sequence={

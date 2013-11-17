@@ -9,6 +9,12 @@ trait TimedTask extends Task {
   protected var time = 0f
   protected var completed = false
 
+  override def reset(){
+    super.reset()
+    duration = 0
+    time = 0
+    completed = false
+  }
   override def update(delta: Float) {
     if (!completed) {
       time += delta
