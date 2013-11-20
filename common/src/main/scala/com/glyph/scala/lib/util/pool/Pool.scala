@@ -20,7 +20,15 @@ class Pool[P:Pooling](max:Int){
       pool push tgt
     }
   }
+
+  override def toString: String = "pool"+pool.size
 }
 object Pool{
   def apply[T:Pooling](size:Int):Pool[T]=new Pool(size)
+  def obtain[T](implicit pool:Pool[T]):T = pool.obtain
+  implicit class PooledAny[T](val self:T) extends AnyVal{
+    def free(implicit pool: Pool[T]){
+      pool.reset(self)
+    }
+  }
 }

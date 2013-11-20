@@ -2,11 +2,10 @@ package com.glyph.scala.game.action_puzzle
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import com.glyph.hello
 import scalaz._
 import Scalaz._
-import scala.reflect.ClassTag
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.generic.CanBuildFrom
 
 /**
  * @author glyph
@@ -14,41 +13,73 @@ import scala.collection.mutable.ArrayBuffer
 //@hello
 object GMatch3 {
   //TODO make scanning faster!
+
   import scala.util.control.Exception._
-  trait Panel {
-    def matchTo(panel: Panel): Boolean
+
+  type Event[T] = (T, Int, Int)
+  type MatchedSet[T] = Seq[Event[T]]
+  type Events[T] = Seq[Event[T]]
+  type Puzzle[T] = IndexedSeq[IndexedSeq[T]]
+  type Buf[T] = IndexedSeq[T] with mutable.Buffer[T]
+  type MPuzzle[T] = mutable.Buffer[mutable.Buffer[T]]
+  trait IndexedSeqGen[M[A]<:IndexedSeq[A]] {
+    def convert[T](seq: Seq[T]): M[T]
   }
-  type Event[T <: Panel] = (T, Int, Int)
-  type MatchedSet[T <: Panel] = Seq[Event[T]]
-  type Events[T <: Panel] = Seq[Event[T]]
-  type Puzzle[T <: Panel] = IndexedSeq[IndexedSeq[T]]
 
-  //def initialize[T <: Panel](size: Int): Puzzle[T] = Vector(0 until size map (_ => Vector()): _*)
-  //def initialize[T <: Panel :ClassTag](size: Int): Puzzle[T] = ArrayBuffer((0 until size).toList.as(ArrayBuffer()):_*)
-  /*def initialize[T <: Panel :ClassTag](size: Int): Puzzle[T] = {
-    def gen:IndexedSeq[T] = Array[T]()
-    Array((0 until size) map (_=>gen):_*)
-  }*/
-  trait IndexedSeqGen{
-    def convert[T](seq:Seq[T]):IndexedSeq[T]
+  def swap[T,M[A]<:mutable.Buffer[A]](src:Puzzle[T])(dst:M[M[T]])(x:Int,y:Int,nx:Int,ny:Int){
+    dst(x)(y) = src(nx)(ny)
+    dst(nx)(ny) = src(x)(y)
   }
-  def initialize[T<:Panel](width:Int)(c:IndexedSeqGen):Puzzle[T] = c.convert((0 until width).toList.as(c.convert(Nil)))
+  def copy[T](src:Puzzle[T])(dst:MPuzzle[T]){
+    var x = 0
+    val width = src.size
+    while(x < width){
+      var y = 0
+      val row = src(x)
+      val height = row.size
+      val dstRow = dst(x)
+      while(y < height){
+        dstRow += row(y)
+        y += 1
+      }
+      x += 1
+    }
+  }
 
-  //includedはフラグ表をつかって高速化する必要がある
-  def included[T <: Panel](sets: MatchedSet[T], target: MatchedSet[T]): Boolean = target forall sets.contains
+  def append[T,M[A] <: mutable.Buffer[A]](src:Puzzle[T])(dst:MPuzzle[T]){
+    var x = 0
+    val width = src.size
+    while(x < width){
+      var y = 0
+      val row = src(x)
+      val height = row.size
+      val dstRow = dst(x)
+      while(y < height){
+        dstRow += row(y)
+        y += 1
+      }
+      x += 1
+    }
+    dst
+  }
 
-  def toIndexMap[T](puzzle:IndexedSeq[IndexedSeq[T]]): T Map (Int,Int) = puzzle.zipWithIndex.flatMap{
-    case (row,x) => row.zipWithIndex.map{
-      case (p,y) => p->(x,y)
+  def initialize[T,M[A]<:IndexedSeq[A]](width: Int)(c: IndexedSeqGen[M]): M[M[T]] = c.convert((0 until width).toList.as(c.convert(Nil)))
+
+  def included[T](sets: MatchedSet[T], target: MatchedSet[T]): Boolean = target forall sets.contains
+
+  def toIndexMap[T](puzzle: IndexedSeq[IndexedSeq[T]]): T Map (Int, Int) = puzzle.zipWithIndex.flatMap {
+    case (row, x) => row.zipWithIndex.map {
+      case (p, y) => p ->(x, y)
     }
   }.toMap
-  def toContainsMap[T](puzzle:IndexedSeq[IndexedSeq[T]]): T  Map Boolean = puzzle.flatMap{
-    row => row.map{
-      p => p->true
+
+  def toContainsMap[T](puzzle: IndexedSeq[IndexedSeq[T]]): T Map Boolean = puzzle.flatMap {
+    row => row.map {
+      p => p -> true
     }
   }.toMap.withDefaultValue(false)
 
-  def scanIndexedWithException[T <: Panel](puzzle: Puzzle[T])(x: Int)(y: Int)(exception: T => Boolean)(right: Boolean): MatchedSet[T] = {
+  def scanIndexedWithException[T](puzzle: Puzzle[T])(matcher: (T, T) => Boolean)(x: Int)(y: Int)(exception: T => Boolean)(right: Boolean): MatchedSet[T] = {
     val W = puzzle.size
     var matches = (puzzle(x)(y), x, y) :: Nil
     if (x < W) {
@@ -57,7 +88,7 @@ object GMatch3 {
       if (right) {
         //right direction
         var nx = x + 1
-        while (nx < W && y < puzzle(nx).size && current.matchTo(puzzle(nx)(y)) && !exception(current)) {
+        while (nx < W && y < puzzle(nx).size && matcher(current, puzzle(nx)(y)) && !exception(current)) {
           matches ::=(puzzle(nx)(y), nx, y)
           current = puzzle(nx)(y)
           nx += 1
@@ -65,7 +96,7 @@ object GMatch3 {
       } else {
         //left direction
         var ny = y + 1
-        while (ny < H && current.matchTo(puzzle(x)(ny)) && !exception(current)) {
+        while (ny < H && matcher(current, puzzle(x)(ny)) && !exception(current)) {
           matches ::=(puzzle(x)(ny), x, ny)
           current = puzzle(x)(ny)
           ny += 1
@@ -79,68 +110,71 @@ object GMatch3 {
   def segment[T](line: List[T])(divider: T => Boolean): List[List[T]] = {
     //@tailrec
     def rec(seq: List[T], processing: List[T]): List[List[T]] = seq match {
-      case Nil => processing::Nil
+      case Nil => processing :: Nil
       case head :: tail => {
         if (divider(head)) {
           rec(tail, head :: processing)
-        }else{
+        } else {
           processing :: rec(tail, head :: Nil)
         }
       }
     }
     rec(line, Nil)
   }
-  def segment2[T](line:List[T])(filter:(T,T)=>Boolean):List[List[T]] = {
+
+  def segment2[T](line: List[T])(filter: (T, T) => Boolean): List[List[T]] = {
     @tailrec
-    def rec(seq:List[T],buffer:List[T],result:List[List[T]]):List[List[T]] = seq match{
-      case Nil => buffer::result
-      case head::Nil => (head::buffer)::result
-      case first::second::tail => if (filter(first,second)){
-        rec(second::tail,first::buffer,result)
-      } else{
-        rec(second::tail,Nil,(first::buffer)::result)
+    def rec(seq: List[T], buffer: List[T], result: List[List[T]]): List[List[T]] = seq match {
+      case Nil => buffer :: result
+      case head :: Nil => (head :: buffer) :: result
+      case first :: second :: tail => if (filter(first, second)) {
+        rec(second :: tail, first :: buffer, result)
+      } else {
+        rec(second :: tail, Nil, (first :: buffer) :: result)
       }
     }
-    rec(line,Nil,Nil)
+    rec(line, Nil, Nil)
   }
-  def verticalLine[T](puzzle:IndexedSeq[IndexedSeq[T]])(x:Int)(y:Int)(height:Int):List[T] = {
+
+  def verticalLine[T](puzzle: IndexedSeq[IndexedSeq[T]])(x: Int)(y: Int)(height: Int): List[T] = {
     val W = puzzle.size
     var result = List.empty[T]
-    if(x < W){
+    if (x < W) {
       val row = puzzle(x)
       val H = row.size
       var ny = y
-      while(ny < height){
-        if (ny < H){
+      while (ny < height) {
+        if (ny < H) {
           result ::= row(ny)
-        }else{
+        } else {
           result ::= null.asInstanceOf[T]
         }
         ny += 1
       }
-    }else{
+    } else {
       var ny = y
-      while (ny < height){
+      while (ny < height) {
         result ::= null.asInstanceOf[T]
         ny += 1
       }
     }
     result
   }
-  def horizontalLine[T](puzzle:IndexedSeq[IndexedSeq[T]])(x:Int)(y:Int)(width:Int):List[T] ={
+
+  def horizontalLine[T](puzzle: IndexedSeq[IndexedSeq[T]])(x: Int)(y: Int)(width: Int): List[T] = {
     val W = puzzle.size
     var result = List.empty[T]
     var nx = x
-    while(nx < width){
-      if(nx < W){
+    while (nx < width) {
+      if (nx < W) {
         val row = puzzle(nx)
         val H = row.size
-        if( y < H){
+        if (y < H) {
           result ::= row(y)
-        }else{
-          result::= null.asInstanceOf[T]
+        } else {
+          result ::= null.asInstanceOf[T]
         }
-      }else{
+      } else {
         result ::= null.asInstanceOf[T]
       }
       nx += 1
@@ -148,25 +182,25 @@ object GMatch3 {
     result
   }
 
-  def allLine[T](puzzle:IndexedSeq[IndexedSeq[T]])(width:Int)(height:Int):List[List[T]] = {
-    var result:List[List[T]]= Nil
+  def allLine[T](puzzle: IndexedSeq[IndexedSeq[T]])(width: Int)(height: Int): List[List[T]] = {
+    var result: List[List[T]] = Nil
     var x = 0
-    while ( x < width){
+    while (x < width) {
       result ::= verticalLine(puzzle)(x)(0)(height)
-      x+=1
+      x += 1
     }
     var y = 0
 
-    while (y < height){
+    while (y < height) {
       result ::= horizontalLine(puzzle)(0)(y)(width)
       y += 1
     }
     result
   }
 
-  def scanAll[T](puzzle:IndexedSeq[IndexedSeq[T]])(width:Int)(height:Int)(filter:(T,T)=>Boolean):Seq[Seq[T]] = allLine(puzzle)(width)(height) flatMap (segment2(_)(filter))
+  def scanAll[T](puzzle: IndexedSeq[IndexedSeq[T]])(width: Int)(height: Int)(filter: (T, T) => Boolean): Seq[Seq[T]] = allLine(puzzle)(width)(height) flatMap (segment2(_)(filter))
 
-  def scanBy[T <: Panel](puzzle: Puzzle[T])(scanner: Int => Int => Boolean => MatchedSet[T]): Seq[MatchedSet[T]] = {
+  def scanBy[T](puzzle: Puzzle[T])(scanner: Int => Int => Boolean => MatchedSet[T]): Seq[MatchedSet[T]] = {
     val result = mutable.ArrayBuffer[MatchedSet[T]]()
     var x = 0
     val width = puzzle.size
@@ -203,16 +237,16 @@ object GMatch3 {
     result
   }
 
-  def createFilling[T <: Panel](puzzle: Puzzle[T])(seed: () => T, col: Int): Events[T] = for (x <- 0 until puzzle.size; y <- puzzle(x).size until col) yield (seed(), x, y)
+  def createFilling[T](puzzle: Puzzle[T])(seed: () => T, col: Int): Events[T] = for (x <- 0 until puzzle.size; y <- puzzle(x).size until col) yield (seed(), x, y)
 
-  def createFillingPuzzle[T <: Panel](puzzle: Puzzle[T])(seed: () => T, col: Int): Puzzle[T] = for (x <- 0 until puzzle.size) yield for (y <- puzzle(x).size until col) yield seed()
+  def createFillingPuzzle[T,M[A]<:IndexedSeq[A]](puzzle: Puzzle[T])(seed: () => T, col: Int):Puzzle[T] = for (x <- 0 until puzzle.size) yield for (y <- puzzle(x).size until col) yield seed()
 
-  def scanAllWithException[T <: Panel](puzzle: Puzzle[T])(matchLength: Int)(exception: T => Boolean) = scanBy(puzzle)(x => y => right => scanIndexedWithException(puzzle)(x)(y)(exception)(right)).filter {
+  def scanAllWithException[T](puzzle: Puzzle[T])(matchLength: Int)(matcher: (T, T) => Boolean)(exception: T => Boolean) = scanBy(puzzle)(x => y => right => scanIndexedWithException(puzzle)(matcher)(x)(y)(exception)(right)).filter {
     _.length >= matchLength
   }
 
   //@hello
-  implicit class PuzzleImpl[T <: Panel](val puzzle: Puzzle[T]) extends AnyVal {
+  implicit class ImmutablePuzzleImpl[T](val puzzle:Puzzle[T]) extends AnyVal {
     def text: String = puzzle.map {
       col => col.map {
         _.toString
@@ -227,37 +261,15 @@ object GMatch3 {
 
     def scanWithException = GMatch3.scanIndexedWithException(puzzle) _
 
-    //TODO scannerを使うと動かしたときに消せるパネルを表示できるようにしたいね
-    def scan(x: Int)(y: Int)(right: Boolean): MatchedSet[T] = {
-      val W = puzzle.size
-      val H = puzzle.head.size
-      val panel = puzzle(x)(y)
-      var matching = (puzzle(x)(y), x, y) :: Nil
-      //TODO check nonempty
-      if (right) {
-        var nx = x + 1
-        while (nx < W && y < puzzle(nx).size && panel.matchTo(puzzle(nx)(y))) {
-          matching ::=(puzzle(nx)(y), nx, y)
-          nx += 1
-        }
-      } else {
-        var ny = y + 1
-        val size = puzzle(x).size
-        while (ny < H && ny < size && panel.matchTo(puzzle(x)(ny))) {
-          matching ::=(puzzle(x)(ny), x, ny)
-          ny += 1
-        }
-      }
-      if (matching.size >= 3) matching else Nil
-    }
-
     def createFilling = GMatch3.createFilling(puzzle) _
 
     def createFillingPuzzle = GMatch3.createFillingPuzzle(puzzle) _
 
-    def fill(filling: Events[T]): Puzzle[T] = filling.foldLeft(puzzle) {
+
+    def fill(filling: Events[T]):Puzzle[T] = filling.foldLeft(puzzle) {
       case (p, (panel, x, _)) => p.updated(x, p(x) :+ panel)
     }
+
 
     def removePanels(panels: Seq[T]): Puzzle[T] = puzzle map (_ filterNot panels.contains)
 
@@ -265,8 +277,8 @@ object GMatch3 {
      * @param panels to be removed
      * @return (leftPanels, floatingPanels)
      */
-    def remove(panels: Seq[T]): (Puzzle[T], Puzzle[T]) = {
-      val f = (p: Panel) => panels.contains(p)
+    def remove(panels: Seq[T]): (Puzzle[T],Puzzle[T]) = {
+      val f = (p: T) => panels.contains(p)
       puzzle.unzip {
         col => col.span(!f(_)) match {
           case (left, float) => (left, float filterNot f)
@@ -274,13 +286,13 @@ object GMatch3 {
       }
     }
 
-    def createNoMatchFilling(seed: () => T, col: Int): Events[T] = {
+    def createNoMatchFilling(seed: () => T, col: Int, matcher: (T, T) => Boolean): Events[T] = {
       val contains = puzzle.flatten.contains _
       @tailrec
       def fillWithStatics(added: Puzzle[T]): Puzzle[T] =
         added.createFilling(seed, col) match {
           case filling => added.fill(filling) match {
-            case filled => filled.scanAll match {
+            case filled => filled.scanAllWithException(0)(matcher)(_ => false) match {
               case matches if matches.flatten.map(_._1).forall(contains) => filled
               case matches => fillWithStatics(added.removePanels(filling.filterNot(puzzle.flatten.contains).map {
                 _._1
@@ -294,10 +306,10 @@ object GMatch3 {
       } yield (panel, x, y)
     }
 
-    private def fillWithoutMatches(seed: () => T, size: Int): Puzzle[T] = {
+    private def fillWithoutMatches(seed: () => T, size: Int, matcher: (T, T) => Boolean): Puzzle[T] = {
       @tailrec
       def recFWM(p: Puzzle[T]): Puzzle[T] = {
-        p.scanAll match {
+        p.scanAllWithException(0)(matcher)(_ => false) match {
           case Seq() => p
           case matches => recFWM(removePanels(matches.flatten.distinct.map {
             case (pp, x, y) => pp
@@ -309,11 +321,9 @@ object GMatch3 {
 
     def scanBy = GMatch3.scanBy(puzzle) _
 
-    def scanAllWithException(matchLength: Int)(exception: T => Boolean) = scanBy(x => y => right => scanWithException(x)(y)(exception)(right)).filter {
+    def scanAllWithException(matchLength: Int)(matcher: (T, T) => Boolean)(exception: T => Boolean) = scanBy(x => y => right => scanWithException(matcher)(x)(y)(exception)(right)).filter {
       _.size >= matchLength
     }
-
-    def scanAll = scanBy(scan)
 
     /**
      * @param panel searched with _.contains
@@ -336,7 +346,7 @@ object GMatch3 {
       (puzzle.indexOf(row), row.indexOf(panel))
     }
 
-    def indexOfPanelUnhandled(panel: Panel): (Int, Int) = {
+    def indexOfPanelUnhandled(panel: T): (Int, Int) = {
       val row = puzzle.filter {
         _.contains(panel)
       }.head
@@ -344,7 +354,7 @@ object GMatch3 {
     }
 
     /**
-     * swaps the give indices of puzzle, and returns new swapped puzzle
+     * swaps the given indices of puzzle, and returns new swapped puzzle
      * @return
      */
     def swap(ax: Int, ay: Int, bx: Int, by: Int): Puzzle[T] = {
@@ -360,7 +370,7 @@ object GMatch3 {
     }
   }
 
-  def calcNextIndices[T <: Panel](left: Puzzle[T])(floatings: Puzzle[T]): Seq[(T, (Int, Int))] = {
+  def calcNextIndices[T](left: Puzzle[T])(floatings: Puzzle[T]): Seq[(T, (Int, Int))] = {
     val appended = left append floatings
     floatings.flatten.map {
       p => (p, appended.indexOfPanelUnhandled(p))

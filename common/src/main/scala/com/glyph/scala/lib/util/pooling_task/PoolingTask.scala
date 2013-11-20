@@ -21,7 +21,6 @@ object PoolingTask {
   }
   implicit object PoolingOnFinish extends Pooling[OnFinish]{
     def newInstance: OnFinish = new OnFinish
-
     def reset(tgt: OnFinish): Unit = tgt.reset()
   }
 }
