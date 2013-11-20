@@ -2,13 +2,13 @@ package com.glyph.scala.game.action_puzzle
 
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, WidgetGroup}
-import com.glyph.scala.lib.util.reactive.{Reactor, Var}
+import com.glyph.scala.lib.util.reactive.{Varying, Reactor, Var}
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.game.action_puzzle.view.Paneled
-import com.glyph.scala.lib.util.{Timing, reactive, Logging}
+import com.glyph.scala.lib.util.{HeapMeasure, Timing, reactive, Logging}
 import com.glyph.scala.lib.util.updatable.reactive.Animator
 import com.badlogic.gdx.graphics.{Color, Texture}
 import com.glyph.scala.lib.libgdx.actor.{ExplosionFadeout, SpriteActor}
@@ -19,38 +19,48 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.mutable
 import com.glyph.scala.lib.util.pool.{Pool, Pooling}
 import com.glyph.scala.lib.util.pooling_task.PoolingTask
+import com.glyph.scala.lib.util.updatable.reactive.Animator.IPAnimator
 
 /**
  * @author glyph
  */
 //@hello
-class ActionPuzzle3 extends Reactor with Logging with Timing {
+class ActionPuzzle3 extends Reactor with Logging with Timing with HeapMeasure {
   //TODO マクロについて、ログ関数へ対応させる
+
   import GMatch3._
   import Animator._
   import Pool._
   import PoolingTask._
+
   val ROW = 8
   val COLUMN = 8
   val generator = new IndexedSeqGen[ArrayBuffer] {
-    def convert[T](seq: Seq[T])= ArrayBuffer.apply(seq: _*)
+    def convert[T](seq: Seq[T]) = ArrayBuffer.apply(seq: _*)
   }
+
   implicit object PoolingSA extends Pooling[SwipeAnimation] {
     def newInstance = new SwipeAnimation
+
     def reset(tgt: SwipeAnimation): Unit = tgt.resetAll()
   }
+
   type PuzzleBuffer = ArrayBuffer[ArrayBuffer[AP]]
-  implicit object PoolingPuzzle extends Pooling[PuzzleBuffer]{
-    def newInstance = GMatch3.initialize[AP,ArrayBuffer](COLUMN)(generator)
-    def reset(tgt:PuzzleBuffer){
+
+  implicit object PoolingPuzzle extends Pooling[PuzzleBuffer] {
+    def newInstance = GMatch3.initialize[AP, ArrayBuffer](COLUMN)(generator)
+
+    def reset(tgt: PuzzleBuffer) {
       var x = 0
       val l = tgt.length
-      while(x < l){
+      while (x < l) {
         tgt(x).clear()
         x += 1
       }
     }
   }
+
+  //TODO tune the numbers
   implicit val animators = Pool[IPAnimator](1000)
   implicit val waiters = Pool[WaitAll](100)
   implicit val finishes = Pool[OnFinish](100)
@@ -59,23 +69,22 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
 
   val gravity = -10f
   val processor = new ParallelProcessor {}
+
   def initializer: Var[PuzzleBuffer] = Var(Pool.obtain[PuzzleBuffer])
-  def seed: () => AP = () => new AP(MathUtils.random(0, 3))
+
+  val seed: () => AP = () => new AP(MathUtils.random(0, 2))
   val fixed = initializer
   val falling = initializer
-  val swiping: Var[AP Map Seq[Task]] = Var(Map.empty.withDefaultValue(Nil))
   val future = initializer
-  val futureIndices = future map GMatch3.toIndexMap
-  val fallingFlagMap = falling map GMatch3.toContainsMap
   //callbacks
-  var panelAdd = (panels: Seq[(AP, Int, Int)]) => {}
+  var panelAdd = (panels: Seq[Seq[AP]]) => {}
   var panelRemove = (panels: Seq[AP]) => {}
+
   //util functions
   def scanAllDistinct2 = {
-    val cpy = swiping()
     GMatch3.scanAll(fixedFuture)(ROW)(COLUMN) {
       (a, b) => {
-        if (a != null && b != null && cpy(a).isEmpty && cpy(b).isEmpty) {
+        if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
           a.n == b.n
         } else {
           false
@@ -83,6 +92,7 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
       }
     }.filter(_.size > 2).flatten
   }
+
   def fixedFuture = {
     //こいｔも遅い
     fixed().zipWithIndex.map {
@@ -91,73 +101,86 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
       }
     }
   }
+
   def scanRemoveFill() {
     //TODO removeとfillの高速化
     remove(scanAllDistinct2)
     fill()
   }
-  def pooledSwipe(x: Int, y: Int, nx: Int, ny: Int) = {
-    //("animator"+animators)::("swipe"+swipeAnimations)::Nil foreach println
-    //TODO make this swipe animation poolable!
-    //type class AutoRecycle!
-    val anim = swipeAnimations.obtain
-    def verified = y < fixed()(x).size && ny < fixed()(nx).size
-    if (verified) {
+
+  def verified(x: Int)(y: Int)(nx: Int)(ny: Int) = y < fixed()(x).size && ny < fixed()(nx).size
+
+  def pooledSwipe(x: Int, y: Int, nx: Int, ny: Int){
+    val anim = Pool.obtain[SwipeAnimation]
+
+    if (verified(x)(y)(nx)(ny)) {
+
       val pa = future()(x)(y)
       val pb = future()(nx)(ny)
-      var pTask:Task = null
-      val task = anim.init(x, y, nx, ny,pa,pb, () => {
-        swiping() ++= (pa -> swiping()(pa).filterNot(_ == pTask)) :: (pb -> swiping()(pb).filterNot(_ == pTask)) :: Nil
-        swiping() = swiping().filterNot(_._2.isEmpty)
-        if (verified) {
+      var pTask: Task = null
+
+      val task = anim.init(x, y, nx, ny, pa, pb, () => {
+
+        pa.swipeAnimation() = pa.swipeAnimation().filterNot(_ == pTask)//TODO this may better be made of ArrayBuffer
+        pb.swipeAnimation() = pb.swipeAnimation().filterNot(_ == pTask)
+
+
+        if (verified(x)(y)(nx)(ny)) {
           val prev = fixed()
           val next = Pool.obtain[PuzzleBuffer]
-          GMatch3.swap(prev)(GMatch3.copy(prev)(next))(x,y,nx,ny)
-          fixed ()= next
+          GMatch3.copy(prev)(next)
+          GMatch3.swap(prev)(next)(x, y, nx, ny)
+          fixed() = next
           prev.free
-          //fixed() = fixed().swap(x, y, nx, ny)
           scanRemoveFill()
         }
         anim.free
-        //swipeAnimations.reset(anim)
       })
       pTask = task
-      swiping() ++= (pa -> (swiping()(pa) :+ task)) :: (pb -> (swiping()(pb) :+ task)) :: Nil
+
+      pa.swipeAnimation() ::= pTask
+      pb.swipeAnimation() ::= pTask
+
       val prev = future()
-      future() = GMatch3.swap(fixed())(GMatch3.copy(future())(Pool.obtain[PuzzleBuffer]))(x,y,nx,ny)
+      val next = Pool.obtain[PuzzleBuffer]
+      GMatch3.copy(prev)(next)
+      GMatch3.swap(prev)(next)(x, y, nx, ny)
+      future() = next
       prev.free
-      //future() = future().swap(x, y, nx, ny)
-      processor.add(task)
+      processor.add(pTask)
     }
   }
+
   class SwipeAnimation {
-    var ax,ay,bx,by :IPAnimator = null
-    var waiter:WaitAll = null
-    var onFin:OnFinish = null
-    def init(x: Int, y: Int, nx: Int, ny: Int,pa:AP,pb:AP, callback: () => Unit): Task = {
-        import Interpolation._
-        ax = animators.obtain set pa.x to nx in 0.3f using exp10Out
-        ay = animators.obtain set pa.y to ny in 0.3f using exp10Out
-        bx = animators.obtain set pb.x to x in 0.3f using exp10Out
-        by = animators.obtain set pb.y to y in 0.3f using exp10Out
-        waiter = waiters.obtain
-        waiter.add(ax)
-        waiter.add(ay)
-        waiter.add(bx)
-        waiter.add(by)
-        onFin = finishes.obtain
-        onFin.setCallback(callback)
-        onFin.setTask(waiter)
-        onFin
+    var ax, ay, bx, by: IPAnimator = null
+    var waiter: WaitAll = null
+    var onFin: OnFinish = null
+
+    def init(x: Int, y: Int, nx: Int, ny: Int, pa: AP, pb: AP, callback: () => Unit): Task = {
+      import Interpolation._
+      ax = animators.obtain set pa.x to nx in 0.3f using exp10Out
+      ay = animators.obtain set pa.y to ny in 0.3f using exp10Out
+      bx = animators.obtain set pb.x to x in 0.3f using exp10Out
+      by = animators.obtain set pb.y to y in 0.3f using exp10Out
+      waiter = waiters.obtain
+      waiter.add(ax)
+      waiter.add(ay)
+      waiter.add(bx)
+      waiter.add(by)
+      onFin = finishes.obtain
+      onFin.setCallback(callback)
+      onFin.setTask(waiter)
+      onFin
     }
+
     def resetAll() {
       //TODO こいつをリストに収めておきたい><
-      ax.free
-      ay.free
-      bx.free
-      by.free
-      waiter.free
-      onFin.free
+      if(ax != null) ax.free
+      if(ay != null) ay.free
+      if(bx != null) bx.free
+      if(by != null) by.free
+      if(waiter!= null) waiter.free
+      if(onFin != null) onFin.free
       ax = null
       ay = null
       bx = null
@@ -166,85 +189,128 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
       onFin = null
     }
   }
+
   def fill() {
+    //log("fill")
     val filling = future() createFillingPuzzle(seed, COLUMN) //no cost
     if (filling.exists(!_.isEmpty)) {
       //printTime("fill:update failling"){
       val prevFall = falling()
-      falling() =append(prevFall)(copy(filling)(Pool.obtain[PuzzleBuffer]))
+      val nextFall: PuzzleBuffer = Pool.obtain[PuzzleBuffer]
+      copy(prevFall)(nextFall)
+      append(filling)(nextFall)
+      //log("fill:setfalling")
+      falling() = nextFall
       prevFall.free
       //falling() = falling() append filling // howmuch?
       //}
       //printTime("fill:update future"){
       val prevFuture = future()
-      future() = append(prevFuture)(copy(falling())(Pool.obtain[PuzzleBuffer]))
-      //future() = fixed() append falling() //costs 1ms
+      val nextFuture: PuzzleBuffer = Pool.obtain[PuzzleBuffer]
+      copy(fixed())(nextFuture)
+      append(falling())(nextFuture)
+      //log("fill:setFuture")
+      future() = nextFuture
       prevFuture.free
-      //}
-      val fillingMap = filling.toIndexMap // costs 1ms
-      val indexed = filling.flatten.map {
-          p => val (x, y) = fillingMap(p); (p, x, y)
+      //future() = fixed() append falling() //costs 1ms
+
+      updateTargetPosition()
+
+      {
+        var x = 0
+        val width = filling.length
+        while ( x < width){
+          val row = filling(x)
+          val height = row.length
+          var y = 0
+          while(y < height){
+            val p = row(y)
+            p.x() = x
+            p.y() = COLUMN + y
+            y += 1
+          }
+          x += 1
         }
-      val futureMap = futureIndices()
-      val futureIndexed = filling.flatten.map {
-        p => val (x, y) = futureMap(p); (p, x, y)
       }
-      for ((p, x, y) <- indexed) {
-        p.x() = x
-        p.y() = COLUMN + y
-      }
-      panelAdd(futureIndexed)
+      panelAdd(filling)
     }
-    updateTargetPosition()
   }
+
   def cancelSwipingAnimation(panel: AP) {
     //TODO set a panel to appropriate position
-    for {
-      tasks <- swiping().get(panel)
-      task <- tasks
-    } {
-      swiping() += (panel -> swiping()(panel).filterNot(_ == task))
-      //processor.removeTask(task)
-    }
+    //TODO free the canceled animation
+    panel.swipeAnimation() = Nil
   }
+
   def remove(panels: Seq[AP]) {
+    //log("remove")
     if (!panels.isEmpty) {
-      val (left, fallen) = fixedFuture.remove(panels)
-      fallen.foreach(_.foreach(cancelSwipingAnimation))
+      val fixedPrev = fixed()
+      val fixedNext: PuzzleBuffer = Pool.obtain[PuzzleBuffer]
+      val fallingPrev = falling()
+      val fallingNext: PuzzleBuffer = Pool.obtain[PuzzleBuffer]
+      GMatch3.remove(fixedFuture)(fixedNext)(fallingNext)(panels)
+      fallingNext.foreach(_.foreach(cancelSwipingAnimation))
+      append(fallingPrev)(fallingNext)
       panelRemove(panels)
+      //log("remove:setfixed")
+      fixed() = fixedNext
+      fixedPrev.free
+      //log("remove:setFAlling")
+      falling() = fallingNext
+      fallingPrev.free
+      val futurePrev = future()
+      val futureNext: PuzzleBuffer = Pool.obtain[PuzzleBuffer]
+      copy(fixed())(futureNext)
+      append(falling())(futureNext)
+      // log("remove:setFuture")
+      future() = futureNext
+      futurePrev.free
+      /*
       fixed() = left //wait中にfixedを変更するとバグが発生するおそれがある。　要注意
       falling() = fallen append falling()
       future() = fixed() append falling()
+      */
     }
     updateTargetPosition()
   }
+
   def updateTargetPosition() {
-    //this is a bit heavy opreation....
-    val indices = futureIndices()
-    for {
-      row <- falling()
-      p <- row
-    } {
-      val (tx, ty) = indices(p) //future().indexOfPanelUnhandled(p)
-      p.tx() = tx
-      p.ty() = ty
+    var x = 0
+    val ft = future()
+    val width = ft.length
+    while(x < width){
+      val row = ft(x)
+      val height = row.length
+      var y = 0
+      while( y < height){
+        val p = row(y)
+        p.tx() = x
+        p.ty() = y
+        y += 1
+      }
+      x += 1
     }
   }
+
   def initialize() {
     fill()
   }
+
   def update(delta: Float) {
     updateFalling(delta)
     processor.update(delta)
   }
+
   //for optimization
-  def newPuzzleBuffer: ArrayBuffer[ArrayBuffer[AP]] = ArrayBuffer((0 until ROW).map(_ => ArrayBuffer.empty[AP]): _*)
   val finishedBuf = ListBuffer.empty[AP]
-  val continuedBuf = newPuzzleBuffer
-  val fallingBuffer = newPuzzleBuffer
-  val fixedBuf = newPuzzleBuffer
   val fixedTemp = mutable.Stack.empty[AP]
+
   def updateFalling(delta: Float) {
+    val continuedBuf = Pool.obtain[PuzzleBuffer]
+    val fallingBuffer = Pool.obtain[PuzzleBuffer]
+    val fixedBuf = Pool.obtain[PuzzleBuffer]
+
     {
       val fallingCpy = falling()
       val width = fallingCpy.size
@@ -266,17 +332,7 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
         x += 1
       }
     }
-    /*
-    val (finished, continued) = falling().unzip {
-      _.partition(p => {
-        p.vy() += gravity * delta
-        p.update(delta)
-      })
-    }
-    */
-    //println("continued:"+continued.text)
     if (!finishedBuf.isEmpty) {
-      //println("finished:" + finished.text)
       {
         var x = 0
         while (x < ROW) {
@@ -291,7 +347,9 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
           }
           x += 1
         }
+        val prev = falling()
         falling() = fallingBuffer
+        prev.free
       }
       //TODO make this mutable and fast!
       {
@@ -317,16 +375,18 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
         fixedBuf(p.tx()) += p
         //fixed() = fixed().updated(p.tx(), fixed()(p.tx()) :+ p)
       }
+      val prev = fixed()
       fixed() = fixedBuf
+      prev.free
       scanRemoveFill()
+    } else {
+      fixedBuf.free
+      fallingBuffer.free
     }
-    var i = 0
-    while (i < ROW) {
-      continuedBuf(i).clear()
-      i += 1
-    }
+    continuedBuf.free
     finishedBuf.clear()
   }
+
   class AP(val n: Int) extends Reactor {
     val x = Var(0f)
     val y = Var(0f)
@@ -334,9 +394,12 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
     val vy = Var(0f)
     val tx = Var(0)
     val ty = Var(0)
-    lazy val isSwiping = swiping.map(!_(this).isEmpty)
-    lazy val isFalling = fallingFlagMap.map(_(this))
+    val swipeAnimation = Var[List[Task]](Nil)
+    val isSwiping = swipeAnimation map (!_.isEmpty)
+    import reactive._
+
     def matchTo(panel: AP): Boolean = n == panel.n
+
     def update(delta: Float): Boolean = {
       val nx = x() + vx() * delta
       var ny = y() + vy() * delta
@@ -361,21 +424,36 @@ class ActionPuzzle3 extends Reactor with Logging with Timing {
       //println(y(),vy())
       finished
     }
+
     def clear() {
       vx() = 0
       vy() = 0
     }
+
     override def toString: String = n + ""
   }
+
 }
 
 class APView(puzzle: ActionPuzzle3, assets: AssetManager) extends WidgetGroup with Paneled[Token] with Reactor with Logging {
   def row: Int = puzzle.ROW
+
   def column: Int = puzzle.COLUMN
+
+  import Pool._
+
+  implicit object PoolingToken extends Pooling[Token] {
+    def newInstance: Token = new Token(null, assets)
+
+    def reset(tgt: Token): Unit = tgt.reset()
+  }
+
+  implicit val tokenPool = Pool[Token](row * column)
   val skin = assets.get[Skin]("skin/default.json")
-  val panelAdd = (added: Seq[(ActionPuzzle3#AP, Int, Int)]) => {
-    for ((p, x, y) <- added) {
-      val token = new Token(p, assets)
+  val panelAdd = (added: Seq[Seq[ActionPuzzle3#AP]]) => {
+    for (row <- added;p <- row) {
+      val token = Pool.obtain[Token]
+      token.init(p)
       token.reactVar(p.x)(calcPanelX(_) |> token.setX)
       token.reactVar(p.y)(calcPanelY(_) |> token.setY)
       token.setSize(panelW, panelH)
@@ -389,22 +467,37 @@ class APView(puzzle: ActionPuzzle3, assets: AssetManager) extends WidgetGroup wi
       tokens -= token
       token.explode {
         token.remove()
+        token.free
       }
     }
   }
 }
 
-class Token(val panel: ActionPuzzle3#AP, assets: AssetManager)
+class Token(var panel: ActionPuzzle3#AP, assets: AssetManager)
   extends SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
   with Reactor
   with ExplosionFadeout {
-  import ColorTheme._
+
   import reactive._
-  val colorMap: Int Map Varying[Color] = Map(0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
-  val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling map {
-    case col ~ swiping ~ falling => (swiping | falling) ? col.cpy().mul(0.7f) | col
+
+  def init(p: ActionPuzzle3#AP) {
+    panel = p
+    import Token._
+    val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping map {
+      case col ~ swiping => swiping ? col.cpy().mul(0.7f) | col
+    }
+    reactVar(c)(setColor)
   }
-  reactVar(c)(setColor)
-  //debug()
+
+  def reset() {
+    clearReaction()
+    setScale(1)
+  }
 }
 
+object Token {
+
+  import ColorTheme._
+
+  val colorMap: Int Map Varying[Color] = Map(0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
+}

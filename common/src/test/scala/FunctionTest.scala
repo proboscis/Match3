@@ -1,3 +1,5 @@
+import scala.collection.mutable.ArrayBuffer
+
 /**
  * @author glyph
  */
@@ -14,8 +16,9 @@ object FunctionTest {
   def method(){val i = 0}
 
   def main(args: Array[String]) {
-    val list:List[Int] = (0 to 100).toList
-    val L = 100000//Int.MaxValue
+    val list:List[Int] = (0 to 10).toList
+    val array = Array(list:_*)
+    val L = 10000000//Int.MaxValue
     val benches = bench("ops check +="){
       var i = 0
       while(i < L){
@@ -61,7 +64,7 @@ object FunctionTest {
         i += 1
       }
     }::
-    bench("anonnfun"){
+    bench("list anonnfun foreach"){
       var i = 0
       while( i < L){
         list foreach{
@@ -69,7 +72,26 @@ object FunctionTest {
         }
         i+=1
       }
-    }::Nil
+    }::bench("array foreach"){
+        var i = 0
+        while( i < L){
+          array foreach{
+            _=>
+          }
+          i+=1
+        }
+      }::bench("array index"){
+        var i = 0
+        while( i < L){
+          var x = 0
+          val len = array.length
+          while(x < len){
+            array(x)
+            x += 1
+          }
+          i+=1
+        }
+      }::Nil
     println(Tabulator.format(("tag"::"time"::Nil)+:benches))
   }
 }

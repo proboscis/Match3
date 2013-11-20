@@ -8,7 +8,7 @@ import com.glyph.scala.lib.util.reactive.Reactor
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph.scala.game.action_puzzle.{APView, ActionPuzzle3}
+import com.glyph.scala.game.action_puzzle.{GMatch3, APView, ActionPuzzle3}
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.glyph.scala.lib.util.{reactive, Logging}
 
@@ -42,10 +42,11 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   root.invalidate()
   root.layout()
 /*
+    import GMatch3._
     import reactive._
     import puzzle._
     reactVar(fixed~falling~future~swiping){
-      case a~b~c~d=> "====================="::(a::b::c::Nil map(_.text))::d::Nil foreach log
+      case a~b~c~d=> "====================="::(a::b::c::Nil map(_.text) mkString "\n")::d::Nil foreach log
     }
 */
   puzzle.panelAdd = view.panelAdd

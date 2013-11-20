@@ -40,3 +40,13 @@ trait Timing{
     log("(%s,%s)".format(getClass.getSimpleName,tag)+(finish-prev))
   }
 }
+trait HeapMeasure{
+  self:Logging=>
+  def printHeap(tag:String)(block: => Unit){
+    val runtime = Runtime.getRuntime
+    val prev = runtime.totalMemory() - runtime.freeMemory()
+    block
+    val current =  runtime.totalMemory() - runtime.freeMemory()
+    log("heap increase:"+(current-prev)/1000+"kb")
+  }
+}

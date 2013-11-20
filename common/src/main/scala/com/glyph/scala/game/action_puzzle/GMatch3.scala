@@ -21,12 +21,12 @@ object GMatch3 {
   type Events[T] = Seq[Event[T]]
   type Puzzle[T] = IndexedSeq[IndexedSeq[T]]
   type Buf[T] = IndexedSeq[T] with mutable.Buffer[T]
-  type MPuzzle[T] = mutable.Buffer[mutable.Buffer[T]]
+  type MPuzzle[T] = IndexedSeq[mutable.Buffer[T]]
   trait IndexedSeqGen[M[A]<:IndexedSeq[A]] {
     def convert[T](seq: Seq[T]): M[T]
   }
 
-  def swap[T,M[A]<:mutable.Buffer[A]](src:Puzzle[T])(dst:M[M[T]])(x:Int,y:Int,nx:Int,ny:Int){
+  def swap[T](src:Puzzle[T])(dst:MPuzzle[T])(x:Int,y:Int,nx:Int,ny:Int){
     dst(x)(y) = src(nx)(ny)
     dst(nx)(ny) = src(x)(y)
   }
@@ -46,7 +46,30 @@ object GMatch3 {
     }
   }
 
-  def append[T,M[A] <: mutable.Buffer[A]](src:Puzzle[T])(dst:MPuzzle[T]){
+  def remove[T](src:Puzzle[T])(dstFixed:MPuzzle[T])(dstFalling:MPuzzle[T])(removes:Seq[T]){
+    var x = 0
+    val width = src.size
+    while(x < width){
+      val row = src(x)
+      val height = row.size
+      var y = 0
+      val fixedRow = dstFixed(x)
+      val fallingRow = dstFalling(x)
+      var found = false
+      while(y < height){
+        val p = row(y)
+        val contains = removes.contains(p)
+        found |= contains
+        if(!contains){
+          (if(found)fallingRow else fixedRow) += p
+        }
+        y += 1
+      }
+      x += 1
+    }
+  }
+
+  def append[T](src:Puzzle[T])(dst:MPuzzle[T]){
     var x = 0
     val width = src.size
     while(x < width){

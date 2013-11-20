@@ -25,7 +25,7 @@ trait Reactive[T] {
 
   def subscribe(callback: T => Unit) {
     if (concurrent > 0) {
-      addQueue = callback :: addQueue
+      addQueue ::= callback
       //throw new RuntimeException("concurrent modification exception!")
     }else{
       addObserver(callback)
