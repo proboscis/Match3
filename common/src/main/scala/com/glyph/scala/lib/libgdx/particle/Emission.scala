@@ -47,9 +47,11 @@ class Emission(area: Varying[Rectangle], p: ParticlePool[SpriteParticle], durati
   }
 
   override def draw(batch: SpriteBatch, parentAlpha: Float) {
+    val src = batch.getBlendSrcFunc
+    val dst = batch.getBlendDstFunc
     batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE)
     super.draw(batch, parentAlpha*alpha)
     //batch.flush()
-    batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA)
+    batch.setBlendFunction(src,dst)
   }
 }

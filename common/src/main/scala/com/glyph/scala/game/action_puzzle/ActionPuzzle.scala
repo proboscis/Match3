@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.game.action_puzzle.view.Paneled
 import com.glyph.scala.lib.util.{HeapMeasure, Timing, reactive, Logging}
-import com.glyph.scala.lib.util.updatable.reactive.Animator
 import com.badlogic.gdx.graphics.{Color, Texture}
 import com.glyph.scala.lib.libgdx.actor.{ExplosionFadeout, SpriteActor}
 import com.glyph.scala.game.puzzle.view.match3.ColorTheme
@@ -19,9 +18,12 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.mutable
 import com.glyph.scala.lib.util.pool.{Pool, Pooler}
 import com.glyph.scala.lib.util.pooling_task.PoolingTask
-import com.glyph.scala.lib.util.updatable.reactive.Animator.IPAnimator
+import com.glyph.scala.lib.util.animator.Animator
+import Animator.IPAnimator
 import com.glyph.scala.lib.util.pool.Pool._
 import scala.Some
+import com.glyph.scala.lib.util.animator.Animator
+
 /**
  * @author glyph
  */
@@ -36,19 +38,23 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
    * 剣と敵のマッチ
    * パネルの効果設定
    */
+
   import GMatch3._
   import Animator._
   import Pool._
   import PoolingTask._
 
+  val MATCHING_TIME = 1f
   val ROW = 6
   val COLUMN = 6
   val generator = new IndexedSeqGen[ArrayBuffer] {
     def convert[T](seq: Seq[T]) = ArrayBuffer.apply(seq: _*)
   }
   type PuzzleBuffer = ArrayBuffer[ArrayBuffer[AP]]
+
   implicit object PoolerPuzzle extends Pooler[PuzzleBuffer] {
     def newInstance = GMatch3.initialize[AP, ArrayBuffer](COLUMN)(generator)
+
     def reset(tgt: PuzzleBuffer) {
       var x = 0
       val l = tgt.length
@@ -80,9 +86,10 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
   var panelRemove = (panels: Seq[AP]) => {}
 
   //util functions
-  def scanAllDistinct2 = {//TODO こいつもバッファベースでやりたい
+  def scanAllMatches = {
+    //TODO こいつもバッファベースでやりたい
     val buf = obtain[PuzzleBuffer]
-    GMatch3.fixedFuture(fixed,future,buf)
+    GMatch3.fixedFuture(fixed, future, buf)
     val result = GMatch3.scanAll(buf)(ROW)(COLUMN) {
       (a, b) => {
         if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
@@ -91,14 +98,25 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
           false
         }
       }
-    }.filter(_.size > 2).flatten
+    }.filter(_.size > 2)
     buf.free
     result
   }
 
-  def scanRemoveFill() {
-    remove(scanAllDistinct2)
-    fill()
+  def scanAndMark() {
+    for(matches <-scanAllMatches){//scan all
+      //marking part
+      var chmp = MATCHING_TIME
+      for(p <- matches){
+        val t = p.matchTimer()
+        if(t > 0 && t < chmp) chmp = t
+      }
+      val minimum = chmp
+      matches foreach{
+        p => p.matchTimer() = minimum
+      }
+      log("marked:"+minimum+":"+matches)
+    }
   }
 
   def verified(x: Int)(y: Int)(nx: Int)(ny: Int) = y < fixed(x).size && ny < fixed(nx).size
@@ -118,7 +136,7 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
 
         if (verified(x)(y)(nx)(ny)) {
           GMatch3.swap(fixed, x, y, nx, ny)
-          scanRemoveFill()
+          scanAndMark()
         }
         anim.free
       })
@@ -211,9 +229,7 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
       copy(nextFuture)(future)
       nextFuture.free
       //future() = fixed() append falling() //costs 1ms
-
-      updateTargetPosition()
-
+      
       {
         var x = 0
         val width = filling.length
@@ -240,7 +256,7 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
     panel.swipeAnimation.clear()
   }
 
-  def remove(panels: Seq[AP]) {
+  def removeFillUpdateTargetPosition(panels: Seq[AP]) {
     //log("remove")
     if (!panels.isEmpty) {
       for {
@@ -248,7 +264,7 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
         fallingTemp <- pool[PuzzleBuffer]
         ffBuf <- pool[PuzzleBuffer]
       } {
-        GMatch3.fixedFuture(fixed,future,ffBuf)
+        GMatch3.fixedFuture(fixed, future, ffBuf)
         GMatch3.remove(ffBuf)(fixedTemp)(fallingTemp)(panels)
         fallingTemp.foreach(_.foreach(cancelSwipingAnimation))
         append(falling)(fallingTemp)
@@ -269,6 +285,7 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
       future() = fixed() append falling()
       */
     }
+    fill()
     updateTargetPosition()
   }
 
@@ -297,12 +314,34 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
   def update(delta: Float) {
     updateFalling(delta)
     processor.update(delta)
+    updateMatches(delta)
+  }
+  val matchRemoveBuf = ArrayBuffer.empty[AP]
+  def updateMatches(delta:Float){
+    var x = 0
+    val width = fixed.size
+    while(x < width){
+      val row = fixed(x)
+      val height = row.size
+      var y = 0
+      while(y < height){
+        val panel = row(y)
+        if(panel.isMatching()){
+          if(panel.updateMatch(delta)){
+            matchRemoveBuf += panel
+          }
+        }
+        y += 1
+      }
+      x += 1
+    }
+    removeFillUpdateTargetPosition(matchRemoveBuf)
+    matchRemoveBuf.clear()
   }
 
   //for optimization
   val finishedBuf = ListBuffer.empty[AP]
   val fixedTemp = mutable.Stack.empty[AP]
-
   def updateFalling(delta: Float) {
     for {
       continuedBuf <- pool[PuzzleBuffer]
@@ -319,7 +358,7 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
           while (y < height) {
             val p = applied(y)
             p.vy() += gravity * delta
-            if (p.update(delta)) {
+            if (p.updateFall(delta)) {
               finishedBuf += p
               p.isFalling() = false
             } else {
@@ -370,7 +409,7 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
           //fixed() = fixed().updated(p.tx(), fixed()(p.tx()) :+ p)
         }
         copy(fixedBuf)(fixed)
-        scanRemoveFill()
+        scanAndMark()
       }
       finishedBuf.clear()
     }
@@ -403,10 +442,10 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
     }
     val isSwiping = Var(false)
     val isFalling = Var(false)
+    val matchTimer = Var(0f)
+    val isMatching = matchTimer map( _ > 0)
 
-    def matchTo(panel: AP): Boolean = n == panel.n
-
-    def update(delta: Float): Boolean = {
+    def updateFall(delta: Float): Boolean = {
       val nx = x() + vx() * delta
       var ny = y() + vy() * delta
       val next = PartialFunction.condOpt(ty() - 1)(future(tx()))
@@ -430,10 +469,17 @@ class ActionPuzzle extends Logging with Timing with HeapMeasure {
       //println(y(),vy())
       finished
     }
+    def updateMatch(delta:Float):Boolean={
+      matchTimer() -= delta
+      matchTimer() < 0f
+    }
 
     def clear() {
       vx() = 0
       vy() = 0
+      isSwiping() =false
+      isFalling() = false
+      matchTimer() = 0f
     }
 
     override def toString: String = n + ""
@@ -484,8 +530,8 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
   def init(p: ActionPuzzle#AP) {
     panel = p
     import Token._
-    val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling map {
-      case col ~ swiping ~ falling => (swiping | falling) ? col.cpy().mul(0.7f) | col
+    val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling~panel.isMatching map {
+      case col ~ swiping ~ falling ~ matching => (swiping | falling) ? col.cpy().mul(0.7f) | (matching ? Color.CYAN | col)
     }
     reactVar(c)(setColor)
   }
