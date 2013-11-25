@@ -67,7 +67,7 @@ trait Grid extends WidgetGroup with Logging {
   }
 
   def onSetupPosition() {
-    setPosition(marginX / 2f, marginY / 2f)
+    puzzleGroup.setPosition(marginX / 2f, marginY / 2f)
   }
 }
 
@@ -112,14 +112,11 @@ trait Paneled[T <: Actor] extends Grid with Updating {
       case None => {
         val listener = new InputListener {
           var current = (0, 0)
-
           override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
             current = positionToIndex(x, y)
             true
           }
-
           def diffAmount(a: (Int, Int), b: (Int, Int)) = Math.abs(a._1 - b._1) + Math.abs(a._2 - b._2)
-
           override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
             val next = positionToIndex(x, y)
             if (diffAmount(current, next) == 1) {
@@ -131,9 +128,7 @@ trait Paneled[T <: Actor] extends Grid with Updating {
         addListener(listener)
         swipeListener = listener.some
       }
-
     }
-
   }
 
   def stopSwipeCheck() {

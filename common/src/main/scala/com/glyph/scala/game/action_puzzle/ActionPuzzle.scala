@@ -25,7 +25,7 @@ import scala.Some
 /**
  * @author glyph
  */
-class ActionPuzzle3 extends Logging with Timing with HeapMeasure {
+class ActionPuzzle extends Logging with Timing with HeapMeasure {
   //TODO マクロについて、ログ関数へ対応させる
   //TODO
   //TODO モードの実装とアップロードの準備
@@ -441,7 +441,7 @@ class ActionPuzzle3 extends Logging with Timing with HeapMeasure {
 
 }
 
-class APView(puzzle: ActionPuzzle3, assets: AssetManager) extends WidgetGroup with Paneled[Token] with Reactor with Logging {
+class APView(puzzle: ActionPuzzle, assets: AssetManager) extends WidgetGroup with Paneled[Token] with Reactor with Logging {
   def row: Int = puzzle.ROW
 
   def column: Int = puzzle.COLUMN
@@ -450,7 +450,7 @@ class APView(puzzle: ActionPuzzle3, assets: AssetManager) extends WidgetGroup wi
 
   implicit val tokenPool = Pool[Token](() => new Token(null, assets))(row * column)
   val skin = assets.get[Skin]("skin/default.json")
-  val panelAdd = (added: Seq[Seq[ActionPuzzle3#AP]]) => {
+  val panelAdd = (added: Seq[Seq[ActionPuzzle#AP]]) => {
     for (row <- added; p <- row) {
       val token = obtain[Token]
       token.init(p)
@@ -463,7 +463,7 @@ class APView(puzzle: ActionPuzzle3, assets: AssetManager) extends WidgetGroup wi
       puzzleGroup.addActor(token)
     }
   }
-  val panelRemove = (removed: Seq[ActionPuzzle3#AP]) => {
+  val panelRemove = (removed: Seq[ActionPuzzle#AP]) => {
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
       tokens -= token
       token.explode {
@@ -474,14 +474,14 @@ class APView(puzzle: ActionPuzzle3, assets: AssetManager) extends WidgetGroup wi
   }
 }
 
-class Token(var panel: ActionPuzzle3#AP, assets: AssetManager)
+class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
   extends SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
   with Reactor
   with ExplosionFadeout {
 
   import reactive._
 
-  def init(p: ActionPuzzle3#AP) {
+  def init(p: ActionPuzzle#AP) {
     panel = p
     import Token._
     val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling map {

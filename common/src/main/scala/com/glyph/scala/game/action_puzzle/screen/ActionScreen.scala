@@ -8,7 +8,7 @@ import com.glyph.scala.lib.util.reactive.Reactor
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph.scala.game.action_puzzle.{GMatch3, APView, ActionPuzzle3}
+import com.glyph.scala.game.action_puzzle.{GMatch3, APView, ActionPuzzle}
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.glyph.scala.lib.util.{reactive, Logging}
 
@@ -28,7 +28,7 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   reactVar(bgColor)(backgroundColor = _)
 
   val skin = assets.get[Skin]("skin/default.json")
-  val puzzle = new ActionPuzzle3
+  val puzzle = new ActionPuzzle
   val view = new APView(puzzle, assets)
   /*
    init layout

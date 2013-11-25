@@ -1,4 +1,4 @@
-import com.glyph.scala.game.action_puzzle.{GMatch3, ActionPuzzle3}
+import com.glyph.scala.game.action_puzzle.{GMatch3, ActionPuzzle}
 import com.glyph.scala.lib.util.Logging
 import com.glyph.scala.lib.util.reactive.Reactor
 
@@ -7,7 +7,7 @@ import com.glyph.scala.lib.util.reactive.Reactor
  */
 object PuzzleTest3 extends Reactor with Logging{
   def main(args: Array[String]) {
-    val puzzle = new ActionPuzzle3
+    val puzzle = new ActionPuzzle
     puzzle.initialize()
     new Thread(new Runnable(){
       def run(){
