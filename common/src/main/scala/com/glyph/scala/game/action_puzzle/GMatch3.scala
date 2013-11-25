@@ -20,7 +20,6 @@ object GMatch3 {
   type MatchedSet[T] = Seq[Event[T]]
   type Events[T] = Seq[Event[T]]
   type Puzzle[T] = IndexedSeq[IndexedSeq[T]]
-  type Buf[T] = IndexedSeq[T] with mutable.Buffer[T]
   type MPuzzle[T] = IndexedSeq[mutable.Buffer[T]]
   trait IndexedSeqGen[M[A]<:IndexedSeq[A]] {
     def convert[T](seq: Seq[T]): M[T]

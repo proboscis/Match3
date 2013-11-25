@@ -18,18 +18,14 @@ import com.glyph.scala.lib.util.{reactive, Logging}
 class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with Logging {
   val constants = RVJSON(GdxFile("constants/string.js"))
   val colors = RVJSON(GdxFile("constants/colors.js"))
-
   //RVJSON(constants.colors.asVnel[String])
   def configSrc = RVJSON(GdxFile("json/gameConfig.json"))
 
   //TODO ControllerはViewのイベントをModelに渡すためのもの。
   //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。
 
-  reactVar(colors.background.as[String].map {
-    opt => opt.map(Color.valueOf) | Color.WHITE
-  }) {
-    color => backgroundColor = color
-  }
+  val bgColor = colors.background.as[String] map(_.map(Color.valueOf)|Color.WHITE)
+  reactVar(bgColor)(backgroundColor = _)
 
   val skin = assets.get[Skin]("skin/default.json")
   val puzzle = new ActionPuzzle3
@@ -41,14 +37,6 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   root.add(view).fill().expand().width(STAGE_WIDTH).height(STAGE_WIDTH)
   root.invalidate()
   root.layout()
-/*
-    import GMatch3._
-    import reactive._
-    import puzzle._
-    reactVar(fixed~falling~future~swiping){
-      case a~b~c~d=> "====================="::(a::b::c::Nil map(_.text) mkString "\n")::d::Nil foreach log
-    }
-*/
   puzzle.panelAdd = view.panelAdd
   puzzle.panelRemove = view.panelRemove
   view.startSwipeCheck(puzzle.pooledSwipe)
@@ -56,7 +44,6 @@ class ActionScreen(assets: AssetManager) extends TabledScreen with Reactor with 
   init after the layout is setup
    */
   puzzle.initialize()
-
   override def render(delta: Float): Unit = {
     super.render(delta)
     puzzle.update(delta)

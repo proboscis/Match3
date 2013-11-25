@@ -27,7 +27,9 @@ import scala.Some
  */
 class ActionPuzzle3 extends Logging with Timing with HeapMeasure {
   //TODO マクロについて、ログ関数へ対応させる
-  //TODOS
+  //TODO
+  //TODO モードの実装とアップロードの準備
+
   /**
    * 時間差でマッチ
    * 時間で敵が攻撃してくる
@@ -452,8 +454,9 @@ class APView(puzzle: ActionPuzzle3, assets: AssetManager) extends WidgetGroup wi
     for (row <- added; p <- row) {
       val token = obtain[Token]
       token.init(p)
-      token.reactVar(p.x)(calcPanelX(_) |> token.setX)
-      token.reactVar(p.y)(calcPanelY(_) |> token.setY)
+      //TODO check for alignment
+      token.reactVar(p.x)(x => token.setX(calcPanelX(x)))
+      token.reactVar(p.y)(y => token.setY(calcPanelY(y)))
       token.setSize(panelW, panelH)
       token.setOrigin(panelW / 2, panelH / 2)
       tokens += token
