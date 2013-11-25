@@ -8,16 +8,6 @@ import com.glyph.scala.lib.util.reactive.Reactor
 object PuzzleTest3 extends Reactor with Logging{
   def main(args: Array[String]) {
     val puzzle = new ActionPuzzle3
-    import GMatch3._
-    reactVar(puzzle.fixed){
-      ps => log("fixed:"+ps.text)
-    }
-    reactVar(puzzle.falling){
-      ps => //log("falling:"+ps.text)
-    }
-    reactVar(puzzle.future){
-      ps => //log("future:"+ps.text)
-    }
     puzzle.initialize()
     new Thread(new Runnable(){
       def run(){

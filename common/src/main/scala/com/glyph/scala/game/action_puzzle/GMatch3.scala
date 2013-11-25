@@ -30,7 +30,43 @@ object GMatch3 {
     dst(x)(y) = src(nx)(ny)
     dst(nx)(ny) = src(x)(y)
   }
+  def swap[T](dst:MPuzzle[T],x:Int,y:Int,nx:Int,ny:Int){
+    val tmp = dst(nx)(ny)
+    dst(nx)(ny) = dst(x)(y)
+    dst(x)(y) = tmp
+  }
+  def fixedFuture[T](fixed:Puzzle[T],future:Puzzle[T],dst:MPuzzle[T]){
+    clear(dst)
+    var x = 0
+    val fixedW = fixed.size
+    val futureW= future.size
+    while ( x< fixedW && x < futureW){
+      val fixedR = fixed(x)
+      val futureR = future(x)
+      val fixedH = fixedR.size
+      val futureH = futureR.size
+      var y = 0
+      val dstR = dst(x)
+      while (y < fixedH && y < futureH){
+        dst(x) += futureR(y)
+        y += 1
+      }
+      x += 1
+    }
+  }
+  def clear[T](dst:MPuzzle[T])
+    {
+      var x = 0
+      val width = dst.size
+      while(x < width){
+        dst(x).clear()
+        x += 1
+      }
+    }
+
+
   def copy[T](src:Puzzle[T])(dst:MPuzzle[T]){
+    clear(dst)
     var x = 0
     val width = src.size
     while(x < width){

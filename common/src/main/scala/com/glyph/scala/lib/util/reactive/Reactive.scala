@@ -10,7 +10,7 @@ import ref.WeakReference
 trait Reactive[T] {
   //TODO observerやリスト、コールバックの処理を最適化する
   import Reactive._
-  private var observers: List[WeakReference[T => Unit]] = Nil
+  private var observers: List[WeakReference[(T) => Unit]] = Nil
   private var removeQueue: List[T => Unit] = Nil
   private var addQueue: List[T => Unit] = Nil
   private var disposed = false
@@ -22,6 +22,7 @@ trait Reactive[T] {
     debugging = true
   }
 
+  class Observer(var callback:T=>Unit,var onDispose: ()=>Unit)
 
   def subscribe(callback: T => Unit) {
     if (concurrent > 0) {

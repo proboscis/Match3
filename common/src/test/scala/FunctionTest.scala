@@ -1,3 +1,4 @@
+import com.glyph.scala.lib.util.collection.list.DoubleLinkedList
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -18,6 +19,8 @@ object FunctionTest {
   def main(args: Array[String]) {
     val list:List[Int] = (0 to 10).toList
     val array = Array(list:_*)
+    val dlist = new DoubleLinkedList[Int]
+    list foreach dlist.push
     val L = 10000000//Int.MaxValue
     val benches = bench("ops check +="){
       var i = 0
@@ -88,6 +91,14 @@ object FunctionTest {
           while(x < len){
             array(x)
             x += 1
+          }
+          i+=1
+        }
+      }::bench("dlist foreach"){
+        var i = 0
+        while( i < L){
+          dlist foreach{
+            _=>
           }
           i+=1
         }

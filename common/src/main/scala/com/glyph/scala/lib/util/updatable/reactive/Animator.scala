@@ -2,7 +2,7 @@ package com.glyph.scala.lib.util.updatable.reactive
 
 import com.glyph.scala.lib.util.reactive.Var
 import com.glyph.scala.lib.util.updatable.task.InterpolationTask
-import com.glyph.scala.lib.util.pool.Pooling
+import com.glyph.scala.lib.util.pool.Pooler
 
 trait Animating[T] extends Any {
   def get: T
@@ -47,7 +47,7 @@ object Animator {
       target = null
     }
   }
-  implicit object PoolingIPAnimator extends Pooling[IPAnimator]{
+  implicit object PoolerIPAnimator$ extends Pooler[IPAnimator]{
     def newInstance: IPAnimator = new IPAnimator
     def reset(tgt: IPAnimator): Unit = {
       tgt.reset()
