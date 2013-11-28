@@ -33,7 +33,7 @@ object Settings {
   lazy val android = Settings.common ++
     AndroidProject.androidSettings ++
     AndroidMarketPublish.settings ++ Seq (
-      platformName in Android := "android-17",
+      platformName in Android := "android-10",
       keyalias in Android := "change-me",
       mainAssetsPath in Android := file("common/src/main/resources"),
       unmanagedBase <<= baseDirectory( _ /"src/main/libs" ),
