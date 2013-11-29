@@ -2,13 +2,13 @@ package com.glyph.scala.lib.libgdx.actor
 
 import scala.collection.mutable.ListBuffer
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
-import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.{Group, Actor}
 import com.badlogic.gdx.utils.SnapshotArray
 
 /**
  * @author glyph
  */
-trait SpriteRenderer extends Actor{
+trait SpriteRenderer extends Group{
   val sprites:SnapshotArray[Sprite] = new SnapshotArray[Sprite]()
   def addSprite(sprite:Sprite){
     sprites.add(sprite)
@@ -17,7 +17,8 @@ trait SpriteRenderer extends Actor{
     sprites.removeValue(sprite,identity)
   }
 
-  override def draw(batch: SpriteBatch, parentAlpha: Float){
+  override def drawChildren(batch: SpriteBatch, parentAlpha: Float){
+    super.drawChildren(batch,parentAlpha)
     val snap:Array[_] = sprites.begin()
     val size = sprites.size
     var i = 0

@@ -12,7 +12,7 @@ import com.glyph.scala.lib.util.{HeapMeasure, Timing, reactive, Logging}
 import com.badlogic.gdx.graphics.{Color, Texture}
 import com.glyph.scala.lib.libgdx.actor.{SpriteRenderer, Tasking, ExplosionFadeout, SpriteActor}
 import com.glyph.scala.game.puzzle.view.match3.ColorTheme
-import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.mutable
 import com.glyph.scala.lib.util.pool.{Pool, Pooling}
@@ -511,7 +511,7 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   import PoolingTask._
   import Pool._
 
-  implicit val spritePool = Pool[Sprite](1000)
+  implicit val spritePool = Pool[Sprite](10000)
   implicit val explosionPool = Pool[Explosion[Sprite]](()=>new Explosion,row * column)
   implicit val onFinishPool = Pool[OnFinish](row * column)
   implicit val tokenPool = Pool[Token](() => new Token(null, assets),row * column)
@@ -533,37 +533,38 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   }
   val panelRemove = (removed: Seq[ActionPuzzle#AP]) => {
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
-      /*
       tokens -= token
 
       token.explode {
         token.remove()
         token.free
       }
-      */
-      /*
       val buf = manual[ArrayBuffer[Sprite]]
       val exp = auto[Explosion[Sprite]]
       val onFin = auto[OnFinish]
       TextureUtil.split(token.sprite)(8)(8)(buf)
       import MathUtils._
-
-      exp.init(buf,0,10f,()=>random(PI2),()=>random(100))
-      buf foreach addSprite
+      //make this particle specific code into trait's ciode
+      exp.init(buf,0,-1000f,()=>random(PI2),()=>random(1000)) in 1f
+      buf foreach{
+        p =>
+          p.setColor(1,1,1,0.3f)
+          addSprite(p)
+      }
       onFin.setTask(exp)
       onFin.setCallback(() => {
         buf foreach (removeSprite(_))
         buf foreach (_.free)
         buf.free
       })
-      */
-      //add(onFin)
+      add(onFin)
     }
   }
 }
 
 class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
   extends SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
+  with Logging
   with Reactor
   with ExplosionFadeout {
 
@@ -582,6 +583,7 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
     clearReaction()
     setScale(1)
   }
+
 }
 
 object Token {

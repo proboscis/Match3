@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions._
 import com.glyph.scala.lib.libgdx.actor._
 import scalaz._
 import Scalaz._
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 trait Grid extends WidgetGroup with Logging {
   val puzzleGroup = new Group with Scissor

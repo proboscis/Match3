@@ -13,7 +13,7 @@ class Explosion[T:AnimatedFloat2] extends TimedTask with AutoFree{
   var velocities:Array[Float] = Array.emptyFloatArray
   var targetSize = 0
   val impl = implicitly[AnimatedFloat2[T]]
-  def init(tgts:IndexedSeq[T],gX:Float,gY:Float,thetaRandom:()=>Float,powRandom:()=>Float){
+  def init(tgts:IndexedSeq[T],gX:Float,gY:Float,thetaRandom:()=>Float,powRandom:()=>Float):this.type = {
     this.targets = tgts
     gravityX = gX
     gravityY = gY
@@ -21,6 +21,7 @@ class Explosion[T:AnimatedFloat2] extends TimedTask with AutoFree{
     velocities = if (targetSize*2 > velocities.size) new Array(targetSize*2) else velocities
     util.Arrays.fill(velocities,0f)
     setupInitialVelocity(thetaRandom,powRandom)
+    this
   }
   def setupInitialVelocity(theta:()=>Float,power:()=>Float){
     var i = 0
@@ -42,8 +43,8 @@ class Explosion[T:AnimatedFloat2] extends TimedTask with AutoFree{
     while(i < size){
       val ax = delta * gravityX
       val ay = delta * gravityY
-      velocities(i) =  ax
-      velocities(i*2) = ay
+      velocities(i) +=  ax
+      velocities(i*2) += ay
       val tgt = targets(i)
       impl.setX(tgt)(impl.getX(tgt)+velocities(i)*delta)
       impl.setY(tgt)(impl.getY(tgt)+velocities(i*2)*delta)

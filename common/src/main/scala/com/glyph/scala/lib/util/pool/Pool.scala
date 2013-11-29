@@ -2,6 +2,7 @@ package com.glyph.scala.lib.util.pool
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
+import com.glyph.scala.lib.util.Logging
 
 trait Pooling[T]{
   def newInstance:T
@@ -21,7 +22,7 @@ trait Poolable{
   }
 }
 
-class Pool[P:Pooling](max:Int){
+class Pool[P:Pooling](max:Int)extends Logging{
   private val pool = mutable.Stack[P]()
   def obtain:P = if(pool.isEmpty){
     implicitly[Pooling[P]].newInstance
@@ -32,6 +33,8 @@ class Pool[P:Pooling](max:Int){
     implicitly[Pooling[P]].reset(tgt)
     if(pool.size < max){
       pool push tgt
+    }else{
+      log("warning: this pool reached its max capacity!")
     }
   }
   override def toString: String = "pool"+pool.size
