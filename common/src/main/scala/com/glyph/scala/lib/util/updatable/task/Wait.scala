@@ -26,7 +26,9 @@ object Wait{
     new Wait(w)
   }
 }
-class WaitAll(waiting:Task*) extends Task with Logging{
+trait Waitable
+class TWait
+class WaitAll(waiting:Task*) extends Task with Logging with AutoFree{
   val tasks = ListBuffer(waiting:_*)
   override def onStart(){
     super.onStart()

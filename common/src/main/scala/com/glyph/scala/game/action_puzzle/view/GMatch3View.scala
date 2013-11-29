@@ -71,9 +71,7 @@ trait Grid extends WidgetGroup with Logging {
   }
 }
 
-trait Paneled[T <: Actor] extends Grid with Updating {
-  val sequencer = new SequentialProcessor {}
-  this add sequencer
+trait Paneled[T <: Actor] extends Grid{
   val tokens = ListBuffer.empty[T]
   var swipeListener: Option[InputListener] = None
 

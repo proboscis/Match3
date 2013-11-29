@@ -3,19 +3,33 @@ package com.glyph.scala.lib.util.pool
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 
-trait Pooler[T]{
+trait Pooling[T]{
   def newInstance:T
   def reset(tgt:T)
 }
-class Pool[P:Pooler](max:Int){
+trait Poolable{
+  self =>
+  protected var pool:Pool[self.type] = null
+  def setPool(pool:Pool[self.type]){
+    this.pool = pool
+  }
+  def freeToPool(){
+    if(pool != null){
+      pool.reset(this)
+      pool = null
+    }
+  }
+}
+
+class Pool[P:Pooling](max:Int){
   private val pool = mutable.Stack[P]()
   def obtain:P = if(pool.isEmpty){
-    implicitly[Pooler[P]].newInstance
+    implicitly[Pooling[P]].newInstance
   } else {
     pool.pop()
   }
   def reset(tgt:P){
-    implicitly[Pooler[P]].reset(tgt)
+    implicitly[Pooling[P]].reset(tgt)
     if(pool.size < max){
       pool push tgt
     }
@@ -28,21 +42,33 @@ class Pool[P:Pooler](max:Int){
   }
 }
 object Pool{
-  def apply[T:Pooler](size:Int):Pool[T]=new Pool(size)
-  type Poolable = {def reset()}
-  def apply[T<:Poolable](constructor: ()=>T)(size:Int):Pool[T] = {
-    implicit val pooler = new Pooler[T]{
+  def apply[T:Pooling](size:Int):Pool[T]=new Pool(size)
+  type PoolableType = {def reset()}
+  def apply[T<:PoolableType](constructor: ()=>T,size:Int):Pool[T] = {
+    implicit val pooler = new Pooling[T]{
       def newInstance: T = constructor()
       def reset(tgt: T): Unit = tgt.reset()
     }
     new Pool(size)
   }
+  def apply[T](constructor:()=>T,finalizer:T=>Unit,size:Int):Pool[T] = {
+    val pooling = new Pooling[T] {
+      def newInstance: T = constructor()
+
+      def reset(tgt: T): Unit = finalizer(tgt)
+    }
+    new Pool(size)(pooling)
+  }
   def pool[T:Pool]:Pool[T] = implicitly[Pool[T]]
-  def obtain[T](implicit pool:Pool[T]):T = pool.obtain
+  def manual[T](implicit pool:Pool[T]):T = pool.obtain
+  def auto[T<:Poolable](implicit pool:Pool[T]):T = {
+    val result = pool.obtain
+    result.setPool(pool.asInstanceOf[Pool[result.type]])
+    result
+  }
   implicit class PooledAny[T](val self:T) extends AnyVal{
     def free(implicit pool: Pool[T]){
       pool.reset(self)
     }
   }
-
 }

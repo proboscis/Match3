@@ -2,20 +2,25 @@ package com.glyph.scala.lib.util.animator
 
 import com.glyph.scala.lib.util.updatable.task.InterpolationTask
 import com.glyph.scala.lib.util.reactive.Var
-import com.glyph.scala.lib.util.pool.Pooler
-import com.glyph.scala.lib.util.animator.Animating
+import com.glyph.scala.lib.util.pool.Pooling
+
 
 /**
  * @author glyph
  */
 object Animator {
-  implicit class Var2Animating[T](val v: Var[T]) extends  AnyVal with Animating[T]{
+
+  //adhoc polymorphismで実装したい。
+  //しかし、newしてはならない。
+  implicit class Var2Animating[T](val v: Var[T]) extends AnyVal with Animating[T] {
     def get: T = v()
+
     def set(t: T): Unit = v() = t
   }
 
   class IPAnimator(var target: Animating[Float]) extends InterpolationTask {
     def this() = this(null)
+
     var start: Float = 0f
     var end: Float = 0f
 
@@ -28,7 +33,8 @@ object Animator {
       end = to
       this
     }
-    def set(tgt:Animating[Float]):this.type = {
+
+    def set(tgt: Animating[Float]): this.type = {
       target = tgt
       this
     }
@@ -37,18 +43,21 @@ object Animator {
       target.set(start + alpha * (end - start))
     }
 
-    override def reset(){
+    override def reset() {
       super.reset()
       end = 0
       start = 0
       target = null
     }
   }
-  implicit object PoolerIPAnimator extends Pooler[IPAnimator]{
+
+  implicit object PoolingIPAnimator extends Pooling[IPAnimator] {
     def newInstance: IPAnimator = new IPAnimator
+
     def reset(tgt: IPAnimator): Unit = {
       tgt.reset()
     }
   }
+
   def interpolate(target: Animating[Float]): IPAnimator = new IPAnimator(target)
 }

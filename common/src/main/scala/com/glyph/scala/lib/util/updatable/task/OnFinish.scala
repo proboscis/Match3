@@ -3,7 +3,7 @@ package com.glyph.scala.lib.util.updatable.task
 /**
  * @author glyph
  */
-class OnFinish(var task:Task)(var callback:()=>Unit) extends Task{
+class OnFinish(var task:Task)(var callback:()=>Unit) extends Task with AutoFree{
   def this() = this(null)(null)
   def isCompleted: Boolean = task.isCompleted
 

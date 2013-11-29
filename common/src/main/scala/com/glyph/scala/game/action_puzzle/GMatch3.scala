@@ -118,7 +118,6 @@ object GMatch3 {
       }
       x += 1
     }
-    dst
   }
 
   def initialize[T,M[A]<:IndexedSeq[A]](width: Int)(c: IndexedSeqGen[M]): M[M[T]] = c.convert((0 until width).toList.as(c.convert(Nil)))
