@@ -533,12 +533,15 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   }
   val panelRemove = (removed: Seq[ActionPuzzle#AP]) => {
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
+      /*
       tokens -= token
+
       token.explode {
         token.remove()
         token.free
       }
-
+      */
+      /*
       val buf = manual[ArrayBuffer[Sprite]]
       val exp = auto[Explosion[Sprite]]
       val onFin = auto[OnFinish]
@@ -550,9 +553,11 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
       onFin.setTask(exp)
       onFin.setCallback(() => {
         buf foreach (removeSprite(_))
+        buf foreach (_.free)
         buf.free
       })
-      add(onFin)
+      */
+      //add(onFin)
     }
   }
 }

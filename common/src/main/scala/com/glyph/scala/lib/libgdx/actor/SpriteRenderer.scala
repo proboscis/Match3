@@ -18,11 +18,11 @@ trait SpriteRenderer extends Actor{
   }
 
   override def draw(batch: SpriteBatch, parentAlpha: Float){
-    val snap = sprites.begin()
+    val snap:Array[_] = sprites.begin()
     val size = sprites.size
     var i = 0
     while(i<size){
-      val s = snap(i)
+      val s = snap(i).asInstanceOf[Sprite]
       s.draw(batch,getColor.a*parentAlpha)
       i += 1
     }

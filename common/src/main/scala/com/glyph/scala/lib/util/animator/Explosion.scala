@@ -11,7 +11,7 @@ class Explosion[T:AnimatedFloat2] extends TimedTask with AutoFree{
   var gravityX:Float = 0f
   var gravityY:Float = 0f
   var velocities:Array[Float] = Array.emptyFloatArray
-  var targetSize = targets.size
+  var targetSize = 0
   val impl = implicitly[AnimatedFloat2[T]]
   def init(tgts:IndexedSeq[T],gX:Float,gY:Float,thetaRandom:()=>Float,powRandom:()=>Float){
     this.targets = tgts
