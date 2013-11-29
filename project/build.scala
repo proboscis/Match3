@@ -19,6 +19,8 @@ object Settings {
 
       //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
     },
+    javacOptions ++= Seq("-encoding","utf8")
+    ,
     resolvers += Resolver.sonatypeRepo("snapshots")
     ,
     addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise" % "2.0.0-SNAPSHOT" cross CrossVersion.full)
