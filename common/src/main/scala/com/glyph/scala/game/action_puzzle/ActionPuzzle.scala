@@ -553,7 +553,7 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
       }
       onFin.setTask(exp)
       onFin.setCallback(() => {
-        buf foreach (removeSprite(_))
+        buf foreach (removeSprite(_))//this is a bit heavy ops
         buf foreach (_.free)
         buf.free
       })
