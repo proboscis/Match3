@@ -23,6 +23,7 @@ trait ScreenBuilderSupport extends ReloadOnPause {
         }
       }
       setScreen(new LoadingScreen(() => {
+        System.gc()
         setScreen(builder.create(assetManager))
       }, assetManager))
     }

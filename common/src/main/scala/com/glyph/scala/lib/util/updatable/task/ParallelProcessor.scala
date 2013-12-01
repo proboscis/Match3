@@ -44,6 +44,8 @@ trait ParallelProcessor extends TaskProcessor with Logging{
     this
   }
 
+  def contains(task:Task):Boolean = startedTasks.contains(task) || queuedTasks.contains(task)
+
   def removeTask(task: Task) {
     tasksTobeRemoved += task
   }

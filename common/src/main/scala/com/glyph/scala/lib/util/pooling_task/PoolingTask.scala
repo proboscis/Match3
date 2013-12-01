@@ -1,9 +1,10 @@
 package com.glyph.scala.lib.util.pooling_task
 
-import com.glyph.scala.lib.util.updatable.task.{OnFinish, WaitAll, Sequence, Do}
+import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.util.pool.Pooling
 
 /**
+ * these are so redundant!!!
  * @author glyph
  */
 object PoolingTask {
@@ -22,5 +23,14 @@ object PoolingTask {
   implicit object PoolingOnFinish extends Pooling[OnFinish]{
     def newInstance: OnFinish = new OnFinish
     def reset(tgt: OnFinish): Unit = tgt.reset()
+  }
+  implicit object PoolingFunctionTask extends Pooling[FunctionTask]{
+    def newInstance: FunctionTask = new FunctionTask
+    def reset(tgt: FunctionTask): Unit = tgt.reset()
+  }
+  implicit object PoolingTimedFunctionTask extends Pooling[TimedFunctionTask]{
+    def newInstance: TimedFunctionTask = new TimedFunctionTask
+
+    def reset(tgt: TimedFunctionTask): Unit = tgt.reset()
   }
 }

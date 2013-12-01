@@ -1,7 +1,7 @@
 package com.glyph.scala.game.action_puzzle
 
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.scenes.scene2d.ui.{Skin, WidgetGroup}
+import com.badlogic.gdx.scenes.scene2d.ui.{Label, Table, Skin, WidgetGroup}
 import com.glyph.scala.lib.util.reactive.{Varying, Reactor, Var}
 import scalaz._
 import Scalaz._
@@ -17,12 +17,19 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.mutable
 import com.glyph.scala.lib.util.pool.{Pool, Pooling}
 import com.glyph.scala.lib.util.pooling_task.PoolingTask
-import com.glyph.scala.lib.util.animator.{Explosion, Animator}
+import com.glyph.scala.lib.util.animator.{Swinger, Explosion, Animator}
 import scala.Some
-import com.glyph.scala.lib.libgdx.TextureUtil
+import com.glyph.scala.lib.libgdx.{GdxUtil, actor, TextureUtil}
 import com.glyph.scala.lib.libgdx.poolable.GdxPoolable
 import com.glyph.scala.lib.libgdx.conversion.GdxConversion
 import scala.Some
+import com.badlogic.gdx.math.MathUtils._
+import scala.Some
+import com.glyph.scala.lib.libgdx.actor.action.Shivering
+import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Group}
+import scala.reflect.ClassTag
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.glyph.scala.lib.libgdx.actor.ui.RLabel
 
 /**
  * @author glyph
@@ -73,7 +80,7 @@ class ActionPuzzle
   implicit val animators = Pool[IPAnimator](1000)
   implicit val waiters = Pool[WaitAll](100)
   implicit val finishes = Pool[OnFinish](100)
-  implicit val swipeAnimations = Pool[SwipeAnimation](() => new SwipeAnimation,100)
+  implicit val swipeAnimations = Pool[SwipeAnimation](() => new SwipeAnimation, 100)
   implicit val puzzlePool = Pool[PuzzleBuffer](100)
 
   val gravity = -10f
@@ -81,7 +88,7 @@ class ActionPuzzle
 
   def initializer: Var[PuzzleBuffer] = Var(manual[PuzzleBuffer])
 
-  val seed: () => AP = () => new AP(MathUtils.random(0, 3))
+  val seed: () => AP = () => new AP(MathUtils.random(0, 1))
   val fixed = manual[PuzzleBuffer]
   val falling = manual[PuzzleBuffer]
   val future = manual[PuzzleBuffer]
@@ -343,8 +350,8 @@ class ActionPuzzle
       }
       x += 1
     }
-    if(!matchRemoveBuf.isEmpty){
-      removeFillUpdateTargetPosition(matchRemoveBuf)//this is causing memory allocation!
+    if (!matchRemoveBuf.isEmpty) {
+      removeFillUpdateTargetPosition(matchRemoveBuf) //this is causing memory allocation!
     }
     matchRemoveBuf.clear()
   }
@@ -505,24 +512,32 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   with Reactor
   with Logging
   with Tasking
-  with SpriteBatchRenderer{
-
+  with SpriteBatchRenderer {
   def row: Int = puzzle.ROW
 
   def column: Int = puzzle.COLUMN
 
   import GdxPoolable._
   import GdxConversion._
-  import Animator._
   import PoolingTask._
   import Pool._
 
   implicit val spritePool = Pool[Sprite](10000)
-  implicit val explosionPool = Pool[Explosion[Sprite]](()=>new Explosion,row * column)
-  implicit val onFinishPool = Pool[OnFinish](row * column)
-  implicit val tokenPool = Pool[Token](() => new Token(null, assets),row * column)
-  implicit val bufPool = Pool[ArrayBuffer[Sprite]](()=>ArrayBuffer[Sprite](),(buf:ArrayBuffer[Sprite]) => buf.clear(),1000)
+  implicit val tokenPool = Pool[Token](() => new Token(null, assets),(tgt:Token)=>tgt.resetForPool(),row * column*2)
+  implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
+  implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
+  implicit val funcTaskPool = Pool[TimedFunctionTask](100)
+
+  /**関係なーい
+  preAlloc[Sprite]()
+  preAlloc[Token]()
+  preAlloc[ArrayBuffer[Sprite]]()
+  preAlloc[ArrayBuffer[Float]]()
+  preAlloc[TimedFunctionTask]()
+    **/
   import SpriteBatchRenderer._
+
+  val tokens = ArrayBuffer[Token]()
 
   val skin = assets.get[Skin]("skin/default.json")
   val panelAdd = (added: Seq[Seq[ActionPuzzle#AP]]) => {
@@ -538,55 +553,102 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
       puzzleGroup.addActor(token)
     }
   }
+
+  //TODO you have to recreate all this token things since it cant be reused for some reason....
   val panelRemove = (removed: Seq[ActionPuzzle#AP]) => {
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
       tokens -= token
+      import Actions._
+      token.addAction(sequence(ExplosionFadeout(),Actions.run(new Runnable{
+        def run(){
+          GdxUtil.post{
+            log("posted free!")
+            token.remove()
+            token.clear()
+            //token.free //no matter what you do in this free(), it becomes empty
+          }
+        }
+      })))
+      //token.free
+      //token.remove()
+      //token.free//you have to free this token immidiately for some reason. otherwise you'll end up with empty token....
 
-      token.explode {
-        token.remove()
-        token.free
-      }
+      //explosion has nothing to do with this...
       val buf = manual[ArrayBuffer[Sprite]]
-      val exp = auto[Explosion[Sprite]]
-      val onFin = auto[OnFinish]
-      TextureUtil.split(token.sprite)(8)(8)(buf)
+      val velBuf = manual[ArrayBuffer[Float]]
+      val ft = auto[TimedFunctionTask]
       import MathUtils._
-      //make this particle specific code into trait's ciode
-      exp.init(buf,0,-1000f,()=>random(PI2),()=>random(1000)) in 1f
-      addDrawable(buf)
-      onFin.setTask(exp)
-      onFin.setCallback(() => {
-        removeDrawable(buf)
-        buf foreach (_.free)
-        buf.free
-      })
-      add(onFin)
+      //make this particle specific code into trait's code
+      ft.setFunctions(
+        () => {
+          TextureUtil.split(token.sprite)(8)(8)(buf)
+          Explosion.init(() => random(PI2), () => random(2000), velBuf, buf.length)
+          addDrawable(buf)
+        },
+        Explosion.update(0, -10000, 0.001f)(buf, velBuf),
+        () => {
+          removeDrawable(buf)
+          buf foreach (_.free)
+          buf.free
+          velBuf.free
+        }) in 1f
+      add(ft)
     }
   }
+  this.addListener(new InputListener(){
+    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int):Boolean = {
+      val (ix,iy) = positionToIndex(x,y)
+      for{ap <- puzzle.future.lift(ix).map(_.lift(iy)).flatten
+        token <- tokens.find(_.panel == ap)
+      }{
+        log(ix,iy,ap.tx(),ap.ty(),token)
+        //puzzle.removeFillUpdateTargetPosition(ap::Nil)
+      }
+      super.touchDown(event, x, y, pointer, button)
+    }
+  })
 }
 
 class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
-  extends SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
+  extends Table// problem is here!
   with Logging
   with Reactor
-  with ExplosionFadeout {
-
+  with Tasking{
+  debug()
   import reactive._
+  val sprite = new Sprite(assets.get[Texture]("data/dummy.png"))
 
   def init(p: ActionPuzzle#AP) {
     panel = p
     import Token._
     val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling ~ panel.isMatching map {
-      case col ~ swiping ~ falling ~ matching => (swiping | falling) ? col.cpy().mul(0.7f) | (matching ? Color.CYAN | col)
+      case col ~ swiping ~ falling ~ matching => (swiping | falling) ? col.cpy().mul(0.7f) | (matching ? col.cpy().add(0.5f, 0.5f, 0.5f, 0.5f) | col)
     }
-    reactVar(c)(setColor)
-  }
+    /*
+    import GdxConversion.Animated2Sprite
+    reactVar(panel.isMatching){
+      flag => if(flag)startShivering(spriteActor.sprite) else stopShivering()
+    }*/
 
-  def reset() {
+    val spriteActor = new SpriteActor(sprite)
+    import reactive._
+    val label = new RLabel(assets.get[Skin]("skin/default.json"),panel.tx~panel.ty map{
+      case x ~ y => ""+(x,y)
+    })
+    label.setFontScale(0.5f)
+    add(label).fill.expand
+    add(spriteActor).fill.expand
+    reactVar(c)(spriteActor.setColor)
+  }
+  def resetForPool(){
+
+    remove()
     clearReaction()
-    setScale(1)
+    //setScale(1)
+    clear()
   }
 
+  override def toString: String = "x"->getX :: "y"->getY ::"w"->getWidth::"h"->getHeight :: Nil mkString("(",",",")")
 }
 
 object Token {

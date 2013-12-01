@@ -16,7 +16,7 @@ import Scalaz._
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 trait Grid extends WidgetGroup with Logging {
-  val puzzleGroup = new Group with Scissor
+  val puzzleGroup = new Group
   this.addActor(puzzleGroup)
 
   def row: Int
@@ -73,38 +73,7 @@ trait Grid extends WidgetGroup with Logging {
 }
 
 trait Paneled[T <: Actor] extends Grid{
-  val tokens = ListBuffer.empty[T]
   var swipeListener: Option[InputListener] = None
-
-  def moveTokenToIndex(token: T, x: Int, y: Int, callback: () => Unit = () => {}) {
-    val move = Actions.action(classOf[MoveToAction])
-    move.setPosition(calcPanelX(x), calcPanelY(y))
-    move.setDuration(0.5f)
-    move.setInterpolation(Interpolation.exp10Out)
-    token.addAction(sequence(move, run(new Runnable {
-      def run() {
-        callback()
-      }
-    })))
-  }
-
-  def setupNewPanel(panel: T, x: Int, y: Int) {
-    //println("create panel token")
-    val p = panel
-    p.setTouchable(Touchable.disabled)
-    //初期サイズの設定
-    p.setSize(panelW, panelH)
-    //拡大原点の設定
-    p.setOrigin(p.getWidth / 2, p.getHeight / 2)
-    //列の上部に初期配置する。
-    p.setPosition(calcPanelX(x), calcPanelY(row + y))
-    tokens += p
-    GdxUtil.post {
-      //追加処理はrenderスレッド前で
-      puzzleGroup.addActor(p)
-    }
-  }
-
   def startSwipeCheck(callback: (Int, Int, Int, Int) => Unit) {
     swipeListener match {
       case Some(l) => throw new IllegalStateException("swipe is already started!!!")
