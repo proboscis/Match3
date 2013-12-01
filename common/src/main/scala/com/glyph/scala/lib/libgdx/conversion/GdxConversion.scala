@@ -2,7 +2,8 @@ package com.glyph.scala.lib.libgdx.conversion
 
 import com.glyph.scala.lib.util.animator.{AnimatedFloat2, Animating}
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
+import com.glyph.scala.lib.libgdx.actor.SBDrawable
 
 /**
  * @author glyph

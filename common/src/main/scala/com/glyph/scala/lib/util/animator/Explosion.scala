@@ -2,11 +2,13 @@ package com.glyph.scala.lib.util.animator
 
 import com.glyph.scala.lib.util.updatable.task.{AutoFree, TimedTask}
 import java.util
+import com.glyph.scala.lib.util.Logging
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author glyph
  */
-class Explosion[T:AnimatedFloat2] extends TimedTask with AutoFree{
+class Explosion[T:AnimatedFloat2] extends TimedTask with AutoFree with Logging{
   var targets:IndexedSeq[T] = null
   var gravityX:Float = 0f
   var gravityY:Float = 0f
@@ -59,5 +61,35 @@ class Explosion[T:AnimatedFloat2] extends TimedTask with AutoFree{
     gravityY = 0f
     targetSize = 0
     util.Arrays.fill(velocities,0f)
+  }
+}
+
+object Explosion{
+  def init[T:AnimatedFloat2](thetaRandom:()=>Float,powRandom:()=>Float,targetVelocities:ArrayBuffer[Float],numTarget:Int){
+    var i = 0
+    val size = numTarget * 2
+    while(i < size){
+      val t = thetaRandom()
+      val p = powRandom()
+      import com.badlogic.gdx.math.MathUtils._
+      targetVelocities += sin(t) * p
+      targetVelocities += cos(t) * p
+      i += 1
+    }
+  }
+  def update[T:AnimatedFloat2](gX:Float,gY:Float)(targets:IndexedSeq[T],velocities:Array[Float])(delta:Float){
+    var i = 0
+    val size = targets.length
+    val impl = implicitly[AnimatedFloat2[T]]
+    while(i < size){
+      val ax = delta * gX
+      val ay = delta * gY
+      velocities(i) +=  ax
+      velocities(i*2) += ay
+      val tgt = targets(i)
+      impl.setX(tgt)(impl.getX(tgt)+velocities(i)*delta)
+      impl.setY(tgt)(impl.getY(tgt)+velocities(i*2)*delta)
+      i += 1
+    }
   }
 }

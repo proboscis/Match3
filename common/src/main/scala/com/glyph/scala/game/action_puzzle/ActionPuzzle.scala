@@ -10,7 +10,7 @@ import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.game.action_puzzle.view.Paneled
 import com.glyph.scala.lib.util.{HeapMeasure, Timing, reactive, Logging}
 import com.badlogic.gdx.graphics.{Color, Texture}
-import com.glyph.scala.lib.libgdx.actor.{SpriteRenderer, Tasking, ExplosionFadeout, SpriteActor}
+import com.glyph.scala.lib.libgdx.actor._
 import com.glyph.scala.game.puzzle.view.match3.ColorTheme
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -22,6 +22,7 @@ import scala.Some
 import com.glyph.scala.lib.libgdx.TextureUtil
 import com.glyph.scala.lib.libgdx.poolable.GdxPoolable
 import com.glyph.scala.lib.libgdx.conversion.GdxConversion
+import scala.Some
 
 /**
  * @author glyph
@@ -34,6 +35,7 @@ class ActionPuzzle
   //TODO
   //TODO モードの実装とアップロードの準備
 
+  //TODO Particleの実装
   /**
    * 時間差でマッチ
    * 時間で敵が攻撃してくる
@@ -118,7 +120,7 @@ class ActionPuzzle
       matches foreach {
         p => p.matchTimer() = minimum
       }
-      log("marked:" + minimum + ":" + matches)
+      //log("marked:" + minimum + ":" + matches)
     }
   }
 
@@ -180,8 +182,8 @@ class ActionPuzzle
       if (ay != null) ay.free
       if (bx != null) bx.free
       if (by != null) by.free
-      if (waiter != null) waiter.freeToPool
-      if (onFin != null) onFin.freeToPool
+      if (waiter != null) waiter.free
+      if (onFin != null) onFin.free
       ax = null
       ay = null
       bx = null
@@ -312,6 +314,7 @@ class ActionPuzzle
 
   def initialize() {
     fill()
+    updateTargetPosition()
   }
 
   def update(delta: Float) {
@@ -340,7 +343,9 @@ class ActionPuzzle
       }
       x += 1
     }
-    removeFillUpdateTargetPosition(matchRemoveBuf)
+    if(!matchRemoveBuf.isEmpty){
+      removeFillUpdateTargetPosition(matchRemoveBuf)//this is causing memory allocation!
+    }
     matchRemoveBuf.clear()
   }
 
@@ -500,7 +505,8 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   with Reactor
   with Logging
   with Tasking
-  with SpriteRenderer{
+  with SpriteBatchRenderer{
+
   def row: Int = puzzle.ROW
 
   def column: Int = puzzle.COLUMN
@@ -516,6 +522,7 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   implicit val onFinishPool = Pool[OnFinish](row * column)
   implicit val tokenPool = Pool[Token](() => new Token(null, assets),row * column)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](()=>ArrayBuffer[Sprite](),(buf:ArrayBuffer[Sprite]) => buf.clear(),1000)
+  import SpriteBatchRenderer._
 
   val skin = assets.get[Skin]("skin/default.json")
   val panelAdd = (added: Seq[Seq[ActionPuzzle#AP]]) => {
@@ -546,14 +553,10 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
       import MathUtils._
       //make this particle specific code into trait's ciode
       exp.init(buf,0,-1000f,()=>random(PI2),()=>random(1000)) in 1f
-      buf foreach{
-        p =>
-          p.setColor(1,1,1,0.3f)
-          addSprite(p)
-      }
+      addDrawable(buf)
       onFin.setTask(exp)
       onFin.setCallback(() => {
-        buf foreach (removeSprite(_))//this is a bit heavy ops
+        removeDrawable(buf)
         buf foreach (_.free)
         buf.free
       })

@@ -26,6 +26,7 @@ class OnFinish(var task:Task)(var callback:()=>Unit) extends Task with AutoFree{
     task = tgt
   }
   override def onFinish(): Unit = {
+    task.onFinish()
     callback()
     super.onFinish()
   }

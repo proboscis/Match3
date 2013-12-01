@@ -3,6 +3,7 @@ package com.glyph.scala.lib.util.pool
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 import com.glyph.scala.lib.util.Logging
+import scala.reflect.ClassTag
 
 trait Pooling[T]{
   def newInstance:T
@@ -22,9 +23,10 @@ trait Poolable{
   }
 }
 
-class Pool[P:Pooling](max:Int)extends Logging{
+class Pool[P:Pooling:ClassTag](max:Int)extends Logging{
   private val pool = mutable.Stack[P]()
   def obtain:P = if(pool.isEmpty){
+    log("created new instance!:"+implicitly[ClassTag[P]].runtimeClass.getSimpleName)
     implicitly[Pooling[P]].newInstance
   } else {
     pool.pop()
@@ -45,26 +47,26 @@ class Pool[P:Pooling](max:Int)extends Logging{
   }
 }
 object Pool{
-  def apply[T:Pooling](size:Int):Pool[T]=new Pool(size)
+  def apply[T:Pooling:ClassTag](size:Int):Pool[T]=new Pool(size)
   type PoolableType = {def reset()}
-  def apply[T<:PoolableType](constructor: ()=>T,size:Int):Pool[T] = {
+  def apply[T<:PoolableType:ClassTag](constructor: ()=>T,size:Int):Pool[T] = {
     implicit val pooler = new Pooling[T]{
       def newInstance: T = constructor()
       def reset(tgt: T): Unit = tgt.reset()
     }
     new Pool(size)
   }
-  def apply[T](constructor:()=>T,finalizer:T=>Unit,size:Int):Pool[T] = {
+  def apply[T:ClassTag](constructor:()=>T,finalizer:T=>Unit,size:Int):Pool[T] = {
     val pooling = new Pooling[T] {
       def newInstance: T = constructor()
 
       def reset(tgt: T): Unit = finalizer(tgt)
     }
-    new Pool(size)(pooling)
+    new Pool(size)(pooling,implicitly[ClassTag[T]])
   }
-  def pool[T:Pool]:Pool[T] = implicitly[Pool[T]]
-  def manual[T](implicit pool:Pool[T]):T = pool.obtain
-  def auto[T<:Poolable](implicit pool:Pool[T]):T = {
+  def pool[T:Pool:ClassTag]:Pool[T] = implicitly[Pool[T]]
+  def manual[T](implicit pool:Pool[T],tag:ClassTag[T]):T = pool.obtain
+  def auto[T<:Poolable](implicit pool:Pool[T],tag:ClassTag[T]):T = {
     val result = pool.obtain
     result.setPool(pool.asInstanceOf[Pool[result.type]])
     result
