@@ -506,9 +506,46 @@ class ActionPuzzle
 
 }
 
+class APView2(puzzle:ActionPuzzle)(implicit assets:AssetManager) extends Paneled{
+  def row: Int = puzzle.ROW
+
+  def column: Int = puzzle.COLUMN
+  import Pool._
+  implicit val tokenPool = Pool[Token2](()=>new Token2(null),(t:Token2)=>t.freeForPool,row*column*2)
+  val tokens = ArrayBuffer[Token2]()
+  val panelAdd = (panels:Seq[Seq[ActionPuzzle#AP]])=>{
+    for(row <- panels;ap <- row){
+      val token = manual[Token2]
+      tokens += token
+      token.setSize(panelW,panelH)
+      token.reactVar(ap.x)(x => token.setX(calcPanelX(x)))
+      token.reactVar(ap.y)(y=>token.setY(calcPanelY(y)))
+      puzzleGroup.addActor(token)
+    }
+  }
+  val panelRemove = (panels:Seq[ActionPuzzle#AP])=>{
+    for{
+      panel <- panels
+      token <- tokens.find(_.panel == panel)
+    }{
+      tokens -= token
+      puzzleGroup.removeActor(token)
+    }
+  }
+}
+
+//TODO beware of cyclic reference!!! release panel in order to release puzzle
+class Token2(var panel:ActionPuzzle#AP) extends Table with Reactor{
+  debug()
+  def freeForPool(){
+    panel = null
+    clearReaction()
+  }
+}
+
 class APView(puzzle: ActionPuzzle, assets: AssetManager)
   extends WidgetGroup
-  with Paneled[Token]
+  with Paneled
   with Reactor
   with Logging
   with Tasking

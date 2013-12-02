@@ -72,7 +72,7 @@ trait Grid extends WidgetGroup with Logging {
   }
 }
 
-trait Paneled[T <: Actor] extends Grid{
+trait Paneled extends Grid{
   var swipeListener: Option[InputListener] = None
   def startSwipeCheck(callback: (Int, Int, Int, Int) => Unit) {
     swipeListener match {
