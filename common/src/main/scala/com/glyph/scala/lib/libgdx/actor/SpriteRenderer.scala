@@ -16,7 +16,7 @@ trait SpriteRenderer extends Group{
   def addSprite(sprite:Sprite){
     sprites.add(sprite)
   }
-  def removeSprite(sprite:Sprite,identity:Boolean = false){
+  def removeSprite(sprite:Sprite,identity:Boolean = true){
     sprites.removeValue(sprite,identity)
   }
 

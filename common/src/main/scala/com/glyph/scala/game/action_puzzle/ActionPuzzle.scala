@@ -88,7 +88,7 @@ class ActionPuzzle
 
   def initializer: Var[PuzzleBuffer] = Var(manual[PuzzleBuffer])
 
-  val seed: () => AP = () => new AP(MathUtils.random(0, 1))
+  val seed: () => AP = () => new AP(MathUtils.random(0, 3))
   val fixed = manual[PuzzleBuffer]
   val falling = manual[PuzzleBuffer]
   val future = manual[PuzzleBuffer]
@@ -506,43 +506,6 @@ class ActionPuzzle
 
 }
 
-class APView2(puzzle:ActionPuzzle)(implicit assets:AssetManager) extends Paneled{
-  def row: Int = puzzle.ROW
-
-  def column: Int = puzzle.COLUMN
-  import Pool._
-  implicit val tokenPool = Pool[Token2](()=>new Token2(null),(t:Token2)=>t.freeForPool,row*column*2)
-  val tokens = ArrayBuffer[Token2]()
-  val panelAdd = (panels:Seq[Seq[ActionPuzzle#AP]])=>{
-    for(row <- panels;ap <- row){
-      val token = manual[Token2]
-      tokens += token
-      token.setSize(panelW,panelH)
-      token.reactVar(ap.x)(x => token.setX(calcPanelX(x)))
-      token.reactVar(ap.y)(y=>token.setY(calcPanelY(y)))
-      puzzleGroup.addActor(token)
-    }
-  }
-  val panelRemove = (panels:Seq[ActionPuzzle#AP])=>{
-    for{
-      panel <- panels
-      token <- tokens.find(_.panel == panel)
-    }{
-      tokens -= token
-      puzzleGroup.removeActor(token)
-    }
-  }
-}
-
-//TODO beware of cyclic reference!!! release panel in order to release puzzle
-class Token2(var panel:ActionPuzzle#AP) extends Table with Reactor{
-  debug()
-  def freeForPool(){
-    panel = null
-    clearReaction()
-  }
-}
-
 class APView(puzzle: ActionPuzzle, assets: AssetManager)
   extends WidgetGroup
   with Paneled
@@ -560,18 +523,19 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   import Pool._
 
   implicit val spritePool = Pool[Sprite](10000)
-  implicit val tokenPool = Pool[Token](() => new Token(null, assets),(tgt:Token)=>tgt.resetForPool(),row * column*2)
+  implicit val tokenPool = Pool[Token](() => new Token(null, assets), (tgt: Token) => tgt.resetForPool(), row * column * 2)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
   implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
   implicit val funcTaskPool = Pool[TimedFunctionTask](100)
 
-  /**関係なーい
+  /** 関係なーい
   preAlloc[Sprite]()
   preAlloc[Token]()
   preAlloc[ArrayBuffer[Sprite]]()
   preAlloc[ArrayBuffer[Float]]()
   preAlloc[TimedFunctionTask]()
-    **/
+    * */
+
   import SpriteBatchRenderer._
 
   val tokens = ArrayBuffer[Token]()
@@ -596,9 +560,9 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
       tokens -= token
       import Actions._
-      token.addAction(sequence(ExplosionFadeout(),Actions.run(new Runnable{
-        def run(){
-          GdxUtil.post{
+      token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
+        def run() {
+          GdxUtil.post {
             log("posted free!")
             token.remove()
             token.clear()
@@ -632,13 +596,13 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
       add(ft)
     }
   }
-  this.addListener(new InputListener(){
-    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int):Boolean = {
-      val (ix,iy) = positionToIndex(x,y)
-      for{ap <- puzzle.future.lift(ix).map(_.lift(iy)).flatten
-        token <- tokens.find(_.panel == ap)
-      }{
-        log(ix,iy,ap.tx(),ap.ty(),token)
+  this.addListener(new InputListener() {
+    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
+      val (ix, iy) = positionToIndex(x, y)
+      for {ap <- puzzle.future.lift(ix).map(_.lift(iy)).flatten
+           token <- tokens.find(_.panel == ap)
+      } {
+        log(ix, iy, ap.tx(), ap.ty(), token)
         //puzzle.removeFillUpdateTargetPosition(ap::Nil)
       }
       super.touchDown(event, x, y, pointer, button)
@@ -647,12 +611,14 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
 }
 
 class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
-  extends Table// problem is here!
+  extends Table // problem is here!
   with Logging
   with Reactor
-  with Tasking{
+  with Tasking {
   debug()
+
   import reactive._
+
   val sprite = new Sprite(assets.get[Texture]("data/dummy.png"))
 
   def init(p: ActionPuzzle#AP) {
@@ -669,23 +635,19 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
 
     val spriteActor = new SpriteActor(sprite)
     import reactive._
-    val label = new RLabel(assets.get[Skin]("skin/default.json"),panel.tx~panel.ty map{
-      case x ~ y => ""+(x,y)
-    })
-    label.setFontScale(0.5f)
-    add(label).fill.expand
     add(spriteActor).fill.expand
     reactVar(c)(spriteActor.setColor)
   }
-  def resetForPool(){
 
+  def resetForPool() {
+    setColor(Color.WHITE)
     remove()
     clearReaction()
     //setScale(1)
     clear()
   }
 
-  override def toString: String = "x"->getX :: "y"->getY ::"w"->getWidth::"h"->getHeight :: Nil mkString("(",",",")")
+  override def toString: String = "x" -> getX :: "y" -> getY :: "w" -> getWidth :: "h" -> getHeight :: Nil mkString("(", ",", ")")
 }
 
 object Token {
