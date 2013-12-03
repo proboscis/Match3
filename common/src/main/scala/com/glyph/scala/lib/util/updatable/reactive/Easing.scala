@@ -18,7 +18,7 @@ class Easing(processor: ParallelProcessor)(private var variable: Float)(duration
     notifyObservers(current)
   }
   def update(v: Float) {
-    if (easier != null) processor.removeTask(easier)
+    if (easier != null) processor.cancel(easier)
     easier = new Easier(current, v).using(interpolation).for_(durationFunc(Math.abs(current-v)))
     processor.add(easier)
   }

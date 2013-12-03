@@ -7,10 +7,10 @@ import com.glyph.scala.lib.util.Logging
 /**
  * @author glyph
  */
-class BaseFTask(var initializer:()=>Unit,var updater:Float=>Unit,var finalizer:()=>Unit)
+class BaseFTask(var initializer:()=>Unit,var updater:Float=>Unit,var finalizer:()=>Unit,var canceller:()=>Unit )
 extends Task with AutoFree{
-  def this() = this(null,null,null)
-  protected var finished = false
+  def this() = this(null,null,null,null)
+  var finished = false
   def isCompleted: Boolean = finished
 
   def finish(){
@@ -39,6 +39,14 @@ extends Task with AutoFree{
   def setUpdater(f:Float=>Unit):this.type = {
     assert(f != null)
     this.updater = f
+    this
+  }
+  def setFinalizer(f:()=>Unit):this.type = {
+    this.finalizer = f
+    this
+  }
+  def setCanceller(f:()=>Unit):this.type = {
+    this.canceller = f
     this
   }
   def setFunctions(initializer:()=>Unit,updater:Float=>Unit,finalizer:()=>Unit):this.type = {

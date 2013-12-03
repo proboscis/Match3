@@ -32,7 +32,7 @@ class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
 
   def obtain: P = {
     if (pool.isEmpty) {
-      log("created new instance!:" + implicitly[ClassTag[P]].runtimeClass.getSimpleName)
+      //log("created new instance!:" + implicitly[ClassTag[P]].runtimeClass.getSimpleName)
       implicitly[Pooling[P]].newInstance
     } else {
       pool.dequeue()

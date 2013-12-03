@@ -29,7 +29,9 @@ trait SequentialProcessor extends TaskProcessor {
     this
   }
 
-  def removeTask(task: Task) {
+  def cancel(task: Task) {
     tasks.dequeueAll(_ == task)
+    task.onCancel()
   }
+
 }

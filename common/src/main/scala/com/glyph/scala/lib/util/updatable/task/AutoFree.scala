@@ -11,4 +11,9 @@ trait AutoFree extends Task with Poolable{
     super.onFinish()
     freeToPool()
   }
+
+  override def onCancel(){
+    super.onCancel()
+    freeToPool()
+  }
 }

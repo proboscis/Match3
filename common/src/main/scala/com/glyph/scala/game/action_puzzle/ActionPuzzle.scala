@@ -8,7 +8,8 @@ import Scalaz._
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.game.action_puzzle.view.Paneled
-import com.glyph.scala.lib.util.{HeapMeasure, Timing, reactive, Logging}
+import com.glyph.scala.lib.util.{HeapMeasure, Timing, reactive
+, Logging}
 import com.badlogic.gdx.graphics.{Color, Texture}
 import com.glyph.scala.lib.libgdx.actor._
 import com.glyph.scala.game.puzzle.view.match3.ColorTheme

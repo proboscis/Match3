@@ -1,8 +1,9 @@
 package com.glyph.scala.lib.util.updatable.task
 
 import com.glyph.scala.lib.util.collection.list.DoubleLinkedList
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import com.glyph.scala.lib.util.{Threading, Logging}
+import com.glyph.scala.lib.util.updatable.typed.Processor
 
 /**
  * @author glyph
@@ -10,8 +11,12 @@ import com.glyph.scala.lib.util.{Threading, Logging}
 trait ParallelProcessor extends TaskProcessor with Logging with Threading{
   val queuedTasks = ListBuffer[Task]()
   val startedTasks = ListBuffer[Task]()
-  var tasksTobeRemoved = ListBuffer[Task]()
+  val tasksTobeRemoved = ListBuffer[Task]()
+  val canceledTasks = ArrayBuffer[Task]()
+  var updating = false
   override def update(delta: Float) {
+    assert(updating == false)
+    updating = true
     super.update(delta)
     //log("update"+this)
     queuedTasks foreach {
@@ -22,7 +27,15 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading{
 
     for(t <- startedTasks){
       if(!t.isCompleted){
-        t.update(delta)
+        if(!canceledTasks.isEmpty){
+          if(!canceledTasks.contains(t)){
+            t.update(delta)
+          }else{
+            tasksTobeRemoved += t
+          }
+        }else{
+          t.update(delta)
+        }
       }else{
         t.onFinish()
         tasksTobeRemoved += t
@@ -37,6 +50,8 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading{
     }
     val after = startedTasks.size
     tasksTobeRemoved.clear()
+    canceledTasks.clear()
+    updating = false
   }
 
 
@@ -47,7 +62,15 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading{
 
   def contains(task:Task):Boolean = startedTasks.contains(task) || queuedTasks.contains(task)
 
-  def removeTask(task: Task) {
-    tasksTobeRemoved += task
+  def cancel(task: Task){
+    if(updating == 0){
+      log("removing while updating")
+      canceledTasks += task
+    }else{
+      startedTasks -= task
+      queuedTasks -= task
+    }
+    task.onCancel()
   }
 }
+
