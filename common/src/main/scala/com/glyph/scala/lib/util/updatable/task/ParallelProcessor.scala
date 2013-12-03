@@ -2,17 +2,18 @@ package com.glyph.scala.lib.util.updatable.task
 
 import com.glyph.scala.lib.util.collection.list.DoubleLinkedList
 import scala.collection.mutable.ListBuffer
-import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.lib.util.{Threading, Logging}
 
 /**
  * @author glyph
  */
-trait ParallelProcessor extends TaskProcessor with Logging{
+trait ParallelProcessor extends TaskProcessor with Logging with Threading{
   val queuedTasks = ListBuffer[Task]()
   val startedTasks = ListBuffer[Task]()
   var tasksTobeRemoved = ListBuffer[Task]()
   override def update(delta: Float) {
     super.update(delta)
+    //log("update"+this)
     queuedTasks foreach {
       t => t.onStart()
         startedTasks += t

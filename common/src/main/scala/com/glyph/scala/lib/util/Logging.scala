@@ -31,6 +31,9 @@ trait Logging {
   def debE = appDebugE |> toAnyDefaultE
   def errE = appErrorE |> toAnyDefaultE
 }
+trait Threading extends Logging{
+  override def log = (any:Any) =>  super.log(any,"tid:"+Thread.currentThread().getId)
+}
 trait Timing{
   self:Logging=>
   def printTime(tag:String)(block: =>Unit){

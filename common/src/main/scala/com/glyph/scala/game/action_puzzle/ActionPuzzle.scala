@@ -562,19 +562,9 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
       import Actions._
       token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
         def run() {
-          GdxUtil.post {
-            log("posted free!")
-            token.remove()
-            token.clear()
-            //token.free //no matter what you do in this free(), it becomes empty
-          }
+          token.free
         }
       })))
-      //token.free
-      //token.remove()
-      //token.free//you have to free this token immidiately for some reason. otherwise you'll end up with empty token....
-
-      //explosion has nothing to do with this...
       val buf = manual[ArrayBuffer[Sprite]]
       val velBuf = manual[ArrayBuffer[Float]]
       val ft = auto[TimedFunctionTask]
@@ -614,12 +604,15 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
   extends Table // problem is here!
   with Logging
   with Reactor
-  with Tasking {
+  with Tasking
+  with Shivering{
   debug()
 
   import reactive._
 
   val sprite = new Sprite(assets.get[Texture]("data/dummy.png"))
+  val spriteActor = new SpriteActor(sprite)
+  add(spriteActor).fill.expand
 
   def init(p: ActionPuzzle#AP) {
     panel = p
@@ -627,15 +620,11 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
     val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling ~ panel.isMatching map {
       case col ~ swiping ~ falling ~ matching => (swiping | falling) ? col.cpy().mul(0.7f) | (matching ? col.cpy().add(0.5f, 0.5f, 0.5f, 0.5f) | col)
     }
-    /*
+
     import GdxConversion.Animated2Sprite
     reactVar(panel.isMatching){
       flag => if(flag)startShivering(spriteActor.sprite) else stopShivering()
-    }*/
-
-    val spriteActor = new SpriteActor(sprite)
-    import reactive._
-    add(spriteActor).fill.expand
+    }
     reactVar(c)(spriteActor.setColor)
   }
 
@@ -644,7 +633,9 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
     remove()
     clearReaction()
     //setScale(1)
-    clear()
+    //clear()
+    clearActions()
+    clearListeners()
   }
 
   override def toString: String = "x" -> getX :: "y" -> getY :: "w" -> getWidth :: "h" -> getHeight :: Nil mkString("(", ",", ")")

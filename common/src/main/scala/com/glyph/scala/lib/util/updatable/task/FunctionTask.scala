@@ -7,28 +7,15 @@ import com.glyph.scala.lib.util.Logging
 /**
  * @author glyph
  */
-class FunctionTask(var initializer:()=>Unit,var updater:Float=>Unit,var finalizer:()=>Unit)
-  extends Task
-  with AutoFree
-  with Logging{
-  private var finished = false
+class BaseFTask(var initializer:()=>Unit,var updater:Float=>Unit,var finalizer:()=>Unit)
+extends Task with AutoFree{
   def this() = this(null,null,null)
-  def setFunctions(initializer:()=>Unit,updater:Float=>Unit,finalizer:()=>Unit):this.type ={
-    this.initializer = initializer
-    this.updater = updater
-    this.finalizer = finalizer
-    this
-  }
-  def setUpdater(updater:Float=>Unit){
-    this.updater = updater
-  }
+  protected var finished = false
+  def isCompleted: Boolean = finished
 
   def finish(){
     finished = true
   }
-
-
-  def isCompleted: Boolean = finished
 
   override def reset(){
     super.reset()
@@ -37,7 +24,6 @@ class FunctionTask(var initializer:()=>Unit,var updater:Float=>Unit,var finalize
     finalizer = null
     finished = false
   }
-
   override def onStart(){
     //log("onStart")
     super.onStart()
@@ -50,9 +36,39 @@ class FunctionTask(var initializer:()=>Unit,var updater:Float=>Unit,var finalize
     super.onFinish()
   }
 
+  def setUpdater(f:Float=>Unit):this.type = {
+    assert(f != null)
+    this.updater = f
+    this
+  }
+  def setFunctions(initializer:()=>Unit,updater:Float=>Unit,finalizer:()=>Unit):this.type = {
+    this.initializer = initializer
+    this.updater = updater
+    this.finalizer = finalizer
+    this
+  }
+}
+
+class FunctionTask extends BaseFTask{
   override def update(delta: Float){
     super.update(delta)
     updater(delta)
+  }
+}
+
+class IntegratingFTask extends BaseFTask{
+  private var elapsedTime = 0f
+
+  override def update(delta: Float){
+    super.update(delta)
+    if(this.isCompleted)throw new RuntimeException("why is this getting updated?")
+    elapsedTime += delta
+    updater(elapsedTime)
+  }
+
+  override def reset(){
+    elapsedTime = 0
+    super.reset()
   }
 }
 
