@@ -39,6 +39,8 @@ class ActionPuzzle
   extends Logging
   with Timing
   with HeapMeasure {
+  //TODO システムを決めなければ、素材を作ることができない。
+  //TODO
   //TODO マクロについて、ログ関数へ対応させる
   //TODO
   //TODO モードの実装とアップロードの準備
@@ -611,7 +613,7 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
 
   import reactive._
 
-  val sprite = new Sprite(assets.get[Texture]("data/dummy.png"))
+  val sprite = new Sprite(assets.get[Texture]("data/round_rect.png"))
   val spriteActor = new SpriteActor(sprite)
   add(spriteActor).fill.expand
 
