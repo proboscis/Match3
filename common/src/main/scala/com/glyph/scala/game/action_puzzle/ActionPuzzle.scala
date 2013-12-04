@@ -75,11 +75,11 @@ class ActionPuzzle
         x += 1
       }
     }
-  }
+}
 
-  //TODO tune the numbers
-  implicit val animators = Pool[IPAnimator](1000)
-  implicit val waiters = Pool[WaitAll](100)
+//TODO tune the numbers
+implicit val animators = Pool[IPAnimator](1000)
+implicit val waiters = Pool[WaitAll](100)
   implicit val finishes = Pool[OnFinish](100)
   implicit val swipeAnimations = Pool[SwipeAnimation](() => new SwipeAnimation, 100)
   implicit val puzzlePool = Pool[PuzzleBuffer](100)
@@ -622,9 +622,9 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
       case col ~ swiping ~ falling ~ matching => (swiping | falling) ? col.cpy().mul(0.7f) | (matching ? col.cpy().add(0.5f, 0.5f, 0.5f, 0.5f) | col)
     }
 
-    import GdxConversion.Animated2Sprite
+    import GdxConversion._
     reactVar(panel.isMatching){
-      flag => if(flag)startShivering(spriteActor.sprite) else stopShivering()
+      flag => if(flag)startShivering(spriteActor) else stopShivering()
     }
     reactVar(c)(spriteActor.setColor)
   }

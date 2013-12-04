@@ -5,7 +5,7 @@ import com.glyph.scala.lib.util.Logging
 
 
 object Explosion extends Logging{
-  def init[T: AnimatedFloat2](thetaRandom: () => Float, powRandom: () => Float, targetVelocities: ArrayBuffer[Float], numTarget: Int) {
+  def init(thetaRandom: () => Float, powRandom: () => Float, targetVelocities: ArrayBuffer[Float], numTarget: Int) {
     var i = 0
     val size = numTarget * 2
     while (i < size) {

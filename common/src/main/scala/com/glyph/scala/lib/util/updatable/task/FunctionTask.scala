@@ -30,6 +30,12 @@ extends Task with AutoFree{
     if(initializer != null)initializer()
   }
 
+
+  override def onCancel(){
+    super.onCancel()
+    canceller()
+  }
+
   override def onFinish(){
     //log("onFinish")
     if(finalizer != null) finalizer()
