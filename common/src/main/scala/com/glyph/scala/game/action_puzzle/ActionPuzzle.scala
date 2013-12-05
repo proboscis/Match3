@@ -10,7 +10,7 @@ import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.game.action_puzzle.view.Paneled
 import com.glyph.scala.lib.util.{HeapMeasure, Timing, reactive
 , Logging}
-import com.badlogic.gdx.graphics.{Color, Texture}
+import com.badlogic.gdx.graphics.{GL10, Color, Texture}
 import com.glyph.scala.lib.libgdx.actor._
 import com.glyph.scala.game.puzzle.view.match3.ColorTheme
 import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
@@ -515,7 +515,13 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   with Reactor
   with Logging
   with Tasking
-  with SpriteBatchRenderer {
+  with SpriteBatchRenderer
+  with BlendFuncMod{
+
+  val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
+
+  val DST_FUNC: Int = GL10.GL_ONE
+
   def row: Int = puzzle.ROW
 
   def column: Int = puzzle.COLUMN
@@ -530,7 +536,6 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
   implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
   implicit val funcTaskPool = Pool[TimedFunctionTask](100)
-
   /** 関係なーい
   preAlloc[Sprite]()
   preAlloc[Token]()
@@ -558,7 +563,6 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
     }
   }
 
-  //TODO you have to recreate all this token things since it cant be reused for some reason....
   val panelRemove = (removed: Seq[ActionPuzzle#AP]) => {
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
       tokens -= token
@@ -575,11 +579,22 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
       //make this particle specific code into trait's code
       ft.setFunctions(
         () => {
-          TextureUtil.split(token.sprite)(8)(8)(buf)
-          Explosion.init(() => random(PI2), () => random(2000), velBuf, buf.length)
+          //TextureUtil.split(token.sprite)(8)(8)(buf)
+          val texture = assets.get[Texture]("data/particle.png")
+          1 to 100 foreach{
+            _=> val p = manual[Sprite]
+              p.setTexture(texture)
+              p.setRegion(0f,0f,1f,1f)
+              p.setOrigin(0f,0f)
+              p.setSize(20,20)
+              p.setPosition(token.getX+token.getWidth/2,token.getY+token.getHeight/2)
+              p.setColor(token.sprite.getColor)
+              buf += p
+          }
+          Explosion.init(() => random(PI2), () =>random(2000), velBuf, buf.length)
           addDrawable(buf)
         },
-        Explosion.update(0, -10000, 0.001f)(buf, velBuf),
+        Explosion.update(0, -100, 5f)(buf, velBuf),
         () => {
           removeDrawable(buf)
           buf foreach (_.free)
