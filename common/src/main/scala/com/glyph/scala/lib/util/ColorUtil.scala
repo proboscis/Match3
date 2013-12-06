@@ -47,4 +47,5 @@ object ColorUtil extends Logging{
       new Color(v,v,v,1)
     }
   }
+
 }

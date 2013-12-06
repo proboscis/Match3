@@ -11,6 +11,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.game.action_puzzle.{ GMatch3, APView, ActionPuzzle}
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.glyph.scala.lib.util.{reactive, Logging}
+import com.badlogic.gdx.math.MathUtils
 
 /**
  * @author glyph
@@ -29,7 +30,7 @@ class ActionScreen(implicit assets: AssetManager) extends TabledScreen with Reac
   reactVar(bgColor)(backgroundColor = _)
 
   val skin = assets.get[Skin]("skin/default.json")
-  val puzzle = new ActionPuzzle
+  val puzzle = new ActionPuzzle(6,6,()=>MathUtils.random(0,3),(a:Int,b:Int)=>{a == b})
   val view = new APView(puzzle, assets)
   //val view = new APView2(puzzle)
   /*

@@ -20,9 +20,8 @@ import com.glyph.scala.lib.util.pooling_task.ReflectedPooling
 /**
  * @author glyph
  */
-class APView(puzzle: ActionPuzzle, assets: AssetManager)
-  extends WidgetGroup
-  with Paneled
+class APView[T](puzzle: ActionPuzzle[T], assets: AssetManager)
+  extends Paneled
   with Reactor
   with Logging
   with Tasking
@@ -49,7 +48,7 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
   import ReflectedPooling._
 
   implicit val spritePool = Pool[Sprite](10000)
-  implicit val tokenPool = Pool[Token](() => new Token(null, assets), (tgt: Token) => tgt.resetForPool(), row * column * 2)
+  implicit val tokenPool = Pool[Token[T]](() => new Token[T](null, assets), (tgt: Token[T]) => tgt.resetForPool(), row * column * 2)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
   implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
   implicit val funcTaskPool = Pool[TimedFunctionTask](100)
@@ -63,11 +62,11 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
     * */
 
 
-  val tokens = ArrayBuffer[Token]()
+  val tokens = ArrayBuffer[Token[T]]()
   val skin = assets.get[Skin]("skin/default.json")
-  val panelAdd = (added: Seq[Seq[ActionPuzzle#AP]]) => {
+  val panelAdd = (added: Seq[Seq[ActionPuzzle[T]#AP]]) => {
     for (row <- added; p <- row) {
-      val token = manual[Token]
+      val token = manual[Token[T]]
       token.init(p)
       //TODO check for alignment
       token.reactVar(p.x)(x => token.setX(calcPanelX(x)))
@@ -79,7 +78,7 @@ class APView(puzzle: ActionPuzzle, assets: AssetManager)
     }
   }
 
-  val panelRemove = (removed: Seq[ActionPuzzle#AP]) => {
+  val panelRemove = (removed: Seq[ActionPuzzle[T]#AP]) => {
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
       tokens -= token
       token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {

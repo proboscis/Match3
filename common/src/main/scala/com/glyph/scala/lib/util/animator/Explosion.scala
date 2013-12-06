@@ -26,10 +26,8 @@ object Explosion extends Logging{
       iy = ix + 1
       val vx = velocities(ix)
       val vy = velocities(iy)
-      var vvx =  -vx * viscosity
-     // if(vx > 0) vvx *= -1
-      var vvy =  -vy * viscosity
-     // if(vy > 0)vvy *= -1
+      val vvx =  -vx * viscosity
+      val vvy =  -vy * viscosity
       val ax = delta * (gX + vvx)
       val ay = delta * (gY + vvy)
       velocities(ix) += ax

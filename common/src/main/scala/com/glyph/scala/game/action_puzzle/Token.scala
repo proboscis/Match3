@@ -15,7 +15,7 @@ import reactive._
 /**
  * @author glyph
  */
-class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
+class Token[T](var panel: ActionPuzzle[T]#AP, assets: AssetManager)
   extends Table // problem is here!
   with Logging
   with Reactor
@@ -30,10 +30,10 @@ class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
 
   import com.glyph.scala.lib.libgdx.conversion.AnimatingGdx._
 
-  def init(p: ActionPuzzle#AP) {
+  def init(p: ActionPuzzle[T]#AP) {
     panel = p
     import Token._
-    val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling ~ panel.isMatching map {
+    val c = (colorMap.get(panel.value) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling ~ panel.isMatching map {
       case col ~ swiping ~ falling ~ matching => (swiping | falling) ? col.cpy().mul(0.7f) | (matching ? {
         val hsv = ColorUtil.ColorToHSV(col)
         hsv.v += 0.2f
@@ -65,5 +65,5 @@ object Token {
 
   import ColorTheme._
 
-  val colorMap: Int Map Varying[Color] = Map(0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
+  val colorMap: Any Map Varying[Color] = Map(0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
 }

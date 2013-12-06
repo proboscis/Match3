@@ -14,7 +14,7 @@ import scala.Some
 /**
  * @author glyph
  */
-class ActionPuzzle
+class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boolean)
   extends Logging
   with Timing
   with HeapMeasure {
@@ -23,6 +23,7 @@ class ActionPuzzle
   //TODO マクロについて、ログ関数へ対応させる
   //TODO
   //TODO モードの実装とアップロードの準備\
+  //TODO スコアとゲージの実装
 
   /**
    * what should i do next?
@@ -44,8 +45,6 @@ class ActionPuzzle
   import Pool._
 
   val MATCHING_TIME = 1f
-  val ROW = 6
-  val COLUMN = 6
   val generator = new IndexedSeqGen[ArrayBuffer] {
     def convert[T](seq: Seq[T]) = ArrayBuffer.apply(seq: _*)
   }
@@ -78,7 +77,7 @@ class ActionPuzzle
 
   def initializer: Var[PuzzleBuffer] = Var(manual[PuzzleBuffer])
 
-  val seed: () => AP = () => new AP(MathUtils.random(0, 3))
+  val APseed: () => AP = () => new AP(seed())
   val fixed = manual[PuzzleBuffer]
   val falling = manual[PuzzleBuffer]
   val future = manual[PuzzleBuffer]
@@ -94,7 +93,7 @@ class ActionPuzzle
     val result = GMatch3.scanAll(buf)(ROW)(COLUMN) {
       (a, b) => {
         if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
-          a.n == b.n
+          matcher(a.value,b.value)
         } else {
           false
         }
@@ -209,7 +208,7 @@ class ActionPuzzle
 
   def fill() {
     //log("fill")
-    val filling = future createFillingPuzzle(seed, COLUMN) //no cost
+    val filling = future createFillingPuzzle(APseed, COLUMN) //no cost
     if (filling.exists(!_.isEmpty)) {
       //printTime("fill:update failling"){
       val nextFall: PuzzleBuffer = manual[PuzzleBuffer]
@@ -425,9 +424,10 @@ class ActionPuzzle
 
   /**
    * container of the actual panel
-   * @param n
+   * @param value:T
    */
-  class AP(val n: Int) extends Reactor {
+  class AP(val value:T) extends Reactor {
+    //TODO make this poolabele
     val x = Var(0f)
     val y = Var(0f)
     val vx = Var(0f)
@@ -495,6 +495,6 @@ class ActionPuzzle
       matchTimer() = 0f
     }
 
-    override def toString: String = n + ""
+    override def toString: String = value + ""
   }
 }
