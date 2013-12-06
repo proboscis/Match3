@@ -27,17 +27,17 @@ trait Shivering extends Tasking with Logging with Threading{
   def startShivering[T:AnimatedFloat2](tgt:T) {
     if (!started) {
       count += 1
-      log("start shivering"+count)
+     // log("start shivering"+count)
       val impl = implicitly[AnimatedFloat2[T]]
-      val (updater,canceller) = Swinger.update(10,impl.getX(tgt),impl.getY(tgt),tgt)
+      val (updater,canceller) = Swinger.update(2,impl.getX(tgt),impl.getY(tgt),tgt)
       shiver.setUpdater(updater)
       shiver.setFinalizer(()=>{
-        log("finished")
+       // log("finished")
         canceller()
         shiver.reset()
       })
       shiver.setCanceller(()=>{
-        log("cancelled")
+       // log("cancelled")
         canceller()
         shiver.reset()
       })
@@ -48,12 +48,12 @@ trait Shivering extends Tasking with Logging with Threading{
   def stopShivering() {
     if(started){
       if(!shiver.isCompleted){
-        log("finishing shivering")
+       // log("finishing shivering")
         cancel(shiver)
 
       }
       started = false
-      log("stop shivering")
+     // log("stop shivering")
     }
   }
 }

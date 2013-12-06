@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 /**
  * @author glyph
  */
-object GdxConversion {
+object AnimatingGdx {
   /*
   object AnimatingVector2X extends Animating[Vector2]{
     def get: Vector2 = ???

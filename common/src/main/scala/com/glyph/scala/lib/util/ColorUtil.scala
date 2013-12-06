@@ -1,60 +1,50 @@
 package com.glyph.scala.lib.util
 
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.math.MathUtils
+
 /**
  * @author glyph
  */
-object ColorUtil {
-  def RGBtoHSV(red:Int,green:Int,blue:Int):Array[Int] ={
-    val hsv = new Array[Int](3)
-    val max = Math.max(red, Math.max(green, blue))
-    val min = Math.min(red, Math.min(green, blue))
-
-    // h
-    if(max == min){
-      hsv(0) = 0
-    }
-    else if(max == red){
-      hsv(0) = (60 * (green - blue) / (max - min) + 360) % 360
-    }
-    else if(max == green){
-      hsv(0) = (60 * (blue - red) / (max - min)) + 120
-    }
-    else if(max == blue){
-      hsv(0) = (60 * (red - green) / (max - min)) + 240
-    }
-
-    // s
-    if(max == 0){
-      hsv(1) = 0
-    }
-    else{
-      hsv(1) = 255 * ((max - min) / max)
-    }
-
-    // v
-    hsv(2) = max
-
-    hsv
+object ColorUtil extends Logging{
+  def ColorToHSV(c:Color):HSV ={
+    import Math._
+    val r = c.r
+    val g = c.g
+    val b = c.b
+    val MAX = max(r,max(g,b))
+    val MIN = min(r,min(g,b))
+    val mult = 60f/(MAX-MIN)
+    val h:Float = if(r >= g && r >= b){
+      mult * (g-b)
+    }else if(g >= r && g >= b){
+      mult *(b-r) + 120f
+    }else if(b >= r && b >= g){
+      mult * (r-g) + 240f
+    }else throw new RuntimeException("something went wrong with ColorToHSV method")
+    val s = (MAX-MIN)/MAX
+    val v = MAX
+    HSV(if(h<0)h+360f else h,s,v)
   }
-  def HSVtoRGB(h:Int,s:Int,v:Int):Array[Int] ={
-    var f:Float = 0f
-    var i, p, q, t : Int = 0
-    val rgb = new Array[Int](3)
-
-    i = (Math.floor(h / 60.0f) % 6).toInt
-    f = (h / 60.0f) - Math.floor(h / 60.0f).toFloat
-    p = Math.round(v * (1.0f - (s / 255.0f)))
-    q = Math.round(v * (1.0f - (s / 255.0f) * f))
-    t = Math.round(v * (1.0f - (s / 255.0f) * (1.0f - f)))
-
-    i match{
-      case 0 => rgb(0) = v; rgb(1) = t; rgb(2) = p
-      case 1 => rgb(0) = q; rgb(1) = v; rgb(2) = p
-      case 2 => rgb(0) = p; rgb(1) = v; rgb(2) = t
-      case 3 => rgb(0) = p; rgb(1) = q; rgb(2) = v
-      case 4 => rgb(0) = t; rgb(1) = p; rgb(2) = v
-      case 5 => rgb(0) = v; rgb(1) = p; rgb(2) = q
+  case class HSV(var h:Float,var s:Float,var v:Float){
+    def toColor:Color = if(s != 0 && !h.isNaN){
+      s = Math.min(s,1f)
+      v = Math.min(v,1f)
+      val hi = h.toInt/60%6
+      val f = h/60f-hi
+      val p = v * (1-s)
+      val q = v * ( 1-f*s)
+      val t = v * (1 - (1 - f)*s)
+      hi match{
+        case 0 => new Color(v,t,p,1)
+        case 1 => new Color(q,v,p,1)
+        case 2 => new Color(p,v,t,1)
+        case 3 => new Color(p,q,v,1)
+        case 4 => new Color(t,p,v,1)
+        case 5 => new Color(v,p,q,1)
+      }
+    } else {
+      new Color(v,v,v,1)
     }
-    rgb
   }
 }

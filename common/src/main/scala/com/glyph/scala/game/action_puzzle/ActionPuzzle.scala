@@ -1,36 +1,15 @@
 package com.glyph.scala.game.action_puzzle
 
-import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.scenes.scene2d.ui.{Label, Table, Skin, WidgetGroup}
-import com.glyph.scala.lib.util.reactive.{Varying, Reactor, Var}
-import scalaz._
-import Scalaz._
+import com.glyph.scala.lib.util.reactive.{Reactor, Var}
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.updatable.task._
-import com.glyph.scala.game.action_puzzle.view.Paneled
-import com.glyph.scala.lib.util.{HeapMeasure, Timing, reactive
+import com.glyph.scala.lib.util.{HeapMeasure, Timing
 , Logging}
-import com.badlogic.gdx.graphics.{GL10, Color, Texture}
-import com.glyph.scala.lib.libgdx.actor._
-import com.glyph.scala.game.puzzle.view.match3.ColorTheme
-import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.mutable
 import com.glyph.scala.lib.util.pool.{Pool, Pooling}
-import com.glyph.scala.lib.util.pooling_task.PoolingTask
-import com.glyph.scala.lib.util.animator.{Swinger, Explosion, Animator}
+import com.glyph.scala.lib.util.animator.Animator
 import scala.Some
-import com.glyph.scala.lib.libgdx.{GdxUtil, actor, TextureUtil}
-import com.glyph.scala.lib.libgdx.poolable.GdxPoolable
-import com.glyph.scala.lib.libgdx.conversion.GdxConversion
-import scala.Some
-import com.badlogic.gdx.math.MathUtils._
-import scala.Some
-import com.glyph.scala.lib.libgdx.actor.action.Shivering
-import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Group}
-import scala.reflect.ClassTag
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.glyph.scala.lib.libgdx.actor.ui.RLabel
 
 /**
  * @author glyph
@@ -43,7 +22,14 @@ class ActionPuzzle
   //TODO
   //TODO マクロについて、ログ関数へ対応させる
   //TODO
-  //TODO モードの実装とアップロードの準備
+  //TODO モードの実装とアップロードの準備\
+
+  /**
+   * what should i do next?
+   * scoring
+   * dissappearing particles
+   *
+   */
 
   //TODO Particleの実装
   /**
@@ -56,7 +42,6 @@ class ActionPuzzle
   import GMatch3._
   import Animator._
   import Pool._
-  import PoolingTask._
 
   val MATCHING_TIME = 1f
   val ROW = 6
@@ -77,11 +62,13 @@ class ActionPuzzle
         x += 1
       }
     }
-}
+  }
 
-//TODO tune the numbers
-implicit val animators = Pool[IPAnimator](1000)
-implicit val waiters = Pool[WaitAll](100)
+  import com.glyph.scala.lib.util.pooling_task.ReflectedPooling._
+
+  //TODO tune the numbers
+  implicit val animators = Pool[IPAnimator](1000)
+  implicit val waiters = Pool[WaitAll](100)
   implicit val finishes = Pool[OnFinish](100)
   implicit val swipeAnimations = Pool[SwipeAnimation](() => new SwipeAnimation, 100)
   implicit val puzzlePool = Pool[PuzzleBuffer](100)
@@ -436,6 +423,10 @@ implicit val waiters = Pool[WaitAll](100)
     }
   }
 
+  /**
+   * container of the actual panel
+   * @param n
+   */
   class AP(val n: Int) extends Reactor {
     val x = Var(0f)
     val y = Var(0f)
@@ -506,162 +497,4 @@ implicit val waiters = Pool[WaitAll](100)
 
     override def toString: String = n + ""
   }
-
-}
-
-class APView(puzzle: ActionPuzzle, assets: AssetManager)
-  extends WidgetGroup
-  with Paneled
-  with Reactor
-  with Logging
-  with Tasking
-  with SpriteBatchRenderer
-  with BlendFuncMod{
-
-  val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
-
-  val DST_FUNC: Int = GL10.GL_ONE
-
-  def row: Int = puzzle.ROW
-
-  def column: Int = puzzle.COLUMN
-
-  import GdxPoolable._
-  import GdxConversion._
-  import PoolingTask._
-  import Pool._
-
-  implicit val spritePool = Pool[Sprite](10000)
-  implicit val tokenPool = Pool[Token](() => new Token(null, assets), (tgt: Token) => tgt.resetForPool(), row * column * 2)
-  implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
-  implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
-  implicit val funcTaskPool = Pool[TimedFunctionTask](100)
-  /** 関係なーい
-  preAlloc[Sprite]()
-  preAlloc[Token]()
-  preAlloc[ArrayBuffer[Sprite]]()
-  preAlloc[ArrayBuffer[Float]]()
-  preAlloc[TimedFunctionTask]()
-    * */
-
-  import SpriteBatchRenderer._
-
-  val tokens = ArrayBuffer[Token]()
-
-  val skin = assets.get[Skin]("skin/default.json")
-  val panelAdd = (added: Seq[Seq[ActionPuzzle#AP]]) => {
-    for (row <- added; p <- row) {
-      val token = manual[Token]
-      token.init(p)
-      //TODO check for alignment
-      token.reactVar(p.x)(x => token.setX(calcPanelX(x)))
-      token.reactVar(p.y)(y => token.setY(calcPanelY(y)))
-      token.setSize(panelW, panelH)
-      token.setOrigin(panelW / 2, panelH / 2)
-      tokens += token
-      puzzleGroup.addActor(token)
-    }
-  }
-
-  val panelRemove = (removed: Seq[ActionPuzzle#AP]) => {
-    for (panel <- removed; token <- tokens.find(_.panel == panel)) {
-      tokens -= token
-      import Actions._
-      token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
-        def run() {
-          token.free
-        }
-      })))
-      val buf = manual[ArrayBuffer[Sprite]]
-      val velBuf = manual[ArrayBuffer[Float]]
-      val ft = auto[TimedFunctionTask]
-      import MathUtils._
-      //make this particle specific code into trait's code
-      ft.setFunctions(
-        () => {
-          //TextureUtil.split(token.sprite)(8)(8)(buf)
-          val texture = assets.get[Texture]("data/particle.png")
-          1 to 100 foreach{
-            _=> val p = manual[Sprite]
-              p.setTexture(texture)
-              p.setRegion(0f,0f,1f,1f)
-              p.setOrigin(0f,0f)
-              p.setSize(20,20)
-              p.setPosition(token.getX+token.getWidth/2,token.getY+token.getHeight/2)
-              p.setColor(token.sprite.getColor)
-              buf += p
-          }
-          Explosion.init(() => random(PI2), () =>random(2000), velBuf, buf.length)
-          addDrawable(buf)
-        },
-        Explosion.update(0, -100, 5f)(buf, velBuf),
-        () => {
-          removeDrawable(buf)
-          buf foreach (_.free)
-          buf.free
-          velBuf.free
-        }) in 1f
-      add(ft)
-    }
-  }
-  this.addListener(new InputListener() {
-    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-      val (ix, iy) = positionToIndex(x, y)
-      for {ap <- puzzle.future.lift(ix).map(_.lift(iy)).flatten
-           token <- tokens.find(_.panel == ap)
-      } {
-        log(ix, iy, ap.tx(), ap.ty(), token)
-        //puzzle.removeFillUpdateTargetPosition(ap::Nil)
-      }
-      super.touchDown(event, x, y, pointer, button)
-    }
-  })
-}
-
-class Token(var panel: ActionPuzzle#AP, assets: AssetManager)
-  extends Table // problem is here!
-  with Logging
-  with Reactor
-  with Tasking
-  with Shivering{
-  debug()
-
-  import reactive._
-
-  val sprite = new Sprite(assets.get[Texture]("data/round_rect.png"))
-  val spriteActor = new SpriteActor(sprite)
-  add(spriteActor).fill.expand
-
-  def init(p: ActionPuzzle#AP) {
-    panel = p
-    import Token._
-    val c = (colorMap.get(panel.n) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling ~ panel.isMatching map {
-      case col ~ swiping ~ falling ~ matching => (swiping | falling) ? col.cpy().mul(0.7f) | (matching ? col.cpy().add(0.5f, 0.5f, 0.5f, 0.5f) | col)
-    }
-
-    import GdxConversion._
-    reactVar(panel.isMatching){
-      flag => if(flag)startShivering(spriteActor) else stopShivering()
-    }
-    reactVar(c)(spriteActor.setColor)
-  }
-
-  def resetForPool() {
-    setColor(Color.WHITE)
-    remove()
-    clearReaction()
-    //setScale(1)
-    //clear()
-    clearActions()
-    clearListeners()
-  }
-
-  override def toString: String = "x" -> getX :: "y" -> getY :: "w" -> getWidth :: "h" -> getHeight :: Nil mkString("(", ",", ")")
-}
-
-object Token {
-
-  import ColorTheme._
-
-  val colorMap: Int Map Varying[Color] = Map(0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
 }

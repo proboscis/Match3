@@ -26,10 +26,8 @@ object Wait{
     new Wait(w)
   }
 }
-trait Waitable
-class TWait
-class WaitAll(waiting:Task*) extends Task with Logging with AutoFree{
-  val tasks = ListBuffer(waiting:_*)
+class WaitAll extends Task with Logging with AutoFree{
+  val tasks = ListBuffer.empty[Task]
   override def onStart(){
     super.onStart()
     tasks foreach{_.onStart()}
@@ -55,9 +53,4 @@ class WaitAll(waiting:Task*) extends Task with Logging with AutoFree{
     super.reset()
     tasks.clear()
   }
-}
-
-object WaitAll{
-  //def apply(tasks:Seq[Task]) = new WaitAll(tasks:_*)
-  def apply(tasks:Task*) = new WaitAll(tasks:_*)
 }

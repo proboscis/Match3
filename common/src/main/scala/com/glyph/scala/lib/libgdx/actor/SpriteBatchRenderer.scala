@@ -11,9 +11,12 @@ import com.badlogic.gdx.utils.SnapshotArray
  * @author proboscis
  */
 trait SpriteBatchRenderer extends Group {
+
   import Pool._
-  val renderers  = new SnapshotArray[PooledRenderer[_]]()
-  def addDrawable[T](tgt: T)(implicit evidence:SBDrawable[T],tag:ClassTag[T],rendererPool:Pool[PooledRenderer[T]]) {
+
+  val renderers = new SnapshotArray[PooledRenderer[_]]()
+
+  def addDrawable[T](tgt: T)(implicit evidence: SBDrawable[T], tag: ClassTag[T], rendererPool: Pool[PooledRenderer[T]]) {
     val renderer = auto[PooledRenderer[T]]
     renderer.setTarget(tgt)
     renderers.add(renderer)
@@ -44,14 +47,32 @@ trait SpriteBatchRenderer extends Group {
     var i = 0
     while (i < size) {
       val s = snap(i).asInstanceOf[PooledRenderer[_]]
-      s.draw(batch, parentAlpha)//TODO you might need to consider the alpha
+      s.draw(batch, parentAlpha) //TODO you might need to consider the alpha
       //s.draw(batch,getColor.a*parentAlpha)
       i += 1
     }
     renderers.end()
   }
 }
+
 object SpriteBatchRenderer {
+
+
+  var pools: ClassTag[_] Map Any = Map.empty.withDefault(_ => null)
+
+  implicit def rendererPool[T](implicit ev: SBDrawable[T], tag: ClassTag[T], poolTag: ClassTag[PooledRenderer[T]]): Pool[PooledRenderer[T]] = {
+    val result = pools(tag)
+    if (result != null) result.asInstanceOf[Pool[PooledRenderer[T]]]
+    else {
+      import PooledRenderer._
+      val created = Pool[PooledRenderer[T]](100)(genPoolingPooledRenderer[T], poolTag)
+      pools += (tag -> created)
+      created
+    }
+  }
+}
+
+object SBDrawableGdx {
 
   implicit object DrawableBuffer extends SBDrawable[ArrayBuffer[Sprite]] {
     def draw(tgt: ArrayBuffer[Sprite], batch: SpriteBatch, alpha: Float) {
@@ -69,18 +90,8 @@ object SpriteBatchRenderer {
       tgt.draw(batch, alpha)
     }
   }
-  var pools : ClassTag[_] Map Any = Map.empty.withDefault(_=>null)
-  implicit def rendererPool[T](implicit ev:SBDrawable[T],tag:ClassTag[T],poolTag:ClassTag[PooledRenderer[T]]):Pool[PooledRenderer[T]] = {
-    val result = pools(tag)
-    if(result != null) result.asInstanceOf[Pool[PooledRenderer[T]]] else{
-      import PooledRenderer._
-      val created = Pool[PooledRenderer[T]](100)(genPoolingPooledRenderer[T],poolTag)
-      pools +=(tag -> created)
-      created
-    }
-  }
-}
 
+}
 
 trait SBDrawable[T] {
   def draw(tgt: T, batch: SpriteBatch, alpha: Float)

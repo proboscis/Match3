@@ -8,12 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 trait BlendFuncMod extends SpriteBatchRenderer {
   val SRC_FUNC: Int
   val DST_FUNC: Int
-
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def drawChildren(batch: SpriteBatch, parentAlpha: Float){
     val src = batch.getBlendSrcFunc
     val dst = batch.getBlendDstFunc
     batch.setBlendFunction(SRC_FUNC, DST_FUNC)
-    super.draw(batch, parentAlpha)
+    super.drawChildren(batch, parentAlpha)
     batch.setBlendFunction(src, dst)
   }
 }
