@@ -1,25 +1,25 @@
 package com.glyph.scala.lib.util.scene
 
 import com.glyph.scala.lib.util.updatable.Updatable
-import com.glyph.scala.lib.util.collection.LinkedList
+import scala.collection.mutable.ListBuffer
 
 /**
  * @author glyph
  */
 trait UpdatableNode extends SceneNode with Updatable{
-  val updatables = new LinkedList[Updatable]
+  val updatables = new ListBuffer[Updatable]
 
   override def +=(v: SceneComponent) {
     super.+=(v)
     if (v.isInstanceOf[Updatable]){
-      updatables.push(v.asInstanceOf[Updatable])
+      updatables += (v.asInstanceOf[Updatable])
     }
   }
 
   override def -=(v: SceneComponent) {
     super.-=(v)
     if (v.isInstanceOf[Updatable]){
-      updatables.remove(v.asInstanceOf[Updatable])
+      updatables.-=(v.asInstanceOf[Updatable])
     }
   }
 

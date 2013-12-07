@@ -1,24 +1,24 @@
 package com.glyph.scala.lib.libgdx.drawable
 
-import com.glyph.scala.lib.util.collection.LinkedList
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
 import com.glyph.scala.lib.libgdx.graphics.util.decal.Decal
+import scala.collection.mutable.ListBuffer
 
 /**
  * @author glyph
  */
 trait DecalList extends DecalDrawable {
-  val decals = new LinkedList[Decal]
+  val decals = new ListBuffer[Decal]()
 
   def add(decal: Decal) {
-    decals.push(decal)
+    decals += decal
   }
 
   def remove(decal: Decal) {
-    decals.remove(decal)
+    decals -= decal
   }
 
   def draw(batch: DecalBatch) {
-    decals.foreach(batch.add(_))
+    decals foreach batch.add
   }
 }

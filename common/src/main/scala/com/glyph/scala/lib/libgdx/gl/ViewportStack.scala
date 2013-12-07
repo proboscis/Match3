@@ -1,14 +1,14 @@
 package com.glyph.scala.lib.util.gl
 
-import com.glyph.java.util.ArrayStack
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.Gdx
+import scala.collection.mutable
 
 /**
  * @author glyph
  */
 object ViewportStack {
-  private val stack = new ArrayStack[Rectangle]()
+  private val stack = new mutable.ArrayStack[Rectangle]()
   private var current :Rectangle = Dummy
   stack.push(current)
   def push(v:Rectangle){

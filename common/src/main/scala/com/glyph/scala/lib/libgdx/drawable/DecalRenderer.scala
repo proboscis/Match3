@@ -2,22 +2,22 @@ package com.glyph.scala.lib.libgdx.drawable
 
 import com.badlogic.gdx.graphics.g3d.decals.{GroupStrategy, DecalBatch}
 import com.glyph.scala.lib.util.Disposable
-import com.glyph.scala.lib.util.collection.LinkedList
+import scala.collection.mutable.ListBuffer
 
 /**
  * @author glyph
  */
 class DecalRenderer extends RequireStrategy with Disposable {
-  protected val decals = new LinkedList[DecalDrawable]
+  protected val decals = new ListBuffer[DecalDrawable]()
   protected val batch = new DecalBatch()
   //TODO カメラセットのタイミングはインスタンス作成時っぽい
 
   def add(d: DecalDrawable) {
-    decals.push(d)
+    decals += d
   }
 
   def remove(d: DecalDrawable) {
-    decals.remove(d)
+    decals -= d
   }
 
   def draw(strategy: GroupStrategy) {

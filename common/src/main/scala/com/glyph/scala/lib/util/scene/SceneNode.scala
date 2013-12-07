@@ -1,18 +1,19 @@
 package com.glyph.scala.lib.util.scene
 
-import com.glyph.scala.lib.util.collection.LinkedList
+import scala.collection.mutable.ListBuffer
+
 
 /**
  * @author glyph
  */
 trait SceneNode extends SceneComponent{
-  val components = new LinkedList[SceneComponent]
+  val components = new ListBuffer[SceneComponent]
   def +=(v:SceneComponent){
-    components.push(v)
+    components+=(v)
     v.parent = this
   }
   def -=(v:SceneComponent){
-    components.remove(v)
+    components-=(v)
     v.parent = null
   }
   def clear(){

@@ -10,20 +10,15 @@ import com.glyph.scala.lib.libgdx.actor.ui.{Reaction, RLabel, Gauge, SlideView}
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.graphics.{Texture, Color}
-import com.badlogic.gdx.math.{MathUtils, Rectangle, Vector2, Interpolation}
-import com.glyph.scala.lib.libgdx.{GdxUtil, TextureUtil}
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.math.Interpolation
+import com.glyph.scala.lib.libgdx.TextureUtil
 import com.badlogic.gdx.scenes.scene2d.{Action, Touchable}
 import com.glyph.scala.lib.util.rhino.Rhino
 import com.glyph.scala.game.puzzle.view.match3.{ColorTheme, Match3View}
 import com.glyph.scala.lib.libgdx.actor.action.{MyActions, Oscillator}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
-import com.glyph.scala.game.puzzle.model.Element.{Fire, Water, Thunder}
-import com.glyph.scala.game.puzzle.model.match_puzzle.Life
-import com.glyph.scala.game.puzzle.model.monsters.Monster
-import com.glyph.scala.lib.libgdx.particle.Emission
-import com.glyph.java.particle.{SpriteParticle, ParticlePool}
 import com.glyph.scala.game.puzzle.model.cards.Card
 import com.badlogic.gdx.assets.AssetManager
 
@@ -31,7 +26,7 @@ import com.badlogic.gdx.assets.AssetManager
  * ここでcontrollerを渡したことが間違いだった!
  * @author glyph
  */
-class PuzzleGameView(assets:AssetManager,val game: Game, deck: PlayableDeck[PuzzleGameController], size: (Int, Int)) extends Table with TouchSource with Reactor with Logging {
+class PuzzleGameView(assets: AssetManager, val game: Game, deck: PlayableDeck[PuzzleGameController], size: (Int, Int)) extends Table with TouchSource with Reactor with Logging {
 
 
   import PuzzleGameController._
@@ -59,9 +54,9 @@ class PuzzleGameView(assets:AssetManager,val game: Game, deck: PlayableDeck[Puzz
   setSize(size._1, size._2)
   val root = new WidgetGroup with Layered
   val table = new Table
-  val cardView = new CardTableView(assets,deck)
-  val headerView = new HeaderView(assets,game) with ReactiveSize
-  val puzzleView = new Match3View(assets,game.puzzle)
+  val cardView = new CardTableView(assets, deck)
+  val headerView = new HeaderView(assets, game) with ReactiveSize
+  val puzzleView = new Match3View(assets, game.puzzle)
   val puzzleGroup = new WidgetGroup with Layered
   val slideView = new SlideView(RVJSON(GdxFile("js/view/slideView.js")))
   val config = RVJSON(GdxFile("js/view/manaGauge.js"))
@@ -80,12 +75,12 @@ class PuzzleGameView(assets:AssetManager,val game: Game, deck: PlayableDeck[Puzz
       }) getOrElse MyActions.NullAction
     }).fill.expand.center()
   }
-  val lifeGauge = new Gauge(assets,game.player.hp ~ game.player.maxHp map {
+  val lifeGauge = new Gauge(assets, game.player.hp ~ game.player.maxHp map {
     case hp ~ max => hp / max
   }, true) with ReactiveSize
-  val fireGauge = new ManaGauge(assets,game.player.fireMana, ET.fire) with ReactiveSize
-  val waterGauge = new ManaGauge(assets,game.player.waterMana, ET.water) with ReactiveSize
-  val thunderGauge = new ManaGauge(assets,game.player.thunderMana, ET.thunder) with ReactiveSize
+  val fireGauge = new ManaGauge(assets, game.player.fireMana, ET.fire) with ReactiveSize
+  val waterGauge = new ManaGauge(assets, game.player.waterMana, ET.water) with ReactiveSize
+  val thunderGauge = new ManaGauge(assets, game.player.thunderMana, ET.thunder) with ReactiveSize
 
   val colors = RVJSON(GdxFile("js/view/panelView.js"))
 
@@ -150,7 +145,7 @@ class PuzzleGameView(assets:AssetManager,val game: Game, deck: PlayableDeck[Puzz
       callback => {
         puzzleView.setTouchable(Touchable.enabled)
         reactEvent(cardView.cardPress) {
-          token => val view = new PlayableCardDescription(assets,token.card) with TouchSource
+          token => val view = new PlayableCardDescription(assets, token.card) with TouchSource
             if (slideView.shown.exists {
               _ == view
             }) {
@@ -160,7 +155,7 @@ class PuzzleGameView(assets:AssetManager,val game: Game, deck: PlayableDeck[Puzz
             }
         }
         once(slideView.shownPress) {
-          case PlayableCardDescription(assets,card) => {
+          case PlayableCardDescription(assets, card) => {
             stop()
             callback(UseCard(card))
           }
@@ -237,58 +232,6 @@ class PuzzleGameView(assets:AssetManager,val game: Game, deck: PlayableDeck[Puzz
       }
     }
   }
-  val pool = new ParticlePool(classOf[SpriteParticle], 1000)
-  val expEffect = RVJSON(GdxFile("js/effect/expParticle.js"))
-  lazy val region: TextureRegion = new TextureRegion(assets.get("data/particle.png", classOf[Texture]))
-  reactEvent(puzzleView.tokenExplosion) {
-    token =>
-      for {
-        speed <- expEffect.speed.as[Float].current
-        alpha <- expEffect.alpha.as[Float].current
-        power <- expEffect.power.as[Float].current
-        duration <- expEffect.duration.as[Float].current
-        minN <- expEffect.minNumber.as[Int].current
-        maxN <- expEffect.maxNumber.as[Int].current
-        minSize <- expEffect.minSize.as[Int].current
-        maxSize <- expEffect.maxSize.as[Int].current
-      } {
-        val view = token.panel match {
-          case t: Thunder => thunderGauge
-          case t: Water => waterGauge
-          case t: Fire => fireGauge
-          case l: Life => lifeGauge
-          case m: Monster => headerView
-          case _ => headerView
-        }
-        import MathUtils._
-        val emission = new Emission(
-          view.rRect map {
-            rect => val pos = headerView.getParent.localToStageCoordinates(new Vector2(rect.x, rect.y))
-              new Rectangle(pos.x, pos.y, rect.width, rect.height)
-          }, pool, duration, alpha, power)
-        for (_ <- 1 until random(minN, maxN)) {
-          emission += pool.obtain()
-        }
-        emission.particles foreach {
-          p => p.init(region)
-            p.setColor(token.getColor)
-            //TODO 座標系と色の修正
-            val size = random(minSize, maxSize)
-            p.setSize(size, size)
-            val pos = new Vector2(token.getX, token.getY)
-            puzzleView.localToStageCoordinates(pos)
-            p.setPosition(pos.x + random(token.getWidth), pos.y + random(token.getHeight))
-            val rand = new Vector2(0, 1)
-            rand.rotate(random(360))
-            rand.scl(random(speed))
-            p.getVelocity.add(rand)
-        }
-        emission.setTouchable(Touchable.disabled)
-        GdxUtil.post {
-          root.addActor(emission)
-        }
-      }
-  }
 }
 
-case class PlayableCardDescription(assets:AssetManager,card: Card[PuzzleGameController]#PlayableCard) extends BaseCardDescription(assets,card.source)
+case class PlayableCardDescription(assets: AssetManager, card: Card[PuzzleGameController]#PlayableCard) extends BaseCardDescription(assets, card.source)
