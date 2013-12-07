@@ -12,6 +12,8 @@ import net.liftweb.json.TypeInfo
 import net.liftweb.json.MappingException
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.{Assets, Vnelt}
 import scala.util.Try
+import net.liftweb.json.scalaz.JsonScalaz._
+import net.liftweb.json.scalaz.JsonScalaz
 
 /**
  * @author glyph
@@ -50,11 +52,15 @@ object ScreenBuilder {
     if (!classOf[Screen].isAssignableFrom(clazz)) throw new RuntimeException("specified class is not a subclass of Screen! : " + clazz.getCanonicalName)
     val constructor = clazz.getConstructor(classOf[AssetManager])
     (am: AssetManager) => constructor.newInstance(am).asInstanceOf[Screen]
+  }/*
+  implicit def clazzJSONR:JSONR[Class[_]] = ???
+  implicit def confJSONR: JSONR[ScreenConfig] = ScreenConfig.applyJSON(field[String]("screenClass"), field[Set[(Class[_],Array[String])]]("assets"))
+  def createWithScalaz = parse(_:String) |> {
+    case json => (field[Class[_]]("screenClass")(json) |@| field[Set[(Class[_],Array[String])]]("assets")(json)){ScreenConfig}
   }
-
-
+  */
 }
-case class ScreenConfig(screenClass: Class[_], assets: Assets)
+case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_],Array[String])])
 object ClassSerializer extends Serializer[Class[_]] {
   private val ClassClass = classOf[Class[_]]
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Class[_]] = {

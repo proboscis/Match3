@@ -5,6 +5,8 @@ import org.scalasbt.androidplugin._
 import org.scalasbt.androidplugin.AndroidKeys._
 
 object Settings {
+  val scalazVersion = "7.0.4"
+  val liftVersion = "2.5"
   val sversion = "2.10.3"
   lazy val common = Defaults.defaultSettings ++ Seq (
     version := "0.1",
@@ -12,10 +14,11 @@ object Settings {
     {
       libraryDependencies ++=  Seq(
         "com.github.scopt" %% "scopt" % "3.1.0", 
-        "org.scalaz" %% "scalaz-core" % "7.0.4",
-        "org.scalaz" %% "scalaz-effect" % "7.0.4",
-        "org.scalaz" %% "scalaz-typelevel" % "7.0.4",
-        "net.liftweb" %% "lift-json" % "2.5",
+        "org.scalaz" %% "scalaz-core" % scalazVersion,
+        "org.scalaz" %% "scalaz-effect" % scalazVersion,
+        "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
+        "net.liftweb" %% "lift-json" % liftVersion,
+        "net.liftweb" %% "lift-json-scalaz" % liftVersion,
         "org.scala-lang" % "scala-reflect" % sversion,
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test")
       //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
