@@ -1,17 +1,34 @@
 package com.glyph.scala.lib.util
 
+import com.badlogic.gdx.{LifecycleListener, Gdx}
+
 /**
  * @author glyph
  */
 class MemoryAnalyzer {
   println("start Memory Analyzer")
-  new Thread(new Runnable() {
+  var running = true
+  val runner = new Runnable() {
     def run() {
-      while (true) {
+      while (running) {
         Thread.sleep(500)
         val runtime = Runtime.getRuntime
         println("total heap: " + ((runtime.totalMemory() - runtime.freeMemory()) / 1000) + "kb")
       }
     }
-  }).start()
+  }
+  new Thread(runner).start()
+  Gdx.app.addLifecycleListener(new LifecycleListener {
+    def dispose(){
+      running = false
+    }
+
+    def pause(){
+      running = false
+    }
+
+    def resume(){
+      new Thread(runner).start()
+    }
+  })
 }

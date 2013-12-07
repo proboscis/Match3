@@ -2,7 +2,6 @@ package com.glyph.scala.lib.libgdx.game
 
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
 
-
 /**
  * @author glyph
  */

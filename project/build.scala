@@ -5,21 +5,23 @@ import org.scalasbt.androidplugin._
 import org.scalasbt.androidplugin.AndroidKeys._
 
 object Settings {
+  val sversion = "2.10.3"
   lazy val common = Defaults.defaultSettings ++ Seq (
     version := "0.1",
-    scalaVersion := "2.10.3",
+    scalaVersion := sversion,
     {
       libraryDependencies ++=  Seq(
-        "com.github.scopt" %% "scopt" % "3.1.0",  
+        "com.github.scopt" %% "scopt" % "3.1.0", 
         "org.scalaz" %% "scalaz-core" % "7.0.4",
         "org.scalaz" %% "scalaz-effect" % "7.0.4",
         "org.scalaz" %% "scalaz-typelevel" % "7.0.4",
         "net.liftweb" %% "lift-json" % "2.5",
+        "org.scala-lang" % "scala-reflect" % sversion,
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test")
-
       //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
     },
-    javacOptions ++= Seq("-encoding","utf8")
+    javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),//this is required to avoid "bad file magic" problems
+    javacOptions ++= Seq("-encoding","utf8")//this is required to avoid encoding issues with japanese comments in Windows
     ,
     resolvers += Resolver.sonatypeRepo("snapshots")
     ,
@@ -27,11 +29,9 @@ object Settings {
     ,
     updateLibgdxTask
    )
-
   lazy val desktop = Settings.common ++ Seq (
     fork in Compile := true
   )
-
   lazy val android = Settings.common ++
     AndroidProject.androidSettings ++
     AndroidMarketPublish.settings ++ Seq (
@@ -82,6 +82,10 @@ object Settings {
 -keep class * implements com.badlogic.gdx.utils.Json*
 -keep class com.google.**
 -keep class java.lang.reflect.**
+-keep class scala.collection.**
+
+-keep class com.glyph.scala.lib.libgdx.screen.**
+
 
 # https://ofdev.zendesk.com/entries/20461397-android-pointless-proguard-cfg
 -keep class com.openfeint** { <methods>; }
@@ -113,8 +117,6 @@ object Settings {
 -keepclassmembers class * extends android.app.Activity {
    public void *(android.view.View);
 }
-
-
 
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;

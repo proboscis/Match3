@@ -8,13 +8,24 @@ import com.badlogic.gdx.Gdx
 import scalaz._
 import Scalaz._
 import com.glyph.scala.lib.util.Logging
-import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.ScreenConfig
+import com.glyph.scala.lib.libgdx.screen.ScreenConfig
 import com.glyph.scala.game.action_puzzle.screen.ActionScreen
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-
+import com.glyph.scala.lib.libgdx.game.ScreenFileTester
 class Main extends AndroidApplication with Logging{
   override def onCreate(savedInstanceState: Bundle) {
+    val actionScreenConfig = ScreenConfig(classOf[ActionScreen], Set(classOf[Texture] -> Array(
+      "data/dummy.png",
+      "data/particle.png",
+      "data/sword.png",
+      "data/round_rect.png"),
+    classOf[Skin] -> Array("skin/default.json")))
+    System.err.println(ScreenBuilder.writeConfig(actionScreenConfig))
+  //this prints nothing but a "{}"
+
+
+
     println("created android application")
     super.onCreate(savedInstanceState)
     val config = new AndroidApplicationConfiguration()
@@ -22,20 +33,14 @@ class Main extends AndroidApplication with Logging{
     config.useCompass = false
     config.useWakelock = true
     config.useGL20 = true
-    val actionScreenConfig = ScreenConfig(classOf[ActionScreen],Set(classOf[Texture]->Array(
-      "data/dummy.png",
-      "data/particle.png",
-      "data/sword.png"),
-      classOf[Skin]->Array("skin/default.json")))
-    new Thread(Thread.currentThread().getThreadGroup, new Runnable {
-      def run() {
-        val builderVnel = ScreenBuilder.configToBuilder(actionScreenConfig)
-        builderVnel match {
-          case Failure(error) => err
-          case Success(builder)=>initialize(new ScreenTester(builder), config)
+    
+    ScreenBuilder.configToBuilder(actionScreenConfig) match {
+      case Success(s) =>    new Thread(Thread.currentThread().getThreadGroup, new Runnable {
+        def run() {
+          initialize(new ScreenTester(s), config)
         }
-
-      }
-    }, Thread.currentThread().getName + "logic", 64000000).run()
+        }, Thread.currentThread().getName + "logic", 64000000).run()
+      case Failure(e) => e foreach(_.printStackTrace())
+    }
   }
 }

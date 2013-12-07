@@ -7,18 +7,19 @@ import com.glyph.scala.lib.util.reactive.RFile
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import scalaz._
 import Scalaz._
-import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
-import com.glyph.scala.lib.libgdx.game.ScreenTester
+import com.glyph.scala.lib.libgdx.screen.{ScreenConfig, ScreenBuilder}
+import com.glyph.scala.lib.libgdx.game.{ScreenFileTester, ScreenTester}
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.glyph.scala.game.action_puzzle.screen.ActionScreen
-import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.ScreenConfig
 
 object Main {
+  //why cant you do this serialization on the androids?
   val actionScreenConfig = ScreenConfig(classOf[ActionScreen], Set(classOf[Texture] -> Array(
     "data/dummy.png",
     "data/particle.png",
-    "data/sword.png"),
+    "data/sword.png",
+    "data/round_rect.png"),
     classOf[Skin] -> Array("skin/default.json")))
   println(ScreenBuilder.writeConfig(actionScreenConfig))
 
@@ -60,22 +61,17 @@ object Main {
           println("specified resource directory:" + resDir + "=>" + result)
           result.some
         }
-        val builder = ScreenBuilder.createFromFile(resDir.getAbsolutePath + "/" + screenFileName)
-        builder match {
-          case Success(b) => {
-            if (fileCheck) RFile.enableChecking(1000)
-            if (packTexture) TexturePacker2.process("./", "./skin", "default")
-            val cfg = new LwjglApplicationConfiguration()
-            cfg.title = "Game"
-            val ratio = 9d / 16d
-            val height = 1920 / 3
-            cfg.height = height
-            cfg.width = (height * ratio).toInt
-            cfg.useGL20 = true
-            new LwjglApplication(new ScreenTester(b), cfg)
-          }
-          case Failure(errors) => errors foreach (_.printStackTrace())
-        }
+
+        if (fileCheck) RFile.enableChecking(1000)
+        if (packTexture) TexturePacker2.process("./", "./skin", "default")
+        val cfg = new LwjglApplicationConfiguration()
+        cfg.title = "Game"
+        val ratio = 9d / 16d
+        val height = 1920 / 3
+        cfg.height = height
+        cfg.width = (height * ratio).toInt
+        cfg.useGL20 = true
+        new LwjglApplication(new ScreenFileTester(screenFileName), cfg)
       }
     }
   }
