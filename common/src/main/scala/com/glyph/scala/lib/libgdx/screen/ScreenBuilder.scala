@@ -6,15 +6,11 @@ import scalaz._
 import scala.util.control.Exception._
 import scala.io.Source
 import com.badlogic.gdx.Screen
-import net.liftweb.json._
-import net.liftweb.json.Serialization._
-import net.liftweb.json.TypeInfo
-import net.liftweb.json.MappingException
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.{Assets, Vnelt}
 import scala.util.Try
-import net.liftweb.json.scalaz.JsonScalaz._
-import net.liftweb.json.scalaz.JsonScalaz
-
+import spray.json.{JsValue, RootJsonFormat}
+import spray.json._
+import DefaultJsonProtocol._
 /**
  * @author glyph
  */
@@ -24,11 +20,20 @@ trait ScreenBuilder {
   def requiredAssets: Set[(Class[_], Array[FileName])]
   def create(assetManager: AssetManager): Screen
 }
-
+case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_],Array[String])])
 object ScreenBuilder {
-  implicit val JsonFormat = Serialization.formats(NoTypeHints) + ClassSerializer
   type Vnelt[T] = ValidationNel[Throwable, T]
   type Assets = Set[(Class[_], Array[String])]
+
+  implicit val classFormat = new RootJsonFormat[Class[_]] {
+    def write(obj: Class[_]): JsValue = JsString(obj.getCanonicalName)
+
+    def read(json: JsValue): Class[_] = json match {
+      case JsString(str) => Class.forName(str)
+      case a => deserializationError("class name expected, but found " + a)
+    }
+  }
+  implicit val confFormat = jsonFormat[Class[_],Assets,ScreenConfig](ScreenConfig,"screenClass","assets")
 
   private implicit def eitherToVnelt[T](either: Either[Throwable, T]): Validation[NonEmptyList[Throwable], T] = either fold(_.failNel, _.success)
   private implicit def tryToVnel[T](t:Try[T]):ValidationNel[Throwable,T] = t match{
@@ -40,10 +45,10 @@ object ScreenBuilder {
     def create(assetManager: AssetManager): Screen = constructor(assetManager)
   }
   def configToBuilder(config:ScreenConfig)= config.screenClass |> classToConstructor map ScreenBuilder(config.assets)
-  def writeConfig(config: ScreenConfig) = write(config)
+  def writeConfig(config: ScreenConfig) = config.toJson.prettyPrint
   def createFromFile(filePath: String) = filePath |> readFile flatMap createFromJson
   def createFromJson(json:String) = json |> jsonToConfig flatMap configToBuilder
-  def jsonToConfig(json:String)= allCatch.either(read[ScreenConfig](json))
+  def jsonToConfig(json:String)= allCatch.either(json.asJson.convertTo[ScreenConfig])
   def createFromJsonWithParser(parser:String=>ScreenConfig)(json:String):Vnelt[ScreenBuilder] = Try(parseJsonToConfig(parser)(json)) |> tryToVnel flatMap configToBuilder
   def parseJsonToConfig(parser:String=>ScreenConfig)(jsonStr:String):ScreenConfig = jsonStr |> parser
 
@@ -59,18 +64,4 @@ object ScreenBuilder {
     case json => (field[Class[_]]("screenClass")(json) |@| field[Set[(Class[_],Array[String])]]("assets")(json)){ScreenConfig}
   }
   */
-}
-case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_],Array[String])])
-object ClassSerializer extends Serializer[Class[_]] {
-  private val ClassClass = classOf[Class[_]]
-  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Class[_]] = {
-    case (TypeInfo(ClassClass, _), json) => json match {
-      case JObject(JField("class", JString(className)) :: Nil) => Class.forName(className)
-      case x => throw new MappingException("Can't convert " + x + " to class")
-    }
-  }
-  def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case x: Class[_] =>
-      JObject(JField("class", JString(x.getCanonicalName)) :: Nil)
-  }
 }

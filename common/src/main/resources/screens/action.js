@@ -1,1 +1,4 @@
-{"screenClass":{"class":"com.glyph.scala.game.action_puzzle.screen.ActionScreen"},"assets":[{"_1":{"class":"com.badlogic.gdx.graphics.Texture"},"_2":["data/dummy.png","data/particle.png","data/sword.png","data/round_rect.png"]},{"_1":{"class":"com.badlogic.gdx.scenes.scene2d.ui.Skin"},"_2":["skin/default.json"]}]}
+{
+  "screenClass": "com.glyph.scala.game.action_puzzle.screen.ActionScreen",
+  "assets": [["com.badlogic.gdx.graphics.Texture", ["data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"]], ["com.badlogic.gdx.scenes.scene2d.ui.Skin", ["skin/default.json"]]]
+}

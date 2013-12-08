@@ -11,6 +11,8 @@ object Settings {
   lazy val common = Defaults.defaultSettings ++ Seq (
     version := "0.1",
     scalaVersion := sversion,
+    resolvers += "spray" at "http://repo.spray.io/"//this is required to use spray
+    ,
     {
       libraryDependencies ++=  Seq(
         "com.github.scopt" %% "scopt" % "3.1.0", 
@@ -18,7 +20,8 @@ object Settings {
         "org.scalaz" %% "scalaz-effect" % scalazVersion,
         "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
         "net.liftweb" %% "lift-json" % liftVersion,
-        "net.liftweb" %% "lift-json-scalaz" % liftVersion,
+        "io.spray" %%  "spray-json" % "1.2.5",
+        //"net.liftweb" %% "lift-json-scalaz" % liftVersion,
         "org.scala-lang" % "scala-reflect" % sversion,
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test")
       //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
@@ -52,6 +55,11 @@ object Settings {
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+-keep class com.badlogic.gdx.graphics.g2d.Sprite
+-keep class com.badlogic.gdx.scenes.scene2d.Actor
+-keep class com.glyph.scala.lib.libgdx.actor.SpriteActor
+
 -optimizationpasses 5
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses

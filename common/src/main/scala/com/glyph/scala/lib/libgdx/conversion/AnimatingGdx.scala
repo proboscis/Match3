@@ -14,6 +14,7 @@ object AnimatingGdx {
   object AnimatingVector2X extends Animating[Vector2]{
     def get: Vector2 = ???
   }*/
+  //TODO これ、ランタイムでリフレクションを使ってるぞ・・・・！？オソロシヤ
   type Animated ={
     def getX():Float
     def getY():Float
@@ -31,6 +32,7 @@ object AnimatingGdx {
     def getX(tgt: T): Float =tgt.getX()
   }
 
+  //TODO you need to keep these classes from proguard...
   implicit val Animated2Sprite = generateAdapter[Sprite]
   implicit val AnimatedActor = generateAdapter[Actor]
   implicit val AnimatedSpriteActor = generateAdapter[SpriteActor]
