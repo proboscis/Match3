@@ -46,7 +46,7 @@ class ActionScreen(implicit assets: AssetManager) extends TabledScreen with Reac
   root.layout()
   puzzle.panelAdd = view.panelAdd
   puzzle.panelRemove = seq => {
-
+    score() += 10*seq.size
     view.panelRemove(seq)
   }
   view.startSwipeCheck(puzzle.pooledSwipe)
