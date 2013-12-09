@@ -1,13 +1,13 @@
 package com.glyph.scala.lib.util.updatable
 
 import com.glyph.scala.lib.util.collection.list.DoubleLinkedList
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
  * @author glyph
  */
 trait Updatables extends Updatable {
-  val children = new ListBuffer[Updatable]
+  val children = new ArrayBuffer[Updatable]
 
   def add(u: Updatable) {
     children += u
@@ -19,6 +19,11 @@ trait Updatables extends Updatable {
 
   override def update(delta: Float) {
     super.update(delta)
-    children.foreach(_.update(delta))
+    var i = 0
+    val l = children.size
+    while (i < l){
+      children(i).update(delta)
+      i += 1
+    }
   }
 }

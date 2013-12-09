@@ -26,16 +26,12 @@ class APView[T](puzzle: ActionPuzzle[T], assets: AssetManager)
   with Logging
   with Tasking
   with SpriteBatchRenderer
-  with BlendFuncMod
+  with AdditiveBlend
   with Scissor {
 
   import Pool._
   import Actions._
   import MathUtils._
-
-  val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
-
-  val DST_FUNC: Int = GL10.GL_ONE
 
   def row: Int = puzzle.ROW
 

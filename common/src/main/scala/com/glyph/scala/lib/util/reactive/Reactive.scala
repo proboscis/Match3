@@ -77,7 +77,7 @@ trait Reactive[T] {
     }
     validateObserver()
     concurrent += 1
-    observers = observers collect {
+    observers = observers collect {//TODO これはマズイかも
       case weak@WeakReference(ref) =>ref(t); weak
     }
     concurrent -= 1

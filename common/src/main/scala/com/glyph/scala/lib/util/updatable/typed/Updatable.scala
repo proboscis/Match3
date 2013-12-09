@@ -14,4 +14,16 @@ trait Task[T] extends Updatable[T]{
   def onStart(tgt:T)
   def onFinish(tgt:T)
 }
-class Processor
+trait Updater{
+
+  def add[T:Updatable]
+}
+
+class Holder(var a:Any, var b:Any){
+  def update(delta:Float){
+
+  }
+}
+
+object Updater{
+}

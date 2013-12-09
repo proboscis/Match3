@@ -6,7 +6,7 @@ import com.glyph.scala.lib.libgdx.actor.{Tasking, Layered}
 import com.glyph.scala.lib.util.reactive
 import reactive._
 import com.badlogic.gdx.math.Interpolation
-import com.glyph.scala.lib.util.updatable.reactive.Easing
+import com.glyph.scala.lib.util.updatable.reactive.DeprecatedEasing
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.assets.AssetManager
 
@@ -15,7 +15,7 @@ import com.badlogic.gdx.assets.AssetManager
  */
 class StatusView(assets:AssetManager,game: Game, deck: PlayableDeck[_]) extends Table with Reactor with Tasking {
   debug()
-  val visualLife = Easing(this)(game.player.hp)(_ / 100f * 0.7f + 0.3f, 0)(Interpolation.linear) map {
+  val visualLife = DeprecatedEasing(this)(game.player.hp)(_ / 100f * 0.7f + 0.3f, 0)(Interpolation.linear) map {
     _.toInt
   }
   val gaugeAlpha = game.player.hp map {

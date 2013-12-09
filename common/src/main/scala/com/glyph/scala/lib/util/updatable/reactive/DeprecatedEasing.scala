@@ -8,7 +8,7 @@ import reactive.{Varying, Reactor}
 /**
  * @author glyph
  */
-class Easing(processor: ParallelProcessor)(private var variable: Float)(durationFunc:(Float)=> Float)(interpolation: Interpolation) extends Varying[Float] {
+class DeprecatedEasing(processor: ParallelProcessor)(private var variable: Float)(durationFunc:(Float)=> Float)(interpolation: Interpolation) extends Varying[Float] {
   var easier: Easier = null
 
   def current: Float = variable
@@ -30,12 +30,11 @@ class Easing(processor: ParallelProcessor)(private var variable: Float)(duration
       //notifyObservers(variable)
     }
   }
-
 }
 
-object Easing {
-  def apply(processor: ParallelProcessor)(v: Varying[Float])(durationFunc:(Float)=> Float,initial:Float = v())(interpolation: Interpolation = Interpolation.linear): Easing = {
-    new Easing(processor)(initial)(durationFunc)(interpolation) with Reactor {
+object DeprecatedEasing {
+  def apply(processor: ParallelProcessor)(v: Varying[Float])(durationFunc:(Float)=> Float,initial:Float = v())(interpolation: Interpolation = Interpolation.linear): DeprecatedEasing = {
+    new DeprecatedEasing(processor)(initial)(durationFunc)(interpolation) with Reactor {
       reactVar(v)(update)
     }
   }

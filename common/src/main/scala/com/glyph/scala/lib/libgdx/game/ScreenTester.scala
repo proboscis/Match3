@@ -1,14 +1,18 @@
 package com.glyph.scala.lib.libgdx.game
 
-import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
+import com.badlogic.gdx.{Gdx, Screen, Game}
+import scala.util.{Failure, Success, Try}
 
 /**
  * @author glyph
  */
-class ScreenTester(builder:ScreenBuilder) extends ScreenBuilderSupport {
-  //TODO コマンドライン引数にクラスを指定出来るようにする
-  override def create() {
-    super.create()
-    setBuilder(builder)
+class ScreenTester(screenName: String) extends Game {
+  def create(): Unit = {
+    Try {
+      Class.forName(screenName).getConstructor().newInstance().asInstanceOf[Screen]
+    } match {
+      case Success(s) => setScreen(s)
+      case Failure(e) => e.printStackTrace();Gdx.app.exit()
+    }
   }
 }

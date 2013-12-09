@@ -7,23 +7,22 @@ import com.glyph.scala.lib.util.reactive.RFile
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import scalaz._
 import Scalaz._
-import com.glyph.scala.lib.libgdx.screen.{ScreenConfig, ScreenBuilder}
-import com.glyph.scala.lib.libgdx.game.{ScreenFileTester, ScreenTester}
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.glyph.scala.game.action_puzzle.screen.ActionScreen
+import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
+import com.glyph.scala.lib.libgdx.game.{ScreenTester, ScreenFileTester}
 
 object Main {
+
   //why cant you do this serialization on the androids?
 
   //println(ScreenBuilder.writeConfig(actionScreenConfig))
 
 
   //TODO どうやってスクリーンを決定するかね
-  case class Config(screenFile: String = "screens/action.js", resDir: File = new File("../common/src/main/resources/"), fileCheck: Boolean = false, packTexture: Boolean = false)
+  case class Config(screenFile: String = "screens/action.js", resDir: File = new File("../common/src/main/resources/"), fileCheck: Boolean = false, packTexture: Boolean = false, testScreen: String = "")
 
   implicit object ScoptClass extends scopt.Read[Class[_ <: ScreenBuilder]] {
     def arity: Int = 1
+
     def reads: (String) => Class[_ <: ScreenBuilder] = clsName => Class.forName(clsName, false, ClassLoader.getSystemClassLoader).asInstanceOf[Class[_ <: ScreenBuilder]]
   }
 
@@ -47,17 +46,21 @@ object Main {
         (fileName, config) => config.copy(screenFile = fileName)
       } text "specify the json file of the screen config"
 
+      opt[String]('t', "test") action {
+        (t, config) => config.copy(testScreen = t)
+      } text "specify the name of test screen"
+
+
       help("help") text "prints this message"
     }
 
     parser.parse(args, Config()) map {
-      case Config(screenFileName, resDir, fileCheck, packTexture) => {
+      case Config(screenFileName, resDir, fileCheck, packTexture, testScreen) => {
         GdxFile.absResourceDir = {
           val result = resDir.getAbsolutePath
           println("specified resource directory:" + resDir + "=>" + result)
           result.some
         }
-
         if (fileCheck) RFile.enableChecking(1000)
         if (packTexture) TexturePacker2.process("./", "./skin", "default")
         val cfg = new LwjglApplicationConfiguration()
@@ -67,7 +70,10 @@ object Main {
         cfg.height = height
         cfg.width = (height * ratio).toInt
         cfg.useGL20 = true
-        new LwjglApplication(new ScreenFileTester(screenFileName), cfg)
+        testScreen match {
+          case "" => new LwjglApplication(new ScreenFileTester(screenFileName), cfg)
+          case _ => new LwjglApplication(new ScreenTester(testScreen), cfg)
+        }
       }
     }
   }
