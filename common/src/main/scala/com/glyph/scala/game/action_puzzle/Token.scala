@@ -7,10 +7,11 @@ import com.glyph.scala.lib.libgdx.actor.action.Shivering
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.glyph.scala.lib.util.{ColorUtil, reactive, Logging}
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Table}
 import scalaz._
 import Scalaz._
 import reactive._
+import com.glyph.scala.lib.libgdx.actor.ui.RLabel
 
 /**
  * @author glyph
@@ -25,8 +26,8 @@ class Token[T](var panel: ActionPuzzle[T]#AP, assets: AssetManager)
 
 
   val sprite = new Sprite(assets.get[Texture]("data/round_rect.png"))
+  val skin = assets.get[Skin]("skin/default.json")
   val spriteActor = new SpriteActor(sprite)
-  add(spriteActor).fill.expand
 
   import com.glyph.scala.lib.libgdx.conversion.AnimatingGdx._
 
@@ -41,7 +42,8 @@ class Token[T](var panel: ActionPuzzle[T]#AP, assets: AssetManager)
         hsv.toColor
       } | col)
     }
-
+    add(spriteActor).fill.expand
+    add(new RLabel(skin,panel.matchTimer.map("%.1f".format(_)))).fill.expand
     reactVar(panel.isMatching) {
       flag => if (flag) startShivering(spriteActor) else stopShivering()
     }
@@ -52,6 +54,7 @@ class Token[T](var panel: ActionPuzzle[T]#AP, assets: AssetManager)
     setColor(Color.WHITE)
     remove()
     clearReaction()
+    clearChildren()
     //setScale(1)
     //clear()
     clearActions()

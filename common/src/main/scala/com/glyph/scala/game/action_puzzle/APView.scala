@@ -39,7 +39,6 @@ class APView[T](puzzle: ActionPuzzle[T], assets: AssetManager)
    * つまり、新たな力を得るのが楽しいのだと言える
    */
 
-
   /**
    * ゲームの目的は何か？
    * パネルを爽快に消していくことである。

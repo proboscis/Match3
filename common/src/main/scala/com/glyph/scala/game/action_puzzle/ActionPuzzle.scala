@@ -62,7 +62,6 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
       }
     }
   }
-
   import com.glyph.scala.lib.util.pooling_task.ReflectedPooling._
 
   //TODO tune the numbers
@@ -72,7 +71,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
   implicit val swipeAnimations = Pool[SwipeAnimation](() => new SwipeAnimation, 100)
   implicit val puzzlePool = Pool[PuzzleBuffer](100)
 
-  val gravity = -10f
+  val gravity = -1f
   val processor = new ParallelProcessor {}
 
   def initializer: Var[PuzzleBuffer] = Var(manual[PuzzleBuffer])
@@ -114,7 +113,9 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
       }
       val minimum = chmp
       matches foreach {
-        p => p.matchTimer() = minimum
+        p =>
+          if(p.matchTimer() > 0f && minimum == 0f) throw new RuntimeException("what!!???")
+          p.matchTimer() = minimum
       }
       //log("marked:" + minimum + ":" + matches)
     }
@@ -322,6 +323,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
   val matchRemoveBuf = ArrayBuffer.empty[AP]
 
   def updateMatches(delta: Float) {
+    //fallingについてもタイマーを考慮するようにしたい
     var x = 0
     val width = fixed.size
     while (x < width) {
@@ -340,7 +342,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
       x += 1
     }
     if (!matchRemoveBuf.isEmpty) {
-      removeFillUpdateTargetPosition(matchRemoveBuf) //this is causing memory allocation!
+      removeFillUpdateTargetPosition(matchRemoveBuf) //TODO this is causing memory allocation!
     }
     matchRemoveBuf.clear()
   }
@@ -474,7 +476,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
       }
       if (finished) {
         ny = ty()
-        clear()
+        clear()//こいつがmatchTimerまでリセットしていやがった
       }
       x() = nx
       y() = ny
@@ -492,7 +494,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
       vy() = 0
       isSwiping() = false
       isFalling() = false
-      matchTimer() = 0f
+      //matchTimer() = 0f
     }
 
     override def toString: String = value + ""
