@@ -1,5 +1,4 @@
 package com.glyph.scala.game.action_puzzle
-
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, WidgetGroup}
 import com.glyph.scala.game.action_puzzle.view.Paneled
@@ -28,6 +27,55 @@ class APView[T](puzzle: ActionPuzzle[T], assets: AssetManager)
   with SpriteBatchRenderer
   with AdditiveBlend
   with Scissor {
+  /**
+   * 新たな力を得るゲーム:cookies! diablo! 対戦ゲーム パズドラ
+   * プレイヤーの感情を動かす：
+   * 欲求を満たす
+   * 新しい世界からの刺激
+   * 悲しみからの開放？
+   */
+
+  /**
+   * つまり、新たな力を得るのが楽しいのだと言える
+   */
+
+
+  /**
+   * ゲームの目的は何か？
+   * パネルを爽快に消していくことである。
+   * パネルを消すと、新たな力を得て更にパネルを消すことが可能となる！
+   * しかし時間でそれが失われるようにすればいい。
+   *
+   * 更に多くのパネルを消すにはどうしたら良いのか？
+   * 最初は３つ揃えて３つまで消すことができる
+   * 連鎖すると、３＋連鎖数まで消すことが可能となる
+   * １０連鎖でマッチ対象が増える
+   * ２０連鎖で待ち受け時間が伸びる
+   * １００連鎖で自動マッチング機能がつく等？
+   *
+   * 時間が早くなるってのでどうよ？
+   *
+   * 面白さは何か？
+   * プレイヤーが新しい能力を得、困難を乗り越えることである
+   * 困難が無いゲームは面白く無い、となると
+   * まずは困難を設定しなければならず、パネルを爽快に消す、
+   * というのはその困難を乗り越える楽しみの副産物でしかない。
+   * パネルを消す　==　困難の解消であれば良い？
+   * パネルを消すことが困難であれば良い。
+   * ３つ揃えて消すだけでは困難とは言えない
+   * 何か他の制限が必要
+   * 制限の候補：
+   * 時間制限：
+   *  時間経過によるタイマーの減少
+   *  時間経過によるモンスターの攻撃、HPの減少
+   * 揃え方の制限：
+   *  ５つ揃える必要がある？
+   *   指定された順序で揃える？
+   *
+   * ゲームにするにはどうしたらいいのか？
+   * ゲームオーバーがなければゲームにならない？
+   *
+   */
 
   import Pool._
   import Actions._
@@ -102,6 +150,7 @@ class APView[T](puzzle: ActionPuzzle[T], assets: AssetManager)
               p.setColor(token.sprite.getColor)
               buf += p
           }
+
           Explosion.init(() => random(PI2), () => random(2000), velBuf, buf.length)
           addDrawable(buf)
         },
@@ -118,7 +167,7 @@ class APView[T](puzzle: ActionPuzzle[T], assets: AssetManager)
       hsv.s = 0.7f
       color.set(hsv.toColor)
       add(it setUpdater (alpha => {
-        val a = Interpolation.exp10Out.apply(0.5f, 0, alpha)
+        val a = Interpolation.exp10Out.apply(0.8f, 0, alpha)
         color.a = a
         buf.foreach {
           sp => sp.setColor(color)
