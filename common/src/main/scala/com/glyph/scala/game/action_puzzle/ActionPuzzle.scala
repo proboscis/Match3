@@ -1,7 +1,7 @@
 package com.glyph.scala.game.action_puzzle
 
 import com.glyph.scala.lib.util.reactive.{Reactor, Var}
-import com.badlogic.gdx.math.{Interpolation, MathUtils}
+import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.util.{HeapMeasure, Timing
 , Logging}
@@ -14,7 +14,7 @@ import scala.Some
 /**
  * @author glyph
  */
-class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boolean)
+class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T, T) => Boolean)
   extends Logging
   with Timing
   with HeapMeasure {
@@ -62,6 +62,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
       }
     }
   }
+
   import com.glyph.scala.lib.util.pooling_task.ReflectedPooling._
 
   //TODO tune the numbers
@@ -71,7 +72,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
   implicit val swipeAnimations = Pool[SwipeAnimation](() => new SwipeAnimation, 100)
   implicit val puzzlePool = Pool[PuzzleBuffer](100)
 
-  val gravity = -1f
+  val gravity = -10f
   val processor = new ParallelProcessor {}
 
   def initializer: Var[PuzzleBuffer] = Var(manual[PuzzleBuffer])
@@ -92,7 +93,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
     val result = GMatch3.scanAll(buf)(ROW)(COLUMN) {
       (a, b) => {
         if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
-          matcher(a.value,b.value)
+          matcher(a.value, b.value)
         } else {
           false
         }
@@ -114,7 +115,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
       val minimum = chmp
       matches foreach {
         p =>
-          if(p.matchTimer() > 0f && minimum == 0f) throw new RuntimeException("what!!???")
+          if (p.matchTimer() > 0f && minimum == 0f) throw new RuntimeException("what!!???")
           p.matchTimer() = minimum
       }
       //log("marked:" + minimum + ":" + matches)
@@ -258,21 +259,27 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
     panel.swipeAnimation.clear()
   }
 
-  def removeFillUpdateTargetPosition(panels: Seq[AP]) {
+  def removeFillUpdateTargetPosition(panels: Seq[AP], fallings: Seq[AP]) {
     //log("remove")
-    if (!panels.isEmpty) {
+    if (!panels.isEmpty || !fallings.isEmpty) {
       for {
         fixedTemp <- pool[PuzzleBuffer]
         fallingTemp <- pool[PuzzleBuffer]
         ffBuf <- pool[PuzzleBuffer]
+        rmfTmp1 <- pool[PuzzleBuffer] //removed falling temp 1 //down side
+        rmfTmp2 <- pool[PuzzleBuffer] //up side
       } {
-        GMatch3.fixedFuture(fixed, future, ffBuf)
-        GMatch3.remove(ffBuf)(fixedTemp)(fallingTemp)(panels)
+        fixedFuture(fixed, future, ffBuf)
+        remove(ffBuf)(fixedTemp)(fallingTemp)(panels)
+        remove(falling)(rmfTmp1)(rmfTmp2)(fallings)
+        append(rmfTmp2)(rmfTmp1)
+        copy(rmfTmp1)(falling)
         fallingTemp.foreach(_.foreach(cancelSwipingAnimation))
         append(falling)(fallingTemp)
         copy(fallingTemp)(falling)
         setFallingFlag()
         panelRemove(panels)
+        panelRemove(fallings)
         copy(fixedTemp)(fixed)
       }
       for (futureTemp <- pool[PuzzleBuffer]) {
@@ -321,29 +328,50 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
   }
 
   val matchRemoveBuf = ArrayBuffer.empty[AP]
+  val fallingRemoveBuf = ArrayBuffer.empty[AP]
 
   def updateMatches(delta: Float) {
     //fallingについてもタイマーを考慮するようにしたい
-    var x = 0
-    val width = fixed.size
-    while (x < width) {
-      val row = fixed(x)
-      val height = row.size
-      var y = 0
-      while (y < height) {
-        val panel = row(y)
-        if (panel.isMatching()) {
-          if (panel.updateMatch(delta)) {
-            matchRemoveBuf += panel
+    {
+      var x = 0
+      val width = fixed.size
+      while (x < width) {
+        val row = fixed(x)
+        val height = row.size
+        var y = 0
+        while (y < height) {
+          val panel = row(y)
+          if (panel.isMatching()) {
+            if (panel.updateMatch(delta)) {
+              matchRemoveBuf += panel
+            }
           }
+          y += 1
         }
-        y += 1
+        x += 1
       }
-      x += 1
     }
-    if (!matchRemoveBuf.isEmpty) {
-      removeFillUpdateTargetPosition(matchRemoveBuf) //TODO this is causing memory allocation!
+    {
+      var x = 0
+      val width = falling.size
+      while (x < width) {
+        val row = falling(x)
+        val height = row.size
+        var y = 0
+        while (y < height) {
+          val p = row(y)
+          if (p.isMatching()) {
+            if (p.updateMatch(delta)) fallingRemoveBuf += p
+          }
+          y += 1
+        }
+        x += 1
+      }
     }
+    if (!matchRemoveBuf.isEmpty || !fallingRemoveBuf.isEmpty) {
+      removeFillUpdateTargetPosition(matchRemoveBuf, fallingRemoveBuf) //TODO this is causing memory allocation!
+    }
+    fallingRemoveBuf.clear()
     matchRemoveBuf.clear()
   }
 
@@ -428,7 +456,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
    * container of the actual panel
    * @param value:T
    */
-  class AP(val value:T) extends Reactor {
+  class AP(val value: T) extends Reactor {
     //TODO make this poolabele
     val x = Var(0f)
     val y = Var(0f)
@@ -476,7 +504,7 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
       }
       if (finished) {
         ny = ty()
-        clear()//こいつがmatchTimerまでリセットしていやがった
+        clear() //こいつがmatchTimerまでリセットしていやがった
       }
       x() = nx
       y() = ny
@@ -499,4 +527,5 @@ class ActionPuzzle[T](val ROW:Int,val COLUMN:Int,seed:()=>T,matcher:(T,T)=>Boole
 
     override def toString: String = value + ""
   }
+
 }

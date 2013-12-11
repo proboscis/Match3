@@ -9,14 +9,15 @@ import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.game.action_puzzle.{APView, ActionPuzzle}
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.{Table, Skin}
 import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.libgdx.actor.ui.RLabel
 import com.glyph.scala.lib.util.updatable.reactive.Eased
-import com.glyph.scala.lib.libgdx.actor.Updating
+import com.glyph.scala.lib.libgdx.actor.{SpriteActor, Updating}
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.graphics.g2d.Sprite
 
 /**
  * @author glyph
@@ -33,9 +34,10 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 3), (a: Int, b: Int) => {
     a == b
   })
-  val score = Var(0f)
-  val easedScore = Eased(score, Interpolation.exp10Out.apply, _ / 10f)
-  val view = new APView(puzzle, assets) with Updating
+  val score = Var(0)
+  val time = Var(60f)
+  val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
+  val view = new APView(score,puzzle, assets) with Updating
   view.add(easedScore)
 
 
@@ -69,7 +71,12 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
     }
   }
   root.add(scoreLabel).height((STAGE_HEIGHT - STAGE_WIDTH) / 2).fill.expand.row
-  root.add(view).fill().expand().width(STAGE_WIDTH).height(STAGE_WIDTH)
+  root.add(view).fill().expand().width(STAGE_WIDTH).height(STAGE_WIDTH).row
+  root.add(new Table{
+    val back = new SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
+    add(back).fill.expand
+    reactVar(time map (_/60f * STAGE_WIDTH))(back.setWidth)
+  }).size(STAGE_WIDTH,40).fill().expand()
   root.invalidate()
   root.layout()
   puzzle.panelAdd = view.panelAdd
@@ -86,6 +93,7 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
 
   override def render(delta: Float): Unit = {
     super.render(delta)
+    time() -= delta
     puzzle.update(delta + (score()/1000f/1000f))
   }
 }

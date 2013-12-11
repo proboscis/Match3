@@ -2,7 +2,7 @@ package com.glyph.scala.game.action_puzzle
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, WidgetGroup}
 import com.glyph.scala.game.action_puzzle.view.Paneled
-import com.glyph.scala.lib.util.reactive.Reactor
+import com.glyph.scala.lib.util.reactive.{Varying, Reactor}
 import com.glyph.scala.lib.libgdx.actor._
 import com.badlogic.gdx.graphics.{Texture, GL10}
 import com.glyph.scala.lib.util.{ColorUtil, Logging}
@@ -19,7 +19,7 @@ import com.glyph.scala.lib.util.pooling_task.ReflectedPooling
 /**
  * @author glyph
  */
-class APView[T](puzzle: ActionPuzzle[T], assets: AssetManager)
+class APView[T](score:Varying[Int],puzzle: ActionPuzzle[T], assets: AssetManager)
   extends Paneled
   with Reactor
   with Logging
@@ -139,12 +139,13 @@ class APView[T](puzzle: ActionPuzzle[T], assets: AssetManager)
         () => {
           //TextureUtil.split(token.sprite)(8)(8)(buf)
           val texture = assets.get[Texture]("data/particle.png")
-          1 to 100 foreach {
+          0 to ((score()+1)/10) foreach {
             _ => val p = manual[Sprite]
               p.setTexture(texture)
               p.setRegion(0f, 0f, 1f, 1f)
               p.setOrigin(0f, 0f)
-              p.setSize(20, 20)
+              val s = random(3,30)
+              p.setSize(s,s)
               p.setPosition(token.getX + token.getWidth / 2, token.getY + token.getHeight / 2)
               p.setColor(token.sprite.getColor)
               buf += p

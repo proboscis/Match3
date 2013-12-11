@@ -43,7 +43,7 @@ class Token[T](var panel: ActionPuzzle[T]#AP, assets: AssetManager)
       } | col)
     }
     add(spriteActor).fill.expand
-    add(new RLabel(skin,panel.matchTimer.map("%.1f".format(_)))).fill.expand
+    //add(new RLabel(skin,panel.matchTimer.map("%.1f".format(_)))).fill.expand
     reactVar(panel.isMatching) {
       flag => if (flag) startShivering(spriteActor) else stopShivering()
     }
