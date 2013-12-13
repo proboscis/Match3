@@ -1,11 +1,11 @@
 package com.glyph.scala.game.action_puzzle
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, WidgetGroup}
-import com.glyph.scala.game.action_puzzle.view.Paneled
+import com.glyph.scala.game.action_puzzle.view.{Grid, Paneled}
 import com.glyph.scala.lib.util.reactive.{Varying, Reactor}
 import com.glyph.scala.lib.libgdx.actor._
 import com.badlogic.gdx.graphics.{Texture, GL10}
-import com.glyph.scala.lib.util.{ColorUtil, Logging}
+import com.glyph.scala.lib.util.{reactive, ColorUtil, Logging}
 import com.glyph.scala.lib.util.pool.Pool
 import com.badlogic.gdx.graphics.g2d.Sprite
 import scala.collection.mutable.ArrayBuffer
@@ -15,6 +15,11 @@ import com.glyph.scala.lib.util.animator.Explosion
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.pooling_task.ReflectedPooling
+import com.glyph.scala.lib.util.json.{JSON, RVJSON, RJSON}
+import com.glyph.scala.lib.libgdx.reactive.GdxFile
+import scalaz.{ValidationNel, Success, Failure}
+import scalaz._
+import Scalaz._
 
 /**
  * @author glyph
@@ -27,54 +32,8 @@ class APView[T](score:Varying[Int],puzzle: ActionPuzzle[T], assets: AssetManager
   with SpriteBatchRenderer
   with AdditiveBlend
   with Scissor {
-  /**
-   * 新たな力を得るゲーム:cookies! diablo! 対戦ゲーム パズドラ
-   * プレイヤーの感情を動かす：
-   * 欲求を満たす
-   * 新しい世界からの刺激
-   * 悲しみからの開放？
-   */
+  val gridFunctions = RVJSON(GdxFile("json/grid.json")).map(_.flatMap(Grid(_)))
 
-  /**
-   * つまり、新たな力を得るのが楽しいのだと言える
-   */
-
-  /**
-   * ゲームの目的は何か？
-   * パネルを爽快に消していくことである。
-   * パネルを消すと、新たな力を得て更にパネルを消すことが可能となる！
-   * しかし時間でそれが失われるようにすればいい。
-   *
-   * 更に多くのパネルを消すにはどうしたら良いのか？
-   * 最初は３つ揃えて３つまで消すことができる
-   * 連鎖すると、３＋連鎖数まで消すことが可能となる
-   * １０連鎖でマッチ対象が増える
-   * ２０連鎖で待ち受け時間が伸びる
-   * １００連鎖で自動マッチング機能がつく等？
-   *
-   * 時間が早くなるってのでどうよ？
-   *
-   * 面白さは何か？
-   * プレイヤーが新しい能力を得、困難を乗り越えることである
-   * 困難が無いゲームは面白く無い、となると
-   * まずは困難を設定しなければならず、パネルを爽快に消す、
-   * というのはその困難を乗り越える楽しみの副産物でしかない。
-   * パネルを消す　==　困難の解消であれば良い？
-   * パネルを消すことが困難であれば良い。
-   * ３つ揃えて消すだけでは困難とは言えない
-   * 何か他の制限が必要
-   * 制限の候補：
-   * 時間制限：
-   *  時間経過によるタイマーの減少
-   *  時間経過によるモンスターの攻撃、HPの減少
-   * 揃え方の制限：
-   *  ５つ揃える必要がある？
-   *   指定された順序で揃える？
-   *
-   * ゲームにするにはどうしたらいいのか？
-   * ゲームオーバーがなければゲームにならない？
-   *
-   */
 
   import Pool._
   import Actions._
@@ -111,13 +70,28 @@ class APView[T](score:Varying[Int],puzzle: ActionPuzzle[T], assets: AssetManager
     for (row <- added; p <- row) {
       val token = manual[Token[T]]
       token.init(p)
+      import reactive._
+      token.reactVar(gridFunctions~p.x~p.y){
+        case Some((fx,fy))~x~y =>{
+          token.setX(fx.indexToAlpha(x)*getWidth)
+          token.setY(fy.indexToAlpha(y)*getHeight)
+          val w = fx.tokenSize * getWidth
+          val h = fy.tokenSize * getHeight
+          token.setSize(w,h)
+          token.setOrigin(w/2,h/2)
+        }
+        case _=>
+      }
+      /*
       //TODO check for alignment
       token.reactVar(p.x)(x => token.setX(calcPanelX(x)))
       token.reactVar(p.y)(y => token.setY(calcPanelY(y)))
       token.setSize(panelW, panelH)
       token.setOrigin(panelW / 2, panelH / 2)
+      */
       tokens += token
-      puzzleGroup.addActor(token)
+      addActor(token)
+      //puzzleGroup.addActor(token)
     }
   }
 

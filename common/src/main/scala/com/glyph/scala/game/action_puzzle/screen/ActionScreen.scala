@@ -23,6 +23,10 @@ import com.badlogic.gdx.graphics.g2d.Sprite
  * @author glyph
  */
 class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with Reactor with Logging {
+  //TODO design the gauge
+  //TODO GameOver
+  //TODO title screen
+  //TODO loading screen
   val constants = RVJSON(GdxFile("constants/string.js"))
   val colors = RVJSON(GdxFile("constants/colors.js"))
   //RVJSON(constants.colors.asVnel[String])

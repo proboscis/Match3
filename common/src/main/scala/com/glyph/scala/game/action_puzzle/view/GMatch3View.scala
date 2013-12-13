@@ -3,17 +3,29 @@ package com.glyph.scala.game.action_puzzle.view
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.scenes.scene2d._
-import com.badlogic.gdx.scenes.scene2d.actions.{Actions, MoveToAction}
-import com.glyph.scala.lib.util.updatable.task._
-import scala.collection.mutable.ListBuffer
-import com.badlogic.gdx.math.Interpolation
-import com.glyph.scala.lib.libgdx.GdxUtil
 import com.badlogic.gdx.math.MathUtils._
-import com.badlogic.gdx.scenes.scene2d.actions.Actions._
-import com.glyph.scala.lib.libgdx.actor._
 import scalaz._
 import Scalaz._
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.glyph.scala.lib.util.json.JSON
+
+class GridFunctions(nToken: Int, ratio: Int) {
+  val margin = 1f / (nToken * (ratio + 1) + 1)
+  val tokenSize = margin * ratio
+
+  def alphaToIndex(i: Float): Int = ((i - margin / 2f) / ((ratio + 1) * margin)).toInt
+
+  def indexToAlpha(a: Float): Float = (1 + a * (ratio + 1)) * margin
+}
+
+object Grid {
+
+
+  def apply(json: JSON) = for {
+    row <- json.row.as[Int]
+    column <- json.column.as[Int]
+    ratio <- json.ratio.as[Int]
+  } yield (new GridFunctions(row, ratio), new GridFunctions(column, ratio))
+}
 
 trait Grid extends WidgetGroup with Logging {
   val puzzleGroup = new Group
@@ -72,19 +84,23 @@ trait Grid extends WidgetGroup with Logging {
   }
 }
 
-trait Paneled extends Grid{
+trait Paneled extends Grid {
   var swipeListener: Option[InputListener] = None
+
   def startSwipeCheck(callback: (Int, Int, Int, Int) => Unit) {
     swipeListener match {
       case Some(l) => throw new IllegalStateException("swipe is already started!!!")
       case None => {
         val listener = new InputListener {
           var current = (0, 0)
+
           override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
             current = positionToIndex(x, y)
             true
           }
+
           def diffAmount(a: (Int, Int), b: (Int, Int)) = Math.abs(a._1 - b._1) + Math.abs(a._2 - b._2)
+
           override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) {
             val next = positionToIndex(x, y)
             if (diffAmount(current, next) == 1) {
