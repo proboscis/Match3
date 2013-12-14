@@ -1,19 +1,18 @@
 package com.glyph.scala.lib.util.updatable.task
 
-import com.glyph.scala.lib.util.collection.list.DoubleLinkedList
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import com.glyph.scala.lib.util.{Threading, Logging}
-import com.glyph.scala.lib.util.updatable.typed.Processor
 
 /**
  * @author glyph
  */
-trait ParallelProcessor extends TaskProcessor with Logging with Threading{
+trait ParallelProcessor extends TaskProcessor with Logging with Threading {
   val queuedTasks = ListBuffer[Task]()
   val startedTasks = ListBuffer[Task]()
   val tasksTobeRemoved = ListBuffer[Task]()
   val canceledTasks = ArrayBuffer[Task]()
   var updating = false
+
   override def update(delta: Float) {
     assert(updating == false)
     updating = true
@@ -25,25 +24,25 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading{
     }
     queuedTasks.clear()
 
-    for(t <- startedTasks){
-      if(!t.isCompleted){
-        if(!canceledTasks.isEmpty){
-          if(!canceledTasks.contains(t)){
+    for (t <- startedTasks) {
+      if (!t.isCompleted) {
+        if (!canceledTasks.isEmpty) {
+          if (!canceledTasks.contains(t)) {
             t.update(delta)
-          }else{
+          } else {
             tasksTobeRemoved += t
           }
-        }else{
+        } else {
           t.update(delta)
         }
-      }else{
+      } else {
         t.onFinish()
         tasksTobeRemoved += t
       }
     }
     val before = startedTasks.size
-    tasksTobeRemoved foreach{
-      t =>{
+    tasksTobeRemoved foreach {
+      t => {
         startedTasks -= t
         queuedTasks -= t
       }
@@ -60,13 +59,13 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading{
     this
   }
 
-  def contains(task:Task):Boolean = startedTasks.contains(task) || queuedTasks.contains(task)
+  def contains(task: Task): Boolean = startedTasks.contains(task) || queuedTasks.contains(task)
 
-  def cancel(task: Task){
-    if(updating == 0){
+  def cancel(task: Task) {
+    if (updating == 0) {
       log("removing while updating")
       canceledTasks += task
-    }else{
+    } else {
       startedTasks -= task
       queuedTasks -= task
     }

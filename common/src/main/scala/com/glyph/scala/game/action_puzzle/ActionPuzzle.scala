@@ -1,7 +1,7 @@
 package com.glyph.scala.game.action_puzzle
 
 import com.glyph.scala.lib.util.reactive.{Reactor, Var}
-import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.math.{MathUtils, Interpolation}
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.util.{HeapMeasure, Timing
 , Logging}
@@ -122,7 +122,10 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
     }
   }
 
-  def verified(x: Int)(y: Int)(nx: Int)(ny: Int) = y < fixed(x).size && ny < fixed(nx).size
+  def verified(x: Int)(y: Int)(nx: Int)(ny: Int) =
+    0 <= x && x < ROW && 0 <= y && y < COLUMN &&
+    0 <= nx && nx < ROW && 0 <= ny && ny < COLUMN &&
+    y < fixed(x).size && ny < fixed(nx).size
 
   def pooledSwipe(x: Int, y: Int, nx: Int, ny: Int) {
     val anim = Pool.manual[SwipeAnimation]

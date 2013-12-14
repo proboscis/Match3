@@ -37,8 +37,8 @@ class Main extends AndroidApplication with Logging{
     ScreenBuilder.configToBuilder(actionScreenConfig) match {
       case Success(s) =>    new Thread(Thread.currentThread().getThreadGroup, new Runnable {
         def run() {
-          initialize(new ScreenFileTester("screens/action.js"),config)
-          //initialize(new ScreenTester(s), config)
+          //initialize(new ScreenFileTester("screens/action.js"),config)
+          initialize(new ScreenTester("com.glyph.scala.test.ComboEffect"), config)
         }
         }, Thread.currentThread().getName + "logic", 64000000).run()
       case Failure(e) => e foreach(_.printStackTrace())

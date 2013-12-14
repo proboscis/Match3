@@ -88,25 +88,20 @@ class IntegratingFTask extends BaseFTask{
 
 class TimedFunctionTask extends FunctionTask with TimedTask{
   override def isCompleted: Boolean = super[FunctionTask].isCompleted || super[TimedTask].isCompleted
-
   override def update(delta: Float){
     super[FunctionTask].update(delta)
     super[TimedTask].update(delta)
   }
-
   override def onStart(){
     super[TimedTask].onStart()
     super[FunctionTask].onStart()
   }
-
   override def onFinish(){
     super[FunctionTask].onFinish()
     super[TimedTask].onFinish()
   }
-
   override def reset(){
     super[FunctionTask].reset()
     super[TimedTask].reset()
   }
-
 }

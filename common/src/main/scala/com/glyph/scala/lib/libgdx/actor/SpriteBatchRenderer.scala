@@ -6,17 +6,18 @@ import scala.reflect.ClassTag
 import com.glyph.scala.lib.util.pool.Pool
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.utils.SnapshotArray
+import com.glyph.scala.lib.util.Logging
 
 /**
  * @author proboscis
  */
 trait SpriteBatchRenderer extends Group {
-
+  import SpriteBatchRenderer._
   import Pool._
 
   val renderers = new SnapshotArray[PooledRenderer[_]]()
 
-  def addDrawable[T](tgt: T)(implicit evidence: SBDrawable[T], tag: ClassTag[T], rendererPool: Pool[PooledRenderer[T]]) {
+  def addDrawable[T:SBDrawable:ClassTag](tgt: T){
     val renderer = auto[PooledRenderer[T]]
     renderer.setTarget(tgt)
     renderers.add(renderer)
@@ -55,9 +56,7 @@ trait SpriteBatchRenderer extends Group {
   }
 }
 
-object SpriteBatchRenderer {
-
-
+object SpriteBatchRenderer extends Logging{
   var pools: ClassTag[_] Map Any = Map.empty.withDefault(_ => null)
 
   implicit def rendererPool[T](implicit ev: SBDrawable[T], tag: ClassTag[T], poolTag: ClassTag[PooledRenderer[T]]): Pool[PooledRenderer[T]] = {
@@ -66,14 +65,14 @@ object SpriteBatchRenderer {
     else {
       import PooledRenderer._
       val created = Pool[PooledRenderer[T]](100)(genPoolingPooledRenderer[T], poolTag)
+      log("created a pool for : "+poolTag.runtimeClass)
       pools += (tag -> created)
       created
     }
   }
 }
 
-object SBDrawableGdx {
-
+object SBDrawableGdx extends Logging{
   implicit object DrawableBuffer extends SBDrawable[ArrayBuffer[Sprite]] {
     def draw(tgt: ArrayBuffer[Sprite], batch: SpriteBatch, alpha: Float) {
       var i = 0
@@ -90,7 +89,12 @@ object SBDrawableGdx {
       tgt.draw(batch, alpha)
     }
   }
-
+  implicit def drawableSpriteSeq[T<:Seq[Sprite]:Manifest]:SBDrawable[T]= new SBDrawable[T] {
+    log("created an evidence of SBDrawable for : "+implicitly[Manifest[T]].runtimeClass)
+    def draw(tgt: T, batch: SpriteBatch, alpha: Float): Unit = tgt foreach{
+      _.draw(batch,alpha)
+    }
+  }
 }
 
 trait SBDrawable[T] {

@@ -1,10 +1,11 @@
 package com.glyph.scala.game.action_puzzle
+
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.scenes.scene2d.ui.{Skin, WidgetGroup}
-import com.glyph.scala.game.action_puzzle.view.{Grid, Paneled}
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.glyph.scala.game.action_puzzle.view.{Paneled2, Grid}
 import com.glyph.scala.lib.util.reactive.{Varying, Reactor}
 import com.glyph.scala.lib.libgdx.actor._
-import com.badlogic.gdx.graphics.{Texture, GL10}
+import com.badlogic.gdx.graphics.Texture
 import com.glyph.scala.lib.util.{reactive, ColorUtil, Logging}
 import com.glyph.scala.lib.util.pool.Pool
 import com.badlogic.gdx.graphics.g2d.Sprite
@@ -12,29 +13,32 @@ import scala.collection.mutable.ArrayBuffer
 import com.glyph.scala.lib.util.updatable.task.{InterpolatedFunctionTask, TimedFunctionTask}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.glyph.scala.lib.util.animator.Explosion
-import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
+import com.badlogic.gdx.scenes.scene2d.{Group, InputEvent, InputListener}
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.pooling_task.ReflectedPooling
-import com.glyph.scala.lib.util.json.{JSON, RVJSON, RJSON}
+import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
-import scalaz.{ValidationNel, Success, Failure}
-import scalaz._
-import Scalaz._
 
 /**
  * @author glyph
  */
-class APView[T](score:Varying[Int],puzzle: ActionPuzzle[T], assets: AssetManager)
-  extends Paneled
+class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManager)
+  extends Group
   with Reactor
   with Logging
   with Tasking
   with SpriteBatchRenderer
   with AdditiveBlend
-  with Scissor {
+  with Scissor
+  with Paneled2{
   val gridFunctions = RVJSON(GdxFile("json/grid.json")).map(_.flatMap(Grid(_)))
-
-
+  val alphaToIndex = gridFunctions map (_.map{
+    case (fx,fy) => Grid.alphaToIndex(fx,fy)
+  })
+  val swipeChecker =gridFunctions map ( _.map {
+    case (fx,fy) => genSwipeChecker(fx,fy)
+  })
+  val swipeStopper = genSwipeStopper
   import Pool._
   import Actions._
   import MathUtils._
@@ -44,7 +48,6 @@ class APView[T](score:Varying[Int],puzzle: ActionPuzzle[T], assets: AssetManager
   def column: Int = puzzle.COLUMN
 
   import com.glyph.scala.lib.libgdx.conversion.AnimatingGdx._
-  import SpriteBatchRenderer._
   import com.glyph.scala.lib.libgdx.poolable.PoolingGdx._
   import SBDrawableGdx._
   import ReflectedPooling._
@@ -71,27 +74,19 @@ class APView[T](score:Varying[Int],puzzle: ActionPuzzle[T], assets: AssetManager
       val token = manual[Token[T]]
       token.init(p)
       import reactive._
-      token.reactVar(gridFunctions~p.x~p.y){
-        case Some((fx,fy))~x~y =>{
-          token.setX(fx.indexToAlpha(x)*getWidth)
-          token.setY(fy.indexToAlpha(y)*getHeight)
+      token.reactVar(gridFunctions ~ p.x ~ p.y) {
+        case Some((fx, fy)) ~ x ~ y => {
+          token.setX(fx.indexToAlpha(x) * getWidth)
+          token.setY(fy.indexToAlpha(y) * getHeight)
           val w = fx.tokenSize * getWidth
           val h = fy.tokenSize * getHeight
-          token.setSize(w,h)
-          token.setOrigin(w/2,h/2)
+          token.setSize(w, h)
+          token.setOrigin(w / 2, h / 2)
         }
-        case _=>
+        case _ =>
       }
-      /*
-      //TODO check for alignment
-      token.reactVar(p.x)(x => token.setX(calcPanelX(x)))
-      token.reactVar(p.y)(y => token.setY(calcPanelY(y)))
-      token.setSize(panelW, panelH)
-      token.setOrigin(panelW / 2, panelH / 2)
-      */
       tokens += token
       addActor(token)
-      //puzzleGroup.addActor(token)
     }
   }
 
@@ -113,13 +108,13 @@ class APView[T](score:Varying[Int],puzzle: ActionPuzzle[T], assets: AssetManager
         () => {
           //TextureUtil.split(token.sprite)(8)(8)(buf)
           val texture = assets.get[Texture]("data/particle.png")
-          0 to ((score()+1)/10) foreach {
+          0 to ((score() + 1) / 10) foreach {
             _ => val p = manual[Sprite]
               p.setTexture(texture)
               p.setRegion(0f, 0f, 1f, 1f)
               p.setOrigin(0f, 0f)
-              val s = random(3,30)
-              p.setSize(s,s)
+              val s = random(3, 30)
+              p.setSize(s, s)
               p.setPosition(token.getX + token.getWidth / 2, token.getY + token.getHeight / 2)
               p.setColor(token.sprite.getColor)
               buf += p
@@ -152,12 +147,14 @@ class APView[T](score:Varying[Int],puzzle: ActionPuzzle[T], assets: AssetManager
   }
   this.addListener(new InputListener() {
     override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-      val (ix, iy) = positionToIndex(x, y)
-      for {ap <- puzzle.future.lift(ix).map(_.lift(iy)).flatten
-           token <- tokens.find(_.panel == ap)
-      } {
-        log(ix, iy, ap.tx(), ap.ty(), token)
-        //puzzle.removeFillUpdateTargetPosition(ap::Nil)
+      for(ai <- alphaToIndex()){
+        val (ix, iy) = ai(x/getWidth,y/getHeight)//positionToIndex(x, y)
+        for {ap <- puzzle.future.lift(ix).map(_.lift(iy)).flatten
+             token <- tokens.find(_.panel == ap)
+        } {
+          log(ix, iy, ap.tx(), ap.ty(), token)
+          //puzzle.removeFillUpdateTargetPosition(ap::Nil)
+        }
       }
       super.touchDown(event, x, y, pointer, button)
     }

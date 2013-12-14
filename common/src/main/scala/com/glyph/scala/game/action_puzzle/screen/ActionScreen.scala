@@ -8,7 +8,7 @@ import com.glyph.scala.lib.util.reactive.{Var, Reactor}
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph.scala.game.action_puzzle.{APView, ActionPuzzle}
+import com.glyph.scala.game.action_puzzle.{ComboPuzzle, APView, ActionPuzzle}
 import com.badlogic.gdx.scenes.scene2d.ui.{Table, Skin}
 import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
@@ -35,11 +35,8 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   val bgColor = colors.background.as[String] map (_.map(Color.valueOf) | Color.WHITE)
   reactVar(bgColor)(backgroundColor = _)
   val skin = assets.get[Skin]("skin/default.json")
-  val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 3), (a: Int, b: Int) => {
-    a == b
-  })
-  val score = Var(0)
-  val time = Var(60f)
+  val game = new ComboPuzzle
+  import game._
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
   val view = new APView(score,puzzle, assets) with Updating
   view.add(easedScore)
@@ -74,8 +71,13 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
       scoreLabel.addAction(prevAction)
     }
   }
-  root.add(scoreLabel).height((STAGE_HEIGHT - STAGE_WIDTH) / 2).fill.expand.row
-  root.add(view).fill().expand().width(STAGE_WIDTH).height(STAGE_WIDTH).row
+  val comboLabel = new RLabel(skin,combo map(_.toString))
+  val inner = new Table()
+  inner.debug
+  inner.add(scoreLabel).expand
+  inner.add(comboLabel).expand
+  root.add(inner).fill.expand.row
+  root.add(view).fill().expand().width(STAGE_WIDTH).height(STAGE_WIDTH).left.row
   root.add(new Table{
     val back = new SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
     add(back).fill.expand
@@ -83,12 +85,17 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   }).size(STAGE_WIDTH,40).fill().expand()
   root.invalidate()
   root.layout()
-  puzzle.panelAdd = view.panelAdd
-  puzzle.panelRemove = seq => {
-    score() += 10 * seq.size
+  game.onPanelAdd = view.panelAdd
+  game.onPanelRemove = seq => {
     view.panelRemove(seq)
   }
-  view.startSwipeCheck(puzzle.pooledSwipe)
+  reactSome(view.swipeChecker){
+    case checker => {
+      view.swipeStopper()
+      checker(puzzle.pooledSwipe)
+      //view.startSwipeCheck(puzzle.pooledSwipe)
+    }
+  }
   root.debug()
   /*
   init after the layout is setup
@@ -97,7 +104,6 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
 
   override def render(delta: Float): Unit = {
     super.render(delta)
-    time() -= delta
-    puzzle.update(delta + (score()/1000f/1000f))
+    game.update(delta)
   }
 }
