@@ -56,19 +56,26 @@ class ComboEffect extends ConfiguredScreen {
   sprites |> placeSprites
   group.addDrawable(sprites)
   root.debug()
-  val window = new Window("test", skin)
-  window.setSize(200, 200)
-  window.getButtonTable.add(new Label("X", skin)).height(40)
-  window.pack
-  window.debug
-  root.remove()
+  val window = new Window("window",skin)
+  window.setMovable(true)
+  window.padTop(30)
+  window.getButtonTable.debug()
+  window.getButtonTable.add(new Label("X",skin)).height(100)
+  window.setPosition(0,0)
+  //window.setSize(300,300)
+  window.add.height(50).colspan(2).row
+  window.add.expand.height(100)
+  window.add.expand
+  window.debug()
+  window.pack()
   stage.addActor(window)
   //Gdx.input.setInputProcessor(stage)
-
   val dialog = new Dialog("dialog",skin)
   dialog.size(300,300)
-  dialog.show(stage)
+  dialog.padTop(30)
   dialog.debug()
+  dialog.pack()
+  //dialog.show(stage)
 
   override def render(delta: Float) {
     super.render(delta)
