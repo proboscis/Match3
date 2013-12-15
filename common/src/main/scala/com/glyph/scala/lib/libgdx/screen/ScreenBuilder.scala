@@ -15,15 +15,13 @@ import DefaultJsonProtocol._
  * @author glyph
  */
 trait ScreenBuilder {
-  //TODO serialization is the hardest thing to do in android, you know
-  type FileName = String
-  def requiredAssets: Set[(Class[_], Array[FileName])]
+  def requiredAssets: Set[(Class[_], Seq[String])]
   def create(assetManager: AssetManager): Screen
 }
-case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_],Array[String])])
+case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_],Seq[String])])
 object ScreenBuilder {
   type Vnelt[T] = ValidationNel[Throwable, T]
-  type Assets = Set[(Class[_], Array[String])]
+  type Assets = Set[(Class[_], Seq[String])]
 
   implicit val classFormat = new RootJsonFormat[Class[_]] {
     def write(obj: Class[_]): JsValue = JsString(obj.getCanonicalName)

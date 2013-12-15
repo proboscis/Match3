@@ -9,6 +9,7 @@ import scalaz._
 import Scalaz._
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
 import com.glyph.scala.lib.libgdx.game.{ScreenTester, ScreenFileTester}
+import com.glyph.scala.test.TestRunner
 
 object Main {
 
@@ -56,13 +57,19 @@ object Main {
 
     parser.parse(args, Config()) map {
       case Config(screenFileName, resDir, fileCheck, packTexture, testScreen) => {
+        val resourceDir = resDir.getAbsolutePath
         GdxFile.absResourceDir = {
-          val result = resDir.getAbsolutePath
-          println("specified resource directory:" + resDir + "=>" + result)
-          result.some
+          println("specified resource directory:" + resDir + "=>" + resourceDir)
+          resourceDir.some
         }
         if (fileCheck) RFile.enableChecking(1000)
-        if (packTexture) TexturePacker2.process("./", "./skin", "default")
+
+        if (packTexture) {
+          val setting = new TexturePacker2.Settings()
+          setting.maxWidth = 2048
+          setting.maxHeight = 2048
+          TexturePacker2.process(setting,resourceDir,"./skin", "default")
+        }
         val cfg = new LwjglApplicationConfiguration()
         cfg.title = "Game"
         val ratio = 9d / 16d
@@ -71,6 +78,7 @@ object Main {
         cfg.width = (height * ratio).toInt
         cfg.useGL20 = true
         testScreen match {
+          case "" => new LwjglApplication(new TestRunner, cfg)
           case "" => new LwjglApplication(new ScreenFileTester(screenFileName), cfg)
           case _ => new LwjglApplication(new ScreenTester(testScreen), cfg)
         }

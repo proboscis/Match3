@@ -13,6 +13,8 @@ import com.glyph.scala.game.action_puzzle.screen.ActionScreen
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.glyph.scala.lib.libgdx.game.ScreenFileTester
+import com.glyph.scala.test.TestRunner
+
 class Main extends AndroidApplication with Logging{
   override def onCreate(savedInstanceState: Bundle) {
     val actionScreenConfig = ScreenConfig(classOf[ActionScreen], Set(classOf[Texture] -> Array(
@@ -38,7 +40,9 @@ class Main extends AndroidApplication with Logging{
       case Success(s) =>    new Thread(Thread.currentThread().getThreadGroup, new Runnable {
         def run() {
           //initialize(new ScreenFileTester("screens/action.js"),config)
-          initialize(new ScreenTester("com.glyph.scala.test.ComboEffect"), config)
+             // initialize(new ScreenTester("com.glyph.scala.test.ComboEffect"), config)
+          initialize(new TestRunner, config)
+
         }
         }, Thread.currentThread().getName + "logic", 64000000).run()
       case Failure(e) => e foreach(_.printStackTrace())

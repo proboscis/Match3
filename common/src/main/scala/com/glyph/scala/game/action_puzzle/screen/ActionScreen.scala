@@ -1,6 +1,6 @@
 package com.glyph.scala.game.action_puzzle.screen
 
-import com.glyph.scala.lib.libgdx.screen.ConfiguredScreen
+import com.glyph.scala.lib.libgdx.screen.{ScreenBuilder, ConfiguredScreen}
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.graphics._
@@ -18,6 +18,7 @@ import com.glyph.scala.lib.libgdx.actor.{SpriteActor, Updating}
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.Screen
 
 /**
  * @author glyph
@@ -105,5 +106,17 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   override def render(delta: Float): Unit = {
     super.render(delta)
     game.update(delta)
+  }
+}
+
+class ActionPuzzleScreen extends ScreenBuilder{
+  //TODO serialization is the hardest thing to do in android, you know
+  def requiredAssets: Set[(Class[_], Seq[String])] = Set(
+    classOf[Texture]->Seq("data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"),
+    classOf[Skin]->Seq("skin/default.json")
+  )
+  def create(assetManager: AssetManager): Screen = {
+    implicit val _ = assetManager
+    new ActionScreen
   }
 }
