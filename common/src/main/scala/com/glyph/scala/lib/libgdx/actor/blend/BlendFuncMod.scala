@@ -1,6 +1,7 @@
-package com.glyph.scala.lib.libgdx.actor
+package com.glyph.scala.lib.libgdx.actor.blend
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.glyph.scala.lib.libgdx.actor.SpriteBatchRenderer
 
 /**
  * @author proboscis

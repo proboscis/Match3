@@ -71,8 +71,8 @@ object SpriteBatchRenderer extends Logging{
     }
   }
 }
-
-object SBDrawableGdx extends Logging{
+object SBDrawableGdx extends SBDrawableGdxOps
+trait SBDrawableGdxOps extends Logging{
   implicit object DrawableBuffer extends SBDrawable[ArrayBuffer[Sprite]] {
     def draw(tgt: ArrayBuffer[Sprite], batch: SpriteBatch, alpha: Float) {
       var i = 0

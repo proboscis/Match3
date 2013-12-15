@@ -13,6 +13,8 @@ import scala.annotation
  */
 object Animator extends AnimatorOps {
   implicit class Var2Animating[T](val v: Var[T]) extends AnyVal with  Animating[T]{
+    //TODO this requires memory allocation since the user uses this class as Animating[T], not Var2Animating[T]
+    //http://docs.scala-lang.org/ja/overviews/core/value-classes.html
     def get: T = v()
     def set(t: T): Unit = v() = t
   }

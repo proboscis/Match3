@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.libgdx.actor.ui.RLabel
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.glyph.scala.lib.libgdx.actor.blend.AdditiveBlend
 
 /**
  * @author glyph

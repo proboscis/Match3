@@ -5,10 +5,10 @@ import com.glyph.scala.game.puzzle.model.Game
 import com.glyph.scala.lib.libgdx.actor.ui.{Reaction, Gauge, RLabel}
 import com.glyph.scala.lib.util.reactive.RJS
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
-import com.glyph.scala.lib.libgdx.actor.Layered
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.glyph.scala.lib.libgdx.actor.action.MyActions
 import com.badlogic.gdx.assets.AssetManager
+import com.glyph.scala.lib.libgdx.actor.widgets.Layered
 
 /**
  * @author glyph

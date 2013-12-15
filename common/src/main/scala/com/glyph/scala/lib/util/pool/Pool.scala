@@ -1,9 +1,9 @@
 package com.glyph.scala.lib.util.pool
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
 import com.glyph.scala.lib.util.Logging
 import scala.reflect.ClassTag
+import com.glyph.scala.lib.util.pool.Pool.PooledAny
 
 trait Pooling[T] {
   def newInstance: T
@@ -11,7 +11,7 @@ trait Pooling[T] {
   def reset(tgt: T)
 }
 
-trait Poolable {
+trait Poolable extends Logging{
   self =>
   protected var pool: Pool[self.type] = null
 
@@ -21,8 +21,11 @@ trait Poolable {
 
   def freeToPool() {
     if (pool != null) {
+      log("freed")
       pool.reset(this)
       pool = null
+    }else{
+      log("Poolable, but the pool is not specified")
     }
   }
 }
@@ -39,7 +42,7 @@ class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
     }
   }
 
-  def reset(tgt: P){
+  def reset(tgt: P) {
     implicitly[Pooling[P]].reset(tgt)
     if (pool.size < max) {
       pool enqueue tgt
@@ -57,12 +60,22 @@ class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
   }
 }
 
-object Pool {
+object Pool extends PoolOps {
+
+  class PooledAny[T](val self: T) extends AnyVal {
+    def free(implicit pool: Pool[T]) {
+      pool.reset(self)
+    }
+  }
+
   def apply[T: Pooling : ClassTag](size: Int): Pool[T] = new Pool(size)
+
   type PoolableType = {def reset()}
+
   def apply[T <: PoolableType : ClassTag](constructor: () => T, size: Int): Pool[T] = {
     implicit val pooler = new Pooling[T] {
       def newInstance: T = constructor()
+
       def reset(tgt: T): Unit = tgt.reset()
     }
     new Pool(size)
@@ -71,10 +84,17 @@ object Pool {
   def apply[T: ClassTag](constructor: () => T, finalizer: T => Unit, size: Int): Pool[T] = {
     val pooling = new Pooling[T] {
       def newInstance: T = constructor()
+
       def reset(tgt: T): Unit = finalizer(tgt)
     }
     new Pool(size)(pooling, implicitly[ClassTag[T]])
   }
+
+}
+
+trait PoolOps extends Logging {
+  private val DEFAULT_POOL_SIZE = 1000
+  private var pools: ClassTag[_] Map Pool[_] = Map() withDefault (_ => null)
 
   def pool[T: Pool : ClassTag]: Pool[T] = implicitly[Pool[T]]
 
@@ -86,10 +106,19 @@ object Pool {
     result
   }
 
-  implicit class PooledAny[T](val self: T) extends AnyVal {
-    def free(implicit pool: Pool[T]) {
-      pool.reset(self)
+  implicit def anyToPooled[T](self: T): PooledAny[T] = new PooledAny[T](self)
+
+  implicit def genericPool[T: Pooling : ClassTag]: Pool[T] = {
+    val tag = implicitly[ClassTag[T]]
+    val result = pools(tag)
+    if (result != null) result.asInstanceOf[Pool[T]]
+    else {
+      val newPool = new Pool[T](DEFAULT_POOL_SIZE)
+      pools += tag -> newPool
+      log("created a pool for: " + tag.runtimeClass)
+      newPool
     }
   }
+
   def preAlloc[T: Pool : ClassTag]() = 1 to pool[T].max map (_ => manual[T]) foreach (_.free)
 }

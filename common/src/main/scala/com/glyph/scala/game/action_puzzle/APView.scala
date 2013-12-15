@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.{Interpolation, MathUtils}
 import com.glyph.scala.lib.util.pooling_task.ReflectedPooling
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
+import com.glyph.scala.lib.libgdx.actor.blend.AdditiveBlend
 
 /**
  * @author glyph

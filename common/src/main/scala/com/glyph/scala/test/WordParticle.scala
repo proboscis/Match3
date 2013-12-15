@@ -7,13 +7,14 @@ import com.glyph.scala.lib.libgdx.font.FontUtil
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.graphics.g2d.{BitmapFont, Sprite}
-import com.glyph.scala.lib.libgdx.actor.{SpriteActor, SpriteBatchRenderer}
+import com.glyph.scala.lib.libgdx.actor.{Tasking, SpriteActor, SpriteBatchRenderer}
 import com.badlogic.gdx.scenes.scene2d.{Actor, Group}
 import com.badlogic.gdx.graphics.Color
 import scala.collection.mutable.ArrayBuffer
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.util.pool.Pool
+import com.glyph.scala.game.Glyphs
+import Glyphs._
+import com.glyph.scala.lib.util.updatable.task.{ObjectInterpolator, Parallel}
 
 /**
  * @author glyph
@@ -30,7 +31,7 @@ class WordParticleScreen extends ConfiguredScreen {
   import com.badlogic.gdx.math.MathUtils._
 
   backgroundColor = Color.BLACK
-  val renderer = new Group with SpriteBatchRenderer
+  val renderer = new Group with SpriteBatchRenderer with Tasking
   val font = internalFont("font/corbert.ttf", 30)
   //this must be disposed after using...
   val regions = font |> (fontToRegionMap(_)(('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')))
@@ -44,13 +45,14 @@ class WordParticleScreen extends ConfiguredScreen {
   //root add renderer
   sprites foreach {
     a =>
-      import Actions._
-      import Interpolation._
-      a.setPosition(300, 100)
-      a.addAction(parallel(moveTo(a.getX, a.getY + 100f, 1f, exp10Out), fadeOut(1f)))
+      val par = auto[Parallel]
+      val ipColor = auto[ObjectInterpolator[Color]]
+      ipColor set(a.getColor, Color.RED) in 5f
+      par.add(ipColor)
+      renderer add par
       root.addActor(a)
   }
-
+  root.add(renderer)
   override def dispose() {
     super.dispose()
     font.dispose()

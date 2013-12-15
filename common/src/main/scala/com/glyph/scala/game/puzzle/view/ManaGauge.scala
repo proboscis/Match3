@@ -6,11 +6,12 @@ import com.glyph.scala.lib.libgdx.actor.ui.{Gauge, Reaction, RLabel}
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.glyph.scala.lib.libgdx.actor.action.MyActions
 import com.glyph.scala.lib.util.json.{RVJSON, RJSON}
-import com.glyph.scala.lib.libgdx.actor.{Layered, ReactiveSize}
+import com.glyph.scala.lib.libgdx.actor.{ReactiveSize}
 import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.game.puzzle.view.match3.ElementToken
 import com.badlogic.gdx.assets.AssetManager
+import com.glyph.scala.lib.libgdx.actor.widgets.Layered
 
 /**
  * @author glyph

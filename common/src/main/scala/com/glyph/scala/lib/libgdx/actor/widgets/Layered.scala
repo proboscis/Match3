@@ -1,4 +1,4 @@
-package com.glyph.scala.lib.libgdx.actor
+package com.glyph.scala.lib.libgdx.actor.widgets
 
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.badlogic.gdx.scenes.scene2d.{Touchable, Actor}

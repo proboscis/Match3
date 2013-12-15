@@ -2,13 +2,14 @@ package com.glyph.scala.game.puzzle.view
 
 import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.glyph.scala.lib.libgdx.actor.{Tasking, Layered}
+import com.glyph.scala.lib.libgdx.actor.{Tasking}
 import com.glyph.scala.lib.util.reactive
 import reactive._
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.util.updatable.reactive.DeprecatedEasing
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.assets.AssetManager
+import com.glyph.scala.lib.libgdx.actor.widgets.Layered
 
 /**
  * @author glyph

@@ -17,6 +17,7 @@ import com.glyph.scala.game.puzzle.model.cards.Fire
 import com.glyph.scala.lib.util.reactive
 import com.glyph.scala.lib.libgdx.TextureUtil
 import com.badlogic.gdx.assets.AssetManager
+import com.glyph.scala.lib.libgdx.actor.widgets.Layered
 
 /**
  * @author glyph

@@ -4,11 +4,12 @@ import com.glyph.scala.lib.util.pool.Pooling
 import scala.reflect.ClassTag
 
 object ReflectedPooling {
-  implicit def PoolingReflection[T: ClassTag]: Pooling[T] = new Pooling[T] {
+  type RPooling = {
+    def reset()
+  }
+  implicit def genPooling[T <: RPooling : ClassTag]: Pooling[T] = new Pooling[T] {
     val clazz = implicitly[ClassTag[T]]
-    type RPooling = {
-      def reset()
-    }
+
     val constructor = clazz.runtimeClass.getConstructor()
 
     def newInstance: T = constructor.newInstance().asInstanceOf[T]

@@ -2,7 +2,7 @@ package com.glyph.scala.game.puzzle.view
 
 import com.badlogic.gdx.scenes.scene2d.ui.{Image, WidgetGroup, Table}
 import com.glyph.scala.game.puzzle.model.{PlayableDeck, Game}
-import com.glyph.scala.lib.libgdx.actor.{ReactiveSize, TouchSource, Layered}
+import com.glyph.scala.lib.libgdx.actor.{ReactiveSize, TouchSource}
 import com.glyph.scala.game.puzzle.controller.{IdleEvent, Swiped, UseCard, PuzzleGameController}
 import com.glyph.scala.lib.util.{Logging, reactive}
 import reactive._
@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.glyph.scala.game.puzzle.model.cards.Card
 import com.badlogic.gdx.assets.AssetManager
+import com.glyph.scala.lib.libgdx.actor.widgets.Layered
 
 /**
  * ここでcontrollerを渡したことが間違いだった!
