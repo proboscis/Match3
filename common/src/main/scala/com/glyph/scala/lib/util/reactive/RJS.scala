@@ -1,6 +1,5 @@
 package com.glyph.scala.lib.util.reactive
 
-import com.glyph.scala.lib.util.DebugUtil
 import com.glyph.scala.lib.util.rhino.Rhino
 import scalaz._
 import Scalaz._
@@ -25,9 +24,3 @@ class RJS[T: Manifest](script: Varying[ValidationNel[Throwable, String]], env: =
 
   def current: T = variable
 }
-
-object RJS {
-  val log = DebugUtil.log(println) _
-}
-
-

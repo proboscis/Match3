@@ -9,7 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 /**
  * @author glyph
  */
-object AnimatingGdx {
+object AnimatingGdx extends AnimatingGdxOps
+trait AnimatingGdxOps {
   /*
   object AnimatingVector2X extends Animating[Vector2]{
     def get: Vector2 = ???
@@ -20,7 +21,6 @@ object AnimatingGdx {
     def setX(x:Float):Unit
     def setY(y:Float):Unit
   }
-
   //this uses reflection which does not work on android
   def generateAdapter[T<:Animated]:AnimatedFloat2[T] = new AnimatedFloat2[T] {
     def setY(tgt: T)(y: Float): Unit = tgt.setY(y)
@@ -31,7 +31,6 @@ object AnimatingGdx {
 
     def getX(tgt: T): Float =tgt.getX()
   }
-
   def animatedActor[T<:Actor]:AnimatedFloat2[T] =  new AnimatedFloat2[T] {
     def setY(tgt: T)(y: Float): Unit = tgt.setY(y)
 
@@ -50,9 +49,6 @@ object AnimatingGdx {
 
     def getX(tgt: T): Float =tgt.getX
   }
-
-
-
   //TODO you need to keep these classes from proguard...
   //i want the implicit macro for these type classes.
   implicit val Animated2Sprite = animatedSprite[Sprite]

@@ -6,7 +6,8 @@ import com.glyph.scala.lib.util.pool.Pooling
 /**
  * @author glyph
  */
-object PoolingGdx {
+object PoolingGdx extends PoolingGdxOps
+trait PoolingGdxOps {
   implicit object PoolingSprite extends Pooling[Sprite]{
     def newInstance: Sprite = new Sprite()
     def reset(tgt: Sprite){
@@ -20,4 +21,5 @@ object PoolingGdx {
       tgt.setRotation(0f)
     }
   }
+  implicit object Pooling
 }

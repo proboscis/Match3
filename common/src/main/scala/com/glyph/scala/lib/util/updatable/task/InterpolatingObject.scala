@@ -1,41 +1,50 @@
 package com.glyph.scala.lib.util.updatable.task
 
 import com.glyph.scala.lib.util.pool.Pooling
-import com.glyph.scala.lib.libgdx.conversion.AnimatingGdx.Animated
 
 /**
  * @author glyph
  */
 object InterpolatingObject {
-  trait AnimatedObject[T]{
-    def set(tgt:T)(v:T)
-    def get(tgt:T):T
+
+  trait AnimatedObject[T] {
+    def set(tgt: T)(v: T)
   }
-  trait InterpolatableObject[T] extends AnimatedObject[T]{
-    def interpolatedValue(target:T,start:T,end:T,alpha:Float):T
+
+  trait InterpolatableObject[T] extends AnimatedObject[T] with Pooling[T] {
+    def interpolateAndSet(target: T, start: T, end: T, alpha: Float)
   }
-  class ObjectInterpolator[T:Interpolatable:Animated](var target:T) extends InterpolationTask{
+
+  class ObjectInterpolator[T: InterpolatableObject](var target: T) extends InterpolationTask {
     def this() = this(null.asInstanceOf[T])
-    var start:T = null.asInstanceOf[T]
-    var end:T = null.asInstanceOf[T]
-    override def onStart(){
+
+    val impl = implicitly[InterpolatableObject[T]]
+    var start: T = impl.newInstance
+    var end: T = impl.newInstance
+
+    override def onStart() {
       super.onStart()
-      start = implicitly[Animated[T]].get(target)
+      impl.set(start)(target)
     }
-    def set(target:T,end:T){
+
+    def set(target: T, end: T) {
       this.target = target
-      this.end = end
+      impl.set(this.end)(end)
     }
-    def apply(alpha: Float): Unit = implicitly[Animated[T]].set(target)(implicitly[Interpolatable[T]].interpolatedValue(start,end,alpha))
-    override def reset(){
+
+    def apply(alpha: Float): Unit = impl.interpolateAndSet(target, start, end, alpha)
+
+    override def reset() {
       super.reset()
-      end = null.asInstanceOf[T]
-      start = null.asInstanceOf[T]
+      impl.reset(end)
+      impl.reset(start)
       target = null.asInstanceOf[T]
     }
   }
-  implicit def poolingInterpolator[T:Interpolatable:Animated]:Pooling[ObjectInterpolator[T]] = new Pooling[ObjectInterpolator[T]]{
+
+  implicit def poolingInterpolator[T: InterpolatableObject]: Pooling[ObjectInterpolator[T]] = new Pooling[ObjectInterpolator[T]] {
     def newInstance: ObjectInterpolator[T] = new ObjectInterpolator()
+
     def reset(tgt: ObjectInterpolator[T]): Unit = tgt.reset()
   }
 }

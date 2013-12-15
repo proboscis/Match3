@@ -19,16 +19,13 @@ import scala.util.Try
 /**
  * @author glyph
  */
-class TestRunner extends ScreenBuilderSupport {
-
+class TestRunner(className:String) extends ScreenBuilderSupport {
+  def this() = this("")
   type ->[A, B] = (A, B)
-
   import ScreenBuilder._
-
   override def create() {
     super.create()
-
-    val classes = classOf[ActionPuzzleScreen] :: Nil
+    val classes = classOf[ActionPuzzleScreen]::classOf[WordParticle] :: Nil
     val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
     val packages = classOf[EffectTest] :: classOf[WindowTest] :: classOf[ComboEffect] :: Nil
     val classBuilders = classes map (c => c.newInstance()->c.getSimpleName)
@@ -45,14 +42,21 @@ class TestRunner extends ScreenBuilderSupport {
       } -> clazz.getSimpleName
     }
     val builders: Seq[ScreenBuilder -> String] = (1 to 10 map (_ => classBuilders ++ pkgBuilders ++ fileBuilders)).flatten
-
-    setBuilder(new MenuScreen)
+    className match{
+      case ""=>setBuilder(new MenuScreen)
+      case c =>setBuilder(Class.forName(c).newInstance() match{
+        case builder:ScreenBuilder => builder
+        case screen:Screen=> new ScreenBuilder {
+          def requiredAssets: Set[(Class[_], Seq[String])] = Set()
+          def create(assetManager: AssetManager): Screen = screen
+        }
+      })
+    }
     class MenuScreen extends ScreenBuilder {
       def requiredAssets: Set[(Class[_], Seq[String])] = Set(
         classOf[TextureAtlas] -> ("skin/default.atlas" :: Nil),
         classOf[Skin] -> ("skin/default.json" :: Nil)
       )
-
       def create(assets: AssetManager): gdx.Screen = new ConfiguredScreen {
         backgroundColor = Color.BLACK
         val skin = assets.get[Skin]("skin/default.json")
@@ -72,7 +76,6 @@ class TestRunner extends ScreenBuilderSupport {
       }
     }
   }
-
 
   def tryToVnel2[T](t: Try[T]): ValidationNel[Throwable, T] = t match {
     case scala.util.Success(s) => s.successNel

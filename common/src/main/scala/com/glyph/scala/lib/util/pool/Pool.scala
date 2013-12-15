@@ -48,7 +48,6 @@ class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
     }
   }
 
-
   override def toString: String = "pool" + pool.size
 
   def foreach(f: P => Unit) {
@@ -60,13 +59,10 @@ class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
 
 object Pool {
   def apply[T: Pooling : ClassTag](size: Int): Pool[T] = new Pool(size)
-
   type PoolableType = {def reset()}
-
   def apply[T <: PoolableType : ClassTag](constructor: () => T, size: Int): Pool[T] = {
     implicit val pooler = new Pooling[T] {
       def newInstance: T = constructor()
-
       def reset(tgt: T): Unit = tgt.reset()
     }
     new Pool(size)
@@ -75,7 +71,6 @@ object Pool {
   def apply[T: ClassTag](constructor: () => T, finalizer: T => Unit, size: Int): Pool[T] = {
     val pooling = new Pooling[T] {
       def newInstance: T = constructor()
-
       def reset(tgt: T): Unit = finalizer(tgt)
     }
     new Pool(size)(pooling, implicitly[ClassTag[T]])
@@ -96,6 +91,5 @@ object Pool {
       pool.reset(self)
     }
   }
-
   def preAlloc[T: Pool : ClassTag]() = 1 to pool[T].max map (_ => manual[T]) foreach (_.free)
 }
