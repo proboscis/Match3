@@ -3,8 +3,7 @@ package com.glyph.scala.game.action_puzzle
 import com.glyph.scala.lib.util.reactive.{Reactor, Var}
 import com.badlogic.gdx.math.{MathUtils, Interpolation}
 import com.glyph.scala.lib.util.updatable.task._
-import com.glyph.scala.lib.util.{HeapMeasure, Timing
-, Logging}
+import com.glyph.scala.lib.util.{HeapMeasure, Timing, Logging}
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.mutable
 import com.glyph.scala.lib.util.pool.{Pool, Pooling}
