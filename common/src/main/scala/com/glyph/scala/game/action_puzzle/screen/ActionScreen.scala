@@ -80,7 +80,7 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   root.add(inner).fill.expand.row
   root.add(view).fill().expand().width(STAGE_WIDTH).height(STAGE_WIDTH).left.row
   root.add(new Table{
-    val back = new SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
+    val back = SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
     add(back).fill.expand
     reactVar(time map (_/60f * STAGE_WIDTH))(back.setWidth)
   }).size(STAGE_WIDTH,40).fill().expand()

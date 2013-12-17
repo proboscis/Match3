@@ -26,7 +26,7 @@ class EffectTest extends ConfiguredScreen {
   val skin = new Skin(Gdx.files.internal("skin/default.json"))
   val texture = new Texture(Gdx.files.internal("data/round_rect.png"))
   val view = new WidgetGroup with AdditiveBlend with SpriteBatchRenderer with Tasking with Updating
-  val token = new SpriteActor(new Sprite(texture)) with Reactor
+  val token = SpriteActor(new Sprite(texture)) with Reactor
   token.setSize(100, 100)
   token.setPosition(0, 0)
   token.setColor(Color.valueOf("7cefff"))

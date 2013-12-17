@@ -35,7 +35,9 @@ class WordParticleScreen extends ConfiguredScreen {
   val font = internalFont("font/corbert.ttf", 30)
   //this must be disposed after using...
   val regions = font |> (fontToRegionMap(_)(('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')))
-  val sprites = 1 to 5 map (_ => random('0', '9').toChar) map regions map (new Sprite(_)) map (new SpriteActor(_))
+  val sprites = 1 to 5 map (_ => random('0', '9').toChar) map regions map {
+    region => val sp = manual[SpriteActor];sp.sprite.setRegion(region);sp
+  }
   val velocities = new ArrayBuffer[Float]
 
 
@@ -62,7 +64,6 @@ class WordParticleScreen extends ConfiguredScreen {
 class MessagePopper(font: BitmapFont)(implicit spritePool: Pool[Sprite], actorPool: Pool[Actor]) {
 
   import FontUtil._
-
   val regions = font |> (fontToRegionMap(_)(('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')))
   /*
   def createMessage(msg:String):Seq[Actor] = {
