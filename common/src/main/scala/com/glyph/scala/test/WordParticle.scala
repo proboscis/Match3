@@ -17,6 +17,8 @@ import Glyphs._
 import com.glyph.scala.lib.util.updatable.task.tween.Tween
 import com.glyph.scala.lib.util.updatable.task.{Parallel, Sequence}
 import com.badlogic.gdx.math.{Interpolation, MathUtils}
+import aurelienribon.tweenengine.{Timeline, Tween, TweenAccessor, TweenManager}
+import aurelienribon.tweenengine.equations.Elastic
 
 /**
  * @author glyph
@@ -38,7 +40,7 @@ class WordParticleScreen extends ConfiguredScreen {
   //this must be disposed after using...
   //val regions = font |> (fontToRegionMap(_)(('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')))
   val regions = font |> fontToLazyRegionMap
-  val sprites = 1 to 100 map (_ => random('0', '9').toChar) map regions map {
+  val sprites = 1 to 10 map (_ => random('0', '9').toChar) map regions map {
     region => val s = manual[Sprite]
       s.setRegion(region)
       s.setSize(region.getRegionWidth,region.getRegionHeight)
@@ -50,24 +52,36 @@ class WordParticleScreen extends ConfiguredScreen {
   //val updater = update(0,-1000,2)(sprites,velocities)_
   //renderer addDrawable sprites
   //root add renderer
-  val seq = auto[Sequence]
-  sprites foreach {
-    s =>
-      import Interpolation._
+  val manager = new TweenManager
+  Tween.registerAccessor(classOf[Sprite],SpriteAccessor)
+  Tween.setCombinedAttributesLimit(4)
+
+  val timeline = Timeline.createSequence()
+  timeline.beginParallel()
+  sprites.zipWithIndex.foreach{
+    case (s,i) =>
+      import SpriteAccessor._
       import MathUtils._
-      s.setPosition(0,0)
-      s.setColor(0,0,0,0)
-      val par = auto[Parallel]
-      val move = auto[Tween[Sprite]]
-      val color = auto[Tween[Sprite]]
-      par.add(move.setTarget(s,XY).to(random(-200,200),random(-200,200)).in(1f).using(exp10Out))
-      par.add(color.setTarget(s,RGBA).to(1,1,0,1).using(exp10Out).in(1f))
-      //renderer add par
-      seq.add(par)
+      import Elastic._
+      timeline.push(Timeline.createSequence().
+        delay(i*0.1f).
+        beginParallel().
+          push(Tween.to(s,XY,1).target(random(-200,200),random(-200,200)).ease(INOUT)).
+          push(Tween.to(s,RGBA,1).target(1,0,0,1)).
+        end()
+      )
   }
-  renderer.add(seq)
+  timeline.repeat(10,0.5f)
+  timeline.end()
+  timeline.start(manager)
   renderer addDrawable sprites
   root.add(renderer)
+
+
+  override def render(delta: Float){
+    manager.update(delta)
+    super.render(delta)
+  }
 
   override def dispose() {
     super.dispose()
