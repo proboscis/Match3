@@ -15,6 +15,8 @@ import com.glyph.scala.lib.util.pool.Pool
 import com.glyph.scala.game.Glyphs
 import Glyphs._
 import com.glyph.scala.lib.util.updatable.task.{ObjectInterpolator, Parallel}
+import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
 
 /**
  * @author glyph
@@ -34,9 +36,10 @@ class WordParticleScreen extends ConfiguredScreen {
   val renderer = new Group with SpriteBatchRenderer with Tasking
   val font = internalFont("font/corbert.ttf", 30)
   //this must be disposed after using...
-  val regions = font |> (fontToRegionMap(_)(('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')))
+  //val regions = font |> (fontToRegionMap(_)(('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')))
+  val regions = font |> fontToLazyRegionMap
   val sprites = 1 to 5 map (_ => random('0', '9').toChar) map regions map {
-    region => val sp = manual[SpriteActor];sp.sprite.setRegion(region);sp
+    region => val sp = manual[SpriteActor];sp.sprite.setRegion(region);sp.setSize(region.getRegionWidth,region.getRegionHeight);sp
   }
   val velocities = new ArrayBuffer[Float]
 
@@ -47,11 +50,10 @@ class WordParticleScreen extends ConfiguredScreen {
   //root add renderer
   sprites foreach {
     a =>
-      val par = auto[Parallel]
-      val ipColor = auto[ObjectInterpolator[Color]]
-      ipColor set(a.getColor, Color.RED) in 5f
-      par.add(ipColor)
-      renderer add par
+      import Actions._
+      import Interpolation._
+      a.setPosition(300,300)
+      a.addAction(sequence(parallel(moveTo(100,100,3,exp10Out),color(Color.RED,3f,exp10Out)),removeActor))
       root.addActor(a)
   }
   root.add(renderer)
