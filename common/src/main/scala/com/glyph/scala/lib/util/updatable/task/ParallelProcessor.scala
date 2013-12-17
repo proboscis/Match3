@@ -25,6 +25,7 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading {
     queuedTasks.clear()
 
     for (t <- startedTasks) {
+      //log(t +","+t.isCompleted)
       if (!t.isCompleted) {
         if (!canceledTasks.isEmpty) {
           if (!canceledTasks.contains(t)) {
@@ -48,14 +49,12 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading {
         tasksTobeRemoved += t
       }
     }
-    val before = startedTasks.size
     tasksTobeRemoved foreach {
       t => {
         startedTasks -= t
         queuedTasks -= t
       }
     }
-    val after = startedTasks.size
     tasksTobeRemoved.clear()
     canceledTasks.clear()
     updating = false

@@ -1,9 +1,11 @@
 package com.glyph.scala.lib.util.updatable.task
 
+import com.glyph.scala.lib.util.Logging
+
 /**
  * @author glyph
  */
-trait TimedTask extends Task {
+trait TimedTask extends Task with Logging{
   self =>
   protected var duration: Float = 0f
   protected var time = 0f

@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.util.updatable.task.tween
 
-import com.glyph.scala.lib.util.updatable.task.InterpolationTask
+import com.glyph.scala.lib.util.updatable.task.{AutoFree, InterpolationTask}
 
 /**
  * @author proboscis
@@ -11,7 +11,7 @@ trait Accessor[T]{
   def get(tgt:T,result:Array[Float])
   def set(tgt:T,values:Array[Float])
 }
-class Tween[T] extends InterpolationTask{
+class Tween[T] extends InterpolationTask with AutoFree{
   var target:T = null.asInstanceOf[T]
   var accessor:Accessor[T] = null.asInstanceOf[Accessor[T]]
   var start:Array[Float] = Array()
@@ -38,7 +38,8 @@ class Tween[T] extends InterpolationTask{
   override def onStart(){
     super.onStart()
     accessor.get(target,buffer)
-    buffer.copyToArray(end)
+    buffer.copyToArray(start)
+    log(buffer.toSeq)
   }
 
   def apply(alpha: Float){
@@ -50,13 +51,11 @@ class Tween[T] extends InterpolationTask{
     }
     accessor.set(target,buffer)
   }
-  def to(x:Float){end(0) = x}
-  def to(x:Float,y:Float){end(0) = x;end(1) = y}
-  def to(x:Float,y:Float,z:Float){end(0) = x;end(1) = y;end(2) = z}
-  def to(x:Float,y:Float,z:Float,w:Float){end(0) = x;end(1) = y;end(2)=z;end(3)=z}
-  def to(to:Float*){
-    to.copyToArray(end)
-  }
+  def to(x:Float):this.type = {end(0) = x;this}
+  def to(x:Float,y:Float):this.type={end(0) = x;end(1) = y;this}
+  def to(x:Float,y:Float,z:Float):this.type={end(0) = x;end(1) = y;end(2) = z;this}
+  def to(x:Float,y:Float,z:Float,w:Float):this.type = {end(0) = x;end(1) = y;end(2)=z;end(3)=w;this}
+  def to(to:Float*):this.type ={to.copyToArray(end);this}
   override def reset(){
     super.reset()
     size = 0

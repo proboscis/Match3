@@ -6,17 +6,10 @@ package com.glyph.scala.lib.util.updatable.task
  */
 class Parallel extends ParallelProcessor with Task with AutoFree {
 
-  val addedTasks = scala.collection.mutable.ListBuffer[Task]()
-  def isCompleted: Boolean = addedTasks.forall(_.isCompleted)
+  def isCompleted: Boolean = startedTasks.isEmpty && queuedTasks.isEmpty
   override def reset(){
     super.reset()
     clearTasks()
-    addedTasks.clear()
-  }
-
-  override def add(task: Task): TaskProcessor = {
-    addedTasks += task
-    super.add(task)
   }
 }
 

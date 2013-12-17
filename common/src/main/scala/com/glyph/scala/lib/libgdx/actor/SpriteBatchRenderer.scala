@@ -58,7 +58,6 @@ trait SpriteBatchRenderer extends Group {
 
 object SpriteBatchRenderer extends Logging{
   var pools: ClassTag[_] Map Any = Map.empty.withDefault(_ => null)
-
   implicit def rendererPool[T](implicit ev: SBDrawable[T], tag: ClassTag[T], poolTag: ClassTag[PooledRenderer[T]]): Pool[PooledRenderer[T]] = {
     val result = pools(tag)
     if (result != null) result.asInstanceOf[Pool[PooledRenderer[T]]]
