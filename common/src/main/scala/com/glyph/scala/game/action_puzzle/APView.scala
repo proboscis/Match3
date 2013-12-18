@@ -19,6 +19,12 @@ import com.glyph.scala.lib.util.pooling_task.ReflectedPooling
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.lib.libgdx.actor.blend.AdditiveBlend
+import aurelienribon.tweenengine.{TweenManager, Tween}
+import com.glyph.scala.game.Glyphs
+import Glyphs._
+import com.glyph.scala.test.WordParticle
+import com.glyph.scala.lib.libgdx.font.FontUtil._
+import scala.Some
 
 /**
  * @author glyph
@@ -67,6 +73,11 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   preAlloc[TimedFunctionTask]()
     * */
 
+  val font = internalFont("font/corbert.ttf", 50)
+  implicit val renderer = this
+  implicit val manager = new TweenManager
+  Tween.registerAccessor(classOf[Sprite], SpriteAccessor)
+  Tween.setCombinedAttributesLimit(4)
 
   val tokens = ArrayBuffer[Token[T]]()
   val skin = assets.get[Skin]("skin/default.json")
@@ -99,52 +110,62 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
           token.free
         }
       })))
-      val duration = 1f
-      val buf = manual[ArrayBuffer[Sprite]]
-      val velBuf = manual[ArrayBuffer[Float]]
-      val ft = auto[TimedFunctionTask]
-      val it = auto[InterpolatedFunctionTask]
-      //make this particle specific code into trait's code
-      add(ft.setFunctions(
-        () => {
-          //TextureUtil.split(token.sprite)(8)(8)(buf)
-          val texture = assets.get[Texture]("data/particle.png")
-          0 to ((score() + 1) / 10) foreach {
-            _ => val p = manual[Sprite]
-              p.setTexture(texture)
-              p.setRegion(0f, 0f, 1f, 1f)
-              p.setOrigin(0f, 0f)
-              val s = random(3, 30)
-              p.setSize(s, s)
-              p.setPosition(token.getX + token.getWidth / 2, token.getY + token.getHeight / 2)
-              p.setColor(token.sprite.getColor)
-              buf += p
-          }
-
-          Explosion.init(() => random(PI2), () => random(2000), velBuf, buf.length)
-          addDrawable(buf)
-        },
-        Explosion.update(0, -100, 5f)(buf, velBuf),
-        () => {
-          removeDrawable(buf)
-          buf foreach (_.free)
-          buf.free
-          velBuf.free
-        }) in duration)
-      val color = token.sprite.getColor.cpy
-      val hsv = ColorUtil.ColorToHSV(color)
-      hsv.v = 1f
-      hsv.s = 0.7f
-      color.set(hsv.toColor)
-      add(it setUpdater (alpha => {
-        val a = Interpolation.exp10Out.apply(0.8f, 0, alpha)
-        color.a = a
-        buf.foreach {
-          sp => sp.setColor(color)
-        }
-      }) in duration * 2)
-
+      addParticles(token)
+      showScoreParticle(token,10)
     }
+  }
+  def halfW(seq:Seq[Sprite]) = seq.map(s => s.getWidth).sum/2f
+  def meanH(seq:Seq[Sprite]) = seq.map(s => s.getHeight).sum/seq.size
+  def showScoreParticle(token:Token[T],score:Int){
+    val sprites = WordParticle.StringToSprites(font)(score+"")(0.7f)
+    WordParticle.start(sprites,WordParticle.popSprites(sprites)(token.getX+token.getWidth/2f- halfW(sprites),token.getY,()=>token.getHeight/2 - meanH(sprites),0.7f))
+  }
+  def addParticles(token:Token[T]){
+    val duration = 1f
+    val buf = manual[ArrayBuffer[Sprite]]
+    val velBuf = manual[ArrayBuffer[Float]]
+    val ft = auto[TimedFunctionTask]
+    val it = auto[InterpolatedFunctionTask]
+    //make this particle specific code into trait's code
+    add(ft.setFunctions(
+      () => {
+        //TextureUtil.split(token.sprite)(8)(8)(buf)
+        val texture = assets.get[Texture]("data/particle.png")
+        0 to ((score() + 1) / 10) foreach {
+          _ => val p = manual[Sprite]
+            p.setTexture(texture)
+            p.setRegion(0f, 0f, 1f, 1f)
+            p.setOrigin(0f, 0f)
+            val s = random(3, 30)
+            p.setSize(s, s)
+            p.setPosition(token.getX + token.getWidth / 2, token.getY + token.getHeight / 2)
+            p.setColor(token.sprite.getColor)
+            buf += p
+        }
+
+        Explosion.init(() => random(PI2), () => random(2000), velBuf, buf.length)
+        addDrawable(buf)
+      },
+      Explosion.update(0, -100, 5f)(buf, velBuf),
+      () => {
+        removeDrawable(buf)
+        buf foreach (_.free)
+        buf.free
+        velBuf.free
+      }) in duration)
+    val color = token.sprite.getColor.cpy
+    val hsv = ColorUtil.ColorToHSV(color)
+    hsv.v = 1f
+    hsv.s = 0.7f
+    color.set(hsv.toColor)
+    add(it setUpdater (alpha => {
+      val a = Interpolation.exp10Out.apply(0.8f, 0, alpha)
+      color.a = a
+      buf.foreach {
+        sp => sp.setColor(color)
+      }
+    }) in duration * 2)
+
   }
   this.addListener(new InputListener() {
     override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
@@ -160,4 +181,9 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
       super.touchDown(event, x, y, pointer, button)
     }
   })
+
+  override def act(delta: Float){
+    super.act(delta)
+    manager.update(delta)
+  }
 }

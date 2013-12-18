@@ -83,7 +83,7 @@ object WordParticle extends Logging {
 
   import Pool._
 
-  def StringToSprites(font: BitmapFont)(string: String)(implicit pool: Pool[Sprite]): Seq[Sprite] = {
+  def StringToSprites(font: BitmapFont)(string: String)(scale:Float)(implicit pool: Pool[Sprite]): Seq[Sprite] = {
     var px = 0f
     val texture = font.getRegion.getTexture
     val data = font.getData
@@ -93,8 +93,9 @@ object WordParticle extends Logging {
         sprite.setTexture(texture)
         import glyph._
         sprite.asInstanceOf[TextureRegion].setRegion(srcX:Int,srcY:Int,width:Int,height:Int)
-        sprite.setSize(width,height)
-        sprite.setX(px + xoffset)
+        sprite.setSize(width*scale,height*scale)
+        sprite.setColor(Color.WHITE)
+        sprite.setX((px + xoffset)*scale)
         px += width //+ xadvance
         sprite
     }
@@ -113,7 +114,8 @@ object WordParticle extends Logging {
         log(s.getWidth)
         line.push(
           Timeline.createSequence().delay(i*0.1f).
-          push(Tween.to(s, XY, duration).target(s.getX+x, s.getY+y + amount()).ease(easeOutExpo))
+          push(Tween.to(s, XY, duration/2f).target(s.getX+x, s.getY+y + amount()).ease(easeOutExpo)).
+          push(Tween.to(s,RGBA,duration/2f).target(0,0,0,0).ease(easeInExpo))
         )
     }
     line.end()
@@ -121,7 +123,7 @@ object WordParticle extends Logging {
   }
 
   def popStrings(font:BitmapFont)(string:String)(implicit pool:Pool[Sprite],renderer:SpriteBatchRenderer,manager:TweenManager){
-    val sprites = StringToSprites(font)(string)
+    val sprites = StringToSprites(font)(string)(0.5f)
     start(sprites,popSprites(sprites)(0,0,()=>100f,1f))
   }
   def start(sprites:Seq[Sprite],timeline:Timeline)(implicit renderer:SpriteBatchRenderer,manager:TweenManager){
@@ -134,7 +136,7 @@ object WordParticle extends Logging {
     renderer.addDrawable(sprites)
   }
 
-  def popStrings(implicit pool:Pool[Sprite]) = StringToSprites(_:BitmapFont)(_:String)(pool) |> (sp=> popSprites(sp)_->sp)
+  def popStrings(implicit pool:Pool[Sprite]) = StringToSprites(_:BitmapFont)(_:String)(_:Float)(pool) |> (sp=> popSprites(sp)_->sp)
 
   def popTween(seq: Seq[(Any, Float, Float)], typ: Int)(x: Float, y: Float, amount: Float): Timeline = {
     val line = Timeline.createParallel()

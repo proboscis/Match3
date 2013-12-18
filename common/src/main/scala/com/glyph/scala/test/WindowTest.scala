@@ -1,6 +1,6 @@
 package com.glyph.scala.test
 
-import com.glyph.scala.lib.util.screen.Screen
+import com.glyph.scala.lib.util.screen.GlyphScreen
 import com.badlogic.gdx.scenes.scene2d.{Group, Stage}
 import com.badlogic.gdx.scenes.scene2d.ui.{Window, Label, Skin, Table}
 import com.badlogic.gdx.Gdx
@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle
 /**
  * @author proboscis
  */
-class WindowTest extends Screen{
+class WindowTest extends GlyphScreen{
   val stage = new Stage()
   Gdx.input.setInputProcessor(stage)
   val group = new Group with Tasking with SpriteBatchRenderer
