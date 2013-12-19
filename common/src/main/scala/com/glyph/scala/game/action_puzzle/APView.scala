@@ -111,7 +111,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
         }
       })))
       addParticles(token)
-      showScoreParticle(token,10)
+      showScoreParticle(token,score())
     }
   }
   def halfW(seq:Seq[Sprite]) = seq.map(s => s.getWidth).sum/2f
