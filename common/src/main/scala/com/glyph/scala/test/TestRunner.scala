@@ -25,7 +25,7 @@ class TestRunner(className:String) extends ScreenBuilderSupport {
   import ScreenBuilder._
   override def create() {
     super.create()
-    val classes = classOf[ActionPuzzleScreen]::classOf[WordParticle] :: Nil
+    val classes = classOf[ActionPuzzleScreen]::classOf[ImmediateTest]::classOf[WordParticle] :: Nil
     val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
     val packages = classOf[EffectTest] :: classOf[WindowTest] :: classOf[ComboEffect] :: Nil
     val classBuilders = classes map (c => c.newInstance()->c.getSimpleName)
@@ -41,7 +41,7 @@ class TestRunner(className:String) extends ScreenBuilderSupport {
         def create(assetManager: AssetManager): Screen = clazz.newInstance()
       } -> clazz.getSimpleName
     }
-    val builders: Seq[ScreenBuilder -> String] = (1 to 10 map (_ => classBuilders ++ pkgBuilders ++ fileBuilders)).flatten
+    val builders: Seq[ScreenBuilder -> String] = classBuilders ++ pkgBuilders ++ fileBuilders
     className match{
       case ""=>setBuilder(new MenuScreen)
       case c =>setBuilder(Class.forName(c).newInstance() match{

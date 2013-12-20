@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.{GL10, Texture, Color, GL20}
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
 import scala.collection.mutable.ArrayBuffer
 import com.glyph.scala.lib.util.{Threading, Logging}
-import com.badlogic.gdx.math.{Interpolation, Vector2, Matrix3, MathUtils}
+import com.badlogic.gdx.math._
 import com.badlogic.gdx.{Input, Gdx}
 import com.glyph.scala.lib.libgdx.actor.SpriteActor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
@@ -25,26 +25,41 @@ class ImmediateTest extends ScreenBuilder {
     val texture = assetManager.get[Texture]("data/particle.png")
     backgroundColor = Color.BLACK
     val MAX_RECORD = 10000
-    val records = new ArrayBuffer[Float]()
+    val records = new ArrayBuffer[Vector2]
+    val lines = new ArrayBuffer[Float]()
     val vertices = new Array[Float](MAX_RECORD * 4)
     val texCoordsV = new Array[Float](MAX_RECORD * 2)
     val tmp = new Vector2
     val m = new Matrix3()
+    //TODO try bezier to draw smooth spline!
+    val bezier = new com.badlogic.gdx.math.Bezier[Vector2]()
+    def bezierToLine(src: Bezier[Vector2])(dst: ArrayBuffer[Float]) {
+      dst.clear()
+      val N = 1000
+      var i = 0
+      val tmp = new Vector2()
+      while (i < N) {
+        src.valueAt(tmp, i / N.toFloat)
+        dst += tmp.x
+        dst += tmp.y
+        i += 1
+      }
+    }
 
     def setupVertices(src: ArrayBuffer[Float])(dst: Array[Float], tmpVec: Vector2) {
       //TODO check intersection
       var i = 0
       val l = src.length / 2
-      val width = 30
+      val width = 40
       var flip = false
       while (i < l) {
         if (i > 0) {
           val vi = i * 2
           val di = i * 4
-          val px = records(vi - 2)
-          val py = records(vi - 1)
-          val x = records(vi)
-          val y = records(vi + 1)
+          val px = lines(vi - 2)
+          val py = lines(vi - 1)
+          val x = lines(vi)
+          val y = lines(vi + 1)
           import MathUtils._
           val deg = atan2(x - px, y - py) * radDeg
 
@@ -77,7 +92,8 @@ class ImmediateTest extends ScreenBuilder {
           }
           //check intersection and correct them
           def testCross(ax: Float, ay: Float, bx: Float, by: Float) = ax * by - ay * bx > 0
-          def testSharp(ax:Float,ay:Float,bx:Float,by:Float) = ax*bx + ay*by > 0
+          def testSharp(ax: Float, ay: Float, bx: Float, by: Float) = ax * bx + ay * by > 0
+
 
           {
             val px1 = dst(di - 4)
@@ -99,12 +115,12 @@ class ImmediateTest extends ScreenBuilder {
               }
             }
           }
+          
 
-          /*
           //TODO you need to switch left/right when the degree is between 90 and 270
           if (i > 1) {
-            val ppx = records(vi - 4)
-            val ppy = records(vi - 3)
+            val ppx = lines(vi - 4)
+            val ppy = lines(vi - 3)
             if (!testSharp(x - px, y - py, px - ppx, py - ppy)) {
 
               var tmp = dst(di)
@@ -117,7 +133,6 @@ class ImmediateTest extends ScreenBuilder {
               flip = !flip
             }
           }
-          */
 
         }
         i += 1
@@ -225,17 +240,25 @@ class ImmediateTest extends ScreenBuilder {
         import Interpolation._
         follower.addAction(moveTo(x, y, 1f, exp10Out))
 
-
-
-        if (records.length < MAX_RECORD - 2) {
-          records += x
-          records += y
+        /*
+        records += new Vector2(x, y)
+        if (records.length > 2) {
+          bezier.set(records.toArray, 0, records.length)
+          bezierToLine(bezier)(lines)
+        }*/
+        lines += x
+        lines += y
+        /*
+        if (lines.length < MAX_RECORD - 2) {
+          lines += x
+          lines += y
         }
+        */
         super.touchDragged(event, x, y, pointer)
       }
 
       override def keyDown(event: InputEvent, keycode: Int): Boolean = keycode match {
-        case Input.Keys.R => records.clear(); true
+        case Input.Keys.R => lines :: records :: Nil foreach (_.clear()); true
         case _ => false
       }
     })
@@ -285,11 +308,11 @@ class ImmediateTest extends ScreenBuilder {
     def drawStripe2() {
       val color = Color.RED
       val r = renderer
-      setupVertices(records)(vertices, tmp)
-      setUpUVs(vertices, records.length / 2)(texCoordsV)(tmp)
+      setupVertices(lines)(vertices, tmp)
+      setUpUVs(vertices, lines.length / 2)(texCoordsV)(tmp)
       r.begin(stage.getCamera.combined, GL20.GL_TRIANGLE_STRIP)
 
-      val l = records.length / 2
+      val l = lines.length / 2
       var i = 0
       while (i < l) {
         val vi = i * 4
@@ -339,7 +362,7 @@ class ImmediateTest extends ScreenBuilder {
     def drawStripe() {
       val r = renderer
       var i = 0
-      val l = records.length
+      val l = lines.length
       val color = Color.RED
       val width = 100
       val camera = stage.getCamera
@@ -347,10 +370,10 @@ class ImmediateTest extends ScreenBuilder {
       val totalLength = {
         var result = 0f
         var i = 0
-        val l = records.length
+        val l = lines.length
         while (i < l) {
           if (i > 2) {
-            result += tmp.set(records(i - 2) - records(i), records(i - 1) - records(i + 1)).len()
+            result += tmp.set(lines(i - 2) - lines(i), lines(i - 1) - lines(i + 1)).len()
           }
           i += 2
         }
@@ -359,10 +382,10 @@ class ImmediateTest extends ScreenBuilder {
 
       var distance = 0f
       while (i < l) {
-        val px = records(if (i > 2) i - 2 else i)
-        val py = records(if (i > 2) i - 1 else i + 1)
-        val x = records(i)
-        val y = records(i + 1)
+        val px = lines(if (i > 2) i - 2 else i)
+        val py = lines(if (i > 2) i - 1 else i + 1)
+        val x = lines(i)
+        val y = lines(i + 1)
         distance += tmp.set(px - x, py - y).len()
         val deg = MathUtils.atan2(x - px, y - py) * MathUtils.radDeg
         tmp.set(-width, 0)
