@@ -6,10 +6,10 @@ import com.badlogic.gdx.{LifecycleListener, Gdx}
  * @author glyph
  */
 class MemoryAnalyzer {
-  println("start Memory Analyzer")
   var running = true
   val runner = new Runnable() {
     def run() {
+      println("start Memory Analyzer")
       while (running) {
         Thread.sleep(500)
         val runtime = Runtime.getRuntime
@@ -28,6 +28,7 @@ class MemoryAnalyzer {
     }
 
     def resume(){
+      running = true
       new Thread(runner).start()
     }
   })

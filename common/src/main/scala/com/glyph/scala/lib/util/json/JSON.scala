@@ -39,16 +39,22 @@ class JSON(o: Try[Object], scope: ScriptableObject) extends Dynamic {
 
   def toArray[T: ClassTag]: Try[Array[T]] = o.flatMap {
     t => Try {
-      val classT = implicitly[ClassTag[T]].runtimeClass
+      val classT = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
       val ids = t.asInstanceOf[NativeArray].toArray
       val l = ids.length
       var i = 0
       val ary = new Array[T](ids.length)
-      while (i < l) {
-        println("ids =>" + ids(i) + ":" + ids(i).getClass.getCanonicalName)
-        println("classT => " + classT)
-        ary(i) = classT.cast(ids(i)).asInstanceOf[T]
-        i += 1
+      classT match{
+        case f if f == classOf[Float] =>
+          while (i < l) {
+            ary(i) = ids(i).asInstanceOf[Double].toFloat.asInstanceOf[T]
+            i += 1
+          }
+        case _ =>
+          while (i < l) {
+            ary(i) = classT.cast(ids(i))
+            i += 1
+          }
       }
       ary
     }
@@ -150,6 +156,12 @@ class RVJSON(o: Varying[TJSON]) extends Varying[Option[JSON]] with Dynamic with 
       _(idx)
     }
   })
+
+  def toArray[T:ClassTag]:Varying[Try[Array[T]]] = o.map{
+    _.flatMap{
+      _.toArray
+    }
+  }
 
   def selectDynamic(name: String): RVJSON = apply(name)
 
