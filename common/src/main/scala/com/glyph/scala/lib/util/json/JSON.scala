@@ -50,6 +50,16 @@ class JSON(o: Try[Object], scope: ScriptableObject) extends Dynamic {
             ary(i) = ids(i).asInstanceOf[Double].toFloat.asInstanceOf[T]
             i += 1
           }
+        case f if f == classOf[Int] =>
+          while (i < l) {
+            ary(i) = ids(i).asInstanceOf[Double].toInt.asInstanceOf[T]
+            i += 1
+          }
+        case f if f == classOf[Short] =>
+          while (i < l) {
+            ary(i) = ids(i).asInstanceOf[Double].toShort.asInstanceOf[T]
+            i += 1
+          }
         case _ =>
           while (i < l) {
             ary(i) = classT.cast(ids(i))

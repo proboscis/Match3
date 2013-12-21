@@ -23,9 +23,8 @@ object ScreenBuilder {
   type Vnelt[T] = ValidationNel[Throwable, T]
   type Assets = Set[(Class[_], Seq[String])]
 
-  implicit val classFormat = new RootJsonFormat[Class[_]] {
+  implicit object ClassFormat extends  RootJsonFormat[Class[_]] {
     def write(obj: Class[_]): JsValue = JsString(obj.getCanonicalName)
-
     def read(json: JsValue): Class[_] = json match {
       case JsString(str) => Class.forName(str)
       case a => deserializationError("class name expected, but found " + a)

@@ -1,6 +1,8 @@
 package com.glyph.scala.lib.util.reactive
 
 import ref.WeakReference
+import scala.util.{Success, Failure, Try}
+
 //TODO the observer is not released even if the reactive is disposed!!
 /**
  * @author glyph
@@ -20,9 +22,15 @@ trait Reactor {
   def reactVar[T](v: Varying[T])(callback: (T) => Unit): Observer[T] = new Observer(v, callback)
 
   def reactEvent[T](src: EventSource[T])(callback: (T) => Unit): Observer[T] = new Observer(src, callback)
-  def reactSome[T](v:Varying[Option[T]])(callback: (T)=>Unit):Observer[Option[T]] = new Observer[Option[T]](v,{
+
+  def reactSome[T](v: Varying[Option[T]])(callback: (T) => Unit): Observer[Option[T]] = new Observer[Option[T]](v, {
     case Some(r) => callback(r)
     case None => println("failed")
+  })
+
+  def reactSuccess[T,R](v: Varying[Try[T]])(cb: (T) => R): Observer[Try[T]] = new Observer[Try[T]](v, {
+    case Success(s) => cb(s)
+    case Failure(f) => f.printStackTrace()
   })
 
   protected def check[T](v: Reactive[T])(callback: PartialFunction[T, Unit]): Observer[T] = new Observer(v, (t: T) => callback(t))
@@ -50,10 +58,10 @@ trait Reactor {
   class Observer[T](val reactive: Reactive[T], f: (T) => Unit) {
     if (debugging) println(debugMsg + " : subscribe=>" + reactive)
     val hook = (t: T) => {
-      if (debugging) println(debugMsg + ":react:" + reactive+ "(" + t + ")")
+      if (debugging) println(debugMsg + ":react:" + reactive + "(" + t + ")")
       f(t)
     }
-    if(debugging)println("new Observer@%x".format(hook.hashCode())+" of "+Reactor.this)
+    if (debugging) println("new Observer@%x".format(hook.hashCode()) + " of " + Reactor.this)
     reactive.subscribe(hook)
     observers = this :: observers
 
@@ -61,14 +69,14 @@ trait Reactor {
      * stops reaction
      */
     def unSubscribe() {
-      def printReactiveObservers(){
+      def printReactiveObservers() {
         reactive.reactiveObservers foreach {
-          case WeakReference(ref) => println("%x".format(ref.hashCode())+" "+Reactor.this)
-          case what => println("what a hell!"+what)
+          case WeakReference(ref) => println("%x".format(ref.hashCode()) + " " + Reactor.this)
+          case what => println("what a hell!" + what)
         }
       }
       if (debugging) {
-        println(debugMsg + " : unSubscribe=>" + reactive+" observer@%x".format(this.hashCode()))
+        println(debugMsg + " : unSubscribe=>" + reactive + " observer@%x".format(this.hashCode()))
         printReactiveObservers()
       }
       reactive.unSubscribe(hook)

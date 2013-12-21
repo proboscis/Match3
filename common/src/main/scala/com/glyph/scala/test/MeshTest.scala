@@ -18,22 +18,9 @@ import scala.util.{Failure, Success}
 class MeshTest extends ConfiguredScreen with Logging with Reactor {
   backgroundColor.set(Color.BLACK)
   val mesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.ColorUnpacked(), VertexAttribute.TexCoords(0));
-  mesh.setVertices(Array[Float](
-    -0.5f, -0.5f, 0, 1, 1, 1, 1, 0, 1,
-    0.5f, -0.5f, 0, 1, 1, 1, 1, 1, 1,
-    0.5f, 0.5f, 0, 1, 1, 1, 1, 1, 0,
-    -0.5f, 0.5f, 0, 1, 1, 1, 1, 0, 0))
-  /*
-  val vertices = GdxFile("test/mesh.json") map{_.flatMap{
-    str => JSON(str).vertices.toArray[Float]
-  }}
-  */
-  val vertices = RVJSON(GdxFile("test/mesh.json")).vertices.toArray[Float]
-  reactVar(vertices){
-    case Success(s) => mesh.setVertices(s)
-    case Failure(e) => e.printStackTrace()
-  }
-  mesh.setIndices(Array[Short](0, 1, 2, 2, 3, 0))
+  val meshFile = RVJSON(GdxFile("test/mesh.json"))
+  reactSuccess(meshFile.vertices.toArray[Float])(mesh.setVertices)
+  reactSuccess(meshFile.indices.toArray[Short])(mesh.setIndices)
   ShaderProgram.COLOR_ATTRIBUTE
   val texture = new Texture(Gdx.files.internal("data/sword.png"))
   val matrix = new Matrix4()
