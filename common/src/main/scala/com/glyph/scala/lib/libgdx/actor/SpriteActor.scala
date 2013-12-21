@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.libgdx.actor
 
-import com.badlogic.gdx.graphics.g2d.{TextureRegion, SpriteBatch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{Batch, TextureRegion, SpriteBatch, Sprite}
 
 /**
  * @author glyph
@@ -16,7 +16,7 @@ class SpriteActor extends DrawSprite{
 
 
 
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     drawSprite(batch, sprite, parentAlpha)
   }

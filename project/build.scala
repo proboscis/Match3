@@ -47,7 +47,7 @@ object Settings {
       unmanagedBase <<= baseDirectory( _ /"src/main/libs" ),
       proguardOption in Android := 
       "-keep class com.badlogic.gdx.backends.android.** { *; }"+
-      " -keep class scala.collection.SeqLike {public protected *;}"+
+      "-keep class scala.collection.SeqLike {public protected *;}"+
       "-keep class org.mozilla.** {*;}"+
       "-keep class com.esotericsoftware.** {*;}"+
       """
@@ -55,7 +55,7 @@ object Settings {
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
-
+-keep class com.badlogic.gdx.scenes.scene2d.ui.**
 -keep class com.badlogic.gdx.graphics.g2d.Sprite
 -keep class com.badlogic.gdx.scenes.scene2d.Actor
 -keep class com.glyph.scala.lib.libgdx.actor.SpriteActor

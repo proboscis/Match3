@@ -2,7 +2,7 @@ package com.glyph.scala.game.puzzle.view
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph.scala.lib.libgdx.actor.{TouchSource, OldDrawSprite}
-import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{Batch, SpriteBatch, Sprite}
 import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.lib.libgdx.TextureUtil
 import com.glyph.scala.lib.puzzle.Match3
@@ -18,7 +18,7 @@ class PanelDescription(assets:AssetManager,panel:Panel) extends Table with OldDr
   setColor(Color.WHITE)
   val text = panel.toString
   val font = commonFont(assets)
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     font.setColor(Color.BLACK)
     font.draw(batch,""+text,getX,getY+getHeight/2)

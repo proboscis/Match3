@@ -1,6 +1,6 @@
 package com.glyph.scala.game.puzzle.view.match3
 
-import com.badlogic.gdx.graphics.g2d.{Sprite, BitmapFontCache, SpriteBatch}
+import com.badlogic.gdx.graphics.g2d.{Batch, Sprite, BitmapFontCache, SpriteBatch}
 import com.badlogic.gdx.graphics.{Texture, Color}
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.scala.game.puzzle.view
@@ -21,7 +21,7 @@ class MonsterToken(assets:AssetManager,panel: Panel) extends PanelToken(assets,p
   //TODO Monsterクラスにdescriptionを追加しておく。
   val cache = fontMap.getOrElse(panel.getClass.getSimpleName.charAt(0) + "", fontMap("@"))(assets)
 
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     val b = cache.getBounds
     cache.setPosition(getX + (getWidth - b.width) / 2, getY - (getHeight - b.height) / 3f + getHeight)
@@ -35,7 +35,7 @@ class WeaponToken(assets:AssetManager,panel: Weapon) extends PanelToken(assets,p
   reactVar(ColorTheme.monster)(setColor)
 
 
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     drawSprite(batch, weaponSprite, getColor.a * parentAlpha, color = Color.WHITE)
   }

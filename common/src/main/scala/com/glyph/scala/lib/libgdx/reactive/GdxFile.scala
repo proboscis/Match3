@@ -5,6 +5,7 @@ import java.io.File
 import com.badlogic.gdx.{Application, Gdx}
 import scalaz._
 import Scalaz._
+import scala.util.Try
 
 /**
  * @author glyph
@@ -38,9 +39,7 @@ object GdxFile {
 
       def lastModified: Long = handle.lastModified()
 
-      import util.control.Exception._
-
-      def readString = allCatch.either(handle.readString) fold (_.failNel,_.success)
+      def readString = Try(handle.readString)
     }
   }
 }

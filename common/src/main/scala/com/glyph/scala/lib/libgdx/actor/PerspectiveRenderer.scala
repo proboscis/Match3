@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.{Batch, SpriteBatch}
 import com.glyph.scala.lib.util.gl.ViewportStack
 import com.glyph.scala.lib.libgdx.drawable.RequireCamera
 
@@ -20,7 +20,7 @@ trait PerspectiveRenderer extends Actor {
   val bound = new Rectangle()
 
   //TODO strategyの切り替え実装
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     batch.end()
 

@@ -3,7 +3,7 @@ package com.glyph.scala.lib.libgdx.actor.ui
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.graphics.g2d.{Sprite, SpriteBatch}
+import com.badlogic.gdx.graphics.g2d.{Batch, Sprite, SpriteBatch}
 import com.glyph.scala.lib.libgdx.TextureUtil
 import com.glyph.scala.lib.util.reactive.{Varying, Var, Reactor}
 import com.glyph.scala.lib.util.reactive
@@ -39,7 +39,7 @@ class Gauge(assets:AssetManager,alpha: Varying[Float],vertical:Boolean = false) 
       visualAlpha() =if(vertical) height/Gauge.this.getHeight else width / Gauge.this.getWidth
     }
 
-    override def draw(batch: SpriteBatch, parentAlpha: Float) {
+    override def draw(batch: Batch, parentAlpha: Float) {
       super.draw(batch, parentAlpha)
       drawSprite(batch, sprite, parentAlpha)
     }

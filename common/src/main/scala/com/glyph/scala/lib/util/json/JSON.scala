@@ -4,44 +4,41 @@ import scala.language.dynamics
 import org.mozilla.javascript.{NativeArray, ScriptableObject, Context, NativeObject}
 import com.glyph.scala.lib.util.reactive.{Reactor, Varying}
 import com.glyph.scala.lib.util.rhino.Rhino
-import util.control.Exception._
 import reflect.ClassTag
 import scalaz._
 import Scalaz._
 import RJSON.VNET
-import RJSON.VNETJ
+import RJSON.TJSON
 import java.util.Map.Entry
+import scala.util.Try
 
 /**
  * @author glyph
  */
-class JSON(o: Either[Throwable, Object], scope: ScriptableObject) extends Dynamic {
+class JSON(o: Try[Object], scope: ScriptableObject) extends Dynamic {
   def apply(key: String): JSON = {
-    new JSON(o.right.flatMap {
-      t => allCatch either
-        t.asInstanceOf[NativeObject].get(key)
+    new JSON(o.flatMap {
+      t => Try(t.asInstanceOf[NativeObject].get(key))
     }, scope)
   }
 
   def apply(index: Int): JSON = {
-    new JSON(o.right.flatMap {
-      t => allCatch either
-        t.asInstanceOf[NativeObject].get(index)
+    new JSON(o.flatMap {
+      t => Try(t.asInstanceOf[NativeObject].get(index))
     }, scope)
   }
 
-  def asMap: VNET[Map[String, JSON]] = o.right.flatMap {
-    t => allCatch.either {
+  def asMap: Try[Map[String, JSON]] = o.flatMap {
+    t => Try {
       t.asInstanceOf[NativeObject].entrySet().toArray(Array[Entry[Object, Object]]()).foldLeft(Map[String, JSON]()) {
         case (map, set) =>
-          map + (set.getKey.asInstanceOf[String] -> new JSON(Right[Throwable, Object](set.getValue), scope))
+          map + (set.getKey.asInstanceOf[String] -> new JSON(util.Success(set.getValue), scope))
       }
     }
-  }.fold(_.failNel, _.success)
+  }
 
-  def toArray[T: ClassTag]: VNET[Array[T]] = o.right.flatMap {
-    t => allCatch.either {
-
+  def toArray[T: ClassTag]: Try[Array[T]] = o.flatMap {
+    t => Try {
       val classT = implicitly[ClassTag[T]].runtimeClass
       val ids = t.asInstanceOf[NativeArray].toArray
       val l = ids.length
@@ -55,21 +52,22 @@ class JSON(o: Either[Throwable, Object], scope: ScriptableObject) extends Dynami
       }
       ary
     }
-  }.fold(_.failNel, _.success)
+  }
 
-  def asFunction: VNET[JSFunction] = o.right.flatMap {
-    t => allCatch either {
+  def asFunction: Try[JSFunction] = o.flatMap {
+    t => Try {
       new JSFunction(t.asInstanceOf[org.mozilla.javascript.Function])
     }
-  }.fold(_.failNel, _.success)
+  }
 
 
-  def as[T: ClassTag]: Option[T] = asEither[T].fold[Option[T]]({
-    e => e.printStackTrace(); none
-  }, t => some(t))
+  def as[T: ClassTag]: Option[T] = asTry[T] match {
+    case util.Success(s) => Some(s)
+    case util.Failure(f) => f.printStackTrace(); None
+  }
 
-  def asEither[T: ClassTag]: Either[Throwable, T] = o.right.flatMap {
-    t => allCatch either {
+  def asTry[T: ClassTag]: Try[T] = o.flatMap {
+    t => Try {
       val clazz = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
       //println("cast %s to %s".format(t.getClass, clazz))
       val result: T = t match {
@@ -89,7 +87,10 @@ class JSON(o: Either[Throwable, Object], scope: ScriptableObject) extends Dynami
     }
   }
 
-  def asVnel[T: ClassTag]: VNET[T] = asEither[T].fold(_.failNel, _.success)
+  def asVnel[T: ClassTag]: VNET[T] = asTry[T] match {
+    case util.Success(s) => s.successNel
+    case util.Failure(f) => f.failNel
+  }
 
   def selectDynamic(name: String): JSON = apply(name)
 
@@ -101,7 +102,7 @@ class JSON(o: Either[Throwable, Object], scope: ScriptableObject) extends Dynami
 
   class JSFunction(func: org.mozilla.javascript.Function) extends (Seq[Any] => JSON) {
     def apply(params: Seq[Any] = Nil): JSON = {
-      val result = new JSON(allCatch either {
+      val result = new JSON(Try {
         func.call(Context.enter(), scope, scope, params.toArray.asInstanceOf[Array[AnyRef]])
       }, scope)
       Context.exit()
@@ -124,7 +125,7 @@ object JSON {
 }
 
 
-class RVJSON(o: Varying[VNETJ]) extends Varying[Option[JSON]] with Dynamic with Reactor {
+class RVJSON(o: Varying[TJSON]) extends Varying[Option[JSON]] with Dynamic with Reactor {
   var variable: Option[JSON] = null
 
   implicit def vnel2opt[T](vnel: VNET[T]): Option[T] = vnel.fold(nel => {
@@ -133,7 +134,7 @@ class RVJSON(o: Varying[VNETJ]) extends Varying[Option[JSON]] with Dynamic with 
   }, _.some)
 
   reactVar(o) {
-    vnel => variable = vnel; notifyObservers(variable)
+    vnel => variable = vnel.toOption; notifyObservers(variable)
   }
 
   def current = variable
@@ -162,18 +163,17 @@ class RVJSON(o: Varying[VNETJ]) extends Varying[Option[JSON]] with Dynamic with 
     def as[T: ClassTag]: Varying[VNET[T]] = o.map {
       _.flatMap(_.as[T])
     }*/
-  def as[T: ClassTag]: Varying[Option[T]] = o.map {
-    _.fold({
-      nel => nel foreach (_.printStackTrace())
-        none
-    }, _.as[T])
-  }
+  def as[T: ClassTag]: Varying[Option[T]] = o.map(_.toOption.flatMap(_.as[T]))
 
   def asVnel[T: ClassTag]: Varying[VNET[T]] = o.map {
-    _.flatMap(_.asVnel[T])
+    case util.Success(s) => s.asVnel
+    case util.Failure(f) => f.failNel
   }
 
-  def asFunction: Varying[VNET[JSON#JSFunction]] = o.map(_.flatMap(_.asFunction))
+  def asFunction: Varying[VNET[JSON#JSFunction]] = o.map(_.flatMap(_.asFunction) match {
+    case util.Success(s) => s.successNel
+    case util.Failure(f) => f.failNel
+  })
 }
 
 class RJSON(o: Varying[JSON]) extends Varying[JSON] with Dynamic with Reactor {
@@ -208,15 +208,14 @@ class RJSON(o: Varying[JSON]) extends Varying[JSON] with Dynamic with Reactor {
     _.as[T]
   }
 
-  def asFunction: Varying[VNET[JSON#JSFunction]] = o.map {
+  def asFunction: Varying[Try[JSON#JSFunction]] = o.map {
     _.asFunction
   }
-
 }
 
 object RJSON {
   type VNET[T] = ValidationNel[Throwable, T]
-  type VNETJ = VNET[JSON]
+  type TJSON = Try[JSON]
 
   def apply(script: Varying[String], env: Map[String, Any] = Map.empty): RJSON = {
     //println("new RJSON:"+script())
@@ -227,7 +226,7 @@ object RJSON {
 }
 
 object RVJSON {
-  def apply(script: Varying[VNET[String]], env: Map[String, Any] = Map.empty): RVJSON = {
+  def apply(script: Varying[Try[String]], env: Map[String, Any] = Map.empty): RVJSON = {
     new RVJSON(script.map(_.map(JSON(_, env))))
   }
 }

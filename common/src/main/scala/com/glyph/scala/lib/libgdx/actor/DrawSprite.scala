@@ -1,12 +1,12 @@
 package com.glyph.scala.lib.libgdx.actor
 
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{Batch, SpriteBatch, Sprite}
 import com.glyph.scala.lib.math.Vec2
 import com.badlogic.gdx.graphics.Color
 
 trait DrawSprite extends Actor {
-  def drawSprite(batch:SpriteBatch,sprite:Sprite,parentAlpha:Float,offset:Vec2 = null,color:Color = getColor){
+  def drawSprite(batch:Batch,sprite:Sprite,parentAlpha:Float,offset:Vec2 = null,color:Color = getColor){
     sprite.setSize(getWidth, getHeight)
     sprite.setOrigin(getOriginX,getOriginY)
     if (offset != null){

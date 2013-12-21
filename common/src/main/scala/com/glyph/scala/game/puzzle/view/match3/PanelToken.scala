@@ -2,7 +2,7 @@ package com.glyph.scala.game.puzzle.view.match3
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph.scala.lib.libgdx.actor.{DrawSprite, TouchSource, ExplosionFadeout}
-import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{Batch, SpriteBatch, Sprite}
 import com.glyph.scala.game.puzzle.model.match_puzzle.{Move, Life}
 import com.glyph.scala.game.puzzle.model.monsters.{MonsterLike, Weapon, Monster}
 import com.glyph.scala.lib.libgdx.TextureUtil
@@ -32,7 +32,7 @@ abstract class PanelToken(assets: AssetManager, val panel: Panel)
     super.remove()
   }
 
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     drawSprite(batch, sprite, parentAlpha)
   }

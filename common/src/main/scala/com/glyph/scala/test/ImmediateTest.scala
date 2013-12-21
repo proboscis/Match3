@@ -3,7 +3,7 @@ package com.glyph.scala.test
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.util.screen.{GlyphScreen => GScreen}
-import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20
+import com.badlogic.gdx.graphics.glutils.{ShapeRenderer, ImmediateModeRenderer20}
 import com.badlogic.gdx.graphics.{GL10, Texture, Color, GL20}
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
 import scala.collection.mutable.ArrayBuffer
@@ -22,6 +22,7 @@ class ImmediateTest extends ScreenBuilder {
 
   def create(assetManager: AssetManager): GScreen = new ConfiguredScreen with Logging with Threading {
     val renderer = new ImmediateModeRenderer20(false, true, 1)
+    val pRenderer = new ShapeRenderer(30000)
     val texture = assetManager.get[Texture]("data/particle.png")
     backgroundColor = Color.BLACK
     val MAX_RECORD = 10000
@@ -31,8 +32,10 @@ class ImmediateTest extends ScreenBuilder {
     val texCoordsV = new Array[Float](MAX_RECORD * 2)
     val tmp = new Vector2
     val m = new Matrix3()
+    var drawWire = false
     //TODO try bezier to draw smooth spline!
     val bezier = new com.badlogic.gdx.math.Bezier[Vector2]()
+
     def bezierToLine(src: Bezier[Vector2])(dst: ArrayBuffer[Float]) {
       dst.clear()
       val N = 1000
@@ -45,12 +48,15 @@ class ImmediateTest extends ScreenBuilder {
         i += 1
       }
     }
+    def testCross(ax: Float, ay: Float, bx: Float, by: Float) = ax * by - ay * bx > 0
+    def testSharp(ax: Float, ay: Float, bx: Float, by: Float) = ax * bx + ay * by > 0
+
 
     def setupVertices(src: ArrayBuffer[Float])(dst: Array[Float], tmpVec: Vector2) {
       //TODO check intersection
       var i = 0
       val l = src.length / 2
-      val width = 40
+      val W = 50f
       var flip = false
       while (i < l) {
         if (i > 0) {
@@ -61,7 +67,9 @@ class ImmediateTest extends ScreenBuilder {
           val x = lines(vi)
           val y = lines(vi + 1)
           import MathUtils._
+          import Math.min
           val deg = atan2(x - px, y - py) * radDeg
+          val width = W
 
           {
             tmpVec.set(-width, 0)
@@ -91,10 +99,10 @@ class ImmediateTest extends ScreenBuilder {
             dst(if (flip) di + 1 else di + 3) = tmpVec.y
           }
           //check intersection and correct them
-          def testCross(ax: Float, ay: Float, bx: Float, by: Float) = ax * by - ay * bx > 0
-          def testSharp(ax: Float, ay: Float, bx: Float, by: Float) = ax * bx + ay * by > 0
 
 
+          //check intersectionここがまちがっている
+          /*
           {
             val px1 = dst(di - 4)
             val py1 = dst(di - 3)
@@ -115,25 +123,37 @@ class ImmediateTest extends ScreenBuilder {
               }
             }
           }
-          
+          */
+
 
           //TODO you need to switch left/right when the degree is between 90 and 270
           if (i > 1) {
             val ppx = lines(vi - 4)
             val ppy = lines(vi - 3)
             if (!testSharp(x - px, y - py, px - ppx, py - ppy)) {
-
-              var tmp = dst(di)
-              dst(di) = dst(di + 2)
-              dst(di + 2) = tmp
-              tmp = dst(di + 1)
-              dst(di + 1) = dst(di + 3)
-              dst(di + 3) = dst(di + 1)
-
-              flip = !flip
+              val px1 = dst(di - 4)
+              val py1 = dst(di - 3)
+              val px2 = dst(di - 2)
+              val py2 = dst(di - 3)
+              val tlx = px2 - px1 //top line x
+              val tly = py2 - py1 //top line y
+              val x1 = dst(di)
+              val y1 = dst(di + 1)
+              val x2 = dst(di + 2)
+              val y2 = dst(di + 3)
+              if (flip == testCross(tlx, tly, x1 - px1, y1 - py1) && flip == testCross(tlx, tly, x2 - px1, y2 - py1)) {
+                //if both verts are right bf topline...
+                log("flip!")
+                var tmp = dst(di)
+                dst(di) = dst(di + 2)
+                dst(di + 2) = tmp
+                tmp = dst(di + 1)
+                dst(di + 1) = dst(di + 3)
+                dst(di + 3) = dst(di + 1)
+                flip = !flip
+              }
             }
           }
-
         }
         i += 1
       }
@@ -231,6 +251,7 @@ class ImmediateTest extends ScreenBuilder {
         import MathUtils._
         follower.addAction(moveTo(x, y, 1f, exp10Out))
         log(atan2(x, y) * radDeg)
+        log(testCross(0,100,x-STAGE_WIDTH/2,y-STAGE_HEIGHT/2))
         true
       }
 
@@ -259,13 +280,18 @@ class ImmediateTest extends ScreenBuilder {
 
       override def keyDown(event: InputEvent, keycode: Int): Boolean = keycode match {
         case Input.Keys.R => lines :: records :: Nil foreach (_.clear()); true
+        case Input.Keys.W => drawWire = !drawWire; true
         case _ => false
       }
     })
+    /*
     val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
 
     val DST_FUNC: Int = GL10.GL_ONE
+*/
+    val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
 
+    val DST_FUNC: Int = GL10.GL_ONE_MINUS_SRC_ALPHA
     var pos = 0f
     var theta = 0f
     val rad = 300f
@@ -288,7 +314,7 @@ class ImmediateTest extends ScreenBuilder {
 
 
       drawStripe2()
-
+      if (drawWire) drawStripeVertices()
       /*
       val width = 300
       renderer.begin(camera.combined, GL10.GL_TRIANGLES);
@@ -306,6 +332,7 @@ class ImmediateTest extends ScreenBuilder {
     }
 
     def drawStripe2() {
+     log("start")
       val color = Color.RED
       val r = renderer
       setupVertices(lines)(vertices, tmp)
@@ -332,6 +359,21 @@ class ImmediateTest extends ScreenBuilder {
         i += 1
       }
       r.end()
+     log("end")
+    }
+
+    def drawStripeVertices() {
+      val p = pRenderer
+      val color = Color.GREEN
+      setupVertices(lines)(vertices, tmp)
+      setUpUVs(vertices, lines.length / 2)(texCoordsV)(tmp)
+      p.setColor(color)
+      p.setProjectionMatrix(stage.getCamera.combined)
+      p.begin(ShapeRenderer.ShapeType.Line)
+      if (lines.length > 2) {
+        p.polyline(vertices, 0, lines.length * 2)
+      }
+      p.end()
     }
 
     def drawRect() {

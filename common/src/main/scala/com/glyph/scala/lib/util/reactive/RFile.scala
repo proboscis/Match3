@@ -5,10 +5,12 @@ import ref.WeakReference
 import io.Source
 import scalaz._
 import Scalaz._
+import scala.util.Try
+
 trait FileAdapter {
   def name: String
 
-  def readString: ValidationNel[Throwable,String]
+  def readString: Try[String]
 
   def lastModified: Long
 }
@@ -17,30 +19,27 @@ trait FileAdapter {
  * reads file and update if necessary
  * @author glyph
  */
-class RFile(val adapter: FileAdapter) extends Varying[ValidationNel[Throwable, String]] {
+class RFile(val adapter: FileAdapter) extends Varying[Try[String]] {
   //TODO this class may not be releasing the file string after used...
   def this(filePath: String) = {
     this(new FileAdapter {
-
-      import util.control.Exception._
-
       val file = new File(filePath)
 
       def name: String = file.getName
 
       def lastModified = file.lastModified()
 
-      def readString = allCatch.either {
+      def readString = Try {
         Source.fromFile(file).getLines().reduceOption {
           _ + "\n" + _
         }.getOrElse("")
-      } fold (_.failNel,_.success)
+      }
     })
   }
 
-  var _string: ValidationNel[Throwable, String] = null
+  var _string = null.asInstanceOf[Try[String]]
 
-  def string_=(str: ValidationNel[Throwable, String]) {
+  def string_=(str: Try[String]) {
     println("load RFile:\n" + adapter.name)
     _string = str
     //println("inDone:"+str)
@@ -52,17 +51,18 @@ class RFile(val adapter: FileAdapter) extends Varying[ValidationNel[Throwable, S
 
   def string = _string
 
-  def current: ValidationNel[Throwable, String] = _string
+  def current: Try[String] = _string
 
   RFile.register(this)
 
 }
 
 
-object RFile extends Reactor{
+object RFile extends Reactor {
   var watchingFiles: List[(WeakReference[RFile], Long)] = Nil
   var fileChecker: Option[Thread] = None
-  def enableChecking(interval:Long) {
+
+  def enableChecking(interval: Long) {
     fileChecker = (fileChecker | {
       val t = new Thread(new Runnable {
         def run() {

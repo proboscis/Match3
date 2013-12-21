@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.libgdx.actor
 
 import com.glyph.scala.lib.util.pool.{Poolable, Pooling}
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.{Batch, SpriteBatch}
 
 /**
  * @author proboscis
@@ -15,7 +15,7 @@ class PooledRenderer[T:SBDrawable](var target:T) extends Poolable{
   def reset(){
     target = null.asInstanceOf[T]
   }
-  def draw(batch:SpriteBatch,alpha:Float){
+  def draw(batch:Batch,alpha:Float){
     impl.draw(target,batch,alpha)
   }
 }

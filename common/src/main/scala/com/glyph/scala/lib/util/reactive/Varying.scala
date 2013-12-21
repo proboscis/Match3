@@ -34,7 +34,6 @@ trait Varying[T] extends Reactive[T] {
    */
   def map[R](f: (T) => R): Varying[R] = new Mapped(self, f)
 
-
   /*
   def flatMap[R](f: T => Varying[R]): Varying[R] = f(current) match {
     case noneMapped =>

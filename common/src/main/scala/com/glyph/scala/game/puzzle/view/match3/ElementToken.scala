@@ -8,14 +8,13 @@ import com.glyph.scala.lib.puzzle.Match3
 import Match3.Panel
 import com.glyph.scala.lib.puzzle.Match3
 import com.badlogic.gdx.assets.AssetManager
-
 /**
  * @author glyph
  */
 class ElementToken(assets:AssetManager,panel: Panel) extends PanelToken(assets,panel)
 
 object ColorTheme {
-  val scheme = RJSON(GdxFile("constants/colors.js").map{_|""})
+  val scheme = RJSON(GdxFile("constants/colors.js").map{_ getOrElse ""})
 
   implicit def json2Str(json: RJSON): Varying[Color] = json.as[String] map {
     str => Color.valueOf(str getOrElse "ffffff")

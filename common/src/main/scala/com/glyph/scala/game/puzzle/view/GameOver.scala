@@ -1,7 +1,7 @@
 package com.glyph.scala.game.puzzle.view
 
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.graphics.g2d.{Sprite, SpriteBatch, BitmapFontCache}
+import com.badlogic.gdx.graphics.g2d.{Batch, Sprite, SpriteBatch, BitmapFontCache}
 import com.glyph.scala.lib.libgdx.TextureUtil
 import com.glyph.scala.lib.libgdx.actor.DrawSprite
 import com.badlogic.gdx.graphics.Color
@@ -19,7 +19,7 @@ class GameOver(assets: AssetManager) extends Actor with DrawSprite {
 
   val back = new Sprite(TextureUtil.dummy(assets))
 
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: Batch, parentAlpha: Float) {
     val alpha = parentAlpha * 0.8f
     super.draw(batch, alpha)
     drawSprite(batch, back, alpha)

@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.libgdx.actor
 
 import scala.collection.mutable.ArrayBuffer
-import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{Batch, SpriteBatch, Sprite}
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.utils.SnapshotArray
 import com.glyph.scala.lib.util.pool.{Pooling, Poolable, Pool}
@@ -21,7 +21,7 @@ trait SpriteRenderer extends Group {
     sprites.removeValue(sprite, identity)
   }
 
-  override def drawChildren(batch: SpriteBatch, parentAlpha: Float) {
+  override def drawChildren(batch: Batch, parentAlpha: Float) {
     super.drawChildren(batch, parentAlpha)
     val snap: Array[_] = sprites.begin()
     val size = sprites.size

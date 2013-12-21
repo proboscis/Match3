@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.glyph.scala.lib.util.reactive.{EventSource, Var, Reactor}
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Touchable, Actor}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.glyph.scala.lib.util.json.{RVJSON, RJSON}
+import com.glyph.scala.lib.util.json.RVJSON
 import scala.language.dynamics
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.libgdx.GdxUtil
@@ -26,14 +26,16 @@ class SlideView(config: RVJSON = SlideView.config) extends WidgetGroup with Reac
 
   val shownPress = EventSource[Actor]()
 
-  def shown : ?[View] = showing.map{_._1._1}
+  def shown: ?[View] = showing.map {
+    _._1._1
+  }
 
-  private var showing: ?[(Pair,InputListener)] = None
+  private var showing: ?[(Pair, InputListener)] = None
   setTouchable(Touchable.childrenOnly)
 
-  def slideIn(view: View,outDone: ()=>Unit = ()=>{}, inDone: => Unit = Unit) {
+  def slideIn(view: View, outDone: () => Unit = () => {}, inDone: => Unit = Unit) {
     slideOut()
-    in((view,outDone), inDone)
+    in((view, outDone), inDone)
   }
 
   def slideOut(callback: => Unit = Unit) {
@@ -42,8 +44,8 @@ class SlideView(config: RVJSON = SlideView.config) extends WidgetGroup with Reac
       out(_, callback)
     }
     showing foreach {
-      case (pair@(view,cb),listener)=> {
-        out(pair,callback)
+      case (pair@(view, cb), listener) => {
+        out(pair, callback)
         view.removeListener(listener)
       }
     }
@@ -67,7 +69,7 @@ class SlideView(config: RVJSON = SlideView.config) extends WidgetGroup with Reac
         def run() {
           //println("bf run:"+outs.size)
           outs = outs filter {
-            case (v,f) => v != view
+            case (v, f) => v != view
           }
           removed()
           //println("run:" + outs.size)
@@ -77,7 +79,7 @@ class SlideView(config: RVJSON = SlideView.config) extends WidgetGroup with Reac
       view.setTouchable(Touchable.disabled)
       outs = pair :: outs
       ins = ins filter {
-        case (v,f) => v != view
+        case (v, f) => v != view
       }
     }
   }
@@ -95,8 +97,9 @@ class SlideView(config: RVJSON = SlideView.config) extends WidgetGroup with Reac
       val move = moveTo(getWidth - view.getWidth, 0)
       move.setDuration(d)
       move.setInterpolation(i)
-      val il = new InputListener{
+      val il = new InputListener {
         override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = true
+
         override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
           super.touchUp(event, x, y, pointer, button)
           //TODO fix this issue that the event is not emitted properly
@@ -107,10 +110,12 @@ class SlideView(config: RVJSON = SlideView.config) extends WidgetGroup with Reac
         def run() {
           //println("in complete")
           ins = ins filter {
-            case (v,f) => v != view
+            case (v, f) => v != view
           }
-          for(((prev,cb),listener) <- showing){prev.removeListener(listener)}
-          showing = Some(pair,il)
+          for (((prev, cb), listener) <- showing) {
+            prev.removeListener(listener)
+          }
+          showing = Some(pair, il)
           view.addListener(il)
           callback
         }
@@ -127,14 +132,15 @@ class SlideView(config: RVJSON = SlideView.config) extends WidgetGroup with Reac
 }
 
 object SlideView {
-  import scalaz._
-  import Scalaz._
+
+
   val config = RVJSON(Var(
-    """
-      |config = {
-      |  viewWidth:0.6,
-      |  duration:0.3,
-      |  interpolation:Packages.com.badlogic.gdx.math.Interpolation.exp10Out
-      |}
-    """.stripMargin.success))
+    util.Success(
+      """
+        |config = {
+        |  viewWidth:0.6,
+        |  duration:0.3,
+        |  interpolation:Packages.com.badlogic.gdx.math.Interpolation.exp10Out
+        |}
+      """.stripMargin)))
 }

@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.libgdx.screen
 
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.graphics.g2d.{BitmapFont, SpriteBatch}
+import com.badlogic.gdx.graphics.g2d.{Batch, BitmapFont, SpriteBatch}
 import com.badlogic.gdx.graphics.Color
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
@@ -26,7 +26,7 @@ class LoadingScreen(onFinish: () => Unit, targetAM: AssetManager) extends Staged
     setPosition(stage.getWidth / 2, stage.getHeight / 2)
     val twidth = font.getBounds("Loading...100%").width
 
-    override def draw(batch: SpriteBatch, parentAlpha: Float) {
+    override def draw(batch: Batch, parentAlpha: Float) {
       super.draw(batch, parentAlpha)
       font.draw(batch, "Loading...%.1f%%".format(targetAM.getProgress * 100), getX - twidth / 2, getY)
     }

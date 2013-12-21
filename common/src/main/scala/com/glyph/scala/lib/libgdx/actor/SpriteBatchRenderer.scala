@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.libgdx.actor
 
 import scala.collection.mutable.ArrayBuffer
-import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{Batch, SpriteBatch, Sprite}
 import scala.reflect.ClassTag
 import com.glyph.scala.lib.util.pool.Pool
 import com.badlogic.gdx.scenes.scene2d.Group
@@ -41,7 +41,7 @@ trait SpriteBatchRenderer extends Group {
     }
   }
 
-  override def drawChildren(batch: SpriteBatch, parentAlpha: Float) {
+  override def drawChildren(batch: Batch, parentAlpha: Float) {
     super.drawChildren(batch, parentAlpha)
     val snap: Array[_] = renderers.begin()
     val size = renderers.size
@@ -73,7 +73,7 @@ object SpriteBatchRenderer extends Logging{
 object SBDrawableGdx extends SBDrawableGdxOps
 trait SBDrawableGdxOps extends Logging{
   implicit object DrawableBuffer extends SBDrawable[ArrayBuffer[Sprite]] {
-    def draw(tgt: ArrayBuffer[Sprite], batch: SpriteBatch, alpha: Float) {
+    def draw(tgt: ArrayBuffer[Sprite], batch: Batch, alpha: Float) {
       var i = 0
       val size = tgt.size
       while (i < size) {
@@ -84,18 +84,18 @@ trait SBDrawableGdxOps extends Logging{
   }
 
   implicit object DrawableSprite extends SBDrawable[Sprite] {
-    def draw(tgt: Sprite, batch: SpriteBatch, alpha: Float) {
+    def draw(tgt: Sprite, batch: Batch, alpha: Float) {
       tgt.draw(batch, alpha)
     }
   }
   implicit def drawableSpriteSeq[T<:Seq[Sprite]:Manifest]:SBDrawable[T]= new SBDrawable[T] {
     log("created an evidence of SBDrawable for : "+implicitly[Manifest[T]].runtimeClass)
-    def draw(tgt: T, batch: SpriteBatch, alpha: Float): Unit = tgt foreach{
+    def draw(tgt: T, batch: Batch, alpha: Float): Unit = tgt foreach{
       _.draw(batch,alpha)
     }
   }
 }
 
 trait SBDrawable[T] {
-  def draw(tgt: T, batch: SpriteBatch, alpha: Float)
+  def draw(tgt: T, batch: Batch, alpha: Float)
 }

@@ -2,7 +2,7 @@ package com.glyph.scala.game.puzzle.view
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.graphics.g2d.{BitmapFontCache, SpriteBatch}
+import com.badlogic.gdx.graphics.g2d.{Batch, BitmapFontCache, SpriteBatch}
 import com.glyph.scala.lib.libgdx.actor._
 import com.glyph.scala.game.puzzle.model.cards._
 import com.badlogic.gdx.scenes.scene2d.ui.{Image, WidgetGroup, Label, Table}
@@ -75,7 +75,7 @@ case class CardToken[T](assets:AssetManager,card: Card[T]#PlayableCard, w: Float
     reactor.unSubscribe()
   }
 
-  override def draw(batch: SpriteBatch, parentAlpha: Float) {
+  override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     val b = glyph.getBounds
     glyph.setPosition(getX + (getWidth - b.width) / 2, getY - (getHeight - b.height) / 3f + getHeight)

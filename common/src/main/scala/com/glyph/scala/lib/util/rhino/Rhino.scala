@@ -5,6 +5,7 @@ import scala.util.control.Exception._
 import com.glyph.scala.lib.util.json.{RJSON, JSON}
 import com.glyph.scala.lib.util.reactive.Varying
 import com.glyph.scala.lib.util.Logging
+import scala.util.Try
 
 class Rhino {
   val scope = Context.enter().initStandardObjects()
@@ -16,13 +17,12 @@ class Rhino {
     Context.exit()
   }
 
-  def apply[T: Manifest](script: String): Either[Throwable, T] = {
-    var result: Either[Throwable, T] = null
+  def apply[T: Manifest](script: String):Try[T]= {
     // Rhino.log("load javascript") {
     val context = Context.enter
     context.setOptimizationLevel(-1) //no byte-code generation
-    result = allCatch.either(context.evaluateString(scope, script, "", 1, null)).right.flatMap {
-      r => allCatch.either(Context.jsToJava(r, implicitly[Manifest[T]].runtimeClass).asInstanceOf[T])
+    val result = Try(context.evaluateString(scope, script, "", 1, null)).flatMap {
+      r => Try(Context.jsToJava(r, implicitly[Manifest[T]].runtimeClass).asInstanceOf[T])
     }
     Context.exit()
     // }
@@ -34,7 +34,7 @@ class Rhino {
  * @author glyph
  */
 object Rhino extends Logging {
-  def evaluate[T: Manifest](script: String, env: Seq[(String, Any)] = Nil): Either[Throwable, T] = {
+  def evaluate[T: Manifest](script: String, env: Seq[(String, Any)] = Nil):Try[T] = {
     val rhino = new Rhino
     env foreach {
       case (n, v) => rhino +=(n, v)

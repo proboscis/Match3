@@ -22,7 +22,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.glyph.scala.game.puzzle.model.cards.Card
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.libgdx.actor.widgets.Layered
-
+import scalaz._
+import Scalaz._
 /**
  * ここでcontrollerを渡したことが間違いだった!
  * @author glyph
@@ -105,7 +106,7 @@ class PuzzleGameView(assets: AssetManager, val game: Game, deck: PlayableDeck[Pu
   log("PuzzleGameView:w,h=>" + getWidth + "," + getHeight)
 
   val setup = Rhino(GdxFile("js/view/gameView.js").map {
-    _ | ""
+    _.toOption | ""
   }, Map(
     "self" -> this,
     "root" -> root,
