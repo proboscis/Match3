@@ -23,6 +23,7 @@ trait VaryingOps{
           future = Future(f(t))
           prevCallback = new Cancellable[U](t =>{
             variable = Some(t)
+            notifyObservers(variable)
           })
           future.onComplete(prevCallback.apply)
       }

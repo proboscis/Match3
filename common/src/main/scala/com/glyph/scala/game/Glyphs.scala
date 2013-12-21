@@ -25,7 +25,7 @@ object Glyphs
       case None => new RuntimeException("unknown error of future...").failNel
     }
   }
-  implicit class ValidationOps[T<:ValidationNel[_,_],U,U2,V](val vnel:ValidationNel[U,ValidationNel[U2,V]])extends AnyVal{
-    def flatten = vnel.flatMap(a => a)
+  implicit class ValidationThrowableOps[V](val vnel:ValidationNel[Throwable,ValidationNel[Throwable,V]])extends AnyVal{
+    def flatten = vnel.flatMap(identity)
   }
 }
