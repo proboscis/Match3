@@ -8,12 +8,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * @author glyph
  */
-class TrailTest extends ScreenBuilder{
-  def requiredAssets: Set[(Class[_], Seq[String])] = Set()
-
-  def create(assetManager: AssetManager): Screen = new ConfiguredScreen {
-
-  }
+class TrailTest extends ConfiguredScreen{
 
   class Trail{
     val records = ArrayBuffer[Float]()
@@ -21,4 +16,5 @@ class TrailTest extends ScreenBuilder{
     val texCoordsV = new Array[Float](2*1000)
   }
 }
+
 

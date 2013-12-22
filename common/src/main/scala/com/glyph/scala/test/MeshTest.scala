@@ -21,15 +21,19 @@ class MeshTest extends ConfiguredScreen with Logging with Reactor {
   val meshFile = RVJSON(GdxFile("test/mesh.json"))
   reactSuccess(meshFile.vertices.toArray[Float])(mesh.setVertices)
   reactSuccess(meshFile.indices.toArray[Short])(mesh.setIndices)
-  ShaderProgram.COLOR_ATTRIBUTE
   val texture = new Texture(Gdx.files.internal("data/sword.png"))
   val matrix = new Matrix4()
-  val shader = ShaderHandler("shader/default.vert", "shader/default.frag")
+  ShaderProgram.pedantic = false
+  val shader = ShaderHandler("shader/default.vert", "shader/effect1.frag")
+  var time = 0f
   val updater = shader.applier{
     s =>
       s.begin()
       s.setUniformMatrix("u_projTrans", matrix)
-      s.setUniformi("u_texture", 0)
+      //s.setUniformi("u_texture", 0)
+      s.setUniformf("time",time)
+      s.setUniformf("resolution",1080,1920)
+      s.setUniformf("mouse",0,0)
       mesh.render(s, GL10.GL_TRIANGLES)
       s.end()
   }
@@ -37,6 +41,6 @@ class MeshTest extends ConfiguredScreen with Logging with Reactor {
     super.render(delta)
     texture.bind()
     updater()
+    time += delta
   }
 }
-

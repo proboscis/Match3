@@ -16,7 +16,7 @@ trait StagedScreen extends GlyphScreen {
   def configSrc: RVJSON
 
   val config = configSrc
-  var backgroundColor = new Color(Color.WHITE)
+  var backgroundColor = new Color(Color.BLACK)
   val stage = new Stage(STAGE_WIDTH, STAGE_HEIGHT, true)
   def STAGE_WIDTH = config().flatMap(_.width.as[Int])|(1080 / 2)
   def STAGE_HEIGHT = config().flatMap(_.height.as[Int])| (1920f * 15f / 16f / 2f).toInt
