@@ -32,6 +32,8 @@ class ExplosionTest extends ConfiguredScreen with Logging with Timing {
     sp.setSize(10, 10)
     sp.setColor(Color.WHITE)
     sp.setPosition(random(0, STAGE_WIDTH), random(0, STAGE_HEIGHT))
+    //sp.setPosition(STAGE_WIDTH/2, STAGE_HEIGHT/2)
+
     val trail = new Trail(10)
 
     timeLine.push(Tween.
@@ -44,6 +46,10 @@ class ExplosionTest extends ConfiguredScreen with Logging with Timing {
     }).setCallbackTriggers(TweenCallback.COMPLETE))
     sp -> trail
   })
+  val trailBatch = new StripBatch(trails.map {
+    case (sp, trail) => trail.MAX
+  }.sum * 2)
+
   val sprites = trails map {
     case (sp, _) => sp
   }
@@ -62,11 +68,16 @@ class ExplosionTest extends ConfiguredScreen with Logging with Timing {
       s.setUniformf("time", time)
       s.setUniformf("resolution", 1080, 1920)
       s.setUniformf("mouse", 0, 0)
+      trailBatch.begin()
       printTime("render trails") {
         trails foreach {
-          case (sp, trail) => trail.mesh.render(s, GL10.GL_TRIANGLE_STRIP)
+          case (sp, trail) =>
+          trailBatch.draw(s,trail.meshVertices,trail.count)
+          //trail.mesh.render(s, GL10.GL_TRIANGLE_STRIP)
         }
       }
+      trailBatch.end(s)
+
       s.end()
   }
 

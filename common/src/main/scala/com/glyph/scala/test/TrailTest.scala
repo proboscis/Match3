@@ -10,11 +10,10 @@ import com.badlogic.gdx.graphics.glutils.{ShapeRenderer, ShaderProgram}
 import com.glyph.scala.lib.libgdx.gl.ShaderHandler
 import com.glyph.scala.lib.util.reactive.Reactor
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType
-import com.badlogic.gdx.scenes.scene2d.{Group, InputEvent, InputListener}
+import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
 import com.badlogic.gdx.graphics.VertexAttributes.Usage
 import java.util
-import com.glyph.scala.game.Glyphs._
-import com.glyph.scala.lib.libgdx.actor.SpriteBatchRenderer
+import com.glyph.scala.lib.util.Logging
 
 /**
  * @author glyph
@@ -54,7 +53,7 @@ class TrailTest extends ConfiguredScreen with Reactor {
     WireRenderer.setColor(Color.BLUE)
     WireRenderer.drawLines(trail.records, trail.count)
     WireRenderer.setColor(Color.ORANGE)
-    WireRenderer.drawWire(trail.mesh,5, GL10.GL_TRIANGLE_STRIP, matrix)
+    WireRenderer.drawWire(trail.mesh, 5, GL10.GL_TRIANGLE_STRIP, matrix)
     time += delta
   }
 
@@ -77,28 +76,89 @@ class TrailTest extends ConfiguredScreen with Reactor {
   })
 }
 
-class Trail(MAX:Int){
+class StripBatch(size: Int) extends Logging{
   import Trail._
-  val mesh = new Mesh(true, MAX*2, 0, POSITION_ATTRIBUTE_2D, VertexAttribute.Color(), VertexAttribute.TexCoords(0))
+
+  val mesh = new Mesh(true, size * 2, 0, POSITION_ATTRIBUTE_2D, VertexAttribute.Color(), VertexAttribute.TexCoords(0))
+  val vertices: Array[Float] = new Array(mesh.getMaxVertices * VERTEX_SIZE)
+  var position = 0
+  var isStarted = false
+
+  def begin() {
+    assert(!isStarted)
+    isStarted = true
+  }
+
+  /**
+   *
+   * @param vertexArray an array containing pos,color,uv (window == 5)
+   * @param verticesLength number of vertices
+   */
+  def draw(shader: ShaderProgram, vertexArray: Array[Float], verticesLength: Int) {
+    // 2 is for using degenerate triangles
+    if (position + (verticesLength + 2) * VERTEX_SIZE >= vertices.length) {
+      flush(shader) //draw everything and set position to zero
+    } // if there are not enough space
+    if (position != 0) {    //first insert the degenerates if this is not the first stripe
+      vertices(position) = vertices(position - VERTEX_SIZE) //update the positions only
+      vertices(position + 1) = vertices(position - VERTEX_SIZE + 1)
+      position += VERTEX_SIZE
+      vertices(position) = vertexArray(0) //again, position only
+      vertices(position + 1) = vertexArray(1)
+      position += VERTEX_SIZE
+    }
+    //now start copying actual values
+    System.arraycopy(vertexArray, 0, vertices, position, verticesLength * VERTEX_SIZE)
+    position += verticesLength * VERTEX_SIZE
+    //done!
+  }
+
+  def flush(shader: ShaderProgram) {
+    log("flush!")
+    mesh.setVertices(vertices, 0, position)
+    mesh.render(shader, GL10.GL_TRIANGLE_STRIP)
+    position = 0
+  }
+
+  def end(shader: ShaderProgram) = {
+    assert(isStarted)
+    isStarted = false
+    flush(shader)
+  }
+}
+
+class Trail(val MAX: Int) {
+  // how can this be batched?
+  //TODO you have to make this batched or the rendering can't be done in 60 frames...
+
+  //TODO optimize the setupMesh() or avoid arraycopy or ...
+  import Trail._
+
+  val mesh = new Mesh(true, MAX * 2, 0, POSITION_ATTRIBUTE_2D, VertexAttribute.Color(), VertexAttribute.TexCoords(0))
   val records = new Array[Float](MAX * 2)
   //val records = scala.collection.mutable.Queue[Float]()
-  val meshVertices = new Array[Float](mesh.getMaxVertices * 2 * VERTEX_SIZE)
+  val meshVertices = new Array[Float](mesh.getMaxVertices * VERTEX_SIZE)
   var count = 0
+
 
   def add(x: Float, y: Float) {
     val l = records.length
     if (count >= l) {
+      /*
       System.arraycopy(records, 2, records, 0, l - 2)
       records(l - 2) = x
       records(l - 1) = y
+      */
+      //setUpMesh()
     } else {
       records(count) = x
       records(count + 1) = y
       count += 2
+      setUpMesh()
     }
-    setUpMesh()
   }
 
+  //this is a bit heavy ops
   def setUpMesh() {
     val color = Color.WHITE.toFloatBits
     val recordLength = count / 2 //records.length/2
@@ -148,7 +208,8 @@ class Trail(MAX:Int){
     //println(vi)
     mesh.setVertices(v, 0, vi)
   }
-  def reset(){
+
+  def reset() {
     util.Arrays.fill(records, 0)
     count = 0
     mesh.setVertices(EMPTY)
