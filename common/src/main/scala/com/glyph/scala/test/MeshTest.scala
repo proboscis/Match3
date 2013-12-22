@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.lib.util.json.{JSON, RVJSON}
 import scala.util.{Failure, Success}
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author glyph
@@ -24,7 +25,7 @@ class MeshTest extends ConfiguredScreen with Logging with Reactor {
   val texture = new Texture(Gdx.files.internal("data/sword.png"))
   val matrix = new Matrix4()
   ShaderProgram.pedantic = false
-  val shader = ShaderHandler("shader/default.vert", "shader/effect1.frag")
+  val shader = ShaderHandler("shader/default.vert", "shader/effect2.frag")
   var time = 0f
   val updater = shader.applier{
     s =>

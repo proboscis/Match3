@@ -14,13 +14,18 @@ import com.glyph.scala.lib.util.reactive.{Varying, Var}
  */
 trait StagedScreen extends GlyphScreen {
   def configSrc: RVJSON
-
   val config = configSrc
+  /**
+   * this color defines the clearing color
+   */
   var backgroundColor = new Color(Color.BLACK)
+  /**
+   * set this flag to false if you want to manually control the timing of clearing screen
+   */
+  var autoClearScreen = true
   val stage = new Stage(STAGE_WIDTH, STAGE_HEIGHT, true)
   def STAGE_WIDTH = config().flatMap(_.width.as[Int])|(1080 / 2)
   def STAGE_HEIGHT = config().flatMap(_.height.as[Int])| (1920f * 15f / 16f / 2f).toInt
-
 
   override def show() {
     println("show StagedScreen")
@@ -29,12 +34,19 @@ trait StagedScreen extends GlyphScreen {
   }
 
   override def render(delta: Float) {
+    if(autoClearScreen) clearScreen()
     super.render(delta)
+    stage.act(delta)
+    stage.draw()
+  }
+
+  /**
+   * use this method to clear the screen manually
+   */
+  def clearScreen(){
     Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
     Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT)
     Gdx.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MIN_FILTER, GL20.GL_LINEAR)
-    stage.act(delta)
-    stage.draw()
   }
 
   override def resize(w: Int, h: Int) {

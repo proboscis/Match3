@@ -22,9 +22,10 @@ import com.glyph.scala.lib.libgdx.actor.blend.AdditiveBlend
 import aurelienribon.tweenengine.{TweenManager, Tween}
 import com.glyph.scala.game.Glyphs
 import Glyphs._
-import com.glyph.scala.test.WordParticle
 import com.glyph.scala.lib.libgdx.font.FontUtil._
 import scala.Some
+import com.glyph.scala.lib.libgdx.WordParticle
+import com.glyph.scala.test.WordParticle
 
 /**
  * @author glyph

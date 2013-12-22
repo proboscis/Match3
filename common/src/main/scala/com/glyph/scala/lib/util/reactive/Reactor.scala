@@ -2,6 +2,7 @@ package com.glyph.scala.lib.util.reactive
 
 import ref.WeakReference
 import scala.util.{Success, Failure, Try}
+import java.util.Observer
 
 //TODO the observer is not released even if the reactive is disposed!!
 /**
@@ -19,6 +20,14 @@ trait Reactor {
 
   def reactors = observers
 
+  /**
+   * callback is invoked when the varying has changed.
+   * its varying's responsibility to invoke this callback.
+   * @param v
+   * @param callback
+   * @tparam T
+   * @return
+   */
   def reactVar[T](v: Varying[T])(callback: (T) => Unit): Observer[T] = new Observer(v, callback)
 
   def reactEvent[T](src: EventSource[T])(callback: (T) => Unit): Observer[T] = new Observer(src, callback)

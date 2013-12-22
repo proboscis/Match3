@@ -10,10 +10,8 @@ trait TabledScreen extends StagedScreen{
   val root = new Table
   root.setSize(STAGE_WIDTH,STAGE_HEIGHT)
   def DEBUG: Boolean =if(debug != null)debug().getOrElse(true) else false
-
   if(DEBUG)root.debug()
   stage.addActor(root)
-
   override def render(delta: Float) {
     super.render(delta)
     if (DEBUG)Table.drawDebug(stage)

@@ -6,7 +6,7 @@ import scala.reflect.ClassTag
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.Color
-import aurelienribon.tweenengine.TweenAccessor
+import aurelienribon.tweenengine.{Tween, TweenManager, TweenAccessor}
 
 /**
  * @author proboscis
@@ -14,7 +14,9 @@ import aurelienribon.tweenengine.TweenAccessor
 object Test extends GdxTweenOps
 
 trait GdxTweenOps extends Logging {
+  Tween.setCombinedAttributesLimit(4)
   object SpriteAccessor extends TweenAccessor[Sprite]{
+    Tween.registerAccessor(classOf[Sprite],this)
     val XY = 0
     val RGBA = 1
     def getValues(target: Sprite, tweenType: Int, returnValues: Array[Float]): Int = {
