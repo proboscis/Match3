@@ -17,8 +17,9 @@ import com.glyph.scala.lib.util.updatable.reactive.Eased
 import com.glyph.scala.lib.libgdx.actor.{SpriteActor, Updating}
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.{BitmapFont, Sprite}
 import com.badlogic.gdx.Screen
+import com.glyph.scala.lib.libgdx.font.FontUtil
 
 /**
  * @author glyph
@@ -35,7 +36,7 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。
   val bgColor = colors.background.as[String] map (_.map(Color.valueOf) | Color.WHITE)
   reactVar(bgColor)(backgroundColor = _)
-  val skin = assets.get[Skin]("skin/default.json")
+  val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
   val game = new ComboPuzzle
   import game._
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
@@ -113,7 +114,7 @@ class ActionPuzzleScreen extends ScreenBuilder{
   //TODO serialization is the hardest thing to do in android, you know
   def requiredAssets: Set[(Class[_], Seq[String])] = Set(
     classOf[Texture]->Seq("data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"),
-    classOf[Skin]->Seq("skin/default.json")
+    classOf[Skin]->Seq("skin/holo/Holo-dark-xhdpi.json")
   )
   def create(assetManager: AssetManager): Screen = {
     implicit val _ = assetManager

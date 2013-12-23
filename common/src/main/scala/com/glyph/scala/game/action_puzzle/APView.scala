@@ -81,7 +81,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   Tween.setCombinedAttributesLimit(4)
 
   val tokens = ArrayBuffer[Token[T]]()
-  val skin = assets.get[Skin]("skin/default.json")
+  val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
   val panelAdd = (added: Seq[Seq[ActionPuzzle[T]#AP]]) => {
     for (row <- added; p <- row) {
       val token = manual[Token[T]]

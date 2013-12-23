@@ -26,7 +26,7 @@ class Token[T](var panel: ActionPuzzle[T]#AP, assets: AssetManager)
 
 
   val sprite = new Sprite(assets.get[Texture]("data/round_rect.png"))
-  val skin = assets.get[Skin]("skin/default.json")
+  val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
   val spriteActor = new SpriteActor
   spriteActor.sprite.set(sprite)
   import com.glyph.scala.lib.libgdx.conversion.AnimatingGdx._

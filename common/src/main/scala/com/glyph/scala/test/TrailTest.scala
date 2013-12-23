@@ -5,7 +5,7 @@ import com.badlogic.gdx.{Input, Gdx}
 import com.badlogic.gdx.graphics._
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
-import com.badlogic.gdx.math.{Vector2, Matrix4}
+import com.badlogic.gdx.math.{MathUtils, Matrix3, Vector2, Matrix4}
 import com.badlogic.gdx.graphics.glutils.{ShapeRenderer, ShaderProgram}
 import com.glyph.scala.lib.libgdx.gl.ShaderHandler
 import com.glyph.scala.lib.util.reactive.Reactor
@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
 import com.badlogic.gdx.graphics.VertexAttributes.Usage
 import java.util
-import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.lib.util.{ArrayOps, Logging}
 
 /**
  * @author glyph
@@ -76,10 +76,10 @@ class TrailTest extends ConfiguredScreen with Reactor {
   })
 }
 
-class StripBatch(size: Int) extends Logging{
-  import Trail._
-
-  val mesh = new Mesh(true, size * 2, 0, POSITION_ATTRIBUTE_2D, VertexAttribute.Color(), VertexAttribute.TexCoords(0))
+class BaseStripBatch(size: Int, attributes: VertexAttributes) extends Logging {
+  val VERTEX_SIZE = attributes.vertexSize / 4
+  log("vertex size:" + VERTEX_SIZE)
+  val mesh = new Mesh(false, size * 2, 0, attributes)
   val vertices: Array[Float] = new Array(mesh.getMaxVertices * VERTEX_SIZE)
   var position = 0
   var isStarted = false
@@ -99,12 +99,15 @@ class StripBatch(size: Int) extends Logging{
     if (position + (verticesLength + 2) * VERTEX_SIZE >= vertices.length) {
       flush(shader) //draw everything and set position to zero
     } // if there are not enough space
-    if (position != 0) {    //first insert the degenerates if this is not the first stripe
+    if (position != 0) {
+      //first insert the degenerates if this is not the first stripe
       vertices(position) = vertices(position - VERTEX_SIZE) //update the positions only
       vertices(position + 1) = vertices(position - VERTEX_SIZE + 1)
+      util.Arrays.fill(vertices, position + 2, position + VERTEX_SIZE, 0)
       position += VERTEX_SIZE
       vertices(position) = vertexArray(0) //again, position only
       vertices(position + 1) = vertexArray(1)
+      util.Arrays.fill(vertices, position + 2, position + VERTEX_SIZE, 0)
       position += VERTEX_SIZE
     }
     //now start copying actual values
@@ -114,7 +117,7 @@ class StripBatch(size: Int) extends Logging{
   }
 
   def flush(shader: ShaderProgram) {
-    log("flush!")
+    //log("flush!")
     mesh.setVertices(vertices, 0, position)
     mesh.render(shader, GL10.GL_TRIANGLE_STRIP)
     position = 0
@@ -127,39 +130,68 @@ class StripBatch(size: Int) extends Logging{
   }
 }
 
-class Trail(val MAX: Int) {
-  // how can this be batched?
-  //TODO you have to make this batched or the rendering can't be done in 60 frames...
+class StripBatch(size: Int) extends BaseStripBatch(size, Trail.ATTRIBUTES)
 
-  //TODO optimize the setupMesh() or avoid arraycopy or ...
+class Trail(val max: Int) extends BaseTrail(max) {
+
   import Trail._
 
-  val mesh = new Mesh(true, MAX * 2, 0, POSITION_ATTRIBUTE_2D, VertexAttribute.Color(), VertexAttribute.TexCoords(0))
-  val records = new Array[Float](MAX * 2)
-  //val records = scala.collection.mutable.Queue[Float]()
-  val meshVertices = new Array[Float](mesh.getMaxVertices * VERTEX_SIZE)
-  var count = 0
+  val mesh = new Mesh(false, MAX * 2, 0, POSITION_ATTRIBUTE_2D, VertexAttribute.Color(), VertexAttribute.TexCoords(0))
 
 
-  def add(x: Float, y: Float) {
-    val l = records.length
-    if (count >= l) {
-      /*
-      System.arraycopy(records, 2, records, 0, l - 2)
-      records(l - 2) = x
-      records(l - 1) = y
-      */
-      //setUpMesh()
-    } else {
-      records(count) = x
-      records(count + 1) = y
-      count += 2
-      setUpMesh()
+  def vertexSize: Int = Trail.VERTEX_SIZE
+
+  def addVertices() {
+    val v = meshVertices
+    val color = Color.WHITE.toFloatBits
+    val recordLength = count / 2
+    val r = records
+    if (recordLength > 1) {
+      val px = r(count - 4)
+      val py = r(count - 3)
+      val x = r(count - 2)
+      val y = r(count - 1)
+      val width = 5
+      val angle = -MathUtils.atan2(x - px, y - py) * MathUtils.radDeg
+      t2.set(x - px, y - py)
+      m1.setToRotation(angle)
+      //t1.set(0, -width).mul(m1).add(nx, ny)
+      t1.set(-width, 0).mul(m1).add(x, y)
+      var vi = (recordLength - 1) * 2 * VERTEX_SIZE
+      v(vi) = t1.x
+      v(vi + 1) = t1.y
+      v(vi + 2) = color
+      v(vi + 3) = 0 //u
+      v(vi + 4) = 0 //v
+      if (recordLength == 2) {
+        v(0) = t1.x - t2.x
+        v(1) = t1.y - t2.y
+        v(2) = color
+        v(3) = 0 //u
+        v(4) = 0 //v
+      }
+      vi += VERTEX_SIZE
+      t1.set(width, 0).mul(m1).add(x, y)
+      v(vi) = t1.x
+      v(vi + 1) = t1.y
+      v(vi + 2) = color
+      v(vi + 3) = 0 //u
+      v(vi + 4) = 0 //v
+      if (recordLength == 2) {
+        v(5) = t1.x - t2.x
+        v(6) = t1.y - t2.y
+        v(7) = color
+        v(8) = 0 //u
+        v(9) = 0 //v
+      }
+      vi += VERTEX_SIZE
+      //mesh.setVertices(v,0,vi)
     }
   }
 
   //this is a bit heavy ops
-  def setUpMesh() {
+  //these rotations are the heavy ops!
+  def setupMesh() {
     val color = Color.WHITE.toFloatBits
     val recordLength = count / 2 //records.length/2
     var i = 0
@@ -173,9 +205,12 @@ class Trail(val MAX: Int) {
       val nx = records(ri + 2)
       val ny = records(ri + 3)
       val width = recordLength / 2 - Math.abs(recordLength / 2 - i)
-      //val angle = -MathUtils.atan2(nx-x,ny-y)*MathUtils.radDeg
-      val angle = t2.set(nx - x, ny - y).angle()
-      t1.set(0, -width).rotate(angle).add(nx, ny)
+      //val width = 10
+      val angle = -MathUtils.atan2(nx - x, ny - y) * MathUtils.radDeg
+      //val angle = t2.set(nx - x, ny - y).angle()
+      m1.setToRotation(angle)
+      //t1.set(0, -width).mul(m1).add(nx, ny)
+      t1.set(-width, 0).mul(m1).add(nx, ny)
       v(vi) = t1.x
       v(vi + 1) = t1.y
       v(vi + 2) = color
@@ -188,7 +223,8 @@ class Trail(val MAX: Int) {
         v(3) = 0 //u
         v(4) = 0 //v
       }
-      t1.set(0, width).rotate(angle).add(nx, ny)
+      //t1.set(0, width).mul(m1).add(nx, ny)
+      t1.set(width, 0).mul(m1).add(nx, ny)
       vi += 5
       v(vi) = t1.x
       v(vi + 1) = t1.y
@@ -209,9 +245,8 @@ class Trail(val MAX: Int) {
     mesh.setVertices(v, 0, vi)
   }
 
-  def reset() {
-    util.Arrays.fill(records, 0)
-    count = 0
+  override def reset() {
+    super.reset()
     mesh.setVertices(EMPTY)
   }
 }
@@ -220,9 +255,11 @@ object Trail {
   val EMPTY = Array.empty[Float]
   val VERTEX_SIZE = 2 + 1 + 2
   val POSITION_ATTRIBUTE_2D = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
+  val ATTRIBUTES = new VertexAttributes(Trail.POSITION_ATTRIBUTE_2D, VertexAttribute.Color(), VertexAttribute.TexCoords(0))
   val t1 = new Vector2
   val t2 = new Vector2
   val t3 = new Vector2
+  val m1 = new Matrix3
 }
 
 object WireRenderer {
@@ -267,26 +304,3 @@ object WireRenderer {
   }
 }
 
-object ArrayOps {
-
-  implicit class WrappedGlyphArray[T](val ary: Array[T]) extends AnyVal {
-    def copyStride(length: Int, dst: Array[T], stride: Int, width: Int): Int = {
-      var i = 0
-      var oi = 0
-      var di = 0
-      while (i < length) {
-        oi = 0
-        var pos = i
-        while (oi < width && pos < length) {
-          dst(di) = ary(pos)
-          oi += 1
-          di += 1
-          pos += 1
-        }
-        i += stride
-      }
-      di
-    }
-  }
-
-}

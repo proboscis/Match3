@@ -16,3 +16,4 @@ trait GdxOps
   with SBDrawableGdxOps
   with ActionOps
   with GdxTweenOps
+  with GdxStringOps
