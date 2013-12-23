@@ -31,7 +31,7 @@ class Main extends AndroidApplication with Logging{
     println("created android application")
     super.onCreate(savedInstanceState)
     val config = new AndroidApplicationConfiguration()
-    config.useAccelerometer = false
+    config.useAccelerometer = true
     config.useCompass = false
     config.useWakelock = true
     config.useGL20 = true

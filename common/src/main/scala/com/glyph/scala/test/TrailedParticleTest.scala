@@ -78,6 +78,7 @@ class TrailedParticleTest extends ScreenBuilder {
 
     val bodies = bodySpTrails.map(_._3)
 
+    val gravity = new Vector2()
     override def render(delta: Float): Unit = {
       clearScreen()
       //box2DRenderer.render(world, stage.getCamera.combined)
@@ -103,6 +104,7 @@ class TrailedParticleTest extends ScreenBuilder {
           trail.add(p.x, p.y)
         }
       }
+      world.setGravity(gravity.set(-Gdx.input.getAccelerometerX*10,-Gdx.input.getAccelerometerY*10))
     }
   }
 }
