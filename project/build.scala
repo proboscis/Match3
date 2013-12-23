@@ -59,6 +59,8 @@ object Settings {
 -keep class com.badlogic.gdx.graphics.g2d.Sprite
 -keep class com.badlogic.gdx.scenes.scene2d.Actor
 -keep class com.glyph.scala.lib.libgdx.actor.SpriteActor
+-keep class com.badlogic.gdx.physics.box2d.** {*;}
+-keep class com.glyph.scala.test.** 
 
 -optimizationpasses 5
 -dontusemixedcaseclassnames

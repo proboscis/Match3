@@ -23,7 +23,7 @@ class UVTrailTest extends ScreenBuilder {
     new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES),
     ShaderHandler("shader/rotate2.vert", "shader/default.frag"),
     () => new UVTrail(10),
-    s =>texture.bind(),
+      s =>texture.bind(),
     true
   )
   }

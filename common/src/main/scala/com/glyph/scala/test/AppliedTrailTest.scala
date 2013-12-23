@@ -47,7 +47,6 @@ abstract class TrailTestEnvironment(shader: ShaderHandler, batch: BaseStripBatch
   }
 
   override def render(delta: Float) {
-    clearScreen()
     trailRenderer()
     time += delta
     super.render(delta)
@@ -101,6 +100,7 @@ class AppliedTrailTest(nSprites: Int, batch: BaseStripBatch, shader: ShaderHandl
   }
 
   override def render(delta: Float): Unit = {
+    clearScreen()
     tweenManager.update(delta)
     if (checkTime) {
       printTime("updateMesh") {
