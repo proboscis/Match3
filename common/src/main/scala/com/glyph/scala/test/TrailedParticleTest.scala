@@ -1,6 +1,6 @@
 package com.glyph.scala.test
 
-import com.glyph.scala.lib.libgdx.gl.ShaderHandler
+import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.assets.AssetManager

@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.graphics.g2d.{BitmapFont, Sprite}
 import com.badlogic.gdx.Screen
 import com.glyph.scala.lib.libgdx.font.FontUtil
+import com.glyph.scala.lib.libgdx.gl.ShaderHandler
 
 /**
  * @author glyph
@@ -31,6 +32,7 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   //TODO loading screen
   val constants = RVJSON(GdxFile("constants/string.js"))
   val colors = RVJSON(GdxFile("constants/colors.js"))
+  autoClearScreen = false
   //RVJSON(constants.colors.asVnel[String])
   //TODO ControllerはViewのイベントをModelに渡すためのもの。
   //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。
@@ -105,6 +107,8 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   puzzle.initialize()
 
   override def render(delta: Float): Unit = {
+    clearScreen()
+
     super.render(delta)
     game.update(delta)
   }

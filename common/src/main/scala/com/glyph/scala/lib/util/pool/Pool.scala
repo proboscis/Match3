@@ -7,7 +7,6 @@ import com.glyph.scala.lib.util.pool.Pool.PooledAny
 
 trait Pooling[T] {
   def newInstance: T
-
   def reset(tgt: T)
 }
 

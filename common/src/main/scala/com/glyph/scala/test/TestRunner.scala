@@ -41,6 +41,7 @@ class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
     val builderClasses =
         classOf[ActionPuzzleScreen] ::
         classOf[TrailedParticleTest] ::
+        classOf[ParticleTest]::
         classOf[UVTrailTest] ::
         classOf[ImmediateTest] ::
         classOf[WordParticle] :: Nil

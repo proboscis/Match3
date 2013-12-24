@@ -7,7 +7,7 @@ import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.math.{MathUtils, Matrix3, Vector2, Matrix4}
 import com.badlogic.gdx.graphics.glutils.{ShapeRenderer, ShaderProgram}
-import com.glyph.scala.lib.libgdx.gl.ShaderHandler
+import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
 import com.glyph.scala.lib.util.reactive.Reactor
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
@@ -74,60 +74,6 @@ class TrailTest extends ConfiguredScreen with Reactor {
       case _ => false
     }
   })
-}
-
-class BaseStripBatch(size: Int, attributes: VertexAttributes) extends Logging {
-  val VERTEX_SIZE = attributes.vertexSize / 4
-  log("vertex size:" + VERTEX_SIZE)
-  val mesh = new Mesh(false, size * 2, 0, attributes)
-  val vertices: Array[Float] = new Array(mesh.getMaxVertices * VERTEX_SIZE)
-  var position = 0
-  var isStarted = false
-
-  def begin() {
-    assert(!isStarted)
-    isStarted = true
-  }
-
-  /**
-   *
-   * @param vertexArray an array containing pos,color,uv (window == 5)
-   * @param verticesLength number of vertices
-   */
-  def draw(shader: ShaderProgram, vertexArray: Array[Float], verticesLength: Int) {
-    // 2 is for using degenerate triangles
-    if (position + (verticesLength + 2) * VERTEX_SIZE >= vertices.length) {
-      flush(shader) //draw everything and set position to zero
-    } // if there are not enough space
-    if (position != 0) {
-      //first insert the degenerates if this is not the first stripe
-      vertices(position) = vertices(position - VERTEX_SIZE) //update the positions only
-      vertices(position + 1) = vertices(position - VERTEX_SIZE + 1)
-      util.Arrays.fill(vertices, position + 2, position + VERTEX_SIZE, 0)
-      position += VERTEX_SIZE
-      vertices(position) = vertexArray(0) //again, position only
-      vertices(position + 1) = vertexArray(1)
-      util.Arrays.fill(vertices, position + 2, position + VERTEX_SIZE, 0)
-      position += VERTEX_SIZE
-    }
-    //now start copying actual values
-    System.arraycopy(vertexArray, 0, vertices, position, verticesLength * VERTEX_SIZE)
-    position += verticesLength * VERTEX_SIZE
-    //done!
-  }
-
-  def flush(shader: ShaderProgram) {
-    //log("flush!")
-    mesh.setVertices(vertices, 0, position)
-    mesh.render(shader, GL10.GL_TRIANGLE_STRIP)
-    position = 0
-  }
-
-  def end(shader: ShaderProgram) = {
-    assert(isStarted)
-    isStarted = false
-    flush(shader)
-  }
 }
 
 class StripBatch(size: Int) extends BaseStripBatch(size, Trail.ATTRIBUTES)

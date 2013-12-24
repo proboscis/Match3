@@ -1,7 +1,7 @@
 package com.glyph.scala.test
 
 import com.badlogic.gdx.graphics._
-import com.glyph.scala.lib.libgdx.gl.ShaderHandler
+import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.graphics.VertexAttributes.Usage
 import com.badlogic.gdx.{Screen, Gdx}

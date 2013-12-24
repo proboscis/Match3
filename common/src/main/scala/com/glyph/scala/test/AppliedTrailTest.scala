@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.{GL10, Color, Texture, Mesh}
 import com.glyph.scala.lib.util.{Logging, Timing}
 import com.glyph.scala.lib.libgdx.screen.ConfiguredScreen
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
-import com.glyph.scala.lib.libgdx.gl.ShaderHandler
+import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
 import com.badlogic.gdx.Gdx
 import aurelienribon.tweenengine._
 import com.badlogic.gdx.graphics.g2d.{Sprite, TextureRegion}

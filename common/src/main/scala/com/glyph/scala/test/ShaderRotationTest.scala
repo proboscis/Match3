@@ -1,10 +1,11 @@
 package com.glyph.scala.test
 
 import com.badlogic.gdx.graphics._
-import com.glyph.scala.lib.libgdx.gl.ShaderHandler
+import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import java.util
 import com.badlogic.gdx.graphics.VertexAttributes.Usage
+import com.glyph.scala.lib.util.Logging
 
 class ShaderRotationTest extends AppliedTrailTest(
   1000,
@@ -12,7 +13,7 @@ class ShaderRotationTest extends AppliedTrailTest(
   ShaderHandler("shader/rotate.vert", "shader/color.frag"),
   () => new SRTrail(10)
 )
-abstract class BaseTrail(val MAX: Int) {
+abstract class BaseTrail(val MAX: Int) extends Logging{
   def vertexSize: Int
 
   val records = new Array[Float](MAX * 2)
