@@ -26,24 +26,16 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading {
 
     for (t <- startedTasks) {
       //log(t +","+t.isCompleted)
-      if (!t.isCompleted) {
-        if (!canceledTasks.isEmpty) {
-          if (!canceledTasks.contains(t)) {
-            t.update(delta)
-            if(t.isCompleted){
-              t.onFinish()
-              tasksTobeRemoved += t
-            }
-          } else {
-            tasksTobeRemoved += t
-          }
-        } else {
+      if(!canceledTasks.isEmpty){
+        if(canceledTasks.contains(t)){
+          tasksTobeRemoved += t
+        }
+      } else if (!t.isCompleted) {
           t.update(delta)
           if(t.isCompleted){
             t.onFinish()
             tasksTobeRemoved += t
           }
-        }
       } else {
         t.onFinish()
         tasksTobeRemoved += t
@@ -71,15 +63,22 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading {
   def cancel(task: Task) {
     if (!updating) {
       //log("removing while updating")
-      canceledTasks += task
+      if(!canceledTasks.contains(task)){
+        task.onCancel()
+        canceledTasks += task
+      }
     } else {
+      if(queuedTasks.contains(task) || startedTasks.contains(task)){
+        task.onCancel()
+      }
       startedTasks -= task
       queuedTasks -= task
     }
-    task.onCancel()
   }
+  val canceller = (t:Task) => t.onCancel()
   def clearTasks(){
     queuedTasks.clear()
+    startedTasks foreach canceller
     startedTasks.clear()
     tasksTobeRemoved.clear()
     canceledTasks.clear()

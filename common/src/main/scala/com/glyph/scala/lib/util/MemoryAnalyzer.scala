@@ -13,7 +13,7 @@ class MemoryAnalyzer {
       while (running) {
         Thread.sleep(500)
         val runtime = Runtime.getRuntime
-        println("total heap: " + ((runtime.totalMemory() - runtime.freeMemory()) / 1000) + "kb")
+        //println("total heap: " + ((runtime.totalMemory() - runtime.freeMemory()) / 1000) + "kb")
       }
     }
   }

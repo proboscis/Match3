@@ -9,6 +9,7 @@ import com.glyph.scala.lib.libgdx.actor.SpriteBatchRenderer
 import com.glyph.scala.game.Glyphs._
 import scalaz._
 import Scalaz._
+
 /**
  * @author glyph
  */
@@ -41,7 +42,6 @@ object WordParticle extends Logging {
     line.beginParallel()
     sprites.zipWithIndex.foreach {
       case (s, i) =>
-        log(s.getWidth)
         line.push(
           Timeline.createSequence().delay(i*0.1f).
           push(Tween.to(s, XY, duration/2f).target(s.getX+x, s.getY+y + amount()).ease(easeOutExpo)).
@@ -60,7 +60,7 @@ object WordParticle extends Logging {
     timeline.setCallback(new TweenCallback{
       def onEvent(`type`: Int, source: BaseTween[_]){
         renderer.removeDrawable(sprites)
-        sprites foreach(_.free)
+        sprites foreach(free(_))
       }
     }).setCallbackTriggers(TweenCallback.COMPLETE).start(manager)
     renderer.addDrawable(sprites)

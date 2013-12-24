@@ -9,7 +9,7 @@ import com.glyph.scala.lib.util.Logging
 trait Task extends Updatable with Logging{
   def isCompleted:Boolean
   def onStart(){}
-  def onFinish(){log("finished")}
+  def onFinish(){}
   def onCancel(){}
   def reset(){}
 }

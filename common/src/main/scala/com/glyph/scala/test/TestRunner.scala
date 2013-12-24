@@ -56,6 +56,7 @@ class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
         classOf[WindowTest] ::
         classOf[ComboEffect] ::
         Nil
+
     val classBuilders = builderClasses map (c => c.newInstance() -> c.getSimpleName)
     val fileBuilders = files map {
       f => createFromJson(f) -> f

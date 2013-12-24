@@ -88,10 +88,20 @@ trait SBDrawableGdxOps extends Logging{
       tgt.draw(batch, alpha)
     }
   }
-  implicit def drawableSpriteSeq[T<:Seq[Sprite]:Manifest]:SBDrawable[T]= new SBDrawable[T] {
-    log("created an evidence of SBDrawable for : "+implicitly[Manifest[T]].runtimeClass)
+  def drawableSpriteSeq[T<:Seq[Sprite]:ClassTag]:SBDrawable[T]= new SBDrawable[T] {
+    log("created an evidence of SBDrawable for : "+implicitly[ClassTag[T]].runtimeClass)
     def draw(tgt: T, batch: Batch, alpha: Float): Unit = tgt foreach{
       _.draw(batch,alpha)
+    }
+  }
+  private var tagToGeneratedDrawableMap:ClassTag[_] Map SBDrawable[_] = Map() withDefault(_=>null)
+  implicit def spriteSeqToDrawable[T<:Seq[Sprite]:ClassTag]:SBDrawable[T] = {
+    val tag = implicitly[ClassTag[T]]
+    val result = tagToGeneratedDrawableMap(tag)
+    if(result != null) result.asInstanceOf[SBDrawable[T]] else{
+      val newOne = drawableSpriteSeq[T]
+      tagToGeneratedDrawableMap += tag->newOne
+      newOne
     }
   }
 }

@@ -2,34 +2,30 @@ package com.glyph.scala.lib.libgdx.actor.action
 
 import scalaz._
 import Scalaz._
-import com.glyph.scala.lib.libgdx.actor.Tasking
-import com.glyph.scala.lib.util.updatable.task.{TaskProcessor, Task, IntegratingFTask, FunctionTask}
+import com.glyph.scala.lib.libgdx.actor.{Updating, Tasking}
+import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.util.animator.{AnimatedFloat2, Swinger}
 import com.glyph.scala.lib.util.{Threading, Logging}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.glyph.scala.game.Glyphs
+import Glyphs._
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.glyph.scala.lib.util.updatable.Updatable
 
 /**
  * @author glyph
  */
-trait Shivering extends Tasking with Logging with Threading{
+trait Shivering extends Updatable with Logging with Threading{
   private var started = false
   private var count = 0
-  val shiver = new IntegratingFTask()
-
-  override def add(task: Task): TaskProcessor = {
-    assert(started)
-    assert(task == shiver)
-    assert(!task.isCompleted)
-    //you have to remove the task immediately in order to reuse that....
-    super.add(task)
-  }
-
+  private val shiverProcessor = new ParallelProcessor {}
   def startShivering[T:AnimatedFloat2](tgt:T) {
     if (!started) {
       count += 1
      // log("start shivering"+count)
       val impl = implicitly[AnimatedFloat2[T]]
       val (updater,canceller) = Swinger.update(2,impl.getX(tgt),impl.getY(tgt),tgt)
+      val shiver = auto[IntegratingFTask]
       shiver.setUpdater(updater)
       shiver.setFinalizer(()=>{
        // log("finished")
@@ -42,18 +38,19 @@ trait Shivering extends Tasking with Logging with Threading{
         shiver.reset()
       })
       started = true
-      add(shiver)
+      shiverProcessor.add(shiver)
     }
   }
   def stopShivering() {
     if(started){
-      if(!shiver.isCompleted){
-       // log("finishing shivering")
-        cancel(shiver)
-
-      }
+      shiverProcessor.clearTasks()
       started = false
      // log("stop shivering")
     }
+  }
+
+  override def update(delta: Float): Unit = {
+    super.update(delta)
+    shiverProcessor.update(delta)
   }
 }

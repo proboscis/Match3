@@ -45,6 +45,8 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   with Paneled2 {
   ShaderProgram.pedantic = false
   import com.glyph.scala.lib.util.pooling_task.ReflectedPooling._
+  preAlloc[MyTrail](1000)
+  preAlloc[Sprite](1000)
 
   val spriteTrailArray = new com.badlogic.gdx.utils.Array[Seq[(Sprite,MyTrail)]](1000)
   val shader = ShaderHandler("shader/rotate2.vert", "shader/default.frag")
@@ -64,7 +66,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
       spriteTrailArray.iterator().foreach(_.foreach{
         case(sp,trail) =>
           trail.add(sp.getX+sp.getWidth/2,sp.getY+sp.getHeight/2)
-        batch.draw(s,trail.meshVertices,trail.count)
+          batch.draw(s,trail.meshVertices,trail.count)
       })
       batch.end(s)
       s.end()
@@ -86,24 +88,10 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   def row: Int = puzzle.ROW
 
   def column: Int = puzzle.COLUMN
-
-  import com.glyph.scala.lib.libgdx.conversion.AnimatingGdx._
-  import com.glyph.scala.lib.libgdx.poolable.PoolingGdx._
-  import SBDrawableGdx._
-
-  implicit val spritePool = Pool[Sprite](10000)
   implicit val tokenPool = Pool[Token[T]](() => new Token[T](null, assets), (tgt: Token[T]) => tgt.resetForPool(), row * column * 2)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
   implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
-  implicit val funcTaskPool = Pool[TimedFunctionTask](100)
-  implicit val interFuncTaskPool = Pool[InterpolatedFunctionTask](100)
-  /** 関係なーい
-  preAlloc[Sprite]()
-  preAlloc[Token]()
-  preAlloc[ArrayBuffer[Sprite]]()
-  preAlloc[ArrayBuffer[Float]]()
-  preAlloc[TimedFunctionTask]()
-    * */
+
 
   val font = internalFont("font/corbert.ttf", 50)
   implicit val renderer = this
@@ -137,6 +125,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   val panelRemove = (removed: Seq[ActionPuzzle[T]#AP]) => {
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
       tokens -= token
+      token.clearReaction()//this must be done since the panel is immediately removed
       token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
         def run() {
           token.free

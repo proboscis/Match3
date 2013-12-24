@@ -6,14 +6,13 @@ import scalaz._
 import Scalaz._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.generic.CanBuildFrom
+import com.glyph.scala.lib.util.pool.Pool
 
 /**
  * @author glyph
  */
 //@hello
 object GMatch3 {
-  //TODO make scanning faster!
-
   import scala.util.control.Exception._
 
   type Event[T] = (T, Int, Int)

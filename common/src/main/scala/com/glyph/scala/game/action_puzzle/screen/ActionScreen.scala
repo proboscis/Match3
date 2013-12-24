@@ -43,6 +43,8 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   import game._
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
   val view = new APView(score,puzzle, assets) with Updating
+
+  //TODO uncomment this to enable easing score
   view.add(easedScore)
 
 
@@ -54,7 +56,6 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   //this is required
   val scoreLabel = new RLabel(skin, easedScore.map("%.0f".format(_)))
   scoreLabel.setColor(Color.DARK_GRAY)
-  scoreLabel.setFontScale(2f)
   /**
    * what to do
    * react variable
