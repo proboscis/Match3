@@ -5,35 +5,43 @@ import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import java.util
 import com.badlogic.gdx.math.Matrix4
-import scalaz.{Failure, Success}
 import com.glyph.scala.lib.util.reactive.Reactor
 
 trait DrawableStrip[T, A] {
   def vertices(tgt: T): Array[Float]
 
-  def length(tgt:T): Int
+  def length(tgt: T): Int
 }
 
 trait DrawableAttribute[T <: VertexAttributes]
 
-class TypedStripBatch[A <: VertexAttributes](size: Int, attributes: A, shader:ShaderProgram) extends Reactor {
-  val batch = new BaseStripBatch(size, attributes)
+trait VertexAttributeHolder {
+  def attributes: VertexAttributes
+}
+
+class TypedStripBatch[A <: VertexAttributeHolder](size: Int, attributes: A, shader: ShaderProgram) extends Reactor {
+  val batch = new BaseStripBatch(size, attributes.attributes)
   val combined = new Matrix4
   var started = false
-  def begin(){
+
+  def begin() {
     assert(!started)
+    started = true
     shader.begin()
     batch.begin()
     shader.setUniformMatrix("u_projTrans", combined)
     shader.setUniformi("u_texture", 0)
   }
-  def draw[T](tgt:T)(implicit ev:DrawableStrip[T,A]){
-    batch.draw(shader,ev.vertices(tgt),ev.length(tgt))
+
+  def draw[T](tgt: T)(implicit ev: DrawableStrip[T, A]) {
+    batch.draw(shader, ev.vertices(tgt), ev.length(tgt))
   }
-  def end(){
+
+  def end() {
     batch.end(shader)
     shader.end()
     assert(started)
+    started = false
   }
 }
 

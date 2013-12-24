@@ -124,30 +124,3 @@ object TrailedParticleTest {
   fixtureDef.restitution = 0.6f
   fixtureDef.filter.groupIndex = -2
 }
-
-trait ParticleAccessor[T] {
-  def size: Int
-
-  def get(tgt: T, registers: Array[Float])
-
-  def set(tgt: T, newValues: Array[Float])
-}
-
-class Particle {
-  val position = new Vector2
-  val velocity = new Vector2
-  val acceleration = new Vector2
-  var accessor: ParticleAccessor[Any] = null
-
-  def update(delta: Float) {
-    velocity.scl(delta)
-    position.add(velocity)
-
-  }
-
-  def reset() {
-    position.set(0, 0)
-    velocity.set(0, 0)
-    acceleration.set(0, 0)
-  }
-}

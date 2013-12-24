@@ -92,10 +92,6 @@ object UVTrail {
   val WIDTH_ATTRIBUTE = new VertexAttribute(Usage.Generic, 1, WIDTH_ATTRIBUTE_ALIAS)
   val NORMAL_ATTRIBUTE = new VertexAttribute(Usage.Normal, 2, ShaderProgram.NORMAL_ATTRIBUTE)
   val POSITION_ATTRIBUTE_2D = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
-  val ATTRIBUTES = new VertexAttributes(
-    POSITION_ATTRIBUTE_2D,
-    VertexAttribute.Color(),
-    NORMAL_ATTRIBUTE,
-    WIDTH_ATTRIBUTE,
-    LENGTH_ATTRIBUTE)
+  val ATTRIBUTE_SEQ = POSITION_ATTRIBUTE_2D::VertexAttribute.Color()::NORMAL_ATTRIBUTE::WIDTH_ATTRIBUTE::LENGTH_ATTRIBUTE::Nil
+  val ATTRIBUTES = new VertexAttributes(ATTRIBUTE_SEQ:_*)
 }
