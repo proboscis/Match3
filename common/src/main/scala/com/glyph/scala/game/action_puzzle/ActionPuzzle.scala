@@ -24,9 +24,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
   //TODO
   //TODO モードの実装とアップロードの準備\
   //TODO スコアとゲージの実装
-
   //TODO パズルの表示位置がずれる問題を修正(再出現時にずれる)
-
 
   /**
    * what should i do next?
@@ -137,42 +135,52 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
       y < fixed(x).size && ny < fixed(nx).size
 
   def pooledSwipe(x: Int, y: Int, nx: Int, ny: Int) {
-    val anim = Pool.manual[SwipeAnimation]
-
     if (verified(x)(y)(nx)(ny)) {
-
+      val par = auto[Parallel]
+      val seq = auto[Sequence]
       val pa = future(x)(y)
       val pb = future(nx)(ny)
-      var pTaskA: Task = null
-      var pTaskB: Task = null
-      val taskA = anim.init(nx, ny, pa, () => {
-        pa.swipeAnimation -= pTaskA
-        anim.free
+      val taskA = swipeAnimation(nx,ny,pa)
+      val seqA = auto[Sequence]
+      seqA.add(taskA)
+      seqA.add(Do{
+        pa.swipeAnimation -= taskA
       })
-      val taskB = anim.init(nx, ny, pb, () => {
-        pb.swipeAnimation -= pTaskB
-
-        anim.free
+      val taskB = swipeAnimation(x,y,pb)
+      val seqB = auto[Sequence]
+      seqB.add(taskB)
+      seqB.add(Do{
+        pb.swipeAnimation -= taskB
       })
-      if (verified(x)(y)(nx)(ny)) {
-        GMatch3.swap(fixed, x, y, nx, ny)
-        scanAndMark()
-      }
-      pTaskA = taskA
-      pTaskB = taskB
-
-      pa.swipeAnimation += pTaskA
-      pb.swipeAnimation += pTaskB
+      pa.swipeAnimation += taskA
+      pb.swipeAnimation += taskB
       //TODO swap after a or b is finished
       // you have to callback when either of these are unexpectedly stopped
-      val wait = auto[WaitAll]
-      wait.add(pTaskA)
-      wait.add(pTaskB)
-      GMatch3.swap(future, x, y, nx, ny)
-      processor.add(wait)
+      par.add(seqA)
+      par.add(seqB)
+      seq.add(par)
+      seq.add(Do{
+        if (verified(x)(y)(nx)(ny)) {
+          log("swap")
+          GMatch3.swap(fixed, x, y, nx, ny)
+          scanAndMark()
+        }
+      })
+      processor.add(seq)
     }
   }
 
+  def swipeAnimation(nx: Int, ny: Int, pa: AP):Task={
+    import Interpolation._
+    val apx = auto[IPAnimator]
+    val apy = auto[IPAnimator]
+    apx set pa.x to nx in 0.3f using exp10Out
+    apy set pa.y to ny in 0.3f using exp10Out
+    val par = auto[Parallel]
+    par.add(apx)
+    par.add(apy)
+    par
+  }
   class SwipeAnimation {
     var ax, ay:IPAnimator = null
     var waiter: WaitAll = null
@@ -552,7 +560,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
       //matchTimer() = 0f
     }
 
-    val canceller = processor.cancel(_:Task)
+    val cancellor = (t:Task)=>t.cancel()
     def reset() {
       value = null.asInstanceOf[T]
       x() = 0f
@@ -561,7 +569,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
       vy() = 0f
       tx() = 0
       ty() = 0
-      swipeAnimation.foreach(canceller)
+      swipeAnimation.foreach(cancellor)
       swipeAnimation.clear()
       isSwiping()=false
       isFalling()=false
@@ -570,5 +578,4 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
 
     override def toString: String = value + ""
   }
-
 }

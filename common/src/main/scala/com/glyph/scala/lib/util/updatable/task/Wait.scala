@@ -44,11 +44,9 @@ class WaitAll extends Task with Logging with AutoFree{
       }
     }
   }
-
   def add(t:Task){
     tasks += t
   }
-
   override def reset(): Unit = {
     super.reset()
     tasks.clear()

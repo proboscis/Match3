@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.util.animator
 
-import com.glyph.scala.lib.util.updatable.task.InterpolationTask
+import com.glyph.scala.lib.util.updatable.task.{AutoFree, InterpolationTask}
 import com.glyph.scala.lib.util.reactive.Var
 import com.glyph.scala.lib.util.pool.Pooling
 import com.glyph.scala.lib.util.Logging
@@ -21,7 +21,7 @@ object Animator extends AnimatorOps {
 }
 trait AnimatorOps {
   implicit def var2Animating[T](v: Var[T]) = new Animator.Var2Animating[T](v)
-  class IPAnimator(var target: Animating[Float]) extends InterpolationTask {
+  class IPAnimator(var target: Animating[Float]) extends InterpolationTask with AutoFree{
     def this() = this(null)
     var start: Float = 0f
     var end: Float = 0f

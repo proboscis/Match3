@@ -12,6 +12,7 @@ trait SequentialProcessor extends TaskProcessor with Logging{
 
   override def update(delta: Float) {
     super.update(delta)
+
     if (current == null) {
       if (!tasks.isEmpty) {
         current = tasks.dequeue()
