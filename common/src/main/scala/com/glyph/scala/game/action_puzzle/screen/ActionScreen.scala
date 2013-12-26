@@ -43,8 +43,6 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   import game._
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
   val view = new APView(score,puzzle, assets) with Updating
-
-  //TODO uncomment this to enable easing score
   view.add(easedScore)
 
 

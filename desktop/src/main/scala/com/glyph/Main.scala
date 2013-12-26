@@ -12,9 +12,6 @@ import com.glyph.scala.lib.libgdx.game.{ScreenTester, ScreenFileTester}
 import com.glyph.scala.test.TestRunner
 
 object Main {
-  //why cant you do this serialization on the androids?
-  //println(ScreenBuilder.writeConfig(actionScreenConfig))
-  //TODO どうやってスクリーンを決定するかね
   case class Config(screenFile: String = "screens/action.js", resDir: File = new File("../common/src/main/resources/"), fileCheck: Boolean = false, packTexture: Boolean = false, testScreen: String = "")
   implicit object ScoptClass extends scopt.Read[Class[_ <: ScreenBuilder]] {
     def arity: Int = 1
