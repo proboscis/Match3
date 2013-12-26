@@ -15,6 +15,6 @@ trait Task extends Updatable with Logging{
     processor = null
   }
   def cancel(){
-    processor.cancel(this)
+    if(processor != null)processor.cancel(this)
   }
 }

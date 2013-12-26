@@ -9,11 +9,14 @@ import scala.collection.mutable
 import com.glyph.scala.lib.util.pool.{Pool, Pooling}
 import com.glyph.scala.lib.util.animator.Animator
 import scala.Some
+import com.glyph.scala.game.Glyphs
+import Glyphs._
+
 
 /**
  * @author glyph
  */
-class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T, T) => Boolean)
+class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFunction: (T, T) => Boolean)
   extends Logging
   with Timing
   with HeapMeasure {
@@ -45,6 +48,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
   import Animator._
   import Pool._
 
+  val matcher = new Matcher[AP]
   val MATCHING_TIME = 1f
   val generator = new IndexedSeqGen[ArrayBuffer] {
     def convert[T](seq: Seq[T]) = ArrayBuffer.apply(seq: _*)
@@ -53,28 +57,21 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
 
   implicit object PoolingPuzzle extends Pooling[PuzzleBuffer] {
     def newInstance = GMatch3.initialize[AP, ArrayBuffer](COLUMN)(generator)
-    def reset(tgt: PuzzleBuffer) {
-      var x = 0
-      val l = tgt.length
-      while (x < l) {
-        tgt(x).clear()
-        x += 1
-      }
-    }
+    val cleaner = (buf:ArrayBuffer[AP]) => buf.clear()
+    def reset(tgt: PuzzleBuffer)= tgt foreach cleaner
   }
-
-  import com.glyph.scala.lib.util.pooling_task.ReflectedPooling._
 
   val gravity = -10f
   val processor = new ParallelProcessor {}
 
   def initializer: Var[PuzzleBuffer] = Var(manual[PuzzleBuffer])
 
-  implicit object PoolingAP extends Pooling[AP]{
+  implicit object PoolingAP extends Pooling[AP] {
     def newInstance: ActionPuzzle.this.type#AP = new AP
     def reset(tgt: ActionPuzzle.this.type#AP): Unit = tgt.reset()
   }
-  val APseed: () => AP = () =>{
+
+  val APSeed: () => AP = () => {
     val np = manual[AP]
     np.value = seed()
     np
@@ -86,40 +83,32 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
   var panelAdd = (panels: Seq[Seq[AP]]) => {}
   var panelRemove = (panels: Seq[AP]) => {}
 
-
-  def scanAllMatches = {
-    //TODO こいつもバッファベースでやらないと、スキャンするたびにGCが走る....
-    val buf = manual[PuzzleBuffer]
-    GMatch3.fixedFuture(fixed, future, buf)
-    val result = GMatch3.scanAll(buf)(ROW)(COLUMN) {
-      (a, b) => {
-        if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
-          matcher(a.value, b.value)
-        } else {
-          false
-        }
-      }
-    }.filter(_.size > 2)
-    buf.free
-    result
+  val APFilter = (a: AP, b: AP) => {
+    if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
+      filterFunction(a.value, b.value)
+    } else {
+      false
+    }
   }
   def scanAndMark() {
-    for (matches <- scanAllMatches) {
-      //scan all
-      //marking part
-      var chmp = MATCHING_TIME
-      for (p <- matches) {
-        val t = p.matchTimer()
-        if (t > 0 && t < chmp) chmp = t
+    val buf = manual[PuzzleBuffer]
+    GMatch3.fixedFuture(fixed, future, buf)
+    matcher.scanAll(buf, ROW, COLUMN, APFilter, matches => {
+      if (matches.size > 2) {
+        var chmp = MATCHING_TIME
+        for (p <- matches) {
+          val t = p.matchTimer()
+          if (t > 0 && t < chmp) chmp = t
+        }
+        val minimum = chmp
+        matches foreach {
+          p =>
+            if (p.matchTimer() > 0f && minimum == 0f) throw new RuntimeException("what!!???")
+            p.matchTimer() = minimum
+        }
       }
-      val minimum = chmp
-      matches foreach {
-        p =>
-          if (p.matchTimer() > 0f && minimum == 0f) throw new RuntimeException("what!!???")
-          p.matchTimer() = minimum
-      }
-      //log("marked:" + minimum + ":" + matches)
-    }
+    })
+    buf.free
   }
 
   def verified(x: Int)(y: Int)(nx: Int)(ny: Int) =
@@ -133,16 +122,16 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
       val seq = auto[Sequence]
       val pa = future(x)(y)
       val pb = future(nx)(ny)
-      val taskA = swipeAnimation(nx,ny,pa)
+      val taskA = swipeAnimation(nx, ny, pa)
       val seqA = auto[Sequence]
       seqA.add(taskA)
-      seqA.add(Do{
+      seqA.add(Do {
         pa.swipeAnimation -= taskA
       })
-      val taskB = swipeAnimation(x,y,pb)
+      val taskB = swipeAnimation(x, y, pb)
       val seqB = auto[Sequence]
       seqB.add(taskB)
-      seqB.add(Do{
+      seqB.add(Do {
         pb.swipeAnimation -= taskB
       })
       pa.swipeAnimation += taskA
@@ -152,18 +141,18 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
       par.add(seqA)
       par.add(seqB)
       seq.add(par)
-      seq.add(Do{
+      seq.add(Do {
         if (verified(x)(y)(nx)(ny)) {
           GMatch3.swap(fixed, x, y, nx, ny)
           scanAndMark()
         }
       })
       processor.add(seq)
-      GMatch3.swap(future,x,y,nx,ny)
+      GMatch3.swap(future, x, y, nx, ny)
     }
   }
 
-  def swipeAnimation(nx: Int, ny: Int, pa: AP):Task={
+  def swipeAnimation(nx: Int, ny: Int, pa: AP): Task = {
     import Interpolation._
     val apx = auto[IPAnimator]
     val apy = auto[IPAnimator]
@@ -194,7 +183,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
 
   def fill() {
     //log("fill")
-    val filling = future createFillingPuzzle(APseed, COLUMN) //no cost
+    val filling = future createFillingPuzzle(APSeed, COLUMN) //no cost
     if (filling.exists(!_.isEmpty)) {
       //printTime("fill:update failling"){
       val nextFall: PuzzleBuffer = manual[PuzzleBuffer]
@@ -242,8 +231,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
     //TODO free the canceled animation
     panel.swipeAnimation.clear()
   }
-  
-  val panelResetter =(p:AP)=>p.free
+
+  val panelResetter = (p: AP) => p.free
 
   def removeFillUpdateTargetPosition(panels: Seq[AP], fallings: Seq[AP]) {
     //log("remove")
@@ -526,7 +515,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
       //matchTimer() = 0f
     }
 
-    val cancellor = (t:Task)=>t.cancel()
+    val canceler = (t: Task) => t.cancel()
+
     def reset() {
       value = null.asInstanceOf[T]
       x() = 0f
@@ -535,13 +525,12 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
       vy() = 0f
       tx() = 0
       ty() = 0
-      swipeAnimation.foreach(cancellor)
+      swipeAnimation.foreach(canceler)
       swipeAnimation.clear()
-      isSwiping()=false
-      isFalling()=false
-      matchTimer ()= 0f
+      isSwiping() = false
+      isFalling() = false
+      matchTimer() = 0f
     }
-
-    override def toString: String = value + ""
+    override def toString: String = value.toString
   }
 }
