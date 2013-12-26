@@ -65,13 +65,6 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
 
   import com.glyph.scala.lib.util.pooling_task.ReflectedPooling._
 
-  //TODO tune the numbers
-  implicit val animators = Pool[IPAnimator](1000)
-  implicit val waiters = Pool[WaitAll](100)
-  implicit val finishes = Pool[OnFinish](100)
-  implicit val swipeAnimations = Pool[SwipeAnimation](() => new SwipeAnimation, 100)
-  implicit val puzzlePool = Pool[PuzzleBuffer](100)
-
   val gravity = -10f
   val processor = new ParallelProcessor {}
 
@@ -161,12 +154,12 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
       seq.add(par)
       seq.add(Do{
         if (verified(x)(y)(nx)(ny)) {
-          log("swap")
           GMatch3.swap(fixed, x, y, nx, ny)
           scanAndMark()
         }
       })
       processor.add(seq)
+      GMatch3.swap(future,x,y,nx,ny)
     }
   }
 
@@ -180,33 +173,6 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, matcher: (T,
     par.add(apx)
     par.add(apy)
     par
-  }
-  class SwipeAnimation {
-    var ax, ay:IPAnimator = null
-    var waiter: WaitAll = null
-    var onFin: OnFinish = null
-    def init( nx: Int, ny: Int, pa: AP, callback: () => Unit): Task = {
-      import Interpolation._
-      ax = animators.obtain set pa.x to nx in 0.3f using exp10Out
-      ay = animators.obtain set pa.y to ny in 0.3f using exp10Out
-      waiter = auto[WaitAll]
-      waiter.add(ax)
-      waiter.add(ay)
-      onFin = auto[OnFinish]
-      onFin.setCallback(callback)
-      onFin.setTask(waiter)
-      onFin
-    }
-
-    def reset() {
-      //TODO こいつをリストに収めておきたい><
-      if (ax != null) ax.free
-      if (ay != null) ay.free
-      ax = null
-      ay = null
-      waiter = null
-      onFin = null
-    }
   }
 
   def setFallingFlag() {

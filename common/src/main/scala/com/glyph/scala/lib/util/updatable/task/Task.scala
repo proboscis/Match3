@@ -11,7 +11,9 @@ trait Task extends Updatable with Logging{
   def onStart(){}
   def onFinish(){}
   def onCancel(){}
-  def reset(){}
+  def reset(){
+    processor = null
+  }
   def cancel(){
     processor.cancel(this)
   }

@@ -53,7 +53,8 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading {
   }
 
 
-  def add(task: Task): TaskProcessor = {
+  override def add(task: Task): TaskProcessor = {
+    super.add(task)
     queuedTasks += task
     this
   }

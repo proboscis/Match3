@@ -33,7 +33,8 @@ trait SequentialProcessor extends TaskProcessor with Logging{
     }
   }
 
-  def add(task: Task): TaskProcessor = {
+  override def add(task: Task): TaskProcessor = {
+    super.add(task)
     tasks += task
     this
   }
