@@ -15,7 +15,6 @@ class SpriteActor extends DrawSprite{
   }
 
 
-
   override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     drawSprite(batch, sprite, parentAlpha)
