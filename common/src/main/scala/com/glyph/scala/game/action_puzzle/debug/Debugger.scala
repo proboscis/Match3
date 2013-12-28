@@ -3,12 +3,12 @@ package com.glyph.scala.game.action_puzzle.debug
 import com.glyph.scala.lib.libgdx.game.{ApplicationConfig, ScreenBuilderSupport, ConfiguredGame}
 import com.badlogic.gdx.{InputMultiplexer, Gdx, Game}
 import com.badlogic.gdx.scenes.scene2d.ui.{Widget, WidgetGroup, Table}
-import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.{Actor, Stage}
 import com.badlogic.gdx.graphics.{Color, Texture, GL10}
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, LoadingScreen}
 import com.glyph.scala.game.action_puzzle.view.{ActionPuzzleTableScreen, ActionPuzzleTable}
-import com.badlogic.gdx.math.{Matrix4, Rectangle, Vector2}
+import com.badlogic.gdx.math.{Vector3, Matrix4, Rectangle, Vector2}
 import com.glyph.scala.lib.util.Logging
 import com.glyph.scala.game.Glyphs
 import Glyphs._
@@ -21,43 +21,55 @@ import com.glyph.scala.lib.util.gl.ViewportStack
  * @author glyph
  */
 class Debugger extends Game with AssetManagerSupport with ConfiguredGame{
-//I think I need some refucktoring
-  override def deskTopConfig: ApplicationConfig = ApplicationConfig(1920,1080)
+  val (h,w)=(1920/3,(1920 / 3 * 9d / 16d).toInt)
+
+  override def deskTopConfig: ApplicationConfig = ApplicationConfig(w*2,h)
 
   def create(): Unit = {
     implicit val assetManager = new AssetManager
     loadAssets(assetManager,ActionPuzzleTable.requiredAssets,()=>{
       setScreen(new ConfiguredScreen {
-
-        override def STAGE_WIDTH: Int = 1920
-        override def STAGE_HEIGHT: Int = 1080
-
-        val (w,h)=(1920/3,(1920 / 3 * 9d / 16d).toInt)
-
-        val table = new ActionPuzzleTable(assetManager,1920/2,1080)
-
+        override def STAGE_WIDTH: Int =  w*2
+        override def STAGE_HEIGHT: Int = h*2
+        val table = new ActionPuzzleTable(assetManager,w,h)
         val staged = new StagedTable(w,h)
         val tex:Texture = "data/dummy.png".fromAssets
         val spriteActor = new SpriteActor
 
+        /*
         spriteActor.sprite.setTexture(tex)
         spriteActor.sprite.asInstanceOf[TextureRegion].setRegion(0,0,tex.getWidth,tex.getHeight)
         spriteActor.setSize(50,50)
         spriteActor.setColor(Color.WHITE)
+        */
         table.setSize(w,h)
         staged.stage.addActor(table)
-        staged.stage.addActor(spriteActor)
-        root.add(staged).fill.expand
+        //staged.stage.addActor(spriteActor)
+        root.add(staged).size(w,h)
         root.debug()
         debug() = true
-
       })
     })
   }
 }
+//TODO how about a table with resolution?
+//The event system canot be helped...
 class StagedTable(width:Int,height:Int) extends Widget with Logging{
   val stage = new Stage(width,height,true)
   val area,screenArea = new Rectangle
+
+  val hitTmp = new Vector3
+  override def hit(x: Float, y: Float, touchable: Boolean): Actor = {
+    //super.hit(x, y, touchable)
+    hitTmp.set(x,y,0)
+    log("before",hitTmp)
+    log("after",hitTmp)
+    stage.getRoot.hit(hitTmp.x/2,hitTmp.y/2,touchable)
+    //super.hit(x,y,touchable)
+  }
+
+
+
   override def act(delta: Float): Unit = {
     super.act(delta)
     stage.act(delta)
@@ -79,7 +91,7 @@ class StagedTable(width:Int,height:Int) extends Widget with Logging{
     area.set(getX,getY,getWidth,getHeight)
     ActorUtil.getBounds(getStage.getCamera)(area)(screenArea)(getStage.getSpriteBatch.getTransformMatrix)
     stage.setViewport(width,height,true,screenArea.x,screenArea.y,screenArea.width,screenArea.height)
-    stage.getCamera.translate(-stage.getGutterWidth,-stage.getGutterHeight, 0)
+    //stage.getCamera.translate(-stage.getGutterWidth,-stage.getGutterHeight, 0)
   }
 }
 
