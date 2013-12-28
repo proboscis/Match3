@@ -8,7 +8,7 @@ import com.glyph.scala.lib.libgdx.actor._
 import com.badlogic.gdx.graphics.{GL10, Texture}
 import com.glyph.scala.lib.util.{reactive, ColorUtil, Logging}
 import com.glyph.scala.lib.util.pool.Pool
-import com.badlogic.gdx.graphics.g2d.{Batch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{TextureRegion, Batch, Sprite}
 import scala.collection.mutable.ArrayBuffer
 import com.glyph.scala.lib.util.updatable.task.{InterpolatedFunctionTask, TimedFunctionTask}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
@@ -43,6 +43,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   with AdditiveBlend
   with Scissor
   with Paneled2 {
+  log("new APView")
   ShaderProgram.pedantic = false
   import com.glyph.scala.lib.util.pooling_task.ReflectedPooling._
   preAlloc[MyTrail](1000)
@@ -51,7 +52,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   val spriteTrailArray = new com.badlogic.gdx.utils.Array[Seq[(Sprite,MyTrail)]](1000)
   val shader = ShaderHandler("shader/rotate2.vert", "shader/default.frag")
   val batch = new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES)
-  val dummytex = assets.get[Texture]("data/particle.png")
+  val dummyTex = assets.get[Texture]("data/particle.png")
   val combined = new Matrix4
   val trailRenderer = shader.applier(
     s => {
@@ -61,7 +62,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
       s.begin()
       s.setUniformMatrix("u_projTrans",combined.set(getStage.getSpriteBatch.getProjectionMatrix).mul(computeTransform()))
       s.setUniformi("u_texture", 0)
-      dummytex.bind()
+      dummyTex.bind()
       batch.begin()
       spriteTrailArray.iterator().foreach(_.foreach{
         case(sp,trail) =>
@@ -145,7 +146,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
     WordParticle.start(sprites, WordParticle.popSprites(sprites)(token.getX + token.getWidth / 2f - halfW(sprites), token.getY, () => token.getHeight / 2 - meanH(sprites), 0.7f))
   }
 
-  def addParticles(token: Token[T]) {
+  def addParticles(token: Token[T]){
     val duration = 1f
     val buf = manual[ArrayBuffer[Sprite]]
     val velBuf = manual[ArrayBuffer[Float]]
@@ -157,7 +158,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
       () => {
         //TextureUtil.split(token.sprite)(8)(8)(buf)
         val texture = assets.get[Texture]("data/particle.png")
-        0 to ((score() + 1) / 10) foreach {
+        0 to (score() / 100) foreach {
           _ => val p = manual[Sprite]
             p.setTexture(texture)
             p.setRegion(0f, 0f, 1f, 1f)
@@ -227,3 +228,34 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
     batch.begin()
   }
 }
+/*
+(puzzle.falling::puzzle.fixed::puzzle.future::Nil) map (new APDebugView(_)) foreach{
+    view =>
+  }
+  class APDebugView(tgt:this.puzzle.PuzzleBuffer) extends Group{
+    val sprite = manual[Sprite]
+    sprite.setTexture("data/dummy.png".fromAssets(assets))
+    sprite.asInstanceOf[TextureRegion].setRegion(0,0,1,1)
+    override def draw(batch: Batch, parentAlpha: Float): Unit = {
+      super.draw(batch, parentAlpha)
+      for{
+        (fx,fy) <- gridFunctions()
+      }{
+        var x = 0
+        val width = tgt.length
+        while(x < width){
+          var y = 0
+          val row = tgt(x)
+          val height = row.length
+          while(y < height){
+            sprite.setPosition(fx.indexToAlpha(x)*getWidth,fy.indexToAlpha(y)*getHeight )
+            sprite.setSize(fx.tokenSize * getWidth,fy.tokenSize*getHeight)
+            sprite.setColor(Token.colorMap(tgt(x)(y).value)())
+            y += 1
+          }
+          x += 1
+        }
+      }
+    }
+  }
+ */

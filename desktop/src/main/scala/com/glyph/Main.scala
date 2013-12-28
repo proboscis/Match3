@@ -1,6 +1,7 @@
 package com.glyph
 
 import _root_.java.io.File
+import _root_.scala.util.Try
 import com.badlogic.gdx.backends.lwjgl._
 import com.badlogic.gdx.tools.imagepacker.TexturePacker2
 import com.glyph.scala.lib.util.reactive.RFile
@@ -8,11 +9,21 @@ import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import scalaz._
 import Scalaz._
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
-import com.glyph.scala.lib.libgdx.game.{ScreenTester, ScreenFileTester}
+import com.glyph.scala.lib.libgdx.game.{ApplicationConfig, ConfiguredGame, ScreenTester, ScreenFileTester}
 import com.glyph.scala.test.TestRunner
+import com.badlogic.gdx.Game
+import com.glyph.scala.lib.libgdx.game
 
 object Main {
-  case class Config(screenFile: String = "screens/action.js", resDir: File = new File("../common/src/main/resources/"), fileCheck: Boolean = false, packTexture: Boolean = false, testScreen: String = "")
+  case class Config(
+            screenFile: String = "screens/action.js",
+            resDir: File = new File("../common/src/main/resources/"),
+            fileCheck: Boolean = false,
+            packTexture: Boolean = false,
+            testScreen: String = "",
+            gameClass: String = "",
+            height:Int =  1920 / 3,
+            width:Int = (1920/3 * 9d/16d).toInt)
   implicit object ScoptClass extends scopt.Read[Class[_ <: ScreenBuilder]] {
     def arity: Int = 1
     def reads: (String) => Class[_ <: ScreenBuilder] = clsName => Class.forName(clsName, false, ClassLoader.getSystemClassLoader).asInstanceOf[Class[_ <: ScreenBuilder]]
@@ -41,13 +52,28 @@ object Main {
       opt[String]('t', "test") action {
         (t, config) => config.copy(testScreen = t)
       } text "specify the name of test screen"
-
-
+      opt[String]('g',"game_class") action{
+        (t,config)=> config.copy(gameClass = t)
+      } text "specify the class name of the game"
+      opt[Int]('h',"height") action{
+        (h,config)=> config.copy(height = h)
+      } text "resolution of height"
+      opt[Int]('w',"width") action{
+        (w,config)=> config.copy(width = w)
+      } text "resolution of width"
       help("help") text "prints this message"
     }
 
     parser.parse(args, Config()) map {
-      case Config(screenFileName, resDir, fileCheck, packTexture, testScreen) => {
+      case Config(
+      screenFileName,
+      resDir,
+      fileCheck,
+      packTexture,
+      testScreen,
+      gameClass,
+      height,
+      width) => {
         val resourceDir = resDir.getAbsolutePath
         GdxFile.absResourceDir = {
           println("specified resource directory:" + resDir + "=>" + resourceDir)
@@ -63,16 +89,28 @@ object Main {
         }
         val cfg = new LwjglApplicationConfiguration()
         cfg.title = "Game"
-        val ratio = 9d / 16d
-        val height = 1920 / 3
         cfg.height = height
-        cfg.width = (height * ratio).toInt
+        cfg.width = width
         cfg.useGL20 = true
-        testScreen match {
-          case "" => new LwjglApplication(new TestRunner, cfg)
-          case "" => new LwjglApplication(new ScreenFileTester(screenFileName), cfg)
-          case _ => new LwjglApplication(new TestRunner(testScreen), cfg)
-          case _ => new LwjglApplication(new ScreenTester(testScreen), cfg)
+        Try(Class.forName(gameClass)) match{
+          case util.Success(s)=> {
+            (s.newInstance() match{
+              case game:ConfiguredGame => {
+                val ApplicationConfig(width,height) = game.deskTopConfig
+                cfg.width = width
+                cfg.height = height
+                game
+              }
+              case game=> game
+            }).asInstanceOf[Game] |> (new LwjglApplication(_,cfg))
+          }
+          case util.Failure(f)=>
+            testScreen match {
+              case "" => new LwjglApplication(new TestRunner, cfg)
+              case "" => new LwjglApplication(new ScreenFileTester(screenFileName), cfg)
+              case _ => new LwjglApplication(new TestRunner(testScreen), cfg)
+              case _ => new LwjglApplication(new ScreenTester(testScreen), cfg)
+            }
         }
       }
     }

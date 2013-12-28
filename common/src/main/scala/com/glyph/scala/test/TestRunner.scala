@@ -1,7 +1,7 @@
 package com.glyph.scala.test
 
 import com.glyph.scala.lib.libgdx.game.ScreenBuilderSupport
-import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
+import com.glyph.scala.lib.libgdx.screen.{LoadingScreen, ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx
 import com.badlogic.gdx.scenes.scene2d.ui.{List => GdxList, TextButton, ScrollPane, Skin}
@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.{BitmapFont, TextureAtlas}
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.{Screen, Gdx}
+import com.badlogic.gdx._
 import com.glyph.scala.game.action_puzzle.screen.ActionPuzzleScreen
 import scala.util.Try
 import scalaz._
@@ -18,59 +18,79 @@ import Scalaz._
 import com.glyph.scala.lib.libgdx.font.FontUtil
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
 import com.glyph.scala.lib.libgdx.DrawFPS
+import scalaz.Success
+import com.badlogic.gdx.Input.Keys
+import scala.collection.mutable
+import com.glyph.scala.game.action_puzzle.view.ActionPuzzleTableScreen
 
 /**
  * @author glyph
  */
 class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
 
+  import TestClass._
   lazy val font = FontUtil.internalFont("font/corbert.ttf", Gdx.graphics.getHeight / 20)
-
   def debugFont: BitmapFont = font
-
   def this() = this("")
 
-  type ->[A, B] = (A, B)
-
   import ScreenBuilder._
-
   //typeOf[Int] <:< typeOf[String]
+  val screenStack = mutable.Stack[Screen]()
+  val screenPopProcessor = new InputAdapter {
+    override def keyDown(keycode: Int): Boolean = {
+      if (keycode == Keys.BACK || keycode == Keys.ESCAPE) {
+        popScreen()
+        true
+      } else super.keyDown(keycode)
+    }
+  }
+
+  override def setScreen(screen: Screen): Unit = {
+    if(getScreen != null){
+      screenStack.push(getScreen)
+    }
+    setScreenWithProcessor(screen)
+  }
+
+  override def resume(): Unit = {
+    println("resume!")
+    if(!assetManager.update()){
+      setScreenWithProcessor(new LoadingScreen(() => {
+        pausedScreen foreach setScreenWithProcessor
+      }, assetManager))
+    }else{
+      pausedScreen foreach setScreenWithProcessor
+    }
+    pausedScreen = None
+  }
+
+  def setScreenWithProcessor(screen:Screen){
+    log("screen stack:"+screenStack.map(_.getClass.getSimpleName))
+    Gdx.input.setInputProcessor(screenPopProcessor)
+    super.setScreen(screen)
+    val screenInputProcessor = Gdx.input.getInputProcessor
+    val multiplexer = new InputMultiplexer()
+    multiplexer.addProcessor(screenPopProcessor)
+    multiplexer.addProcessor(screenInputProcessor)
+    Gdx.input.setInputProcessor(multiplexer)
+  }
+  def popScreen(){
+    log("pop screen"+screenStack.map(_.getClass.getSimpleName))
+    if (!screenStack.isEmpty) {
+      screenStack.pop() match {
+        case s:LoadingScreen => popScreen()
+        case s => setScreenWithProcessor(s)
+      }
+    }else{
+      log("exit app")
+      Gdx.app.exit()
+    }
+  }
 
   override def create() {
     super.create()
-    val builderClasses =
-        classOf[ActionPuzzleScreen] ::
-        classOf[TrailedParticleTest] ::
-        classOf[ParticleTest]::
-        classOf[UVTrailTest] ::
-        classOf[ImmediateTest] ::
-        classOf[WordParticle] :: Nil
-    val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
-    val screenClasses =
-        classOf[ShaderRotationTest] ::
-        classOf[ExplosionTest] ::
-        classOf[MeshTest] ::
-        classOf[TrailTest] ::
-        classOf[EffectTest] ::
-        classOf[FrameBufferTest] ::
-        classOf[WindowTest] ::
-        classOf[ComboEffect] ::
-        Nil
+    Gdx.input.setCatchBackKey(true)
 
-    val classBuilders = builderClasses map (c => c.newInstance() -> c.getSimpleName)
-    val fileBuilders = files map {
-      f => createFromJson(f) -> f
-    } collect {
-      case (Success(s), f) => s -> f
-    }
-    val pkgBuilders = screenClasses map {
-      clazz => new ScreenBuilder {
-        def requiredAssets: Set[(Class[_], Seq[String])] = Set()
-
-        def create(assetManager: AssetManager): Screen = clazz.newInstance()
-      } -> clazz.getSimpleName
-    }
-    val builders: Seq[ScreenBuilder -> String] = classBuilders ++ pkgBuilders ++ fileBuilders
     className match {
       case "" => setBuilder(new MenuScreen)
       case c => setBuilder(Class.forName(c).newInstance() match {
@@ -84,7 +104,6 @@ class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
     }
 
     class MenuScreen extends ScreenBuilder {
-
       def requiredAssets: Set[(Class[_], Seq[String])] = Set(
         classOf[TextureAtlas] -> ("skin/default.atlas" :: Nil),
         classOf[Skin] -> ("skin/holo/Holo-dark-xhdpi.json" :: Nil)
@@ -108,12 +127,9 @@ class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
         scrolling.setScrollingDisabled(false, false)
         root.add(scrolling).fill.expand(1, 9).row
         root.add(button).fill.expand(1, 1)
-
       }
     }
-
   }
-
   def tryToVnel2[T](t: Try[T]): ValidationNel[Throwable, T] = t match {
     case scala.util.Success(s) => s.successNel
     case scala.util.Failure(f) => f.failNel

@@ -12,8 +12,9 @@ import com.glyph.scala.lib.util.Logging
  * @author proboscis
  */
 trait SpriteBatchRenderer extends Group {
+  import com.glyph.scala.game.Glyphs
+  import Glyphs._
   import SpriteBatchRenderer._
-  import Pool._
 
   val renderers = new SnapshotArray[PooledRenderer[_]]()
 

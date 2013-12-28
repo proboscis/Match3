@@ -6,6 +6,7 @@ import scala.util.Try
 import scalaz._
 import Scalaz._
 import scala.concurrent.Future
+import com.glyph.scala.lib.util.pool.Pool
 
 /**
  * @author glyph
@@ -28,4 +29,5 @@ object Glyphs
   implicit class ValidationThrowableOps[V](val vnel:ValidationNel[Throwable,ValidationNel[Throwable,V]])extends AnyVal{
     def flatten = vnel.flatMap(identity)
   }
+
 }

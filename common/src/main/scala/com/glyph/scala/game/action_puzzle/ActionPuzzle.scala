@@ -20,6 +20,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   extends Logging
   with Timing
   with HeapMeasure {
+  log("new ActionPuzzle")
   //TODO where is allocation?????
   //TODO システムを決めなければ、素材を作ることができない。
   //TODO
@@ -29,6 +30,9 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   //TODO スコアとゲージの実装
   //TODO パズルの表示位置がずれる問題を修正(再出現時にずれる)
 
+  //TODO 初回起動時に中断し再度開始するとfalling状態のパネルが戻らなくなり、パズルを再生成しても改善されない問題
+  //APView も ActionPuzzleも毎回newされているのに、評価がおかしくなるということは、どこかのグローバル変数を参照しているためか。
+  //Poolを無効にしても発生するため、それ以外が問題なはず
   /**
    * what should i do next?
    * scoring
@@ -76,6 +80,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     np.value = seed()
     np
   }
+  //TODO　このようにステート管理することが間違いだったのでは？
   val fixed = manual[PuzzleBuffer]
   val falling = manual[PuzzleBuffer]
   val future = manual[PuzzleBuffer]
