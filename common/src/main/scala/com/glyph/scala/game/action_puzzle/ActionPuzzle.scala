@@ -74,6 +74,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     def newInstance: ActionPuzzle.this.type#AP = new AP
     def reset(tgt: ActionPuzzle.this.type#AP): Unit = tgt.reset()
   }
+  implicit val APPool = Pool[AP](100)
+
 
   val APSeed: () => AP = () => {
     val np = manual[AP]
@@ -154,6 +156,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       })
       processor.add(seq)
       GMatch3.swap(future, x, y, nx, ny)
+      updateTargetPosition()
+
     }
   }
 
@@ -288,6 +292,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   }
 
   def updateTargetPosition() {
+    log("update target position")
     var x = 0
     val ft = future
     val width = ft.length
@@ -451,6 +456,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
    * container of the actual panel
    */
   class AP extends Reactor {
+    var debugState = 0
     //TODO make this poolable
     var value: T = null.asInstanceOf[T]
     val x = Var(0f)
@@ -459,6 +465,9 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     val vy = Var(0f)
     val tx = Var(0)
     val ty = Var(0)
+    val next = tx~ty map{
+      case xx~yy => future(xx).lift(yy-1)
+    }
     val swipeAnimation = new ArrayBuffer[Task]() {
       override def +=(elem: Task): this.type = {
         val res = super.+=(elem)
@@ -485,19 +494,21 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     def updateFall(delta: Float): Boolean = {
       val nx = x() + vx() * delta
       var ny = y() + vy() * delta
-      val next = PartialFunction.condOpt(ty() - 1)(future(tx()))
+      val next = future(tx()).lift(ty()-1)
       val finished = next match {
-        case Some(p) if fixed.exists(_.contains(p)) => (ny - ty()) < 0f
-        case Some(p) if ny - p.y() < 1f => {
+        case Some(p) if fixed.exists(_.contains(p)) => debugState = 1;(ny - ty()) < 0f//yellow
+        case Some(p) if ny - p.y() < 1f => {//すべてのパネルがこのステートに入ってしまっている・・・・//green
+          debugState = 2
           //if above the next panel
           ny = p.y() + 1
           vy() = p.vy()
           //clear()
           false
         }
-        case _ => (ny - ty()) < 0f
+        case _ => debugState = 3;(ny - ty()) < 0f//RED
       }
       if (finished) {
+        debugState = 0
         ny = ty()
         clear() //こいつがmatchTimerまでリセットしていやがった
       }
@@ -523,6 +534,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     val canceler = (t: Task) => t.cancel()
 
     def reset() {
+      log("reset")
+      debugState = 0
       value = null.asInstanceOf[T]
       x() = 0f
       y() = 0f

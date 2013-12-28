@@ -7,11 +7,14 @@ import com.glyph.scala.lib.libgdx.actor.action.Shivering
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.glyph.scala.lib.util.{ColorUtil, reactive, Logging}
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Table}
+import com.badlogic.gdx.scenes.scene2d.ui.{WidgetGroup, Skin, Table}
 import scalaz._
 import Scalaz._
-import reactive._
 import com.glyph.scala.lib.libgdx.actor.ui.RLabel
+import com.glyph.scala.game.Glyphs
+import Glyphs._
+import com.glyph.scala.lib.util.reactive.{Varying, Var, Reactor}
+import com.badlogic.gdx.utils.NumberUtils
 
 /**
  * @author glyph
@@ -43,10 +46,32 @@ class Token[T](var panel: ActionPuzzle[T]#AP, assets: AssetManager)
       } | col)
     }
     add(spriteActor).fill.expand
-    //add(new RLabel(skin,panel.matchTimer.map("%.1f".format(_)))).fill.expand
+    //spriteActor.setSize(50,50)
+    /*
+    val group = new WidgetGroup
+    val label = new RLabel(skin,(panel.tx ~ panel.ty).map{
+      case x~y => "%.1f,%.1f".format(x,y)
+    })
+    label.setFontScale(0.5f)
+    */
+    /*
+    group.addActor(label)
+    group.addActor(spriteActor)
+    //add(group).size(getWidth/2,getHeight)
+    add(group).fill.expand
+    */
     reactVar(panel.isMatching) {
       flag => if (flag) startShivering(spriteActor) else stopShivering()
     }
+    //reactVar(c)(spriteActor.setColor)
+    /*
+    reactSome(p.next){
+      case n => {
+        val c = new Color(NumberUtils.floatToIntColor(n.hashCode))
+        spriteActor.setColor(c)
+      }
+    }
+    */
     reactVar(c)(spriteActor.setColor)
   }
 

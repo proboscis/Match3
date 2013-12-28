@@ -22,11 +22,12 @@ import scalaz.Success
 import com.badlogic.gdx.Input.Keys
 import scala.collection.mutable
 import com.glyph.scala.game.action_puzzle.view.ActionPuzzleTableScreen
+import com.glyph.scala.lib.util.Logging
 
 /**
  * @author glyph
  */
-class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
+class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS with Pop{
 
   import TestClass._
   lazy val font = FontUtil.internalFont("font/corbert.ttf", Gdx.graphics.getHeight / 20)
@@ -35,22 +36,6 @@ class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
 
   import ScreenBuilder._
   //typeOf[Int] <:< typeOf[String]
-  val screenStack = mutable.Stack[Screen]()
-  val screenPopProcessor = new InputAdapter {
-    override def keyDown(keycode: Int): Boolean = {
-      if (keycode == Keys.BACK || keycode == Keys.ESCAPE) {
-        popScreen()
-        true
-      } else super.keyDown(keycode)
-    }
-  }
-
-  override def setScreen(screen: Screen): Unit = {
-    if(getScreen != null){
-      screenStack.push(getScreen)
-    }
-    setScreenWithProcessor(screen)
-  }
 
   override def resume(): Unit = {
     println("resume!")
@@ -62,29 +47,6 @@ class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
       pausedScreen foreach setScreenWithProcessor
     }
     pausedScreen = None
-  }
-
-  def setScreenWithProcessor(screen:Screen){
-    log("screen stack:"+screenStack.map(_.getClass.getSimpleName))
-    Gdx.input.setInputProcessor(screenPopProcessor)
-    super.setScreen(screen)
-    val screenInputProcessor = Gdx.input.getInputProcessor
-    val multiplexer = new InputMultiplexer()
-    multiplexer.addProcessor(screenPopProcessor)
-    multiplexer.addProcessor(screenInputProcessor)
-    Gdx.input.setInputProcessor(multiplexer)
-  }
-  def popScreen(){
-    log("pop screen"+screenStack.map(_.getClass.getSimpleName))
-    if (!screenStack.isEmpty) {
-      screenStack.pop() match {
-        case s:LoadingScreen => popScreen()
-        case s => setScreenWithProcessor(s)
-      }
-    }else{
-      log("exit app")
-      Gdx.app.exit()
-    }
   }
 
   override def create() {
@@ -133,5 +95,46 @@ class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS {
   def tryToVnel2[T](t: Try[T]): ValidationNel[Throwable, T] = t match {
     case scala.util.Success(s) => s.successNel
     case scala.util.Failure(f) => f.failNel
+  }
+}
+trait Pop extends Game with Logging{
+  val screenStack = mutable.Stack[Screen]()
+  val screenPopProcessor = new InputAdapter {
+    override def keyDown(keycode: Int): Boolean = {
+      if (keycode == Keys.BACK || keycode == Keys.ESCAPE) {
+        popScreen()
+        true
+      } else super.keyDown(keycode)
+    }
+  }
+
+  override def setScreen(screen: Screen): Unit = {
+    if(getScreen != null){
+      screenStack.push(getScreen)
+    }
+    setScreenWithProcessor(screen)
+  }
+
+  def setScreenWithProcessor(screen:Screen){
+    log("screen stack:"+screenStack.map(_.getClass.getSimpleName))
+    Gdx.input.setInputProcessor(screenPopProcessor)
+    super.setScreen(screen)
+    val screenInputProcessor = Gdx.input.getInputProcessor
+    val multiplexer = new InputMultiplexer()
+    multiplexer.addProcessor(screenPopProcessor)
+    multiplexer.addProcessor(screenInputProcessor)
+    Gdx.input.setInputProcessor(multiplexer)
+  }
+  def popScreen(){
+    log("pop screen"+screenStack.map(_.getClass.getSimpleName))
+    if (!screenStack.isEmpty) {
+      screenStack.pop() match {
+        case s:LoadingScreen => popScreen()
+        case s => setScreenWithProcessor(s)
+      }
+    }else{
+      log("exit app")
+      Gdx.app.exit()
+    }
   }
 }

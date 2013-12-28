@@ -34,7 +34,7 @@ trait Reactor {
 
   def reactSome[T](v: Varying[Option[T]])(callback: (T) => Unit): Observer[Option[T]] = new Observer[Option[T]](v, {
     case Some(r) => callback(r)
-    case None => println("failed")
+    case None => //println("failed")
   })
 
   def reactSuccess[T,R](v: Varying[Try[T]])(cb: (T) => R): Observer[Try[T]] = new Observer[Try[T]](v, {

@@ -18,7 +18,6 @@ trait PerspectiveRenderer extends Actor {
   camera.far = 1000
   val area = new Rectangle()
   val bound = new Rectangle()
-
   //TODO strategyの切り替え実装
   override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)

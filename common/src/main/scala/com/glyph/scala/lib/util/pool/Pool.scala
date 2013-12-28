@@ -39,6 +39,7 @@ class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
     } else {
       pool.dequeue()
     }
+
   }
 
   def reset(tgt: P) {
