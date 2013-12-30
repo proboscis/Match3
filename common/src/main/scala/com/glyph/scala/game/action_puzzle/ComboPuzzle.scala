@@ -18,8 +18,8 @@ class ComboPuzzle {
     time() -= delta
     puzzle.update(delta + (score()/1000f/1000f))
   }
-  var onPanelRemove = (seq:Seq[puzzle.AP])=>{}
-  var onPanelAdd = (seq:Seq[Seq[puzzle.AP]])=>{}
+  var onPanelRemove = (seq:IndexedSeq[puzzle.AP])=>{}
+  var onPanelAdd = (seq:IndexedSeq[IndexedSeq[puzzle.AP]])=>{}
   puzzle.panelRemove = seq => {
     combo() += seq.size
     score() += 10 * seq.size

@@ -73,7 +73,7 @@ class AppliedTrailTest(nSprites: Int, batch: BaseStripBatch, shader: ShaderHandl
   val hRand = () => random(0f, STAGE_HEIGHT)
   val whRand = () => (wRand(), hRand())
   TrailOps.createAnimation(trails)(whRand, whRand).repeat(-1, 0).start(tweenManager)
-
+  implicit val cls = classOf[Seq[Sprite]]
   renderer.addDrawable(sprites)
 
 

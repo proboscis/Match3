@@ -4,19 +4,23 @@ import ref.WeakReference
 import scala.util.{Success, Failure, Try}
 import java.util.Observer
 import com.glyph.scala.lib.util.collection.GlyphArray
+import com.glyph.scala.lib.util.pool.{Poolable, Pool, Pooling}
+import com.glyph.scala.lib.util.{Logging, reactive}
+import com.glyph.scala.lib.util
 
 //TODO the observer is not released even if the reactive is disposed!!
 /**
  * @author glyph
  */
 trait Reactor {
-  private val observers: com.badlogic.gdx.utils.Array[Observer[_]] = new com.badlogic.gdx.utils.Array[Reactor.this.type#Observer[_]]()
-  private var debugging = false
-  private var debugMsg = " "
+  private val observers: com.badlogic.gdx.utils.Array[Observer[_]] = new com.badlogic.gdx.utils.Array[Observer[_]]()
+  var reactorDebugging = false
+  var reactorDebugMsg = " "
 
+  import Reactor._
   def debugReaction(msg: String = "") {
-    debugging = true
-    debugMsg = msg
+    reactorDebugging = true
+    reactorDebugMsg = msg
   }
 
   def reactors = observers
@@ -29,89 +33,96 @@ trait Reactor {
    * @tparam T
    * @return
    */
-  def reactVar[T](v: Varying[T])(callback: (T) => Unit): Observer[T] = new Observer(v, callback)
-
-  def reactEvent[T](src: EventSource[T])(callback: (T) => Unit): Observer[T] = new Observer(src, callback)
-
-  def reactSome[T](v: Varying[Option[T]])(callback: (T) => Unit): Observer[Option[T]] = new Observer[Option[T]](v, {
-    case Some(r) => callback(r)
-    case None => //println("failed")
-  })
-
-  def reactSuccess[T,R](v: Varying[Try[T]])(cb: (T) => R): Observer[Try[T]] = new Observer[Try[T]](v, {
-    case Success(s) => cb(s)
-    case Failure(f) => f.printStackTrace()
-  })
-
-  protected def check[T](v: Reactive[T])(callback: PartialFunction[T, Unit]): Observer[T] = new Observer(v, (t: T) => callback(t))
-
-  protected def reactAnd[T](v: Reactive[T])(callback: (T, Observer[T]) => Unit): Observer[T] = {
-    var o: Observer[T] = null
-    o = new Observer(v, (t: T) => {
-      callback(t, o)
-    })
-    o
+  def reactVar[T](v: Varying[T])(callback: (T) => Unit): Observer[T] = {
+    val observer = obtainObserver[T]
+    observer.init(this,v,callback)
+    observer
   }
 
+  def reactEvent[T](src: EventSource[T])(callback: (T) => Unit): Observer[T] ={
+    val observer = obtainObserver[T]
+    observer.init(this,src,callback)
+    observer
+  }
+
+  /**
+   * this creates an annonfun
+   * @param v
+   * @param callback
+   * @tparam T
+   * @return
+   */
+  def reactSome[T](v: Varying[Option[T]])(callback: (T) => Unit): Observer[Option[T]] ={
+    val observer = obtainObserver[Option[T]]
+    observer.init(this,v,opt =>{
+      if(opt.isDefined)callback(opt.get)
+    })
+    observer
+  }
+
+  /**
+   * this creates an annonfun
+   * @param v
+   * @param cb
+   * @tparam T
+   * @tparam R
+   * @return
+   */
+  def reactSuccess[T,R](v: Varying[Try[T]])(cb: (T) => R): Observer[Try[T]] = {
+    val observer = obtainObserver[Try[T]]
+    observer.init(this,v,t =>{
+      if(t.isSuccess)cb(t.get)else{
+        t.failed.get.printStackTrace()
+      }
+    })
+    observer
+  }
+
+  /**
+   * creates an annonfun
+   * @param v
+   * @param callback
+   * @tparam T
+   * @return
+   */
+  protected def reactAnd[T](v: Reactive[T])(callback: (T, Observer[T]) => Unit): Observer[T] = {
+    val observer = obtainObserver[T]
+    observer.init(this,v,(t:T)=>{
+      callback(t, observer)
+    })
+    observer
+  }
+
+  /**
+   * creates two annonfun
+   * @param v
+   * @param callback
+   * @tparam T
+   * @return
+   */
   protected def once[T](v: EventSource[T])(callback: (T) => Unit): Observer[T] = {
     reactAnd(v) {
       (t, o) => o.unSubscribe(); callback(t)
     }
   }
 
+  /**
+   * creates two annonfun
+   * @param v
+   * @param callback
+   * @return
+   */
   protected def once(v: EventSource[Unit])(callback: => Unit): Observer[Unit] = {
     reactAnd(v) {
       (unit, o) => o.unSubscribe(); callback
     }
   }
 
-  class Observer[T](val reactive: Reactive[T], f: (T) => Unit) {
-    if (debugging) println(debugMsg + " : subscribe=>" + reactive)
-    val hook = (t: T) => {
-      if (debugging) println(debugMsg + ":react:" + reactive + "(" + t + ")")
-      f(t)
-    }
-    if (debugging) println("new Observer@%x".format(hook.hashCode()) + " of " + Reactor.this)
-    reactive.subscribe(hook)
-    observers add this
-
-    /**
-     * stops reaction
-     */
-    def unSubscribe() {
-      def printReactiveObservers() {
-        val itr = reactive.reactiveObservers.iterator()
-        while(itr.hasNext){
-          val value = itr.next().underlying.get()
-          if(value != null){
-            println("%x".format(value.hashCode()) + " " + Reactor.this)
-          }else{
-            println("what a hell!" + null)
-          }
-        }
-      }
-      if (debugging) {
-        println(debugMsg + " : unSubscribe=>" + reactive + " observer@%x".format(this.hashCode()))
-        printReactiveObservers()
-      }
-      reactive.unSubscribe(hook)
-      //reactive.validateObserver()
-      observers.removeValue(this,false)
-      if (debugging) {
-        println(debugMsg + " : unSubscribe<=" + reactive)
-        printReactiveObservers()
-      }
-    }
-  }
+  
 
   def clearReaction() {
-    //println("Reactor:clearReactions:" + this)
     val itr = observers.iterator()
     while(itr.hasNext)itr.next().unSubscribe()
-    /*
-    observers foreach {
-      o => println("Reactor:after cleared:" + o)
-    }*/
   }
 
   def stopReact(r: Reactive[_]) {
@@ -121,4 +132,66 @@ trait Reactor {
       if(next eq r)next.unSubscribe()
     }
   }
+}
+class Observer[T] extends Poolable with Logging{
+  var partner:Reactor = null
+  var reactive: Reactive[T] = null
+  var f: (T) => Unit = null
+  val hook = (t: T) => {
+    if (partner.reactorDebugging) println(partner.reactorDebugMsg + ":react:" + reactive + "(" + t + ")")
+    f(t)
+  }
+  def init(part:Reactor,reactive:Reactive[T],func:T=>Unit){
+    this.partner = part
+    this.reactive = reactive
+    this.f = func
+    if (partner.reactorDebugging) println(partner.reactorDebugMsg + " : subscribe=>" + reactive)
+
+    if (partner.reactorDebugging) println("new Observer@%x".format(hook.hashCode()) + " of " + partner)
+    reactive.subscribe(hook)
+    partner.reactors add this
+  }
+
+  def reset(){
+    partner = null
+    reactive = null
+    f = null
+  }
+
+  /**
+   * stops reaction
+   */
+  def unSubscribe() {
+    def printReactiveObservers() {
+      val itr = reactive.reactiveObservers.iterator()
+      while(itr.hasNext){
+        val value = itr.next().underlying.get()
+        if(value != null){
+          println("%x".format(value.hashCode()) + " " + partner)
+        }else{
+          println("what a hell!" + null)
+        }
+      }
+    }
+    if (partner.reactorDebugging) {
+      println(partner.reactorDebugMsg + " : unSubscribe=>" + reactive + " observer@%x".format(this.hashCode()))
+      printReactiveObservers()
+    }
+    reactive.unSubscribe(hook)
+    //reactive.validateObserver()
+    partner.reactors.removeValue(this,false)
+    if (partner.reactorDebugging) {
+      println(partner.reactorDebugMsg + " : unSubscribe<=" + reactive)
+      printReactiveObservers()
+    }
+    freeToPool()
+  }
+}
+object Reactor{
+  implicit object PoolingObserver extends Pooling[Observer[_]]{
+    def newInstance: Observer[_] = new Observer[Any]
+    def reset(tgt: Observer[_]): Unit = tgt.reset()
+  }
+  val observerPool = Pool[Observer[_]](10000)
+  def obtainObserver[T]:Observer[T] = observerPool.auto.asInstanceOf[Observer[T]]
 }

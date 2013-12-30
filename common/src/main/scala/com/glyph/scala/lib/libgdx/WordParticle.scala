@@ -63,6 +63,7 @@ object WordParticle extends Logging {
         sprites foreach(_.free)
       }
     }).setCallbackTriggers(TweenCallback.COMPLETE).start(manager)
+    implicit val cls = classOf[Seq[Sprite]]
     renderer.addDrawable(sprites)
   }
 

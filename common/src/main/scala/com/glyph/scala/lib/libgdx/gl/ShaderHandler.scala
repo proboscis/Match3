@@ -21,11 +21,17 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
 
   import ShaderHandler._
 
-  val shader = loadShader(vFile, fFile)
+  var failed = false
+
+  val shader = loadShader(vFile, fFile).map {
+    _.flatMap {
+      case Success(s) => Some(s)
+      case Failure(f) => f foreach (_.printStackTrace()); failed = true; None
+    }
+  }
   reactVar(shader) {
     _ => failed = false
   }
-  var failed = false
 
   /**
    * calling this method on rendering thread may cause allocations
@@ -33,15 +39,10 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
    */
   def apply(block: ShaderProgram => Unit) {
     if (!failed && shader().isDefined) {
-      shader().get match {
-        case Success(s) => {
-          try {
-            block(s)
-          } catch {
-            case e: Throwable => e.printStackTrace(); failed = true
-          }
-        }
-        case Failure(e) => e foreach (_.printStackTrace()); failed = true
+      try {
+        block(shader().get)
+      } catch {
+        case e: Throwable => e.printStackTrace(); failed = true
       }
     }
   }
@@ -53,16 +54,13 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
    */
   def applier(f: ShaderProgram => Unit): () => Unit = () => {
     if (!failed && shader().isDefined) {
-      shader().get match {
-        case Success(s) => {
-          try {
-            f(s)
-          } catch {
-            case e: Throwable => e.printStackTrace(); failed = true
-          }
-        }
-        case Failure(e) => e foreach (_.printStackTrace()); failed = true
+
+      try {
+        f(shader().get)
+      } catch {
+        case e: Throwable => e.printStackTrace(); failed = true
       }
+
     }
   }
 
@@ -70,18 +68,13 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
     var renderer: () => Unit = null
     () => {
       if (!failed && shader().isDefined) {
-        shader().get match {
-          case Success(s) => {
-            try {
-              if (renderer == null) {
-                renderer = f(s)
-              }
-              renderer()
-            } catch {
-              case e: Throwable => e.printStackTrace(); failed = true
-            }
+        try {
+          if (renderer == null) {
+            renderer = f(shader().get)
           }
-          case Failure(e) => e foreach (_.printStackTrace()); failed = true
+          renderer()
+        } catch {
+          case e: Throwable => e.printStackTrace(); failed = true
         }
       }
     }

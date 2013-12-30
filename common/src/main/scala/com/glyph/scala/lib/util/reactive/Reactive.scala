@@ -14,12 +14,12 @@ trait Reactive[T] {
   import Reactive._
 
   private val observers: GlyphArray[WeakReference[(T) => Unit]] = new GlyphArray[WeakReference[(T) => Unit]]()
-  private val removeQueue: GlyphArray[T => Unit] = new GlyphArray[(T) => Unit]()
-  private val addQueue: GlyphArray[T => Unit] = new GlyphArray[(T) => Unit]()
-  private var disposed = false
-  private var concurrent = 0
-  private var debugging = false
-  private var debugMsg = ""
+  protected val removeQueue: GlyphArray[T => Unit] = new GlyphArray[(T) => Unit]()
+  protected val addQueue: GlyphArray[T => Unit] = new GlyphArray[(T) => Unit]()
+  protected var disposed = false
+  protected var concurrent = 0
+  protected var debugging = false
+  protected var debugMsg = ""
 
   def debugReactive[R: Manifest](str: String) {
     debugMsg = implicitly[Manifest[R]].runtimeClass.getSimpleName + "," + str
@@ -35,6 +35,30 @@ trait Reactive[T] {
     } else {
       addObserver(callback)
     }
+  }
+  def notifyObservers(t: T) {
+    import Reactive._
+    stack += 1
+    //println("ReactiveStack:"+stack)
+    //if(debugging) println(toString)
+    if (disposed) {
+      println("this Reactive is already disposed! you cannot call notifyObservers after disposed\n" + this.getClass.getSimpleName)
+      return
+    }
+    validateObserver()
+    concurrent += 1
+    val itr = observers.iterator()
+    while(itr.hasNext){
+      val value = itr.next().underlying.get()
+      if(value != null){
+        value(t)
+      }else{
+        itr.remove()
+      }
+    }
+    concurrent -= 1
+    validateObserver()
+    stack -= 1
   }
 
   private def addObserver(f: T => Unit) {
@@ -67,7 +91,7 @@ trait Reactive[T] {
 
   private val log = (str: String) => println("reactive:" + str)
 
-  private def validateObserver() {
+  protected def validateObserver() {
     if (disposed) {
       removeQueue.clear()
       addQueue.clear()
@@ -90,30 +114,6 @@ trait Reactive[T] {
     }
   }
 
-  def notifyObservers(t: T) {
-
-    stack += 1
-    //println("ReactiveStack:"+stack)
-    //if(debugging) println(toString)
-    if (disposed) {
-      println("this Reactive is already disposed! you cannot call notifyObservers after disposed\n" + this.getClass.getSimpleName)
-      return
-    }
-    validateObserver()
-    concurrent += 1
-    val itr = observers.iterator()
-    while(itr.hasNext){
-      val value = itr.next().underlying.get()
-      if(value != null){
-        value(t)
-      }else{
-        itr.remove()
-      }
-    }
-    concurrent -= 1
-    validateObserver()
-    stack -= 1
-  }
 
   def dispose() {
     //println("dispose:"+this.getClass.getSimpleName)

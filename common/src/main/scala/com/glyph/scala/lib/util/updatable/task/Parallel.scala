@@ -5,7 +5,7 @@ package com.glyph.scala.lib.util.updatable.task
  * @author glyph
  */
 class Parallel extends ParallelProcessor with Task with AutoFree {
-  def isCompleted: Boolean = startedTasks.isEmpty && queuedTasks.isEmpty
+  def isCompleted: Boolean = startedTasks.size == 0 && queuedTasks.size == 0
   override def reset(){
     super.reset()
     clearTasks()

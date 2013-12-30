@@ -103,6 +103,20 @@ object GMatch3 {
     }
   }
 
+  def createFillingPuzzle2[T](src:Puzzle[T])(seed:()=>T)(rowSize:Int,colSize:Int)(dst:MPuzzle[T]){
+    var x = 0
+    while(x < rowSize){
+      val srcCol = src(x)
+      val dstCol = dst(x)
+      var y = srcCol.size
+      while(y < colSize){
+        dstCol += seed()
+        y += 1
+      }
+      x +=1
+    }
+  }
+
   def append[T](src:Puzzle[T])(dst:MPuzzle[T]){
     var x = 0
     val width = src.size
@@ -292,6 +306,8 @@ object GMatch3 {
     }
     result
   }
+
+
 
   def createFilling[T](puzzle: Puzzle[T])(seed: () => T, col: Int): Events[T] = for (x <- 0 until puzzle.size; y <- puzzle(x).size until col) yield (seed(), x, y)
 

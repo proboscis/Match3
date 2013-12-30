@@ -29,7 +29,9 @@ class TrailedParticleTest extends ScreenBuilder {
     val pairs = TrailOps.createManualParticles(
       () => new UVTrail(10))(texture)(
         100)
-    renderer addDrawable (pairs map (_._1))
+    val spriteSeq = pairs map (_._1)
+    implicit val spriteSeqCls = classOf[Seq[Sprite]]
+    renderer addDrawable spriteSeq
     val box2DRenderer = new Box2DDebugRenderer()
     val world = new World(new Vector2(0, -10), true)
     import TrailedParticleTest._

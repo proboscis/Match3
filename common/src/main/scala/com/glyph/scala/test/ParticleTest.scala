@@ -30,12 +30,7 @@ class ParticleTest extends ScreenBuilder {
     }
 
     val handler = ShaderHandler("shader/rotate2.vert", "shader/default.frag")
-    val batch = handler.shader.map{
-      _.flatMap{
-        case Success(s) => Some(new TypedStripBatch(1000*10*2,new UVTrailAttributes{},s))
-        case Failure(f) =>f foreach(_.printStackTrace()); None
-      }
-    }
+    val batch = handler.shader.map(_.map(new TypedStripBatch(1000*10*2,new UVTrailAttributes{},_)))
 
     override def render(delta: Float){
       clearScreen()

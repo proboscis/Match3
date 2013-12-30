@@ -18,7 +18,7 @@ trait SpriteBatchRenderer extends Group {
 
   val renderers = new SnapshotArray[PooledRenderer[_]]()
 
-  def addDrawable[T:SBDrawable:ClassTag](tgt: T){
+  def addDrawable[T:SBDrawable:Class](tgt: T){
     val renderer = auto[PooledRenderer[T]]
     renderer.setTarget(tgt)
     renderers.add(renderer)
@@ -58,8 +58,8 @@ trait SpriteBatchRenderer extends Group {
 }
 
 object SpriteBatchRenderer extends Logging{
-  var pools: ClassTag[_] Map Any = Map.empty.withDefault(_ => null)
-  implicit def rendererPool[T](implicit ev: SBDrawable[T], tag: ClassTag[T], poolTag: ClassTag[PooledRenderer[T]]): Pool[PooledRenderer[T]] = {
+  var pools: Class[_] Map Any = Map.empty.withDefault(_ => null)
+  implicit def rendererPool[T](implicit ev: SBDrawable[T], tag: Class[T], poolTag: ClassTag[PooledRenderer[T]]): Pool[PooledRenderer[T]] = {
     val result = pools(tag)
     if (result != null) result.asInstanceOf[Pool[PooledRenderer[T]]]
     else {
@@ -89,10 +89,22 @@ trait SBDrawableGdxOps extends Logging{
       tgt.draw(batch, alpha)
     }
   }
+  class AnnonSpriteRenderer extends ((Sprite)=>Unit){
+    var batch:Batch = null
+    var alpha:Float = 0f
+    def set(b:Batch,a:Float):this.type = {
+      batch = b
+      alpha = a
+      this
+    }
+    def apply(v1: Sprite): Unit = v1.draw(batch,alpha)
+  }
   def drawableSpriteSeq[T<:Seq[Sprite]:ClassTag]:SBDrawable[T]= new SBDrawable[T] {
     log("created an evidence of SBDrawable for : "+implicitly[ClassTag[T]].runtimeClass)
-    def draw(tgt: T, batch: Batch, alpha: Float): Unit = tgt foreach{
-      _.draw(batch,alpha)
+    val f = new AnnonSpriteRenderer
+    def draw(tgt: T, batch: Batch, alpha: Float): Unit ={
+      f.set(batch,alpha)
+      tgt foreach f
     }
   }
   private var tagToGeneratedDrawableMap:ClassTag[_] Map SBDrawable[_] = Map() withDefault(_=>null)

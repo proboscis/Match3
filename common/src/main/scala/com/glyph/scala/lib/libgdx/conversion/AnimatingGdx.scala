@@ -15,13 +15,15 @@ trait AnimatingGdxOps {
   object AnimatingVector2X extends Animating[Vector2]{
     def get: Vector2 = ???
   }*/
+  /*
   type Animated ={
     def getX():Float
     def getY():Float
     def setX(x:Float):Unit
     def setY(y:Float):Unit
-  }
+  }*/
   //this uses reflection which does not work on android
+  /*
   def generateAdapter[T<:Animated]:AnimatedFloat2[T] = new AnimatedFloat2[T] {
     def setY(tgt: T)(y: Float): Unit = tgt.setY(y)
 
@@ -31,6 +33,7 @@ trait AnimatingGdxOps {
 
     def getX(tgt: T): Float =tgt.getX()
   }
+  */
   def animatedActor[T<:Actor]:AnimatedFloat2[T] =  new AnimatedFloat2[T] {
     def setY(tgt: T)(y: Float): Unit = tgt.setY(y)
 
@@ -54,5 +57,4 @@ trait AnimatingGdxOps {
   implicit val Animated2Sprite = animatedSprite[Sprite]
   implicit val AnimatedActor = animatedActor[Actor]
   implicit val AnimatedSpriteActor = animatedActor[SpriteActor]
-
 }

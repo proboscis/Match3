@@ -8,7 +8,7 @@ import com.glyph.scala.lib.libgdx.actor._
 import com.badlogic.gdx.graphics.{GL10, Texture}
 import com.glyph.scala.lib.util.{reactive, ColorUtil, Logging}
 import com.glyph.scala.lib.util.pool.Pool
-import com.badlogic.gdx.graphics.g2d.{Batch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{TextureRegion, Batch, Sprite}
 import scala.collection.mutable.ArrayBuffer
 import com.glyph.scala.lib.util.updatable.task.{InterpolatedFunctionTask, TimedFunctionTask}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
@@ -44,6 +44,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   with Scissor
   with Paneled2 {
 
+  //TODO i want to remove all those drawing specific codes such as sprite,token,anything..
   //TODO there is 1mb of allocation when the panel is removed,added
   //the tuple2 shows the largest memory usage.
   implicit val _1 = classOf[MyTrail]
@@ -52,7 +53,8 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   implicit val poolingTrail = genPooling[MyTrail]
   implicit val trailPool = Pool[MyTrail](10000)
   implicit val spritePool = Pool[Sprite](10000)
-  implicit val tokenPool = Pool[Token[T]](() => new Token[T](null, assets), (tgt: Token[T]) => tgt.resetForPool(), row * column * 2)
+  implicit val spriteActorPool = Pool[SpriteActor](100)
+  implicit val tokenPool = Pool[Token[T]](() => new Token[T](null,null), (tgt: Token[T]) => tgt.resetForPool(), row * column * 2)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
   implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
   implicit val tftPool = Pool[TimedFunctionTask](1000)
@@ -117,48 +119,69 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   implicit val manager = new TweenManager
   Tween.registerAccessor(classOf[Sprite], SpriteAccessor)
   Tween.setCombinedAttributesLimit(4)
-
-  val tokens = ArrayBuffer[Token[T]]()
+  val tokens = new com.badlogic.gdx.utils.Array[Token[T]]()
   val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
-  val panelAdd = (added: Seq[Seq[ActionPuzzle[T]#AP]]) => {
-    //TODO this is allocating
-    for (row <- added; p <- row) {
-      val token = manual[Token[T]]
-      token.init(p)
-      import reactive._
-      token.reactVar(gridFunctions ~ p.x ~ p.y) {
-        case Some((fx, fy)) ~ x ~ y => {
-          token.setX(fx.indexToAlpha(x) * getWidth)
-          token.setY(fy.indexToAlpha(y) * getHeight)
-          val w = fx.tokenSize * getWidth
-          val h = fy.tokenSize * getHeight
-          token.setSize(w, h)
-          token.setOrigin(w / 2, h / 2)
-        }
-        case _ =>
+
+  private val tokenInitializer = (p:ActionPuzzle[T]#AP)=>{
+    val token = manual[Token[T]]
+    val spriteActor = manual[SpriteActor]
+    val texture = assets.get[Texture]("data/round_rect.png")
+    spriteActor.sprite.setTexture(texture)
+    spriteActor.sprite.asInstanceOf[TextureRegion].setRegion(0,0,texture.getWidth,texture.getHeight)
+    token.init(p,spriteActor)
+    tokens add token
+    addActor(token)
+  }
+  def updateTokenPosition(delta:Float){
+    if(gridFunctions().isDefined){
+      val(fx,fy) = gridFunctions().get
+      val itr = tokens.iterator()
+      while(itr.hasNext){
+        val t = itr.next
+        val p = t.panel
+        t.setX(fx.indexToAlpha(p.x()) * getWidth)
+        t.setY(fy.indexToAlpha(p.y()) * getHeight)
+        val w = fx.tokenSize * getWidth
+        val h = fy.tokenSize * getHeight
+        t.setSize(w, h)
+        t.setOrigin(w / 2, h / 2)
       }
-      tokens += token
-      addActor(token)
     }
   }
 
-  val panelRemove = (removed: Seq[ActionPuzzle[T]#AP]) => {
-    //TODO this is allocating
-    for (panel <- removed; token <- tokens.find(_.panel == panel)) {
-      tokens -= token
-      token.clearReaction() //this must be done since the panel is immediately removed
-      token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
-        def run() {
-          token.free
-        }
-      })))
-      //addParticles(token)
-      //showScoreParticle(token, score())
+  private val seqTokenInitializer = (seq:Seq[ActionPuzzle[T]#AP])=> seq foreach tokenInitializer
+  val panelAdd = (added: Seq[Seq[ActionPuzzle[T]#AP]]) => added foreach seqTokenInitializer
+  def findTokenByPanel(p:ActionPuzzle[T]#AP):Token[T] = {
+    var result:Token[T] = null
+    val itr = tokens.iterator()
+    while(itr.hasNext && result == null){
+      val token = itr.next()
+      if(p == token.panel) result = token
+    }
+    result
+  }
+
+  val panelRemove = (removed: IndexedSeq[ActionPuzzle[T]#AP]) => {
+    var i = 0
+    val size = removed.size
+    while(i < size){
+      val token = findTokenByPanel(removed(i))
+      if(token != null){
+        tokens.removeValue(token,true)
+        token.clearReaction() //this must be done since the panel is immediately removed
+        token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
+          def run() { //I need to take care of this allocation eventually
+            token.tgtActor.asInstanceOf[SpriteActor].free
+            token.free
+          }
+        })))
+      }
+      i += 1
     }
   }
 
-  val widthFolder = (f: Float, s: Sprite) => f + s.getWidth
-  val heightFolder = (f: Float, s: Sprite) => f + s.getHeight
+  private val widthFolder = (f: Float, s: Sprite) => f + s.getWidth
+  private val heightFolder = (f: Float, s: Sprite) => f + s.getHeight
 
   def halfW(seq: Seq[Sprite]) = (0f /: seq)(widthFolder) / 2f
 
@@ -170,6 +193,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   }
 
   def addParticles(token: Token[T]) {
+    implicit val bufCls = classOf[ArrayBuffer[Sprite]]
     val duration = 1f
     val buf = manual[ArrayBuffer[Sprite]]
     val velBuf = manual[ArrayBuffer[Float]]
@@ -189,7 +213,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
             val s = random(3, 30)
             p.setSize(s, s)
             p.setPosition(token.getX + token.getWidth / 2, token.getY + token.getHeight / 2)
-            p.setColor(token.sprite.getColor)
+            p.setColor(token.tgtActor.getColor)
             buf += p
         }
         Explosion.init(() => random(PI2), () => random(2000), velBuf, buf.length)
@@ -209,7 +233,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
         velBuf.free
 
       }) in duration)
-    val color = token.sprite.getColor.cpy
+    val color = token.tgtActor.getColor.cpy
     val hsv = ColorUtil.ColorToHSV(color)
     hsv.v = 1f
     hsv.s = 0.7f
@@ -241,6 +265,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
 */
   override def act(delta: Float) {
     super.act(delta)
+    updateTokenPosition(delta)
     manager.update(delta)
   }
 

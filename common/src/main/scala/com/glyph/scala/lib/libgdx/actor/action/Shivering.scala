@@ -18,12 +18,11 @@ import com.glyph.scala.lib.util.pool.Pool
  */
 trait Shivering extends Updatable with Logging with Threading{
   private var started = false
-  private var count = 0
   private val shiverProcessor = new ParallelProcessor {}
   import Shivering._
   def startShivering[T:AnimatedFloat2](tgt:T) {
     if (!started) {
-      count += 1
+
      // log("start shivering"+count)
       val impl = implicitly[AnimatedFloat2[T]]
       val (updater,canceller) = Swinger.update(2,impl.getX(tgt),impl.getY(tgt),tgt)

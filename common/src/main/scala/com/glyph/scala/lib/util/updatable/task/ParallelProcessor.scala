@@ -1,58 +1,65 @@
 package com.glyph.scala.lib.util.updatable.task
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import com.glyph.scala.lib.util.{Threading, Logging}
+import com.badlogic.gdx.utils.{Array => GdxArray}
 
 /**
  * @author glyph
  */
 trait ParallelProcessor extends TaskProcessor with Logging with Threading {
-  val queuedTasks = ListBuffer[Task]()
-  val startedTasks = ArrayBuffer[Task]()
-  val tasksTobeRemoved = ListBuffer[Task]()
-  val canceledTasks = ArrayBuffer[Task]()
+  val queuedTasks = new GdxArray[Task]()
+  val startedTasks = new GdxArray[Task]()
+  val tasksTobeRemoved = new GdxArray[Task]()
+  val canceledTasks = new GdxArray[Task]()
   var updating = false
 
-  val queuedStarter = (t:Task)=>{
+  val queuedStarter = (t: Task) => {
     t.onStart()
-    startedTasks += t
+    startedTasks add t
   }
-  val tobeRemovedProcessor = (t:Task)=>{
-    startedTasks -= t
-    queuedTasks -= t
+  val tobeRemovedProcessor = (t: Task) => {
+    startedTasks.removeValue(t, true)
+    queuedTasks.removeValue(t, true)
   }
+
   override def update(delta: Float) {
     assert(!updating)
     updating = true
     super.update(delta)
-    queuedTasks foreach queuedStarter
-    queuedTasks.clear()
 
     {
-      var i = 0
-      val st = startedTasks
-      val l = st.size
-      while(i < l){
-        val t = st(i)
-        if(!canceledTasks.isEmpty){
-          if(canceledTasks.contains(t)){
-            tasksTobeRemoved += t
+      val itr = queuedTasks.iterator()
+      while (itr.hasNext) queuedStarter(itr.next())
+      queuedTasks.clear()
+    }
+
+    {
+      val startedItr = startedTasks.iterator()
+      while (startedItr.hasNext) {
+        val t = startedItr.next()
+        if (canceledTasks.size > 0) {
+          if (canceledTasks.contains(t, true)) {
+            tasksTobeRemoved add t
           }
         } else if (!t.isCompleted) {
           t.update(delta)
-          if(t.isCompleted){
+          if (t.isCompleted) {
             t.onFinish()
-            tasksTobeRemoved += t
+            tasksTobeRemoved add t
           }
         } else {
           t.onFinish()
-          tasksTobeRemoved += t
+          tasksTobeRemoved add t
         }
-        i += 1
       }
     }
-    tasksTobeRemoved foreach tobeRemovedProcessor
-    tasksTobeRemoved.clear()
+    {
+      val it = tasksTobeRemoved.iterator()
+      while (it.hasNext) {
+        tobeRemovedProcessor(it.next())
+      }
+      tasksTobeRemoved.clear()
+    }
     canceledTasks.clear()
     updating = false
   }
@@ -60,32 +67,40 @@ trait ParallelProcessor extends TaskProcessor with Logging with Threading {
 
   override def add(task: Task): TaskProcessor = {
     super.add(task)
-    queuedTasks += task
+    queuedTasks add task
     this
   }
 
-  def contains(task: Task): Boolean = startedTasks.contains(task) || queuedTasks.contains(task)
+  def contains(task: Task): Boolean = startedTasks.contains(task, true) || queuedTasks.contains(task, true)
 
   def cancel(task: Task) {
     if (!updating) {
       //log("removing while updating")
-      if(!canceledTasks.contains(task)){
+      if (!canceledTasks.contains(task, true)) {
         task.onCancel()
-        canceledTasks += task
+        canceledTasks add task
       }
     } else {
-      if(queuedTasks.contains(task) || startedTasks.contains(task)){
+      if (queuedTasks.contains(task, true) || startedTasks.contains(task, true)) {
         task.onCancel()
       }
-      startedTasks -= task
-      queuedTasks -= task
+      startedTasks.removeValue(task, true)
+      queuedTasks.removeValue(task, true)
     }
   }
-  val canceller = (t:Task) => t.onCancel()
-  def clearTasks(){
+
+  val canceller = (t: Task) => t.onCancel()
+
+  def clearTasks() {
     queuedTasks.clear()
-    startedTasks foreach canceller
-    startedTasks.clear()
+
+    {
+      val it = startedTasks.iterator()
+      while (it.hasNext) {
+        canceller(it.next())
+      }
+      startedTasks.clear()
+    }
     tasksTobeRemoved.clear()
     canceledTasks.clear()
   }

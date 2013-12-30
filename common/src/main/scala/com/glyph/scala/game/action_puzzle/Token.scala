@@ -1,89 +1,69 @@
 package com.glyph.scala.game.action_puzzle
 
-import com.glyph.scala.game.puzzle.view.match3.ColorTheme
-import com.badlogic.gdx.graphics.{Texture, Color}
-import com.glyph.scala.lib.libgdx.actor.{Tasking, SpriteActor}
+import com.badlogic.gdx.graphics.Color
+import com.glyph.scala.lib.libgdx.actor.Tasking
 import com.glyph.scala.lib.libgdx.actor.action.Shivering
-import com.badlogic.gdx.graphics.g2d.Sprite
-import com.glyph.scala.lib.util.{ColorUtil, reactive, Logging}
-import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.scenes.scene2d.ui.{WidgetGroup, Skin, Table}
-import scalaz._
-import Scalaz._
-import com.glyph.scala.lib.libgdx.actor.ui.RLabel
-import com.glyph.scala.game.Glyphs
-import Glyphs._
+import com.glyph.scala.lib.util.{ColorUtil, Logging}
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph.scala.lib.util.reactive.{Varying, Var, Reactor}
 import com.badlogic.gdx.utils.NumberUtils
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.glyph.scala.lib.util.json.RJSON
+import com.glyph.scala.lib.libgdx.reactive.GdxFile
 
 /**
+ * use table as a layout manager! and don't ever let them use drawing method.
  * @author glyph
  */
-class Token[T](var panel: ActionPuzzle[T]#AP, assets: AssetManager)
+class Token[T](var panel: ActionPuzzle[T]#AP, var tgtActor: Actor)
   extends Table // problem is here!
   with Logging
   with Reactor
   with Tasking
   with Shivering {
-  debug()
 
-
-  val sprite = new Sprite(assets.get[Texture]("data/round_rect.png"))
-  val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
-  val spriteActor = new SpriteActor
-  spriteActor.sprite.set(sprite)
   import com.glyph.scala.lib.libgdx.conversion.AnimatingGdx._
 
-  def init(p: ActionPuzzle[T]#AP) {
+  def init(p: ActionPuzzle[T]#AP, tgt: Actor) {
     panel = p
-    import Token._
-    val c = (colorMap.get(panel.value) | Var(Color.WHITE)) ~ panel.isSwiping ~ panel.isFalling ~ panel.isMatching map {
-      case col ~ swiping ~ falling ~ matching => (swiping | falling) ? col.cpy().mul(0.7f) | (matching ? {
-        val hsv = ColorUtil.ColorToHSV(col)
-        hsv.v += 0.2f
-        hsv.s -= 0.4f
-        hsv.toColor
-      } | col)
-    }
-    add(spriteActor).fill.expand
-    //spriteActor.setSize(50,50)
-    /*
-    val group = new WidgetGroup
-    val label = new RLabel(skin,(panel.tx ~ panel.ty).map{
-      case x~y => "%.1f,%.1f".format(x,y)
-    })
-    label.setFontScale(0.5f)
-    */
-    /*
-    group.addActor(label)
-    group.addActor(spriteActor)
-    //add(group).size(getWidth/2,getHeight)
-    add(group).fill.expand
-    */
-    reactVar(panel.isMatching) {
-      flag => if (flag) startShivering(spriteActor) else stopShivering()
-    }
-    //reactVar(c)(spriteActor.setColor)
-    /*
-    reactSome(p.next){
-      case n => {
-        val c = new Color(NumberUtils.floatToIntColor(n.hashCode))
-        spriteActor.setColor(c)
+    tgtActor = tgt
+    add(tgtActor).fill.expand
+  }
+
+  val hashColor = (t: Any) => new Color(NumberUtils.floatToIntColor(t.hashCode()))
+
+  //this should not be done in here!? no, the elements should be given in the constructor!
+  override def act(delta: Float) {
+    super.act(delta)
+    if (panel != null && panel.value != null) {
+      import Token._
+      val c = colorMap(panel.value)()
+      tgtActor.setColor(c)
+
+      if (panel.isSwiping() || panel.isFalling()) {
+        tgtActor.getColor.set(c).mul(0.7f)
+      } else if (panel.isMatching()) {
+        ColorUtil.ColorToHSV(c).add(0, -0.4f, 0.2f).toColor(tgtActor.getColor)
+        startShivering(tgtActor)
+      } else if (!panel.isMatching()) {
+        stopShivering()
       }
+      //tgtActor.setColor(hashColor(tgtActor))
     }
-    */
-    reactVar(c)(spriteActor.setColor)
   }
 
   def resetForPool() {
     setColor(Color.WHITE)
     remove()
     clearReaction()
-    clearChildren()
+    //clearChildren()
     //setScale(1)
-    //clear()
+    clear()
     clearActions()
     clearListeners()
+    panel = null
+    tgtActor = null
+    stopShivering()
   }
 
   override def toString: String = "x" -> getX :: "y" -> getY :: "w" -> getWidth :: "h" -> getHeight :: Nil mkString("(", ",", ")")
@@ -93,5 +73,24 @@ object Token {
 
   import ColorTheme._
 
-  val colorMap: Any Map Varying[Color] = Map(0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
+  val colorMap: Any Map Varying[Color] = Map[Any, Varying[Color]](0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life) withDefault (_ => Var(Color.WHITE))
 }
+
+object ColorTheme {
+  lazy val scheme = RJSON(GdxFile("constants/colors.js").map {
+    _ getOrElse ""
+  })
+
+  implicit def json2Str(json: RJSON): Varying[Color] = json.as[String] map {
+    str => Color.valueOf(str getOrElse "ffffff")
+  }
+
+  type VC = Varying[Color]
+  val fire: VC = scheme.fire
+  val water: VC = scheme.water
+  val thunder: VC = scheme.thunder
+  val monster: VC = scheme.monster
+  val life: VC = scheme.life
+  val move: VC = scheme.move
+}
+

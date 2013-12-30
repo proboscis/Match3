@@ -31,7 +31,6 @@ trait PoolingGdxOps {
 
     def reset(tgt: SpriteActor) {
       tgt.clear()
-
     }
   }
 

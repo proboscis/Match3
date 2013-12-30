@@ -31,7 +31,7 @@ trait PoolingOps extends Logging{
     def newInstance: T = constructor.newInstance()
 
     def reset(tgt: T): Unit = tgt match {
-      case t: RPooling => t.reset()
+      case t: RPooling =>println("reset via reflection"); t.reset()
       case _ => throw new RuntimeException("this class cannot be pooled since it does not have method reset()!")
     }
   }

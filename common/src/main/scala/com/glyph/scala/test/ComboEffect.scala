@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui._
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.scenes.scene2d.Group
-import com.glyph.scala.lib.libgdx.actor.{SBDrawableGdx, SpriteBatchRenderer, Tasking}
+import com.glyph.scala.lib.libgdx.actor.{SBDrawable, SBDrawableGdx, SpriteBatchRenderer, Tasking}
 import com.badlogic.gdx.graphics.g2d.{TextureRegion, BitmapFont, Sprite}
 import scalaz._
 import Scalaz._
@@ -52,16 +52,17 @@ class ComboEffect extends ConfiguredScreen {
   root.add(new Label("Testing!\n0123456789", skin)).row
   root.add(group).fill.expand
   val regions = fontRegions(font)("0123456789")
-  val sprites = "0123456789" map regions map (new Sprite(_))
+  val sprites:Seq[Sprite] = "0123456789" map regions map (new Sprite(_))
   sprites |> placeSprites
+  implicit val spritesCls = classOf[Seq[Sprite]]
   group.addDrawable(sprites)
   root.debug()
-  val window = new Window("window",skin)
+  val window = new Window("window", skin)
   window.setMovable(true)
   window.padTop(30)
   window.getButtonTable.debug()
-  window.getButtonTable.add(new Label("X",skin)).height(100)
-  window.setPosition(0,0)
+  window.getButtonTable.add(new Label("X", skin)).height(100)
+  window.setPosition(0, 0)
   //window.setSize(300,300)
   window.add.height(50).colspan(2).row
   window.add.expand.height(100)
@@ -70,11 +71,12 @@ class ComboEffect extends ConfiguredScreen {
   window.pack()
   stage.addActor(window)
   //Gdx.input.setInputProcessor(stage)
-  val dialog = new Dialog("dialog",skin)
-  dialog.size(300,300)
+  val dialog = new Dialog("dialog", skin)
+  dialog.size(300, 300)
   dialog.padTop(30)
   dialog.debug()
   dialog.pack()
+
   //dialog.show(stage)
 
   override def render(delta: Float) {

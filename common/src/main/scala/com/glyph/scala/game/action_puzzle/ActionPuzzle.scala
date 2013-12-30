@@ -99,8 +99,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   val falling = manual[PuzzleBuffer]
   val future = manual[PuzzleBuffer]
   //callbacks
-  var panelAdd = (panels: Seq[Seq[AP]]) => {}
-  var panelRemove = (panels: Seq[AP]) => {}
+  var panelAdd = (panels: IndexedSeq[IndexedSeq[AP]]) => {}
+  var panelRemove = (panels: IndexedSeq[AP]) => {}
 
   val APFilter = (a: AP, b: AP) => {
     if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
@@ -185,7 +185,12 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     par
   }
 
+  val fallingSetter = (ap:AP)=>ap.isFalling()=true
+  val seqFallingSetter = (seq:Seq[AP])=>seq foreach fallingSetter
   def setFallingFlag() {
+    falling foreach seqFallingSetter
+    //below are valid code!
+    /*
     var x = 0
     val fallen = falling
     val width = fallen.length
@@ -200,12 +205,15 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       }
       x += 1
     }
+    */
   }
 
   val nonEmpty = (seq:Seq[Any]) => !seq.isEmpty
-  def fill() {
+  def fill() {//TODO remove allocation.
     //log("fill")
-    val filling = future createFillingPuzzle(APSeed, COLUMN) //no cost
+    val filling = manual[PuzzleBuffer]
+    GMatch3.createFillingPuzzle2(future)(APSeed)(ROW,COLUMN)(filling)
+    //val filling = future createFillingPuzzle(APSeed, COLUMN) //no cost
     if (filling.exists(nonEmpty)) {
       //printTime("fill:update failling"){
       val nextFall: PuzzleBuffer = manual[PuzzleBuffer]
@@ -227,24 +235,26 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       copy(nextFuture)(future)
       nextFuture.free
       //future() = fixed() append falling() //costs 1ms
-
-      {
-        var x = 0
-        val width = filling.length
-        while (x < width) {
-          val row = filling(x)
-          val height = row.length
-          var y = 0
-          while (y < height) {
-            val p = row(y)
-            p.x() = x
-            p.y() = COLUMN + y
-            y += 1
-          }
-          x += 1
-        }
-      }
+      placePanelsAbovePuzzle(filling)
       panelAdd(filling)
+    }
+    filling.free
+  }
+
+  def placePanelsAbovePuzzle(buf:PuzzleBuffer){
+    var x = 0
+    val width = buf.length
+    while (x < width) {
+      val row = buf(x)
+      val height = row.length
+      var y = 0
+      while (y < height) {
+        val p = row(y)
+        p.x() = x
+        p.y() = COLUMN + y
+        y += 1
+      }
+      x += 1
     }
   }
 
@@ -258,7 +268,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   }
   private val bufCanceller = (buf:ArrayBuffer[AP])=> buf.foreach(cancelSwipingAnimation)
 
-  def removeFillUpdateTargetPosition(panels: Seq[AP], fallings: Seq[AP]) {
+  def removeFillUpdateTargetPosition(panels: IndexedSeq[AP], fallings: IndexedSeq[AP]) {
     //log("remove")
     if (!panels.isEmpty || !fallings.isEmpty) {
       {
@@ -508,13 +518,31 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     val matchTimer = Var(0f)
     val isMatching = matchTimer map (_ > 0)
 
+    def checkContains(buf:IndexedSeq[IndexedSeq[AP]],tgt:AP):Boolean ={
+      var x = 0
+      val width = buf.size
+      var result = false
+      while(x < width && !result){
+        var y = 0
+        val col = buf(x)
+        val height = col.size
+        while(y < height && !result){
+          val p = col(y)
+          result = tgt eq p
+          y += 1
+        }
+        x += 1
+      }
+      result
+    }
+
     def updateFall(delta: Float): Boolean = {
       val nx = x() + vx() * delta
       var ny = y() + vy() * delta
       val row = future(tx())
       val finished:Boolean = if(ty() > 0 &&  ty() <= row.size){
         val p = row(ty()-1)
-        if(fixed.exists(_.contains(p))){
+        if(checkContains(fixed,p)){
           debugState = 1
           (ny - ty()) < 0f
         }else if ( ny - p.y() < 1f ){
