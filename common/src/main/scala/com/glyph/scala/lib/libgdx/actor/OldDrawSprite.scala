@@ -2,14 +2,14 @@ package com.glyph.scala.lib.libgdx.actor
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.graphics.g2d.{Batch, Sprite, SpriteBatch}
-import com.glyph.scala.lib.math.Vec2
+import com.badlogic.gdx.math.Vector2
 
 /**
  * @author glyph
  */
 trait OldDrawSprite extends Actor {
   val sprite: Sprite
-  val offset = new Vec2
+  val offset = new Vector2
   override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     sprite.setSize(getWidth, getHeight)

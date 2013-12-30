@@ -6,10 +6,11 @@ import com.glyph.scala.lib.libgdx.actor.action.Shivering
 import com.glyph.scala.lib.util.{ColorUtil, Logging}
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph.scala.lib.util.reactive.{Varying, Var, Reactor}
-import com.badlogic.gdx.utils.NumberUtils
+import com.badlogic.gdx.utils.{ObjectMap, NumberUtils}
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph.scala.lib.util.json.RJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
+import scala.collection.mutable
 
 /**
  * use table as a layout manager! and don't ever let them use drawing method.
@@ -35,20 +36,22 @@ class Token[T](var panel: ActionPuzzle[T]#AP, var tgtActor: Actor)
   //this should not be done in here!? no, the elements should be given in the constructor!
   override def act(delta: Float) {
     super.act(delta)
-    if (panel != null && panel.value != null) {
-      import Token._
-      val c = colorMap(panel.value)()
-      tgtActor.setColor(c)
 
-      if (panel.isSwiping() || panel.isFalling()) {
-        tgtActor.getColor.set(c).mul(0.7f)
-      } else if (panel.isMatching()) {
-        ColorUtil.ColorToHSV(c).add(0, -0.4f, 0.2f).toColor(tgtActor.getColor)
-        startShivering(tgtActor)
-      } else if (!panel.isMatching()) {
-        stopShivering()
+    {
+      if (panel != null && panel.value != null) {
+        import Token._
+        val c = colorMap(panel.value)()
+        tgtActor.setColor(c)
+        if (panel.isSwiping() || panel.isFalling()) {
+          tgtActor.getColor.set(c).mul(0.7f)
+        } else if (panel.isMatching()) {
+          ColorUtil.ColorToHSV(c).add(0, -0.4f, 0.2f).toColor(tgtActor.getColor)
+          startShivering(tgtActor)
+        } else if (!panel.isMatching()) {
+          stopShivering()
+        }
+        //tgtActor.setColor(hashColor(tgtActor))
       }
-      //tgtActor.setColor(hashColor(tgtActor))
     }
   }
 
@@ -70,10 +73,20 @@ class Token[T](var panel: ActionPuzzle[T]#AP, var tgtActor: Actor)
 }
 
 object Token {
-
+  //println("token object")
   import ColorTheme._
-
-  val colorMap: Any Map Varying[Color] = Map[Any, Varying[Color]](0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life) withDefault (_ => Var(Color.WHITE))
+  //TODO this map is generating SOME!!!!!
+  //val colorMap: Any Map Varying[Color] = Map[Any, Varying[Color]](0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
+  //println(colorMap.getClass)
+  //val colorMap: Any Map Varying[Color] = Map[Any, Varying[Color]](0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life) withDefault (_ => Var(Color.WHITE))
+  //val colorMap = mutable.HashMap[Any,Varying[Color]](0 -> ColorTheme.fire, 1 -> thunder, 2 -> water, 3 -> life)
+  val colorMap = new ObjectMap[Any,Varying[Color]] with ( Any => Varying[Color]){
+    def apply(v1: Any): Varying[Color] = this.get(v1)
+  }
+  colorMap.put(0,fire)
+  colorMap.put(1,thunder)
+  colorMap.put(2,water)
+  colorMap.put(3,life)
 }
 
 object ColorTheme {
@@ -93,4 +106,3 @@ object ColorTheme {
   val life: VC = scheme.life
   val move: VC = scheme.move
 }
-

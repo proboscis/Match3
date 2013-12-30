@@ -264,7 +264,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   })
 */
   override def act(delta: Float) {
-    super.act(delta)
+    super.act(delta)//this call causes Some allocation!
     updateTokenPosition(delta)
     manager.update(delta)
   }
@@ -276,35 +276,3 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
     batch.begin()
   }
 }
-
-/*
-(puzzle.falling::puzzle.fixed::puzzle.future::Nil) map (new APDebugView(_)) foreach{
-    view =>
-  }
-  class APDebugView(tgt:this.puzzle.PuzzleBuffer) extends Group{
-    val sprite = manual[Sprite]
-    sprite.setTexture("data/dummy.png".fromAssets(assets))
-    sprite.asInstanceOf[TextureRegion].setRegion(0,0,1,1)
-    override def draw(batch: Batch, parentAlpha: Float): Unit = {
-      super.draw(batch, parentAlpha)
-      for{
-        (fx,fy) <- gridFunctions()
-      }{
-        var x = 0
-        val width = tgt.length
-        while(x < width){
-          var y = 0
-          val row = tgt(x)
-          val height = row.length
-          while(y < height){
-            sprite.setPosition(fx.indexToAlpha(x)*getWidth,fy.indexToAlpha(y)*getHeight )
-            sprite.setSize(fx.tokenSize * getWidth,fy.tokenSize*getHeight)
-            sprite.setColor(Token.colorMap(tgt(x)(y).value)())
-            y += 1
-          }
-          x += 1
-        }
-      }
-    }
-  }
- */

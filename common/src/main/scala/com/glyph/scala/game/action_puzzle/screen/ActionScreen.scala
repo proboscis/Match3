@@ -44,7 +44,7 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   import game._
 
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
-  val view = new APView(score, puzzle, assets) with Updating
+  val view = new APView(score, puzzle, assets) with Updating//TODO APView is causing so much allocation
   view.add(easedScore)
 
   //val view = new APView2(puzzle)
@@ -113,9 +113,7 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
   override def render(delta: Float): Unit = {
     clearScreen()
     count += 1
-    if (count % 1 == 0) {
-      super.render(delta)
-    }
+    super.render(delta)//this call is instantiating a lot of Some
     game.update(delta)
   }
 }

@@ -156,12 +156,10 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       })
       pa.swipeAnimation += taskA
       pb.swipeAnimation += taskB
-      //TODO swap after a or b is finished
-      // you have to callback when either of these are unexpectedly stopped
       par.add(seqA)
       par.add(seqB)
       seq.add(par)
-      seq.add(Do {
+      seq.add(Do {//TODO ALLOCATION!
         if (verified(x)(y)(nx)(ny)) {
           GMatch3.swap(fixed, x, y, nx, ny)
           scanAndMark()
