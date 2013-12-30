@@ -22,7 +22,7 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
   import ShaderHandler._
 
   val shader = loadShader(vFile, fFile)
-  reactVar(shader){
+  reactVar(shader) {
     _ => failed = false
   }
   var failed = false
@@ -51,7 +51,7 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
    * @param f
    * @return
    */
-  def applier(f: ShaderProgram => Unit):()=>Unit = ()=>{
+  def applier(f: ShaderProgram => Unit): () => Unit = () => {
     if (!failed && shader().isDefined) {
       shader().get match {
         case Success(s) => {
@@ -62,6 +62,27 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
           }
         }
         case Failure(e) => e foreach (_.printStackTrace()); failed = true
+      }
+    }
+  }
+
+  def applier2(f: ShaderProgram => () => Unit): () => Unit = {
+    var renderer: () => Unit = null
+    () => {
+      if (!failed && shader().isDefined) {
+        shader().get match {
+          case Success(s) => {
+            try {
+              if (renderer == null) {
+                renderer = f(s)
+              }
+              renderer()
+            } catch {
+              case e: Throwable => e.printStackTrace(); failed = true
+            }
+          }
+          case Failure(e) => e foreach (_.printStackTrace()); failed = true
+        }
       }
     }
   }

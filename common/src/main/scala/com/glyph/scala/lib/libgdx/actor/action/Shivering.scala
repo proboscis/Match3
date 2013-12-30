@@ -11,6 +11,7 @@ import com.glyph.scala.game.Glyphs
 import Glyphs._
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph.scala.lib.util.updatable.Updatable
+import com.glyph.scala.lib.util.pool.Pool
 
 /**
  * @author glyph
@@ -19,13 +20,14 @@ trait Shivering extends Updatable with Logging with Threading{
   private var started = false
   private var count = 0
   private val shiverProcessor = new ParallelProcessor {}
+  import Shivering._
   def startShivering[T:AnimatedFloat2](tgt:T) {
     if (!started) {
       count += 1
      // log("start shivering"+count)
       val impl = implicitly[AnimatedFloat2[T]]
       val (updater,canceller) = Swinger.update(2,impl.getX(tgt),impl.getY(tgt),tgt)
-      val shiver = auto[IntegratingFTask]
+      val shiver = auto[IntegratingFTask](igPool)
       shiver.setUpdater(updater)
       shiver.setFinalizer(()=>{
        // log("finished")
@@ -53,4 +55,7 @@ trait Shivering extends Updatable with Logging with Threading{
     super.update(delta)
     shiverProcessor.update(delta)
   }
+}
+object Shivering{
+  implicit val igPool = Pool[IntegratingFTask](1000)
 }

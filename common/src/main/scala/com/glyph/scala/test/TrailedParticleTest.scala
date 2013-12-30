@@ -1,6 +1,6 @@
 package com.glyph.scala.test
 
-import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
+import com.glyph.scala.lib.libgdx.gl.{UVTrail, BaseStripBatch, ShaderHandler}
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.assets.AssetManager
@@ -12,6 +12,8 @@ import com.badlogic.gdx.physics.box2d._
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
+import com.glyph.scala.lib.util.pool.Pool
+import com.badlogic.gdx.graphics.g2d.Sprite
 
 /**
  * @author glyph
@@ -22,6 +24,7 @@ class TrailedParticleTest extends ScreenBuilder {
     ShaderHandler("shader/rotate2.vert", "shader/default.frag"),
     new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES)) {
     implicit val am = assetManager
+    implicit val spritePool = Pool[Sprite](1000)
     val texture: Texture = "data/particle.png".fromAssets
     val pairs = TrailOps.createManualParticles(
       () => new UVTrail(10))(texture)(

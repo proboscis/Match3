@@ -19,6 +19,7 @@ import com.glyph.scala.game.action_puzzle.{APView, Token, ActionPuzzle}
 import com.glyph.scala.lib.libgdx.game.ApplicationConfig
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.utils.NumberUtils
+import com.glyph.scala.lib.util.pool.Pool
 
 /**
  * @author glyph
@@ -39,12 +40,12 @@ class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
       val table = new ActionPuzzleTable(assetManager, w, h)
       val table2 = new Table()
       val hashColor = (t:Any) => new Color(NumberUtils.floatToIntColor(t.hashCode()))
-      val nextColor = (p:ActionPuzzle[Int]#AP) => new Color(p.next().map(p=>NumberUtils.floatToIntColor(p.hashCode())).getOrElse(Color.rgba8888(1,1,1,1)))
+      //val nextColor = (p:ActionPuzzle[Int]#AP) => new Color(p.next().map(p=>NumberUtils.floatToIntColor(p.hashCode())).getOrElse(Color.rgba8888(1,1,1,1)))
       table.game.puzzle.falling -> "falling" ::
         table.game.puzzle.fixed -> "fixed" ::
         table.game.puzzle.future -> "future"::
         table.game.puzzle.falling -> "next" :: Nil map {
-        case (buf, "next")=>new PuzzleBufferView(table.view, buf,nextColor) -> new Label("next", skin)
+        //case (buf, "next")=>new PuzzleBufferView(table.view, buf,nextColor) -> new Label("next", skin)
         case (buf, str) => new PuzzleBufferView(table.view, buf,hashColor) -> new Label(str, skin)
       } foreach {
         case (view, label) => {
@@ -88,6 +89,7 @@ class PuzzleBufferView(
                         tgt: ActionPuzzle[Int]#PuzzleBuffer,
                         colorFunc:ActionPuzzle[Int]#AP => Color)
                       (implicit assets: AssetManager) extends Group {
+  implicit val spritePool = Pool[Sprite](100)
   val sprite = manual[Sprite]
   sprite.setTexture("data/dummy.png".fromAssets)
   sprite.asInstanceOf[TextureRegion].setRegion(0, 0, sprite.getTexture.getWidth, sprite.getTexture.getHeight)
@@ -116,9 +118,6 @@ class PuzzleBufferView(
     }
   }
 }
-
-//TODO how about a table with resolution?
-//The event system canot be helped...
 class StagedTable(width: Int, height: Int) extends Widget with Logging {
   val stage = new Stage(width, height, true)
   val area, screenArea = new Rectangle

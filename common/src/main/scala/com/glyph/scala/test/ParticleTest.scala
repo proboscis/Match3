@@ -4,9 +4,12 @@ import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.math.Vector2
-import com.glyph.scala.lib.libgdx.gl.{DrawableStrip, TypedStripBatch, VertexAttributeHolder, ShaderHandler}
+import com.glyph.scala.lib.libgdx.gl._
 import com.badlogic.gdx.graphics.VertexAttributes
 import scalaz.{Failure, Success}
+import scalaz.Success
+import scalaz.Failure
+import scala.Some
 
 /**
  * @author proboscis

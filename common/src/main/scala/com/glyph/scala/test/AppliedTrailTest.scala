@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.{GL10, Color, Texture, Mesh}
 import com.glyph.scala.lib.util.{Logging, Timing}
 import com.glyph.scala.lib.libgdx.screen.ConfiguredScreen
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
-import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
+import com.glyph.scala.lib.libgdx.gl.{BaseTrail, BaseStripBatch, ShaderHandler}
 import com.badlogic.gdx.Gdx
 import aurelienribon.tweenengine._
 import com.badlogic.gdx.graphics.g2d.{Sprite, TextureRegion}
@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Group
 import com.glyph.scala.game.Glyphs
 import Glyphs._
 import com.badlogic.gdx.math.MathUtils
+import com.glyph.scala.lib.util.pool.Pool
 
 abstract class TrailTestEnvironment(shader: ShaderHandler, batch: BaseStripBatch) extends ConfiguredScreen with Logging with Timing {
   autoClearScreen = false
@@ -60,6 +61,7 @@ class AppliedTrailTest(nSprites: Int, batch: BaseStripBatch, shader: ShaderHandl
   extends TrailTestEnvironment(shader, batch) {
   val particleTexture = new Texture(Gdx.files.internal("data/particle.png"))
   implicit val tweenManager = new TweenManager()
+  implicit val spritePool = Pool[Sprite](1000)
   val trails = TrailOps.createManualParticles(generator)(particleTexture)(nSprites)
   val sprites = trails map {
     case (sp, _) => sp
@@ -121,7 +123,7 @@ object TrailOps {
 
   import Glyphs._
 
-  def createManualParticles(f: () => BaseTrail)(texture: Texture)(n: Int): Seq[(Sprite, BaseTrail)] = 1 to n map {
+  def createManualParticles(f: () => BaseTrail)(texture: Texture)(n: Int)(implicit pool:com.glyph.scala.lib.util.pool.Pool[Sprite]): Seq[(Sprite, BaseTrail)] = 1 to n map {
     _ =>
       val sp = manual[Sprite]
       sp.setTexture(texture)

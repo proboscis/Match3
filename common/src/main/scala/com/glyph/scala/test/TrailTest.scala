@@ -7,7 +7,7 @@ import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.math.{MathUtils, Matrix3, Vector2, Matrix4}
 import com.badlogic.gdx.graphics.glutils.{ShapeRenderer, ShaderProgram}
-import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
+import com.glyph.scala.lib.libgdx.gl.{BaseTrail, BaseStripBatch, ShaderHandler}
 import com.glyph.scala.lib.util.reactive.Reactor
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
@@ -88,15 +88,17 @@ class Trail(val max: Int) extends BaseTrail(max) {
   def vertexSize: Int = Trail.VERTEX_SIZE
 
   def addVertices() {
+    val _records = records
     val v = meshVertices
+    val _count = count
     val color = Color.WHITE.toFloatBits
-    val recordLength = count / 2
-    val r = records
+    val recordLength = _count / 2
+    val r = _records
     if (recordLength > 1) {
-      val px = r(count - 4)
-      val py = r(count - 3)
-      val x = r(count - 2)
-      val y = r(count - 1)
+      val px = r(_count - 4)
+      val py = r(_count - 3)
+      val x = r(_count - 2)
+      val y = r(_count - 1)
       val width = 5
       val angle = -MathUtils.atan2(x - px, y - py) * MathUtils.radDeg
       t2.set(x - px, y - py)
@@ -138,6 +140,7 @@ class Trail(val max: Int) extends BaseTrail(max) {
   //this is a bit heavy ops
   //these rotations are the heavy ops!
   def setupMesh() {
+    val _records = records
     val color = Color.WHITE.toFloatBits
     val recordLength = count / 2 //records.length/2
     var i = 0
@@ -146,10 +149,10 @@ class Trail(val max: Int) extends BaseTrail(max) {
     while (i < recordLength - 1) {
       //for all vertices
       val ri = i * 2
-      val x = records(ri)
-      val y = records(ri + 1)
-      val nx = records(ri + 2)
-      val ny = records(ri + 3)
+      val x = _records(ri)
+      val y = _records(ri + 1)
+      val nx = _records(ri + 2)
+      val ny = _records(ri + 3)
       val width = recordLength / 2 - Math.abs(recordLength / 2 - i)
       //val width = 10
       val angle = -MathUtils.atan2(nx - x, ny - y) * MathUtils.radDeg

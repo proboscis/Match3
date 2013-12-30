@@ -3,13 +3,14 @@ package com.glyph.scala.lib.util.reactive
 import ref.WeakReference
 import scala.util.{Success, Failure, Try}
 import java.util.Observer
+import com.glyph.scala.lib.util.collection.GlyphArray
 
 //TODO the observer is not released even if the reactive is disposed!!
 /**
  * @author glyph
  */
 trait Reactor {
-  private var observers: List[Observer[_]] = Nil
+  private val observers: com.badlogic.gdx.utils.Array[Observer[_]] = new com.badlogic.gdx.utils.Array[Reactor.this.type#Observer[_]]()
   private var debugging = false
   private var debugMsg = " "
 
@@ -72,16 +73,21 @@ trait Reactor {
     }
     if (debugging) println("new Observer@%x".format(hook.hashCode()) + " of " + Reactor.this)
     reactive.subscribe(hook)
-    observers = this :: observers
+    observers add this
 
     /**
      * stops reaction
      */
     def unSubscribe() {
       def printReactiveObservers() {
-        reactive.reactiveObservers foreach {
-          case WeakReference(ref) => println("%x".format(ref.hashCode()) + " " + Reactor.this)
-          case what => println("what a hell!" + what)
+        val itr = reactive.reactiveObservers.iterator()
+        while(itr.hasNext){
+          val value = itr.next().underlying.get()
+          if(value != null){
+            println("%x".format(value.hashCode()) + " " + Reactor.this)
+          }else{
+            println("what a hell!" + null)
+          }
         }
       }
       if (debugging) {
@@ -90,9 +96,7 @@ trait Reactor {
       }
       reactive.unSubscribe(hook)
       //reactive.validateObserver()
-      observers = observers filter {
-        e => e ne this
-      }
+      observers.removeValue(this,false)
       if (debugging) {
         println(debugMsg + " : unSubscribe<=" + reactive)
         printReactiveObservers()
@@ -102,9 +106,8 @@ trait Reactor {
 
   def clearReaction() {
     //println("Reactor:clearReactions:" + this)
-    observers foreach {
-      _.unSubscribe()
-    }
+    val itr = observers.iterator()
+    while(itr.hasNext)itr.next().unSubscribe()
     /*
     observers foreach {
       o => println("Reactor:after cleared:" + o)
@@ -112,8 +115,10 @@ trait Reactor {
   }
 
   def stopReact(r: Reactive[_]) {
-    for (obs <- observers if obs.reactive eq r) {
-      obs.unSubscribe()
+    val itr = observers.iterator()
+    while(itr.hasNext){
+      val next = itr.next()
+      if(next eq r)next.unSubscribe()
     }
   }
 }

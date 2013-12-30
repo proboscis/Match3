@@ -41,7 +41,7 @@ object TextureUtil {
     while (x < nX) {
       var y = 0
       while (y < nY) {
-        val sp = pool.obtain
+        val sp = pool.manual
         u = rx + texDivX * x
         v = ry + texDivY * y
         u2 = u + texDivX

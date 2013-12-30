@@ -30,6 +30,7 @@ class WordParticleScreen extends ConfiguredScreen {
 
   import FontUtil._
 
+  implicit val spritePool = Pool[Sprite](1000)
   backgroundColor = Color.BLACK
   implicit val renderer = new Group with SpriteBatchRenderer with Tasking
   val font = internalFont("font/corbert.ttf", 50)

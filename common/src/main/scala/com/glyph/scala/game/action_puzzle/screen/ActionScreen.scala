@@ -106,10 +106,13 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
    */
   puzzle.initialize()
 
+  var count = 0
   override def render(delta: Float): Unit = {
-    clearScreen()
-
-    super.render(delta)
+    if(count % 1 == 0){
+      clearScreen()
+      super.render(delta)
+    }
+    count += 1
     game.update(delta)
   }
 }

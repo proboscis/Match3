@@ -26,6 +26,7 @@ object Settings {
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test")
       //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
     },
+    scalacOptions ++=Seq("-optimize"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),//this is required to avoid "bad file magic" problems
     javacOptions ++= Seq("-encoding","utf8")//this is required to avoid encoding issues with japanese comments in Windows
     ,

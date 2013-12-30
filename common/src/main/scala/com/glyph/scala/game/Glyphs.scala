@@ -29,5 +29,4 @@ object Glyphs
   implicit class ValidationThrowableOps[V](val vnel:ValidationNel[Throwable,ValidationNel[Throwable,V]])extends AnyVal{
     def flatten = vnel.flatMap(identity)
   }
-
 }

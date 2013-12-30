@@ -8,45 +8,50 @@ import com.glyph.scala.lib.util.{Threading, Logging}
  */
 trait ParallelProcessor extends TaskProcessor with Logging with Threading {
   val queuedTasks = ListBuffer[Task]()
-  val startedTasks = ListBuffer[Task]()
+  val startedTasks = ArrayBuffer[Task]()
   val tasksTobeRemoved = ListBuffer[Task]()
   val canceledTasks = ArrayBuffer[Task]()
   var updating = false
 
+  val queuedStarter = (t:Task)=>{
+    t.onStart()
+    startedTasks += t
+  }
+  val tobeRemovedProcessor = (t:Task)=>{
+    startedTasks -= t
+    queuedTasks -= t
+  }
   override def update(delta: Float) {
     assert(!updating)
     updating = true
     super.update(delta)
-    //log("update"+this)
-    queuedTasks foreach {
-      t => t.onStart()
-        startedTasks += t
-    }
+    queuedTasks foreach queuedStarter
     queuedTasks.clear()
 
-    for (t <- startedTasks) {
-      //log(t +","+t.isCompleted)
-      if(!canceledTasks.isEmpty){
-        if(canceledTasks.contains(t)){
-          tasksTobeRemoved += t
-        }
-      } else if (!t.isCompleted) {
+    {
+      var i = 0
+      val st = startedTasks
+      val l = st.size
+      while(i < l){
+        val t = st(i)
+        if(!canceledTasks.isEmpty){
+          if(canceledTasks.contains(t)){
+            tasksTobeRemoved += t
+          }
+        } else if (!t.isCompleted) {
           t.update(delta)
           if(t.isCompleted){
             t.onFinish()
             tasksTobeRemoved += t
           }
-      } else {
-        t.onFinish()
-        tasksTobeRemoved += t
+        } else {
+          t.onFinish()
+          tasksTobeRemoved += t
+        }
+        i += 1
       }
     }
-    tasksTobeRemoved foreach {
-      t => {
-        startedTasks -= t
-        queuedTasks -= t
-      }
-    }
+    tasksTobeRemoved foreach tobeRemovedProcessor
     tasksTobeRemoved.clear()
     canceledTasks.clear()
     updating = false

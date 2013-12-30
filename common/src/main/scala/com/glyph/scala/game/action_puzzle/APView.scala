@@ -8,12 +8,12 @@ import com.glyph.scala.lib.libgdx.actor._
 import com.badlogic.gdx.graphics.{GL10, Texture}
 import com.glyph.scala.lib.util.{reactive, ColorUtil, Logging}
 import com.glyph.scala.lib.util.pool.Pool
-import com.badlogic.gdx.graphics.g2d.{TextureRegion, Batch, Sprite}
+import com.badlogic.gdx.graphics.g2d.{Batch, Sprite}
 import scala.collection.mutable.ArrayBuffer
 import com.glyph.scala.lib.util.updatable.task.{InterpolatedFunctionTask, TimedFunctionTask}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.glyph.scala.lib.util.animator.Explosion
-import com.badlogic.gdx.scenes.scene2d.{Group, InputEvent, InputListener}
+import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.math.{Matrix4, Interpolation, MathUtils}
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
@@ -24,13 +24,13 @@ import Glyphs._
 import com.glyph.scala.lib.libgdx.font.FontUtil._
 import scala.Some
 import com.glyph.scala.lib.libgdx.WordParticle
-import com.glyph.scala.test.{BaseTrail, UVTrail}
-import com.glyph.scala.lib.libgdx.gl.{BaseStripBatch, ShaderHandler}
+import com.glyph.scala.lib.libgdx.gl.{UVTrail, BaseStripBatch, ShaderHandler}
 import com.badlogic.gdx.Gdx
 import collection.JavaConversions._
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 
 class MyTrail() extends UVTrail(5)
+
 /**
  * @author glyph
  */
@@ -43,36 +43,57 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   with AdditiveBlend
   with Scissor
   with Paneled2 {
+
+  //TODO there is 1mb of allocation when the panel is removed,added
+  //the tuple2 shows the largest memory usage.
+  implicit val _1 = classOf[MyTrail]
+  implicit val _2 = classOf[Sprite]
+  implicit val _3 = classOf[Token[T]]
+  implicit val poolingTrail = genPooling[MyTrail]
+  implicit val trailPool = Pool[MyTrail](10000)
+  implicit val spritePool = Pool[Sprite](10000)
+  implicit val tokenPool = Pool[Token[T]](() => new Token[T](null, assets), (tgt: Token[T]) => tgt.resetForPool(), row * column * 2)
+  implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
+  implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
+  implicit val tftPool = Pool[TimedFunctionTask](1000)
+  implicit val iftPool = Pool[InterpolatedFunctionTask](1000)
+
   log("new APView")
   ShaderProgram.pedantic = false
-  import com.glyph.scala.lib.util.pooling_task.ReflectedPooling._
   preAlloc[MyTrail](1000)
   preAlloc[Sprite](1000)
+  preAlloc[Token[T]](100)
 
-  val spriteTrailArray = new com.badlogic.gdx.utils.Array[Seq[(Sprite,MyTrail)]](1000)
+  val spriteTrailArray = new com.badlogic.gdx.utils.Array[Seq[(Sprite, MyTrail)]](1000)
   val shader = ShaderHandler("shader/rotate2.vert", "shader/default.frag")
   val batch = new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES)
   val dummyTex = assets.get[Texture]("data/particle.png")
   val combined = new Matrix4
-  val trailRenderer = shader.applier(
+  val tupleRenderer = (s: ShaderProgram)=>(tuple: (Sprite, MyTrail)) => {
+    val sp = tuple._1
+    val trail = tuple._2
+    trail.add(sp.getX + sp.getWidth / 2, sp.getY + sp.getHeight / 2)
+    batch.draw(s, trail.meshVertices, trail.count)
+  }
+  val trailRenderer = shader.applier2 {
     s => {
-      Gdx.gl.glEnable(GL10.GL_TEXTURE_2D)
-      Gdx.gl.glEnable(GL10.GL_BLEND)
-      Gdx.gl.glBlendFunc(SRC_FUNC, DST_FUNC)
-      s.begin()
-      s.setUniformMatrix("u_projTrans",combined.set(getStage.getSpriteBatch.getProjectionMatrix).mul(computeTransform()))
-      s.setUniformi("u_texture", 0)
-      dummyTex.bind()
-      batch.begin()
-      spriteTrailArray.iterator().foreach(_.foreach{
-        case(sp,trail) =>
-          trail.add(sp.getX+sp.getWidth/2,sp.getY+sp.getHeight/2)
-          batch.draw(s,trail.meshVertices,trail.count)
-      })
-      batch.end(s)
-      s.end()
+       val seqRenderer = tupleRenderer(s)
+      () => {
+        Gdx.gl.glEnable(GL10.GL_TEXTURE_2D)
+        Gdx.gl.glEnable(GL10.GL_BLEND)
+        Gdx.gl.glBlendFunc(SRC_FUNC, DST_FUNC)
+        s.begin()
+        s.setUniformMatrix("u_projTrans", combined.set(getStage.getSpriteBatch.getProjectionMatrix).mul(computeTransform()))
+        s.setUniformi("u_texture", 0)
+        dummyTex.bind()
+        batch.begin()
+        val itr = spriteTrailArray.iterator()
+        while(itr.hasNext){itr.next() foreach seqRenderer}
+        batch.end(s)
+        s.end()
+      }
     }
-  )
+  }
   val gridFunctions = RVJSON(GdxFile("json/grid.json")).map(_.flatMap(Grid(_)))
   val alphaToIndex = gridFunctions map (_.map {
     case (fx, fy) => Grid.alphaToIndex(fx, fy)
@@ -89,9 +110,6 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   def row: Int = puzzle.ROW
 
   def column: Int = puzzle.COLUMN
-  implicit val tokenPool = Pool[Token[T]](() => new Token[T](null, assets), (tgt: Token[T]) => tgt.resetForPool(), row * column * 2)
-  implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite](), (buf: ArrayBuffer[Sprite]) => buf.clear(), 1000)
-  implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float](), (buf: ArrayBuffer[Float]) => buf.clear(), 1000)
 
 
   val font = internalFont("font/corbert.ttf", 50)
@@ -103,6 +121,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   val tokens = ArrayBuffer[Token[T]]()
   val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
   val panelAdd = (added: Seq[Seq[ActionPuzzle[T]#AP]]) => {
+    //TODO this is allocating
     for (row <- added; p <- row) {
       val token = manual[Token[T]]
       token.init(p)
@@ -124,36 +143,40 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   }
 
   val panelRemove = (removed: Seq[ActionPuzzle[T]#AP]) => {
+    //TODO this is allocating
     for (panel <- removed; token <- tokens.find(_.panel == panel)) {
       tokens -= token
-      token.clearReaction()//this must be done since the panel is immediately removed
+      token.clearReaction() //this must be done since the panel is immediately removed
       token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
         def run() {
           token.free
         }
       })))
-      addParticles(token)
-      showScoreParticle(token, score())
+      //addParticles(token)
+      //showScoreParticle(token, score())
     }
   }
 
-  def halfW(seq: Seq[Sprite]) = seq.map(s => s.getWidth).sum / 2f
+  val widthFolder = (f: Float, s: Sprite) => f + s.getWidth
+  val heightFolder = (f: Float, s: Sprite) => f + s.getHeight
 
-  def meanH(seq: Seq[Sprite]) = seq.map(s => s.getHeight).sum / seq.size
+  def halfW(seq: Seq[Sprite]) = (0f /: seq)(widthFolder) / 2f
+
+  def meanH(seq: Seq[Sprite]) = (0f /: seq)(heightFolder) / seq.size
 
   def showScoreParticle(token: Token[T], score: Int) {
     val sprites = WordParticle.StringToSprites(font)(score + "")(0.7f)
     WordParticle.start(sprites, WordParticle.popSprites(sprites)(token.getX + token.getWidth / 2f - halfW(sprites), token.getY, () => token.getHeight / 2 - meanH(sprites), 0.7f))
   }
 
-  def addParticles(token: Token[T]){
+  def addParticles(token: Token[T]) {
     val duration = 1f
     val buf = manual[ArrayBuffer[Sprite]]
     val velBuf = manual[ArrayBuffer[Float]]
     val ft = auto[TimedFunctionTask]
     val it = auto[InterpolatedFunctionTask]
     //make this particle specific code into trait's code
-    var setBuf:Seq[(Sprite,MyTrail)] = null
+    var setBuf: Seq[(Sprite, MyTrail)] = null
     add(ft.setFunctions(
       () => {
         //TextureUtil.split(token.sprite)(8)(8)(buf)
@@ -171,7 +194,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
         }
         Explosion.init(() => random(PI2), () => random(2000), velBuf, buf.length)
         addDrawable(buf)
-        setBuf = buf map(sp=>sp->manual[MyTrail])
+        setBuf = buf map (sp => sp -> manual[MyTrail])
         spriteTrailArray.add(setBuf)
       },
       Explosion.update(0, -100, 5f)(buf, velBuf),
@@ -179,10 +202,10 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
         removeDrawable(buf)
         buf foreach (_.free)
         buf.free
-        setBuf foreach{
-          case(sp,trail)=>trail.free
+        setBuf foreach {
+          case (sp, trail) => trail.free
         }
-        spriteTrailArray.removeValue(setBuf,true)
+        spriteTrailArray.removeValue(setBuf, true)
         velBuf.free
 
       }) in duration)
@@ -198,9 +221,9 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
         sp => sp.setColor(color)
       }
     }) in duration * 2)
-
   }
 
+  /*
   this.addListener(new InputListener() {
     override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
       for (ai <- alphaToIndex()) {
@@ -215,7 +238,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
       super.touchDown(event, x, y, pointer, button)
     }
   })
-
+*/
   override def act(delta: Float) {
     super.act(delta)
     manager.update(delta)
@@ -228,6 +251,7 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
     batch.begin()
   }
 }
+
 /*
 (puzzle.falling::puzzle.fixed::puzzle.future::Nil) map (new APDebugView(_)) foreach{
     view =>

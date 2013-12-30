@@ -9,7 +9,7 @@ import com.glyph.scala.lib.libgdx.actor.SpriteBatchRenderer
 import com.glyph.scala.game.Glyphs._
 import scalaz._
 import Scalaz._
-
+import Pool._
 /**
  * @author glyph
  */
@@ -56,11 +56,11 @@ object WordParticle extends Logging {
     val sprites = StringToSprites(font)(string)(0.5f)
     start(sprites,popSprites(sprites)(0,0,()=>100f,1f))
   }
-  def start(sprites:Seq[Sprite],timeline:Timeline)(implicit renderer:SpriteBatchRenderer,manager:TweenManager){
+  def start(sprites:Seq[Sprite],timeline:Timeline)(implicit renderer:SpriteBatchRenderer,manager:TweenManager,pool:Pool[Sprite]){
     timeline.setCallback(new TweenCallback{
       def onEvent(`type`: Int, source: BaseTween[_]){
         renderer.removeDrawable(sprites)
-        sprites foreach(free(_))
+        sprites foreach(_.free)
       }
     }).setCallbackTriggers(TweenCallback.COMPLETE).start(manager)
     renderer.addDrawable(sprites)
