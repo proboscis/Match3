@@ -134,7 +134,10 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
   }
   def updateTokenPosition(delta:Float){
     if(gridFunctions().isDefined){
-      val(fx,fy) = gridFunctions().get
+      //val(fx,fy) = gridFunctions().get//damn,this allocates a new tuple2...
+      val fs = gridFunctions().get
+      val fx = fs._1
+      val fy = fs._2
       val itr = tokens.iterator()
       while(itr.hasNext){
         val t = itr.next
@@ -175,6 +178,8 @@ class APView[T](score: Varying[Int], puzzle: ActionPuzzle[T], assets: AssetManag
             token.free
           }
         })))
+        showScoreParticle(token,score())
+        addParticles(token)
       }
       i += 1
     }

@@ -4,30 +4,23 @@ package com.glyph.scala.lib.util.reactive
 /**
  * @author glyph
  */
-trait Varying[T] extends Reactive[T] {
+trait Varying[@specialized(Float,Int) T] extends Reactive[T] {
   self =>
   def current: T
+
   override def subscribe(callback: (T) => Unit) {
     super.subscribe(callback)
     callback(current)
   }
+
   def * : Varying[T] = self
+
   def apply(): T = {
     current
   }
 
   //combinator
-  def ~[P](v: Varying[P]): Varying[(T, P)] = {
-    new Varying[(T, P)] with Reactor {
-      def current: (T, P) = (self(), v())
-      reactVar(self) {
-        s => this.notifyObservers((s, v()))
-      }
-      reactVar(v) {
-        s => this.notifyObservers(self(), s)
-      }
-    }
-  }
+  def ~[@specialized(Float,Int)P](v: Varying[P]): Varying[(T, P)] = new Paired(self,v)
 
   /**
    * mapper
@@ -62,7 +55,7 @@ trait Varying[T] extends Reactive[T] {
     }
   }
 
-  def foreach(f:T => Unit){
+  def foreach(f: T => Unit) {
     f(current)
   }
 
@@ -70,13 +63,52 @@ trait Varying[T] extends Reactive[T] {
 
 }
 
-class Mapped[T, R](val self: Varying[T], val mapping: T => R) extends Varying[R] with Reactor {
+class Mapped[@specialized(Float,Int) T, @specialized(Float,Int) R](val self: Varying[T], val mapping: T => R) extends Varying[R] with Reactor {
   var variable: R = null.asInstanceOf[R]
+
   def current: R = variable
+
   reactVar(self) {
     s => variable = mapping(s); this.notifyObservers(variable)
   }
 }
+
+class Paired[@specialized(Float,Int)A,@specialized(Float,Int)B](a:Varying[A],b:Varying[B]) extends Varying[(A,B)] with Reactor{
+  var variable = (a(),b())
+  def current: (A, B) = variable
+  reactVar(a){
+    s => {
+      variable = (s,b())
+      notifyObservers(variable)
+    }
+  }
+  reactVar(b){
+    s => {
+      variable = (a(),s)
+      notifyObservers(variable)
+    }
+  }
+}
+/*
+ new Varying[(T, P)] with Reactor {
+      var variable:(T,P) = (self(), v())
+
+      def current: (T, P) = variable
+
+      reactVar(self) {
+        s => {
+          variable = (s, v())
+          this.notifyObservers(variable)
+        }
+      }
+      reactVar(v) {
+        s => {
+          variable = (self(), s)
+          this.notifyObservers(variable)
+        }
+      }
+    }
+ */
 
 /*
 object Varying {

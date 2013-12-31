@@ -21,6 +21,11 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   extends Logging
   with Timing
   with HeapMeasure {
+  //TODO reactiveのautoBoxingと　
+  //memory analyzerのString生成のみまで落とし込めた！！！
+  //TODO table.debug allocates debugrectangle
+  //TODO reactive.map is occuring while swiping
+  //TODO avoid freeing Parallel twice.
   log("new ActionPuzzle")
   //TODO where is allocation?????
   //TODO システムを決めなければ、素材を作ることができない。
@@ -66,7 +71,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     }
     def newInstance = GMatch3.initialize[AP, ArrayBuffer](COLUMN)(generator)
     val cleaner = (buf:ArrayBuffer[AP]) => buf.clear()
-    def reset(tgt: PuzzleBuffer)= tgt foreach cleaner
+    def reset(tgt: PuzzleBuffer)= tgt foreach cleaner//the profile shows this is allocating... but how???
   }
   implicit object PoolingAP extends Pooling[AP] {
     def newInstance: ActionPuzzle.this.type#AP = new AP
@@ -212,7 +217,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     val filling = manual[PuzzleBuffer]
     GMatch3.createFillingPuzzle2(future)(APSeed)(ROW,COLUMN)(filling)
     //val filling = future createFillingPuzzle(APSeed, COLUMN) //no cost
-    if (filling.exists(nonEmpty)) {
+    if (filling.exists(nonEmpty)) {//TODO exist method allocates annon fun
       //printTime("fill:update failling"){
       val nextFall: PuzzleBuffer = manual[PuzzleBuffer]
       copy(falling)(nextFall)

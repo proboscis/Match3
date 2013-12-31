@@ -29,6 +29,7 @@ object ColorUtil extends Logging{
     dst.s = s
     dst.v = v
   }
+  //TODO this is called
   def ColorToHSV(c:Color):HSV ={
     import Math._
     val r = c.r

@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.MathUtils
  */
 class ComboPuzzle {
 
-  val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 3), (a: Int, b: Int) => {
+  val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 9), (a: Int, b: Int) => {
     a == b
   })
   val score = Var(0)

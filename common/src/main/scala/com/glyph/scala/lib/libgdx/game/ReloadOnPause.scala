@@ -1,12 +1,11 @@
 package com.glyph.scala.lib.libgdx.game
 
 import com.badlogic.gdx._
-import com.glyph.scala.lib.libgdx.screen.{ScreenBuilder, LoadingScreen}
+import com.glyph.scala.lib.libgdx.screen.LoadingScreen
 import com.glyph.scala.lib.util.{Logging, MemoryAnalyzer}
 import com.badlogic.gdx.graphics.GL10
 import scala.Some
 import com.badlogic.gdx.assets.AssetManager
-import scala.annotation.target
 
 /**
  * @author glyph
@@ -19,11 +18,11 @@ trait ReloadOnPause extends Game with Logging {
   override def resume() {
     super.resume()
     println("resume!")
-    if(!assetManager.update()){
-    setScreen(new LoadingScreen(() => {
-      pausedScreen foreach setScreen
-    }, assetManager))
-    }else{
+    if (!assetManager.update()) {
+      setScreen(new LoadingScreen(() => {
+        pausedScreen foreach setScreen
+      }, assetManager))
+    } else {
       pausedScreen foreach setScreen
     }
     pausedScreen = None
@@ -51,7 +50,7 @@ trait ReloadOnPause extends Game with Logging {
     super.render()
   }
 
-  override def dispose(){
+  override def dispose() {
     assetManager.dispose()
   }
 }

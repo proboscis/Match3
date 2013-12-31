@@ -28,6 +28,7 @@ object Settings {
     },
     scalacOptions ++=Seq("-optimize"),
     //scalacOptions ++=Seq("-Xprint:lambdalift"),
+    scalacOptions ++=Seq("-feature"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),//this is required to avoid "bad file magic" problems
     javacOptions ++= Seq("-encoding","utf8")//this is required to avoid encoding issues with japanese comments in Windows
     ,

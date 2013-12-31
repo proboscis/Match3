@@ -30,14 +30,14 @@ trait Poolable extends Logging {
 
 class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
   log("created a pool for:" + implicitly[ClassTag[P]])
-  private val pool = mutable.Queue[P]()
+  private val pool = new com.badlogic.gdx.utils.Array[P]()
 
   def manual: P = {
-    if (pool.isEmpty) {
+    if (pool.size == 0) {
       log("created new instance!:" + implicitly[ClassTag[P]].runtimeClass.getSimpleName)
       implicitly[Pooling[P]].newInstance
     } else {
-      pool.dequeue()
+      pool.pop()
     }
   }
 
@@ -51,7 +51,7 @@ class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
   def reset(tgt: P) {
     implicitly[Pooling[P]].reset(tgt)
     if (pool.size < max) {
-      pool enqueue tgt
+      pool add tgt
       //log("freed "+tgt.getClass)
     } else {
       log("warning: this pool reached its max capacity!" + tgt.getClass)

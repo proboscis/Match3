@@ -7,7 +7,7 @@ import com.glyph.scala.lib.util.lifting.Variable
 /**
  * @author glyph
  */
-class Var[T: Manifest](protected var variable: T, name: String = "undefined") extends Varying[T] {
+class Var[@specialized(Float,Int)T: Manifest](protected var variable: T, name: String = "undefined") extends Varying[T] {
   self =>
   def current: T = variable
 
@@ -30,5 +30,6 @@ class Var[T: Manifest](protected var variable: T, name: String = "undefined") ex
 }
 
 object Var {
+  //@specialized(Float,Int) this causes a stack overflow bug.
   def apply[T: Manifest](v: T, name: String = "undefined") = new Var(v, name)
 }
