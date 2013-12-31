@@ -1,6 +1,8 @@
 package com.glyph.scala.lib.libgdx.game
 
 import com.glyph.scala.lib.libgdx.screen.{LoadingScreen, ScreenBuilder}
+import com.badlogic.gdx.Gdx
+import com.glyph.scala.lib.libgdx.GdxUtil
 
 /**
  * @author glyph
@@ -23,8 +25,11 @@ trait ScreenBuilderSupport extends ReloadOnPause {
         }
       }
       setScreen(new LoadingScreen(() => {
+        val screen = builder.create(assetManager)
         System.gc()
-        setScreen(builder.create(assetManager))
+        GdxUtil.post{
+          setScreen(screen)
+        }
       }, assetManager))
     }
   }

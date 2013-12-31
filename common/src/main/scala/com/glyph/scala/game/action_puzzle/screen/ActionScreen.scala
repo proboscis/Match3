@@ -19,11 +19,16 @@ import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.Screen
+import com.glyph.scala.lib.libgdx.game.LimitDelta
 
 /**
  * @author glyph
  */
-class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with Reactor with Logging {
+class ActionScreen(implicit assets: AssetManager)
+  extends ConfiguredScreen
+  with Reactor
+  with Logging
+  with LimitDelta{
   //TODO design the gauge
   //TODO GameOver
   //TODO title screen
@@ -77,7 +82,7 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
       scoreLabel.addAction(prevAction)
     }
   }
-  val comboLabel = new RLabel(skin, combo map (_.toString))
+  val comboLabel = new RLabel(skin, combo map (_.toString))//boxing and string
   val inner = new Table()
   inner.debug
   inner.add(scoreLabel).expand
@@ -108,11 +113,8 @@ class ActionScreen(implicit assets: AssetManager) extends ConfiguredScreen with 
    */
   puzzle.initialize()
 
-  var count = 0
-
   override def render(delta: Float): Unit = {
     clearScreen()
-    count += 1
     super.render(delta)//this call is instantiating a lot of Some
     game.update(delta)
   }

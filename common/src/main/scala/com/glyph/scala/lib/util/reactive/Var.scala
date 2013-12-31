@@ -16,20 +16,20 @@ class Var[@specialized(Float,Int)T: Manifest](protected var variable: T, name: S
   debugReactive[T]("name:" + name)
 
   def update(f: T => T) {
-    notifyObservers(f(current))
+    variable = f(current)
+    notifyObservers(variable)
   }
 
   def update(v: T) {
-    notifyObservers(v)
-  }
-
-  override def notifyObservers(t: T) {
-    variable = t
-    super.notifyObservers(t)
+    variable = v
+    notifyObservers(variable)
   }
 }
 
 object Var {
   //@specialized(Float,Int) this causes a stack overflow bug.
-  def apply[T: Manifest](v: T, name: String = "undefined") = new Var(v, name)
+  //overriding specialized trait causes infinite loop!!!
+  //this is fixed in scala 2.11.0-M1 and is closed, so there is no hope on fixes for 2.10.3
+  //https://issues.scala-lang.org/browse/SI-4996
+  def apply[@specialized(Float,Int)T: Manifest](v: T, name: String = "undefined") = new Var(v, name)
 }

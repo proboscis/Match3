@@ -8,11 +8,6 @@ trait Varying[@specialized(Float,Int) T] extends Reactive[T] {
   self =>
   def current: T
 
-  override def subscribe(callback: (T) => Unit) {
-    super.subscribe(callback)
-    callback(current)
-  }
-
   def * : Varying[T] = self
 
   def apply(): T = {
@@ -25,7 +20,7 @@ trait Varying[@specialized(Float,Int) T] extends Reactive[T] {
   /**
    * mapper
    */
-  def map[R](f: (T) => R): Varying[R] = new Mapped(self, f)
+  def map[@specialized(Float,Int)R](f: (T) => R): Varying[R] = new Mapped(self, f)
 
   /*
   def flatMap[R](f: T => Varying[R]): Varying[R] = f(current) match {
@@ -44,6 +39,10 @@ trait Varying[@specialized(Float,Int) T] extends Reactive[T] {
       }
   }*/
 
+
+  def onSubscribe(cb: (T) => Unit){
+    cb(current)
+  }
 
   //maps to event source
   def toEvents: EventSource[T] = {
@@ -64,10 +63,8 @@ trait Varying[@specialized(Float,Int) T] extends Reactive[T] {
 }
 
 class Mapped[@specialized(Float,Int) T, @specialized(Float,Int) R](val self: Varying[T], val mapping: T => R) extends Varying[R] with Reactor {
-  var variable: R = null.asInstanceOf[R]
-
+  var variable: R = mapping(self())
   def current: R = variable
-
   reactVar(self) {
     s => variable = mapping(s); this.notifyObservers(variable)
   }

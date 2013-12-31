@@ -398,7 +398,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
 
   //for optimization
   val finishedBuf = ArrayBuffer.empty[AP]
-  val fixedTemp = mutable.Stack.empty[AP]
+  val fixedTemp =new com.badlogic.gdx.utils.Array[AP]()
 
   def updateFalling(delta: Float) {
     {
@@ -452,11 +452,11 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
             fixedTemp.clear()
             var y = 0
             while (y < length) {
-              fixedTemp.push(row(y))
+              fixedTemp add row(y)
               y += 1
             }
             buf.clear()
-            while (!fixedTemp.isEmpty) {
+            while (fixedTemp.size != 0) {
               buf += fixedTemp.pop()
             }
             x += 1

@@ -33,7 +33,7 @@ trait Reactor {
    * @tparam T
    * @return
    */
-  def reactVar[T](v: Varying[T])(callback: (T) => Unit): Observer[T] = {
+  def reactVar[@specialized(Float,Int)T](v: Varying[T])(callback: (T) => Unit): Observer[T] = {
     val observer = obtainObserver[T]
     observer.init(this,v,callback)
     observer
@@ -133,29 +133,21 @@ trait Reactor {
     }
   }
 }
-class Observer[T] extends Poolable with Logging{
+class Observer[@specialized(Float,Int)T] extends Poolable with Logging{
   var partner:Reactor = null
   var reactive: Reactive[T] = null
-  var f: (T) => Unit = null
-  val hook = (t: T) => {
-    if (partner.reactorDebugging) println(partner.reactorDebugMsg + ":react:" + reactive + "(" + t + ")")
-    f(t)
-  }
+  var f:T=>Unit = null// you cannot hook this function or the specialization will corrupt
   def init(part:Reactor,reactive:Reactive[T],func:T=>Unit){
     this.partner = part
     this.reactive = reactive
-    this.f = func
-    if (partner.reactorDebugging) println(partner.reactorDebugMsg + " : subscribe=>" + reactive)
-
-    if (partner.reactorDebugging) println("new Observer@%x".format(hook.hashCode()) + " of " + partner)
-    reactive.subscribe(hook)
+    f = func
+    reactive.subscribe(f)
     partner.reactors add this
   }
 
   def reset(){
     partner = null
     reactive = null
-    f = null
   }
 
   /**
@@ -177,21 +169,22 @@ class Observer[T] extends Poolable with Logging{
       println(partner.reactorDebugMsg + " : unSubscribe=>" + reactive + " observer@%x".format(this.hashCode()))
       printReactiveObservers()
     }
-    reactive.unSubscribe(hook)
+    reactive.unSubscribe(f)
     //reactive.validateObserver()
     partner.reactors.removeValue(this,false)
     if (partner.reactorDebugging) {
       println(partner.reactorDebugMsg + " : unSubscribe<=" + reactive)
       printReactiveObservers()
     }
-    freeToPool()
+    //freeToPool()
   }
 }
 object Reactor{
+  //TODO you can't pool the observers since they are
   implicit object PoolingObserver extends Pooling[Observer[_]]{
     def newInstance: Observer[_] = new Observer[Any]
     def reset(tgt: Observer[_]): Unit = tgt.reset()
   }
   val observerPool = Pool[Observer[_]](10000)
-  def obtainObserver[T]:Observer[T] = observerPool.auto.asInstanceOf[Observer[T]]
+  def obtainObserver[@specialized(Float,Int)T]:Observer[T] = new Observer[T]//observerPool.auto.asInstanceOf[Observer[T]]
 }

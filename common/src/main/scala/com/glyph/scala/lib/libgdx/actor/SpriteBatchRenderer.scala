@@ -89,7 +89,7 @@ trait SBDrawableGdxOps extends Logging{
       tgt.draw(batch, alpha)
     }
   }
-  class AnnonSpriteRenderer extends ((Sprite)=>Unit){
+  class AnonSpriteRenderer extends ((Sprite)=>Unit){
     var batch:Batch = null
     var alpha:Float = 0f
     def set(b:Batch,a:Float):this.type = {
@@ -101,10 +101,10 @@ trait SBDrawableGdxOps extends Logging{
   }
   def drawableSpriteSeq[T<:Seq[Sprite]:ClassTag]:SBDrawable[T]= new SBDrawable[T] {
     log("created an evidence of SBDrawable for : "+implicitly[ClassTag[T]].runtimeClass)
-    val f = new AnnonSpriteRenderer
+    val f = new AnonSpriteRenderer
     def draw(tgt: T, batch: Batch, alpha: Float): Unit ={
       f.set(batch,alpha)
-      tgt foreach f
+      tgt foreach f//this may be generating a new vector iterator!!
     }
   }
   private var tagToGeneratedDrawableMap:ClassTag[_] Map SBDrawable[_] = Map() withDefault(_=>null)

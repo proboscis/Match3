@@ -21,8 +21,8 @@ class ComboPuzzle {
   var onPanelRemove = (seq:IndexedSeq[puzzle.AP])=>{}
   var onPanelAdd = (seq:IndexedSeq[IndexedSeq[puzzle.AP]])=>{}
   puzzle.panelRemove = seq => {
-    combo() += seq.size
-    score() += 10 * seq.size
+    //combo() += seq.size
+    //score() += 10 * seq.size
     onPanelRemove(seq)
   }
   puzzle.panelAdd = seq=>{

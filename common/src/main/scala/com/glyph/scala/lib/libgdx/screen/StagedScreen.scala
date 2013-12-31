@@ -28,7 +28,6 @@ trait StagedScreen extends GlyphScreen {
   private val _STAGE_HEIGHT:Int = config().flatMap(_.height.as[Int])| (1920f * 15f / 16f / 2f).toInt
   def STAGE_WIDTH:Int = _STAGE_WIDTH
   def STAGE_HEIGHT:Int = _STAGE_HEIGHT
-
   override def show() {
     println("show StagedScreen")
     Gdx.input.setInputProcessor(stage)

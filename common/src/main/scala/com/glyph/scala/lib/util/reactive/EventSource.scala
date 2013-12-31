@@ -12,6 +12,9 @@ class EventSource[T] extends Reactive[T] {
     notifyObservers(event)
   }
 
+
+  def onSubscribe(cb: (T) => Unit): Unit = {}
+
   def map[B](f: T => B): EventSource[B] = {
     new EventSource[B] with Reactor {
       reactEvent(self) {

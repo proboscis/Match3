@@ -10,9 +10,6 @@ import com.glyph.scala.lib.util.collection.GlyphArray
  */
 trait Reactive[@specialized(scala.Float,scala.Int)T] {
   //TODO observerやリスト、コールバックの処理を最適化する
-
-  import Reactive._
-
   private val observers: GlyphArray[WeakReference[(T) => Unit]] = new GlyphArray[WeakReference[(T) => Unit]]()
   protected val removeQueue: GlyphArray[T => Unit] = new GlyphArray[(T) => Unit]()
   protected val addQueue: GlyphArray[T => Unit] = new GlyphArray[(T) => Unit]()
@@ -26,6 +23,7 @@ trait Reactive[@specialized(scala.Float,scala.Int)T] {
     debugging = true
   }
 
+
   def subscribe(callback: T => Unit) {
     if (concurrent > 0) {
       addQueue add callback
@@ -33,6 +31,7 @@ trait Reactive[@specialized(scala.Float,scala.Int)T] {
     } else {
       addObserver(callback)
     }
+    onSubscribe(callback)
   }
   def notifyObservers(t: T) {
     import Reactive._
@@ -122,6 +121,7 @@ trait Reactive[@specialized(scala.Float,scala.Int)T] {
     } else {
       getClass.getSimpleName + "@%x \nmsg:%s".format(System.identityHashCode(this), debugMsg)
     }
+  def onSubscribe(cb:T=>Unit):Unit
 }
 
 object Reactive {
