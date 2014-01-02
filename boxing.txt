@@ -1,0 +1,247 @@
+com\glyph\scala\game\action_puzzle\ActionPuzzle$AP$$anonfun$1
+   2:	invokestatic	#32; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\game\action_puzzle\APView$$anonfun$16
+   2:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   12:	invokestatic	#44; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\APView$$anonfun$17
+   2:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   12:	invokestatic	#44; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\APView$$anonfun$addParticles$1$$anonfun$apply$mcV$sp$1
+   4:	invokestatic	#36; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\APView$$anonfun$addParticles$1$$anonfun$apply$mcV$sp$2
+   4:	invokestatic	#35; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\APView$$anonfun$addParticles$2
+   2:	invokestatic	#60; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\game\action_puzzle\APView$$anonfun$addParticles$4
+   2:	invokestatic	#67; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\game\action_puzzle\APView$$anonfun$showScoreParticle$1
+   4:	invokestatic	#53; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\APView
+   2:	invokestatic	#603; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   14:	invokestatic	#615; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   2:	invokestatic	#603; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   14:	invokestatic	#615; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\game\action_puzzle\screen\ActionScreen$$anon$2$$anonfun$5
+   2:	invokestatic	#47; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#53; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\screen\ActionScreen$$anon$2$$anonfun$6
+   2:	invokestatic	#43; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\game\action_puzzle\screen\ActionScreen$$anonfun$1
+   8:	invokestatic	#36; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\screen\ActionScreen$$anonfun$2
+   2:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#43; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\screen\ActionScreen$$anonfun$3
+   2:	invokestatic	#31; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#37; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\screen\ActionScreen$$anonfun$9
+   23:	invokestatic	#40; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   2:	invokestatic	#57; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\game\action_puzzle\Token
+   11:	invokestatic	#429; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   41:	invokestatic	#429; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   74:	invokestatic	#429; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   107:	invokestatic	#429; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\view\ActionPuzzleTable$$anon$2$$anonfun$5
+   2:	invokestatic	#47; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#53; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\view\ActionPuzzleTable$$anon$2$$anonfun$6
+   2:	invokestatic	#43; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\game\action_puzzle\view\ActionPuzzleTable$$anonfun$1
+   8:	invokestatic	#36; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\view\ActionPuzzleTable$$anonfun$2
+   2:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#43; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\view\ActionPuzzleTable$$anonfun$3
+   2:	invokestatic	#31; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#37; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\game\action_puzzle\view\ActionPuzzleTable$$anonfun$8
+   23:	invokestatic	#40; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   2:	invokestatic	#57; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\game\action_puzzle\view\Grid$$anonfun$alphaToIndex$1
+   2:	invokestatic	#49; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#49; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\FuncTouchable$$anon$1
+   22:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   26:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   19:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   23:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   21:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   25:	invokestatic	#38; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\libgdx\actor\FuncTouchable$$anonfun$2
+   2:	invokestatic	#26; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#26; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\FuncTouchable$$anonfun$3
+   2:	invokestatic	#26; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#26; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\FuncTouchable$$anonfun$4
+   2:	invokestatic	#26; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#26; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\ReactiveSize$$anonfun$1
+   104:	invokestatic	#59; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   117:	invokestatic	#59; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   130:	invokestatic	#59; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   144:	invokestatic	#59; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\TouchSource$$anon$1
+   14:	invokestatic	#25; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   18:	invokestatic	#25; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   23:	invokestatic	#25; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   27:	invokestatic	#25; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   25:	invokestatic	#25; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   29:	invokestatic	#25; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\libgdx\actor\ui\Gauge$$anon$1$$anonfun$1
+   2:	invokestatic	#40; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#46; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\libgdx\actor\ui\Gauge$$anon$1$$anonfun$2
+   91:	invokestatic	#82; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   124:	invokestatic	#82; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   153:	invokestatic	#82; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   169:	invokestatic	#82; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   182:	invokestatic	#82; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   211:	invokestatic	#82; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   224:	invokestatic	#82; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   241:	invokestatic	#82; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\ui\SlideView$$anonfun$com$glyph$scala$lib$libgdx$actor$ui$SlideView$$out$1
+   2:	invokestatic	#71; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\ui\SlideView$$anonfun$in$1$$anonfun$apply$mcVF$sp$1
+   2:	invokestatic	#71; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\ui\SlideView$$anonfun$in$1
+   38:	invokestatic	#63; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   2:	invokestatic	#63; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\actor\ui\SlideView
+   69:	invokestatic	#246; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   411:	invokestatic	#246; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   36:	invokestatic	#246; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\screen\LoadingScreen$$anon$1
+   47:	invokestatic	#60; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\libgdx\WordParticle$$anonfun$popStrings$1
+   4:	invokestatic	#31; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\libgdx\WordParticle$$anonfun$popStrings$2$$anonfun$apply$1$$anonfun$apply$2
+   2:	invokestatic	#47; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#47; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   15:	invokestatic	#47; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\WordParticle$$anonfun$popStrings$2
+   10:	invokestatic	#73; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\libgdx\WordParticle$$anonfun$popTween$1
+   42:	invokestatic	#51; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   55:	invokestatic	#51; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\util\animator\AnimatorOps$IPAnimator
+   14:	invokestatic	#178; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   20:	invokestatic	#198; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\animator\Explosion$
+   41:	invokestatic	#54; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   57:	invokestatic	#54; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   52:	invokestatic	#100; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   66:	invokestatic	#100; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   116:	invokestatic	#100; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   122:	invokestatic	#54; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   143:	invokestatic	#100; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   149:	invokestatic	#54; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   190:	invokestatic	#100; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   224:	invokestatic	#100; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\util\animator\Swinger$$anonfun$update$1
+   2:	invokestatic	#68; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\util\ColorUtil$HSV$
+   22:	invokestatic	#51; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   29:	invokestatic	#51; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   36:	invokestatic	#51; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   2:	invokestatic	#74; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#74; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   10:	invokestatic	#74; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\util\ColorUtil$HSV
+   47:	invokestatic	#122; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   57:	invokestatic	#122; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   67:	invokestatic	#122; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\json\JSON$$anonfun$asTry$1$$anonfun$apply$9
+   158:	invokestatic	#74; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\json\JSON$$anonfun$toArray$1$$anonfun$apply$7
+   108:	invokestatic	#79; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Mapped$mcFF$sp
+   2:	invokestatic	#166; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   4:	invokestatic	#176; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   4:	invokestatic	#176; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   2:	invokestatic	#166; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   4:	invokestatic	#176; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Mapped$mcFI$sp
+   2:	invokestatic	#166; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   4:	invokestatic	#176; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   4:	invokestatic	#176; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   2:	invokestatic	#166; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   4:	invokestatic	#176; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Mapped
+   4:	invokestatic	#374; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   2:	invokestatic	#384; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   4:	invokestatic	#374; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\util\reactive\Paired$mcFF$sp
+   27:	invokestatic	#60; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   36:	invokestatic	#60; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Paired$mcFI$sp
+   27:	invokestatic	#60; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Paired$mcIF$sp
+   36:	invokestatic	#68; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Reactive$class
+   2:	invokestatic	#240; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Var$mcF$sp
+   2:	invokestatic	#172; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   4:	invokestatic	#182; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   2:	invokestatic	#172; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   4:	invokestatic	#182; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   2:	invokestatic	#172; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   4:	invokestatic	#182; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   17:	invokestatic	#182; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Var
+   4:	invokestatic	#299; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   2:	invokestatic	#309; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   4:	invokestatic	#299; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   2:	invokestatic	#309; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\reactive\Varying$class
+   6:	invokestatic	#86; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#86; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\util\updatable\reactive\DeprecatedEasing$$anon$1$$anonfun$1
+   2:	invokestatic	#37; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\util\updatable\reactive\DeprecatedEasing
+   2:	invokestatic	#362; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   4:	invokestatic	#372; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   4:	invokestatic	#372; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\updatable\reactive\Eased$$anonfun$1
+   52:	invokestatic	#54; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\lib\util\updatable\reactive\Eased$$anonfun$apply$1
+   2:	invokestatic	#45; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#45; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   12:	invokestatic	#51; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\updatable\reactive\Eased$EasingFloat$
+   2:	invokestatic	#29; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   6:	invokestatic	#29; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   13:	invokestatic	#35; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\lib\util\updatable\reactive\Eased
+   79:	invokestatic	#470; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\test\AppliedTrailTest$$anonfun$1
+   4:	invokestatic	#44; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\test\AppliedTrailTest$$anonfun$2
+   4:	invokestatic	#44; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\test\AppliedTrailTest$$anonfun$5
+   16:	invokestatic	#41; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   31:	invokestatic	#41; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\test\EffectTest$$anonfun$1
+   2:	invokestatic	#43; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\test\EffectTest$$anonfun$2
+   2:	invokestatic	#43; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\test\EffectTest$$anonfun$3
+   23:	invokestatic	#40; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   2:	invokestatic	#57; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+com\glyph\scala\test\EffectTest$$anonfun$eased$1$$anonfun$apply$1
+   2:	invokestatic	#37; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#42; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\test\EffectTest$$anonfun$eased$1$$anonfun$apply$2
+   2:	invokestatic	#30; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   8:	invokestatic	#36; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\test\ImmediateTest$$anon$1$$anon$3
+   44:	invokestatic	#59; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   37:	invokestatic	#59; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+   52:	invokestatic	#59; //Method scala/runtime/BoxesRunTime.boxToFloat:(F)Ljava/lang/Float;
+com\glyph\scala\test\TrailOps$$anonfun$createAnimation$1
+   45:	invokestatic	#49; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   54:	invokestatic	#49; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   100:	invokestatic	#49; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+   109:	invokestatic	#49; //Method scala/runtime/BoxesRunTime.unboxToFloat:(Ljava/lang/Object;)F
+

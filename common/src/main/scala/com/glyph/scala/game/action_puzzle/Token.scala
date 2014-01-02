@@ -45,10 +45,10 @@ class Token[T](var panel: ActionPuzzle[T]#AP, var tgtActor: Actor)
         tgtActor.setColor(c)
         if (panel.isSwiping() || panel.isFalling()) {
           tgtActor.getColor.set(c).mul(0.7f)
-        } else if (panel.isMatching()) {
+        } else if (panel.isMatching) {
           ColorUtil.ColorToHSV(c).add(0, -0.4f, 0.2f).toColor(tgtActor.getColor)
           startShivering(tgtActor)
-        } else if (!panel.isMatching()) {
+        } else if (!panel.isMatching) {
           stopShivering()
         }
         //tgtActor.setColor(hashColor(tgtActor))
@@ -89,7 +89,7 @@ object Token {
   colorMap.put(1,thunder)
   colorMap.put(2,water)
   colorMap.put(3,life)*/
-  def colorMap(key:Any):Color = varyingColors()(key.asInstanceOf[Int])
+  def colorMap(key:Any):Color = vColorMap()(key.asInstanceOf[Int])
 }
 
 object ColorTheme {
@@ -101,8 +101,13 @@ object ColorTheme {
     case Success(s) => s
     case Failure(e) => e.printStackTrace();Map()
   }
-  val varyingColors=varyingColorMap map {
-    _.values.toArray
+
+  val colorNames = "turquoise"::"peter_river"::"amethyst"::"sun_flower"::"carrot"::"alizarin"::Nil
+  val intToColorName = colorNames.zipWithIndex.map{
+    case (str,i)=>(i,str)
+  }.toMap
+  val vColorMap = varyingColorMap map {
+    case map => intToColorName mapValues map
   }
 
   implicit def json2Str(json: RJSON): Varying[Color] = json.as[String] map {

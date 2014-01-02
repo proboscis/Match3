@@ -4,7 +4,7 @@ package com.glyph.scala.lib.util.reactive
 /**
  * @author glyph
  */
-trait Varying[@specialized(Float,Int) T] extends Reactive[T] {
+trait Varying[T] extends Reactive[T] {
   self =>
   def current: T
 
@@ -15,12 +15,12 @@ trait Varying[@specialized(Float,Int) T] extends Reactive[T] {
   }
 
   //combinator
-  def ~[@specialized(Float,Int)P](v: Varying[P]): Varying[(T, P)] = new Paired(self,v)
+  def ~[P](v: Varying[P]): Varying[(T, P)] = new Paired(self,v)
 
   /**
    * mapper
    */
-  def map[@specialized(Float,Int)R](f: (T) => R): Varying[R] = new Mapped(self, f)
+  def map[R](f: (T) => R): Varying[R] = new Mapped(self, f)
 
   /*
   def flatMap[R](f: T => Varying[R]): Varying[R] = f(current) match {
@@ -62,7 +62,7 @@ trait Varying[@specialized(Float,Int) T] extends Reactive[T] {
 
 }
 
-class Mapped[@specialized(Float,Int) T, @specialized(Float,Int) R](val self: Varying[T], val mapping: T => R) extends Varying[R] with Reactor {
+class Mapped[T,R](val self: Varying[T], val mapping: T => R) extends Varying[R] with Reactor {
   var variable: R = mapping(self())
   def current: R = variable
   reactVar(self) {
@@ -70,7 +70,7 @@ class Mapped[@specialized(Float,Int) T, @specialized(Float,Int) R](val self: Var
   }
 }
 
-class Paired[@specialized(Float,Int)A,@specialized(Float,Int)B](a:Varying[A],b:Varying[B]) extends Varying[(A,B)] with Reactor{
+class Paired[A,B](a:Varying[A],b:Varying[B]) extends Varying[(A,B)] with Reactor{
   var variable = (a(),b())
   def current: (A, B) = variable
   reactVar(a){

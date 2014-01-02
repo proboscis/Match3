@@ -8,7 +8,7 @@ import com.glyph.scala.lib.util.collection.GlyphArray
  * you cannot make this class covariant because of the notifyObserver() method.
  * @author glyph
  */
-trait Reactive[@specialized(scala.Float,scala.Int)T] {
+trait Reactive[T] {
   //TODO observerやリスト、コールバックの処理を最適化する
   private val observers: GlyphArray[WeakReference[(T) => Unit]] = new GlyphArray[WeakReference[(T) => Unit]]()
   protected val removeQueue: GlyphArray[T => Unit] = new GlyphArray[(T) => Unit]()
@@ -22,8 +22,6 @@ trait Reactive[@specialized(scala.Float,scala.Int)T] {
     debugMsg = implicitly[Manifest[R]].runtimeClass.getSimpleName + "," + str
     debugging = true
   }
-
-
   def subscribe(callback: T => Unit) {
     if (concurrent > 0) {
       addQueue add callback

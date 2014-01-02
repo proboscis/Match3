@@ -86,7 +86,7 @@ class ActionPuzzleTable(assets: AssetManager, STAGE_WIDTH: Int, STAGE_HEIGHT: In
   this.add(new Table {
     val back = SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
     add(back).fill.expand
-    reactVar(time map (_ / 60f * STAGE_WIDTH))(back.setWidth)
+    time map (_ / 60f * STAGE_WIDTH) += back.setWidth
   }).size(STAGE_WIDTH, 40).fill().expand()
   this.invalidate()
   this.layout()

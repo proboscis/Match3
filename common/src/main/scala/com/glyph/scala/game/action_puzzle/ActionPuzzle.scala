@@ -1,6 +1,6 @@
 package com.glyph.scala.game.action_puzzle
 
-import com.glyph.scala.lib.util.reactive.{Reactor, Var}
+import com.glyph.scala.lib.util.reactive.{FloatVar, Reactor, Var}
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.util.{HeapMeasure, Timing, Logging}
@@ -82,12 +82,12 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   implicit val puzzlePool = Pool[PuzzleBuffer](100)
   implicit val parallelPool = Pool[Parallel](100)
   implicit val sequencePool = Pool[Sequence](100)
-  implicit val ipAnimatorPool = Pool[IPAnimator](100)
+  implicit val interpolatorPool = Pool[Interpolator[AP]](100)
   preAlloc[AP](100)
   preAlloc[PuzzleBuffer](30)
   preAlloc[Parallel](100)
   preAlloc[Sequence](100)
-  preAlloc[IPAnimator](100)
+  preAlloc[Interpolator[AP]](100)
   val matcher = new Matcher[AP]
   val MATCHING_TIME = 1f
 
@@ -175,40 +175,30 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       updateTargetPosition()
     }
   }
+  object AP_XY extends Accessor[AP]{
+    def size: Int = 2
 
-  def swipeAnimation(nx: Int, ny: Int, pa: AP): Task = {
+    def get(tgt: ActionPuzzle.this.type#AP, values: Array[Float]){
+      values(0) = tgt.x()
+      values(1) = tgt.y()
+    }
+
+    def set(tgt: ActionPuzzle.this.type#AP, values: Array[Float]){
+      tgt.x()=values(0)
+      tgt.y()=values(1)
+    }
+  }
+
+  def swipeAnimation(nx: Int, ny: Int, p: AP): Task = {
     import Interpolation._
-    val apx = auto[IPAnimator]
-    val apy = auto[IPAnimator]
-    apx set pa.x to nx in 0.3f using exp10Out //TODO implicit allocation!!!
-    apy set pa.y to ny in 0.3f using exp10Out
-    val par = auto[Parallel]
-    par.add(apx)
-    par.add(apy)
-    par
+    val api = auto[Interpolator[AP]]
+    api set p of AP_XY to(nx,ny) in 0.3f using exp10Out
   }
 
   val fallingSetter = (ap:AP)=>ap.isFalling()=true
   val seqFallingSetter = (seq:Seq[AP])=>seq foreach fallingSetter
   def setFallingFlag() {
     falling foreach seqFallingSetter
-    //below are valid code!
-    /*
-    var x = 0
-    val fallen = falling
-    val width = fallen.length
-    while (x < width) {
-      val row = fallen(x)
-      val height = row.length
-      var y = 0
-      while (y < height) {
-        val p = row(y)
-        p.isFalling() = true
-        y += 1
-      }
-      x += 1
-    }
-    */
   }
 
   val nonEmpty = (seq:Seq[Any]) => !seq.isEmpty
@@ -329,8 +319,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       var y = 0
       while (y < height) {
         val p = row(y)
-        p.tx() = x
-        p.ty() = y
+        p.tx = x
+        p.ty = y
         y += 1
       }
       x += 1
@@ -362,7 +352,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
         var y = 0
         while (y < height) {
           val panel = row(y)
-          if (panel.isMatching()) {
+          if (panel.isMatching) {
             if (panel.updateMatch(delta)) {
               matchRemoveBuf += panel
             }
@@ -381,7 +371,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
         var y = 0
         while (y < height) {
           val p = row(y)
-          if (p.isMatching()) {
+          if (p.isMatching) {
             if (p.updateMatch(delta)) fallingRemoveBuf += p
           }
           y += 1
@@ -467,7 +457,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
           val l = finishedBuf.length
           while(i < l){
             val p = finishedBuf(i)
-            fixedBuf(p.tx()) += p
+            fixedBuf(p.tx) += p
             i += 1
           }
         }
@@ -488,16 +478,16 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
    * container of the actual panel
    */
 
-  class AP extends Reactor {
+  class AP {
     var debugState = 0
     //TODO make this poolable
     var value: T = null.asInstanceOf[T]
-    val x = Var(0f)
-    val y = Var(0f)
-    val vx = Var(0f)
-    val vy = Var(0f)
-    val tx = Var(0)
-    val ty = Var(0)
+    val x = FloatVar(0f)
+    val y = FloatVar(0f)
+    val vx = FloatVar(0f)
+    val vy = FloatVar(0f)
+    var tx = 0
+    var ty = 0
     val swipeAnimation = new ArrayBuffer[Task]() {
       override def +=(elem: Task): this.type = {
         val res = super.+=(elem)
@@ -518,8 +508,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     }
     val isSwiping = Var(false)
     val isFalling = Var(false)
-    val matchTimer = Var(0f)
-    val isMatching = matchTimer map (_ > 0)
+    val matchTimer = FloatVar(0f)
+    def isMatching = matchTimer() > 0
 
     def checkContains(buf:IndexedSeq[IndexedSeq[AP]],tgt:AP):Boolean ={
       var x = 0
@@ -542,12 +532,12 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     def updateFall(delta: Float): Boolean = {
       val nx = x() + vx() * delta
       var ny = y() + vy() * delta
-      val row = future(tx())
-      val finished:Boolean = if(ty() > 0 &&  ty() <= row.size){
-        val p = row(ty()-1)
+      val row = future(tx)
+      val finished:Boolean = if(ty > 0 &&  ty <= row.size){
+        val p = row(ty-1)
         if(checkContains(fixed,p)){
           debugState = 1
-          (ny - ty()) < 0f
+          (ny - ty) < 0f
         }else if ( ny - p.y() < 1f ){
           debugState = 2
           //if above the next panel
@@ -557,15 +547,15 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
           false
         }else {
           debugState = 3
-          (ny - ty()) < 0f
+          (ny - ty) < 0f
         }
       }else{
         debugState = 3
-        (ny - ty()) < 0f
+        (ny - ty) < 0f
       }
       if (finished) {
         debugState = 0
-        ny = ty()
+        ny = ty
         clear() //こいつがmatchTimerまでリセットしていやがった
       }
       x() = nx
@@ -596,8 +586,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       y() = 0f
       vx() = 0f
       vy() = 0f
-      tx() = 0
-      ty() = 0
+      tx = 0
+      ty = 0
       swipeAnimation.foreach(canceler)
       swipeAnimation.clear()
       isSwiping() = false

@@ -23,9 +23,9 @@ trait PoolingOps extends Logging{
   type RPooling = {
     def reset()
   }
-  def genPooling[T <: {def reset()} : Class]: Pooling[T] = new Pooling[T] {
-    val clazz = implicitly[Class[T]]
-    val constructor = clazz.getConstructor()
+  implicit def genPooling[T <: {def reset()} : ClassTag]: Pooling[T] = new Pooling[T] {
+    val clazz = implicitly[ClassTag[T]]
+    val constructor = clazz.runtimeClass.asInstanceOf[Class[T]].getConstructor()
     log("generated pooling evidence via reflection for:"+clazz)
 
     def newInstance: T = constructor.newInstance()

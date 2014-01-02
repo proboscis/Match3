@@ -4,10 +4,12 @@ package com.glyph.scala.lib.util.updatable.task
  * @author glyph
  */
 class Sequence extends SequentialProcessor with Task with AutoFree{
-  def isCompleted: Boolean = current == null && tasks.isEmpty
+  def isCompleted: Boolean = current == null && tasks.size == position
+
   override def reset(): Unit = {
-    super.reset()
-    tasks.clear()
+    super[SequentialProcessor].reset()
+    super[Task].reset()
+    super[AutoFree].reset()
   }
 }
 

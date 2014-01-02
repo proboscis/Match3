@@ -33,7 +33,7 @@ trait Reactor {
    * @tparam T
    * @return
    */
-  def reactVar[@specialized(Float,Int)T](v: Varying[T])(callback: (T) => Unit): Observer[T] = {
+  def reactVar[T](v: Varying[T])(callback: (T) => Unit): Observer[T] = {
     val observer = obtainObserver[T]
     observer.init(this,v,callback)
     observer
@@ -133,7 +133,7 @@ trait Reactor {
     }
   }
 }
-class Observer[@specialized(Float,Int)T] extends Poolable with Logging{
+class Observer[T] extends Poolable with Logging{
   var partner:Reactor = null
   var reactive: Reactive[T] = null
   var f:T=>Unit = null// you cannot hook this function or the specialization will corrupt
@@ -186,5 +186,5 @@ object Reactor{
     def reset(tgt: Observer[_]): Unit = tgt.reset()
   }
   val observerPool = Pool[Observer[_]](10000)
-  def obtainObserver[@specialized(Float,Int)T]:Observer[T] = new Observer[T]//observerPool.auto.asInstanceOf[Observer[T]]
+  def obtainObserver[T]:Observer[T] =observerPool.auto.asInstanceOf[Observer[T]]
 }

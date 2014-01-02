@@ -1,7 +1,7 @@
 package com.glyph.scala.lib.libgdx
 
 import com.glyph.scala.lib.libgdx.poolable.PoolingGdxOps
-import com.glyph.scala.lib.libgdx.conversion.{InterpolatableGdxOps, AnimatingGdxOps}
+import com.glyph.scala.lib.libgdx.conversion.{InterpolatorGdxOps, AnimatingGdxOps}
 import com.glyph.scala.lib.libgdx.actor.SBDrawableGdxOps
 import com.glyph.scala.lib.libgdx.actor.action.ActionOps
 import com.glyph.scala.lib.libgdx.tween.GdxTweenOps
@@ -12,7 +12,7 @@ import com.glyph.scala.lib.libgdx.tween.GdxTweenOps
 trait GdxOps
   extends PoolingGdxOps
   with AnimatingGdxOps
-  with InterpolatableGdxOps
+  with InterpolatorGdxOps
   with SBDrawableGdxOps
   with ActionOps
   with GdxTweenOps

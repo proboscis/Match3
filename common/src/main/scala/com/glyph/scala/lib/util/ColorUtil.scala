@@ -50,7 +50,7 @@ object ColorUtil extends Logging{
     HSV(if(h<0)h+360f else h,s,v)
   }
   case class HSV(var h:Float,var s:Float,var v:Float){
-    def toColor:Color = if(s != 0 && !h.isNaN){
+def toColor:Color = if(s != 0 && !h.isNaN){
       s = Math.min(s,1f)
       v = Math.min(v,1f)
       val hi = h.toInt/60%6

@@ -7,16 +7,18 @@ import com.glyph.scala.lib.util.Logging
  * @author glyph
  */
 trait SequentialProcessor extends TaskProcessor with Logging{
-  val tasks = new mutable.Queue[Task]()
+  val tasks = new com.badlogic.gdx.utils.Array[Task](true,4)
+  var position = 0
   var current: Task = null
 
   override def update(delta: Float) {
     super.update(delta)
-
     if (current == null) {
-      if (!tasks.isEmpty) {
-        current = tasks.dequeue()
+      if (tasks.size != 0) {
+        log(position)
+        current = tasks.get(position)
         current.onStart()
+        position += 1
       }
     }
     if (current != null) {
@@ -35,12 +37,21 @@ trait SequentialProcessor extends TaskProcessor with Logging{
 
   override def add(task: Task): TaskProcessor = {
     super.add(task)
-    tasks += task
+    tasks add task
     this
   }
 
   def cancel(task: Task) {
-    tasks.dequeueAll(_ == task)
+    if(current == task){
+      current = null
+    }
+    tasks.removeValue(task,true)
     task.onCancel()
+  }
+
+  def reset(){
+    log("being reset")
+    tasks.clear()
+    position = 0
   }
 }
