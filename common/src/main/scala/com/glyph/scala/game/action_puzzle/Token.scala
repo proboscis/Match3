@@ -17,7 +17,7 @@ import scala.util.{Failure, Success}
  * use table as a layout manager! and don't ever let them use drawing method.
  * @author glyph
  */
-class Token[T](var panel: ActionPuzzle[T]#AP, var tgtActor: Actor)
+class Token[T,Tgt<:Actor](var panel: ActionPuzzle[T]#AP, var tgtActor: Tgt)
   extends Table // problem is here!
   with Logging
   with Reactor
@@ -25,8 +25,9 @@ class Token[T](var panel: ActionPuzzle[T]#AP, var tgtActor: Actor)
   with Shivering {
 
   import com.glyph.scala.lib.libgdx.conversion.AnimatingGdx._
+  implicit val impl = animatedActor[Tgt]
 
-  def init(p: ActionPuzzle[T]#AP, tgt: Actor) {
+  def init(p: ActionPuzzle[T]#AP, tgt: Tgt) {
     panel = p
     tgtActor = tgt
     add(tgtActor).fill.expand
@@ -66,7 +67,7 @@ class Token[T](var panel: ActionPuzzle[T]#AP, var tgtActor: Actor)
     clearActions()
     clearListeners()
     panel = null
-    tgtActor = null
+    tgtActor = null.asInstanceOf[Tgt]
     stopShivering()
   }
 

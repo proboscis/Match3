@@ -1,13 +1,12 @@
 package com.glyph.scala.test
 
 import com.glyph.scala.game.action_puzzle.view.{ActionPuzzleTable, ActionPuzzleTableScreen}
-import com.glyph.scala.game.action_puzzle.screen.ActionPuzzleScreen
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder._
 import scalaz.Success
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.scenes.scene2d.ui.{WidgetGroup, Widget, Table}
+import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 
 /**
  * @author glyph
@@ -15,15 +14,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.{WidgetGroup, Widget, Table}
 object TestClass {
   type ->[A, B] = (A, B)
 
-  val builderClasses:List[Class[_<:ScreenBuilder]] =
-      classOf[ActionPuzzleScreen] ::
-      classOf[TrailedParticleTest] ::
+  val builderClasses: List[Class[_ <: ScreenBuilder]] =
+    classOf[TrailedParticleTest] ::
+      classOf[ActionPuzzleTableScreen] ::
       classOf[ParticleTest] ::
       classOf[UVTrailTest] ::
       classOf[ImmediateTest] ::
       classOf[WordParticle] :: Nil
   val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
-  val screenClasses:List[Class[_<:Screen]] =
+  val screenClasses: List[Class[_ <: Screen]] =
     classOf[ShaderRotationTest] ::
       classOf[ExplosionTest] ::
       classOf[MeshTest] ::
@@ -33,8 +32,8 @@ object TestClass {
       classOf[WindowTest] ::
       classOf[ComboEffect] ::
       Nil
-  val widgetGroupClasses:List[Class[_<:WidgetGroup]] =
-    classOf[ActionPuzzleTable]::Nil
+  val widgetGroupClasses: List[Class[_ <: WidgetGroup]] =
+    classOf[ActionPuzzleTable] :: Nil
 
   val classBuilders = builderClasses map (c => c.newInstance() -> c.getSimpleName)
   val fileBuilders = files map {

@@ -3,10 +3,16 @@ package com.glyph.scala.lib.libgdx.gl
 import scala.Float
 import com.glyph.scala.lib.util.Logging
 
+
+trait Trail{
+  def addTrail(x:Float,y:Float)
+  def reset()
+}
+
 /**
  * @author glyph
  */
-abstract class BaseTrail(val MAX: Int) extends Logging {
+abstract class BaseTrail(val MAX: Int) extends Logging with Trail{
   def vertexSize: Int
 
   //CAUTION !!! when you access members a lot, create a local variable to hold that reference.
@@ -14,7 +20,7 @@ abstract class BaseTrail(val MAX: Int) extends Logging {
   val records = new Array[Float](MAX * 2)
   val meshVertices = new Array[Float](MAX * 2 * vertexSize)
   var count = 0
-  def add(x: Float, y: Float) {
+  def addTrail(x: Float, y: Float) {
     val _records = records
     val _count = count
     val l = _records.length

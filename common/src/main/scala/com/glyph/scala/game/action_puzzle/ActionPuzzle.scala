@@ -1,18 +1,13 @@
 package com.glyph.scala.game.action_puzzle
 
-import com.glyph.scala.lib.util.reactive.{FloatVar, Reactor, Var}
+import com.glyph.scala.lib.util.reactive.{FloatVar, Var}
 import com.badlogic.gdx.math.Interpolation
 import com.glyph.scala.lib.util.updatable.task._
 import com.glyph.scala.lib.util.{HeapMeasure, Timing, Logging}
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import com.glyph.scala.lib.util.pool.{Pool, Pooling}
-import com.glyph.scala.lib.util.animator.Animator
-import scala.Some
 import com.glyph.scala.game.Glyphs
 import Glyphs._
-import com.glyph.hello
-import Pool._
 
 /**
  * @author glyph
@@ -59,9 +54,12 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
    * 剣と敵のマッチ
    * パネルの効果設定
    */
+  //callbacks
+  var panelAdd = (panels: IndexedSeq[IndexedSeq[AP]]) => {}
+  var panelRemove = (panels: IndexedSeq[AP]) => {}
+  var panelScan = (matches: IndexedSeq[IndexedSeq[AP]]) => {}
 
   import GMatch3._
-  import Animator._
 
   type PuzzleBuffer = ArrayBuffer[ArrayBuffer[AP]]
 
@@ -69,12 +67,17 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     val generator = new IndexedSeqGen[ArrayBuffer] {
       def convert[T](seq: Seq[T]) = ArrayBuffer.apply(seq: _*)
     }
+
     def newInstance = GMatch3.initialize[AP, ArrayBuffer](COLUMN)(generator)
-    val cleaner = (buf:ArrayBuffer[AP]) => buf.clear()
-    def reset(tgt: PuzzleBuffer)= tgt foreach cleaner//the profile shows this is allocating... but how???
+
+    val cleaner = (buf: ArrayBuffer[AP]) => buf.clear()
+
+    def reset(tgt: PuzzleBuffer) = tgt foreach cleaner //the profile shows this is allocating... but how???
   }
+
   implicit object PoolingAP extends Pooling[AP] {
     def newInstance: ActionPuzzle.this.type#AP = new AP
+
     def reset(tgt: ActionPuzzle.this.type#AP): Unit = tgt.reset()
   }
 
@@ -83,6 +86,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   implicit val parallelPool = Pool[Parallel](100)
   implicit val sequencePool = Pool[Sequence](100)
   implicit val interpolatorPool = Pool[Interpolator[AP]](100)
+  implicit val arrayBufferAPPool = Pool(() => ArrayBuffer[AP]())(_.clear())(100)
   preAlloc[AP](100)
   preAlloc[PuzzleBuffer](30)
   preAlloc[Parallel](100)
@@ -90,7 +94,6 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   preAlloc[Interpolator[AP]](100)
   val matcher = new Matcher[AP]
   val MATCHING_TIME = 1f
-
   val gravity = -10f
   val processor = new ParallelProcessor {}
 
@@ -103,9 +106,6 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   val fixed = manual[PuzzleBuffer]
   val falling = manual[PuzzleBuffer]
   val future = manual[PuzzleBuffer]
-  //callbacks
-  var panelAdd = (panels: IndexedSeq[IndexedSeq[AP]]) => {}
-  var panelRemove = (panels: IndexedSeq[AP]) => {}
 
   val APFilter = (a: AP, b: AP) => {
     if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
@@ -114,7 +114,13 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       false
     }
   }
-  val timerUpdater = (matches:Seq[AP]) => {
+
+  val arrayBufferResetter = (buf: ArrayBuffer[AP]) => buf.free
+  private val matchBuffer = ArrayBuffer[ArrayBuffer[AP]]()
+  val timerUpdater = (matches: Seq[AP]) => {
+    val buf = manual[ArrayBuffer[AP]]
+    buf ++= matches
+    matchBuffer += buf
     if (matches.size > 2) {
       var chmp = MATCHING_TIME
       for (p <- matches) {
@@ -128,11 +134,16 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
           p.matchTimer() = minimum
       }
     }
+
   }
+
   def scanAndMark() {
     val buf = manual[PuzzleBuffer]
     GMatch3.fixedFuture(fixed, future, buf)
-    matcher.scanAll(buf, ROW, COLUMN, APFilter,timerUpdater)
+    matcher.scanAll(buf, ROW, COLUMN, APFilter, timerUpdater)
+    panelScan(matchBuffer)
+    matchBuffer foreach arrayBufferResetter
+    matchBuffer.clear()
     buf.free
   }
 
@@ -150,13 +161,15 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       val taskA = swipeAnimation(nx, ny, pa)
       val seqA = auto[Sequence]
       seqA.add(taskA)
-      seqA.add(Do { //TODO fix ALLOCATION!!!
+      seqA.add(Do {
+        //TODO fix ALLOCATION!!!
         pa.swipeAnimation -= taskA
       })
       val taskB = swipeAnimation(x, y, pb)
       val seqB = auto[Sequence]
       seqB.add(taskB)
-      seqB.add(Do { //TODO fix ALLOCATION!!!
+      seqB.add(Do {
+        //TODO fix ALLOCATION!!!
         pb.swipeAnimation -= taskB
       })
       pa.swipeAnimation += taskA
@@ -164,7 +177,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       par.add(seqA)
       par.add(seqB)
       seq.add(par)
-      seq.add(Do {//TODO ALLOCATION!
+      seq.add(Do {
+        //TODO ALLOCATION!
         if (verified(x)(y)(nx)(ny)) {
           GMatch3.swap(fixed, x, y, nx, ny)
           scanAndMark()
@@ -175,39 +189,44 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       updateTargetPosition()
     }
   }
-  object AP_XY extends Accessor[AP]{
+
+  object AP_XY extends Accessor[AP] {
     def size: Int = 2
 
-    def get(tgt: ActionPuzzle.this.type#AP, values: Array[Float]){
+    def get(tgt: ActionPuzzle.this.type#AP, values: Array[Float]) {
       values(0) = tgt.x()
       values(1) = tgt.y()
     }
 
-    def set(tgt: ActionPuzzle.this.type#AP, values: Array[Float]){
-      tgt.x()=values(0)
-      tgt.y()=values(1)
+    def set(tgt: ActionPuzzle.this.type#AP, values: Array[Float]) {
+      tgt.x() = values(0)
+      tgt.y() = values(1)
     }
   }
 
   def swipeAnimation(nx: Int, ny: Int, p: AP): Task = {
     import Interpolation._
     val api = auto[Interpolator[AP]]
-    api set p of AP_XY to(nx,ny) in 0.3f using exp10Out
+    api set p of AP_XY to(nx, ny) in 0.3f using exp10Out
   }
 
-  val fallingSetter = (ap:AP)=>ap.isFalling()=true
-  val seqFallingSetter = (seq:Seq[AP])=>seq foreach fallingSetter
+  val fallingSetter = (ap: AP) => ap.isFalling() = true
+  val seqFallingSetter = (seq: Seq[AP]) => seq foreach fallingSetter
+
   def setFallingFlag() {
     falling foreach seqFallingSetter
   }
 
-  val nonEmpty = (seq:Seq[Any]) => !seq.isEmpty
-  def fill() {//TODO remove allocation.
+  val nonEmpty = (seq: Seq[Any]) => !seq.isEmpty
+
+  def fill() {
+    //TODO remove allocation.
     //log("fill")
     val filling = manual[PuzzleBuffer]
-    GMatch3.createFillingPuzzle2(future)(APSeed)(ROW,COLUMN)(filling)
+    GMatch3.createFillingPuzzle2(future)(APSeed)(ROW, COLUMN)(filling)
     //val filling = future createFillingPuzzle(APSeed, COLUMN) //no cost
-    if (filling.exists(nonEmpty)) {//TODO exist method allocates annon fun
+    if (filling.exists(nonEmpty)) {
+      //TODO exist method allocates annon fun
       //printTime("fill:update failling"){
       val nextFall: PuzzleBuffer = manual[PuzzleBuffer]
       copy(falling)(nextFall)
@@ -234,7 +253,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     filling.free
   }
 
-  def placePanelsAbovePuzzle(buf:PuzzleBuffer){
+  def placePanelsAbovePuzzle(buf: PuzzleBuffer) {
     var x = 0
     val width = buf.length
     while (x < width) {
@@ -259,7 +278,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     //TODO free the canceled animation
     panel.swipeAnimation.clear()
   }
-  private val bufCanceller = (buf:ArrayBuffer[AP])=> buf.foreach(cancelSwipingAnimation)
+  private val bufCanceller = (buf: ArrayBuffer[AP]) => buf.foreach(cancelSwipingAnimation)
 
   def removeFillUpdateTargetPosition(panels: IndexedSeq[AP], fallings: IndexedSeq[AP]) {
     //log("remove")
@@ -388,7 +407,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
 
   //for optimization
   val finishedBuf = ArrayBuffer.empty[AP]
-  val fixedTemp =new com.badlogic.gdx.utils.Array[AP]()
+  val fixedTemp = new com.badlogic.gdx.utils.Array[AP]()
 
   def updateFalling(delta: Float) {
     {
@@ -455,7 +474,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
         {
           var i = 0
           val l = finishedBuf.length
-          while(i < l){
+          while (i < l) {
             val p = finishedBuf(i)
             fixedBuf(p.tx) += p
             i += 1
@@ -509,17 +528,18 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     val isSwiping = Var(false)
     val isFalling = Var(false)
     val matchTimer = FloatVar(0f)
+
     def isMatching = matchTimer() > 0
 
-    def checkContains(buf:IndexedSeq[IndexedSeq[AP]],tgt:AP):Boolean ={
+    def checkContains(buf: IndexedSeq[IndexedSeq[AP]], tgt: AP): Boolean = {
       var x = 0
       val width = buf.size
       var result = false
-      while(x < width && !result){
+      while (x < width && !result) {
         var y = 0
         val col = buf(x)
         val height = col.size
-        while(y < height && !result){
+        while (y < height && !result) {
           val p = col(y)
           result = tgt eq p
           y += 1
@@ -533,23 +553,23 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       val nx = x() + vx() * delta
       var ny = y() + vy() * delta
       val row = future(tx)
-      val finished:Boolean = if(ty > 0 &&  ty <= row.size){
-        val p = row(ty-1)
-        if(checkContains(fixed,p)){
+      val finished: Boolean = if (ty > 0 && ty <= row.size) {
+        val p = row(ty - 1)
+        if (checkContains(fixed, p)) {
           debugState = 1
           (ny - ty) < 0f
-        }else if ( ny - p.y() < 1f ){
+        } else if (ny - p.y() < 1f) {
           debugState = 2
           //if above the next panel
           ny = p.y() + 1
           vy() = p.vy()
           //clear()
           false
-        }else {
+        } else {
           debugState = 3
           (ny - ty) < 0f
         }
-      }else{
+      } else {
         debugState = 3
         (ny - ty) < 0f
       }
@@ -594,6 +614,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       isFalling() = false
       matchTimer() = 0f
     }
+
     override def toString: String = value.toString
   }
+
 }

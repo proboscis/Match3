@@ -12,10 +12,10 @@ import com.badlogic.gdx.math.{Vector3, Rectangle}
 import com.glyph.scala.lib.util.Logging
 import com.glyph.scala.game.Glyphs
 import Glyphs._
-import com.glyph.scala.lib.libgdx.actor.ActorUtil
+import com.glyph.scala.lib.libgdx.actor.{SpriteActor, ActorUtil}
 import com.badlogic.gdx.graphics.g2d.{Sprite, Batch, TextureRegion}
 import com.glyph.scala.lib.util.gl.ViewportStack
-import com.glyph.scala.game.action_puzzle.{APView, Token, ActionPuzzle}
+import com.glyph.scala.game.action_puzzle.{MyTrail, APView, Token, ActionPuzzle}
 import com.glyph.scala.lib.libgdx.game.ApplicationConfig
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.utils.NumberUtils
@@ -37,7 +37,7 @@ class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
       override def STAGE_WIDTH: Int = w * 2
       override def STAGE_HEIGHT: Int = h
       val skin: Skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets
-      val table = new ActionPuzzleTable(assetManager, w, h)
+      val table = new ActionPuzzleTable
       val table2 = new Table()
       val hashColor = (t:Any) => new Color(NumberUtils.floatToIntColor(t.hashCode()))
       //val nextColor = (p:ActionPuzzle[Int]#AP) => new Color(p.next().map(p=>NumberUtils.floatToIntColor(p.hashCode())).getOrElse(Color.rgba8888(1,1,1,1)))
@@ -84,8 +84,8 @@ class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
   }
 }
 
-class PuzzleBufferView(
-                        view: APView[Int],
+class PuzzleBufferView[A<:Actor](
+                        view: APView[Int,A],
                         tgt: ActionPuzzle[Int]#PuzzleBuffer,
                         colorFunc:ActionPuzzle[Int]#AP => Color)
                       (implicit assets: AssetManager) extends Group {

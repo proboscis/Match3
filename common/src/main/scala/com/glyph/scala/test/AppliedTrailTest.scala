@@ -107,12 +107,12 @@ class AppliedTrailTest(nSprites: Int, batch: BaseStripBatch, shader: ShaderHandl
     if (checkTime) {
       printTime("updateMesh") {
         trails foreach {
-          case (sp, trail) => trail.add(sp.getX + sp.getWidth / 2, sp.getY + sp.getHeight / 2)
+          case (sp, trail) => trail.addTrail(sp.getX + sp.getWidth / 2, sp.getY + sp.getHeight / 2)
         }
       }
     } else {
       trails foreach {
-        case (sp, trail) => trail.add(sp.getX + sp.getWidth / 2, sp.getY + sp.getHeight / 2)
+        case (sp, trail) => trail.addTrail(sp.getX + sp.getWidth / 2, sp.getY + sp.getHeight / 2)
       }
     }
     super.render(delta)

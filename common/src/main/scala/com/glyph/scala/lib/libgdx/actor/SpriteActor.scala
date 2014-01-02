@@ -7,14 +7,11 @@ import com.badlogic.gdx.graphics.g2d.{Batch, TextureRegion, SpriteBatch, Sprite}
  */
 class SpriteActor extends DrawSprite{
   val sprite = new Sprite
-
   def reset() {
     sprite.setTexture(null)
     clear()
     remove()
   }
-
-
   override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     drawSprite(batch, sprite, parentAlpha)

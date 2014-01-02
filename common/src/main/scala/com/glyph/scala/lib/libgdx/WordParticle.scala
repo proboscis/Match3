@@ -9,11 +9,11 @@ import com.glyph.scala.lib.libgdx.actor.SpriteBatchRenderer
 import com.glyph.scala.game.Glyphs._
 import scalaz._
 import Scalaz._
-import Pool._
 /**
  * @author glyph
  */
 object WordParticle extends Logging {
+
   def StringToSprites(font: BitmapFont)(string: String)(scale:Float)(implicit pool: Pool[Sprite]): Seq[Sprite] = {
     var px = 0f
     val texture = font.getRegion.getTexture

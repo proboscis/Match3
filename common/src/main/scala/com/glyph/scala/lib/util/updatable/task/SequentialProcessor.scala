@@ -15,7 +15,6 @@ trait SequentialProcessor extends TaskProcessor with Logging{
     super.update(delta)
     if (current == null) {
       if (tasks.size != 0) {
-        log(position)
         current = tasks.get(position)
         current.onStart()
         position += 1
@@ -50,7 +49,6 @@ trait SequentialProcessor extends TaskProcessor with Logging{
   }
 
   def reset(){
-    log("being reset")
     tasks.clear()
     position = 0
   }

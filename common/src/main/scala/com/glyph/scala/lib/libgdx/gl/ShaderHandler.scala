@@ -54,13 +54,11 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
    */
   def applier(f: ShaderProgram => Unit): () => Unit = () => {
     if (!failed && shader().isDefined) {
-
       try {
         f(shader().get)
       } catch {
         case e: Throwable => e.printStackTrace(); failed = true
       }
-
     }
   }
 

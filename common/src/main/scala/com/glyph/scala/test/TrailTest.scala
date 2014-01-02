@@ -30,7 +30,7 @@ class TrailTest extends ConfiguredScreen with Reactor {
   ShaderProgram.pedantic = false
   val shader = ShaderHandler("shader/default.vert", "shader/effect2.frag")
   var time = 0f
-  val trail = new Trail(50)
+  val trail = new TestTrail(50)
   val matrix = stage.getCamera.combined
   val updater = shader.applier {
     s =>
@@ -65,7 +65,7 @@ class TrailTest extends ConfiguredScreen with Reactor {
 
     override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
       super.touchDragged(event, x, y, pointer)
-      trail.add(x, y)
+      trail.addTrail(x, y)
     }
 
     override def keyDown(event: InputEvent, keycode: Int): Boolean = keycode match {
@@ -78,7 +78,7 @@ class TrailTest extends ConfiguredScreen with Reactor {
 
 class StripBatch(size: Int) extends BaseStripBatch(size, Trail.ATTRIBUTES)
 
-class Trail(val max: Int) extends BaseTrail(max) {
+class TestTrail(val max: Int) extends BaseTrail(max) {
 
   import Trail._
 

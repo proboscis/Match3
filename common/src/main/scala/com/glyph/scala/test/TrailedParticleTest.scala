@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
 import com.glyph.scala.lib.util.pool.Pool
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.glyph.scala.lib.libgdx.actor.SBDrawable
 
 /**
  * @author glyph
@@ -31,7 +32,7 @@ class TrailedParticleTest extends ScreenBuilder {
         100)
     val spriteSeq = pairs map (_._1)
     implicit val spriteSeqCls = classOf[Seq[Sprite]]
-    renderer addDrawable spriteSeq
+    renderer.addDrawable(spriteSeq)
     val box2DRenderer = new Box2DDebugRenderer()
     val world = new World(new Vector2(0, -10), true)
     import TrailedParticleTest._
@@ -106,7 +107,7 @@ class TrailedParticleTest extends ScreenBuilder {
           val p = body.getPosition
           p.scl(1/scale)
           sp.setPosition(p.x - sp.getWidth / 2, p.y - sp.getHeight / 2)
-          trail.add(p.x, p.y)
+          trail.addTrail(p.x, p.y)
         }
       }
       world.setGravity(gravity.set(-Gdx.input.getAccelerometerX*10,-Gdx.input.getAccelerometerY*10))

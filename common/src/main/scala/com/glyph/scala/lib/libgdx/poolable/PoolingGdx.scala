@@ -1,6 +1,6 @@
 package com.glyph.scala.lib.libgdx.poolable
 
-import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.{TextureRegion, Sprite}
 import com.glyph.scala.lib.util.pool.Pooling
 import com.glyph.scala.lib.libgdx.actor.SpriteActor
 
@@ -26,12 +26,19 @@ trait PoolingGdxOps {
     }
   }
 
-  implicit object PoolingSpriteActor extends Pooling[SpriteActor] {
+  class PoolingSpriteActor extends Pooling[SpriteActor] {
     def newInstance: SpriteActor = new SpriteActor()
-
     def reset(tgt: SpriteActor) {
       tgt.clear()
     }
   }
+  implicit object PoolingSpriteActorObject extends PoolingSpriteActor
+  trait WithTextureRegion extends PoolingSpriteActor{
+    def region:TextureRegion
 
+    override def reset(tgt: SpriteActor): Unit = {
+      super.reset(tgt)
+      tgt.sprite.setRegion(region)
+    }
+  }
 }

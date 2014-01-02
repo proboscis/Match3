@@ -11,17 +11,22 @@ import com.glyph.scala.lib.util.Logging
 /**
  * @author proboscis
  */
-trait SpriteBatchRenderer extends Group {
+trait SpriteBatchRenderer extends Group with SBDrawableObject{
   import com.glyph.scala.game.Glyphs
   import Glyphs._
   import SpriteBatchRenderer._
-
   val renderers = new SnapshotArray[PooledRenderer[_]]()
-
+  val objects = new com.badlogic.gdx.utils.Array[SBDrawableObject]()
+  def addDrawable(tgt:SBDrawableObject){
+    objects.add(tgt)
+  }
   def addDrawable[T:SBDrawable:Class](tgt: T){
     val renderer = auto[PooledRenderer[T]]
     renderer.setTarget(tgt)
     renderers.add(renderer)
+  }
+  def removeDrawable(tgt:SBDrawableObject){
+    objects.removeValue(tgt,true)
   }
 
   def removeDrawable[T: SBDrawable](tgt: T) {
@@ -54,6 +59,8 @@ trait SpriteBatchRenderer extends Group {
       i += 1
     }
     renderers.end()
+    val it = objects.iterator()
+    while(it.hasNext)it.next().draw(batch,parentAlpha)
   }
 }
 
@@ -121,4 +128,7 @@ trait SBDrawableGdxOps extends Logging{
 
 trait SBDrawable[T] {
   def draw(tgt: T, batch: Batch, alpha: Float)
+}
+trait SBDrawableObject{
+  def draw(batch:Batch,alpha:Float):Unit
 }
