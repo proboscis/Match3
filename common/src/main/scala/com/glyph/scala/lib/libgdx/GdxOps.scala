@@ -5,6 +5,7 @@ import com.glyph.scala.lib.libgdx.conversion.{InterpolatorGdxOps, AnimatingGdxOp
 import com.glyph.scala.lib.libgdx.actor.SBDrawableGdxOps
 import com.glyph.scala.lib.libgdx.actor.action.ActionOps
 import com.glyph.scala.lib.libgdx.tween.GdxTweenOps
+import com.glyph.scala.lib.libgdx.actor.table.AssetManagerOps
 
 /**
  * @author glyph
@@ -17,3 +18,4 @@ trait GdxOps
   with ActionOps
   with GdxTweenOps
   with GdxStringOps
+  with AssetManagerOps

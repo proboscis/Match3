@@ -11,12 +11,14 @@ import scala.util.Try
 import spray.json.{JsValue, RootJsonFormat}
 import spray.json._
 import DefaultJsonProtocol._
+import com.glyph.scala.lib.libgdx.Builder
+
 /**
  * @author glyph
  */
-trait ScreenBuilder {
-  def requiredAssets: Set[(Class[_], Seq[String])]
-  def create(assetManager: AssetManager): Screen
+trait ScreenBuilder extends Builder[Screen]{
+  def requirements: Set[(Class[_], Seq[String])]
+  def create(implicit assetManager: AssetManager): Screen
 }
 case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_],Seq[String])])
 object ScreenBuilder {
@@ -38,8 +40,8 @@ object ScreenBuilder {
     case scala.util.Failure(f) => f.failNel
   }
   def apply(assets:Assets)(constructor:AssetManager => Screen):ScreenBuilder =new ScreenBuilder{
-    def requiredAssets: Assets = assets
-    def create(assetManager: AssetManager): Screen = constructor(assetManager)
+    def requirements: Assets = assets
+    def create(implicit assetManager: AssetManager): Screen = constructor(assetManager)
   }
   def configToBuilder(config:ScreenConfig)= config.screenClass |> classToConstructor map ScreenBuilder(config.assets)
   def writeConfig(config: ScreenConfig) = config.toJson.prettyPrint

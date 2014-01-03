@@ -31,9 +31,9 @@ class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
   override def deskTopConfig: ApplicationConfig = ApplicationConfig(w * 3, h)
 
   val builder = new ScreenBuilder {
-    def requiredAssets: Set[(Class[_], Seq[String])] = ActionPuzzleTable.requiredAssets
-    def create(assetManager: AssetManager): Screen = new ConfiguredScreen {
-      implicit val _ = assetManager
+    def requirements: Set[(Class[_], Seq[String])] = ActionPuzzleTable.requiredAssets
+
+    def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
       override def STAGE_WIDTH: Int = w * 2
       override def STAGE_HEIGHT: Int = h
       val skin: Skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets
@@ -60,7 +60,7 @@ class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
       root.debug()
       debug() = true
     }
-  }
+      }
   val resetProcessor = new InputAdapter {
     override def keyDown(keycode: Int): Boolean = {
       keycode match {

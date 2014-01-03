@@ -11,14 +11,13 @@ class Sequence extends SequentialProcessor with Task with AutoFree{
     super[Task].reset()
     super[AutoFree].reset()
   }
+
 }
 
 object Sequence {
   def apply(tasks: Task*): Sequence = {
-    val seq = new Sequence {}
-    tasks foreach {
-      seq.add
-    }
+    val seq = new Sequence
+    tasks foreach seq.add
     seq
   }
 }

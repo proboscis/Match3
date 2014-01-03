@@ -21,9 +21,10 @@ import com.glyph.scala.lib.libgdx.WordParticle
  * @author glyph
  */
 class WordParticle extends ScreenBuilder {
-  def requiredAssets: Set[(Class[_], Seq[String])] = Set()
+  def requirements: Set[(Class[_], Seq[String])] = Set()
 
-  def create(assetManager: AssetManager): Screen = new WordParticleScreen
+  def create(implicit assetManager: AssetManager): Screen = new WordParticleScreen
+
 }
 
 class WordParticleScreen extends ConfiguredScreen {

@@ -25,11 +25,11 @@ trait Logging {
   private def toAnyFunc[R] =(logger:App=>String=>String=>R)=>(default:String=>String=>R)=> (app map logger) | default |> applyName |> toAny[R]
   private def toAnyDefault[R] = toAnyFunc(_:Log2)(printer)
   private def toAnyDefaultE[R] = toAnyFunc(_:Log3)(printerE)
-  def log = appLog |> toAnyDefault
-  def deb = appDebug |> toAnyDefault
-  def err = appError |> toAnyDefault
-  def debE = appDebugE |> toAnyDefaultE
-  def errE = appErrorE |> toAnyDefaultE
+  protected def log = appLog |> toAnyDefault
+  protected def deb = appDebug |> toAnyDefault
+  protected def err = appError |> toAnyDefault
+  protected def debE = appDebugE |> toAnyDefaultE
+  protected def errE = appErrorE |> toAnyDefaultE
 }
 trait Threading extends Logging{
   override def log = (any:Any) =>  super.log(any,"tid:"+Thread.currentThread().getId)

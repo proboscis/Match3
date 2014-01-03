@@ -17,9 +17,9 @@ import scala.Some
 class ParticleTest extends ScreenBuilder {
   //パターンマッチを関数とし、
   //さらにそれを合成していけば？
-  def requiredAssets: Set[(Class[_], Seq[String])] = Set()
+  def requirements: Set[(Class[_], Seq[String])] = Set()
 
-  def create(assetManager: AssetManager): Screen = new ConfiguredScreen {
+  def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
     autoClearScreen = false
     trait UVTrailAttributes extends VertexAttributeHolder{
       def attributes: VertexAttributes = UVTrail.ATTRIBUTES

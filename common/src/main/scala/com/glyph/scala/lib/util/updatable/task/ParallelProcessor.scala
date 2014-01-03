@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.{Array => GdxArray}
 /**
  * @author glyph
  */
-trait ParallelProcessor extends TaskProcessor with Logging with Threading {
+trait ParallelProcessor extends TaskProcessor with Logging{
   val queuedTasks = new GdxArray[Task]()
   val startedTasks = new GdxArray[Task]()
   val tasksTobeRemoved = new GdxArray[Task]()

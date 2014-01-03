@@ -4,8 +4,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.{Label, Skin, Table, WidgetGroup}
 import com.badlogic.gdx.scenes.scene2d.Actor
 import scala.collection.mutable
 import scala.util.Try
-import com.glyph.scala.lib.util.updatable.task.Task
+import com.glyph.scala.lib.util.updatable.task.{Do, Sequence, Task}
 import com.badlogic.gdx.assets.AssetManager
+import com.glyph.scala.lib.libgdx.actor.Tasking
+import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.Assets
+import com.badlogic.gdx.scenes.scene2d.utils.Layout
+import com.glyph.scala.lib.libgdx.Builder
 
 trait ActorHolder extends WidgetGroup {
   def setSizeOfChildren() {
@@ -14,6 +18,10 @@ trait ActorHolder extends WidgetGroup {
       val child = it.next
       child.setPosition(0, 0)
       child.setSize(getWidth, getHeight)
+      child match{
+        case c:Layout => c.layout()
+        case _=> // do nothing
+      }
     }
   }
 
@@ -29,7 +37,7 @@ trait ActorHolder extends WidgetGroup {
 trait StackActor extends ActorHolder {
   val actorStack = mutable.Stack[Actor]()
 
-  def set(actor: Actor) {
+  def push(actor: Actor) {
     if (!actorStack.isEmpty) {
       actorStack.head.remove()
     }
@@ -46,43 +54,67 @@ trait StackActor extends ActorHolder {
     }
     prev
   }).toOption
+
+  /**
+   * calls a remove() method of an actor on top if the stack is not empty.
+   */
+  def callRemoveOfTop(){
+    if(!actorStack.isEmpty)actorStack.head.remove()
+  }
 }
 
-trait Progressing extends Task {
+trait Progressing {
   def progress: Float
 }
-
-class AssetLoader(tgt:AssetManager) extends Progressing {
-  protected var completed = false
+class AssetTask(assets:Assets)(progress:Float=>Unit)(implicit am:AssetManager)extends Task with AssetManagerOps{
+  am.load(assets)
+  protected var completed = am.isLoaded(assets)
   def isCompleted: Boolean = completed
-  def progress: Float = tgt.getProgress
   override def update(delta: Float): Unit = {
     super.update(delta)
-    completed = tgt.update()
+    progress(am.getProgress)
+    completed = am.update()
   }
 }
 
-trait ProcessWaiter{
-}
-
-class ProcessWaiterImpl(tgt: Progressing,skin:Skin) extends Table {
-  val formatter = "%.0f".format(_: Float)
-  val label = new Label(formatter(tgt.progress), skin)
-  add(label).fill.expand
-
-  override def act(delta: Float): Unit = {
-    super.act(delta)
-    label.setText(formatter(tgt.progress))
+trait TaskWaiter extends Tasking{
+  def wait(task:Task)(f:()=>Unit){
+    add(Sequence(task,Do(f)))
   }
 }
 
-trait BuilderSupport extends StackActor {
-  def assetManager:AssetManager
-  def setFromBuilder(builder: Builder[Actor]) {
+trait TaskSupport extends StackActor with Tasking{
+  def load(task:Task,view:Actor,callback:()=>Unit){
+    if (task.isCompleted) {
+      callback()
+    } else {
+      callRemoveOfTop()
+      addActor(view)
+      add(Sequence(task,Do{
+        view.remove()
+        callback()
+      }))
+    }
+  }
+}
+trait BuilderSupport extends TaskSupport{
+  def setFromBuilder(builder:Builder[Actor])(view:Actor)(progress:Float=>Unit)(implicit am:AssetManager){
+    val loader = new AssetTask(builder.requirements)(progress)
+    load(loader,view,()=>{
+      push(builder.create)
+    })
   }
 }
 
-trait Builder[+T] {
-  def requirements: Set[(Class[_], Seq[String])]
-  def create: T
+
+trait AssetManagerOps{
+  type Assets = Set[(Class[_], Seq[String])]
+  import BuilderOpsModule._
+  implicit def assetsManagerToOps(am:AssetManager):AssetManagerOpsImpl = new AssetManagerOpsImpl(am)
+}
+object BuilderOpsModule{
+  class AssetManagerOpsImpl(val am:AssetManager) extends AnyVal{
+    def load(assets:Assets) = for ((c, files) <- assets; file <- files) am.load(file, c)
+    def isLoaded(assets:Assets) = assets.forall(_._2.forall(am.isLoaded))
+  }
 }

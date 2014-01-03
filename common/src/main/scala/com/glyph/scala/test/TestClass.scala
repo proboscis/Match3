@@ -15,9 +15,10 @@ object TestClass {
   type ->[A, B] = (A, B)
 
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
-      classOf[ActorHolderTest]::
+    classOf[ActionPuzzleTableScreen] ::
+      classOf[AnimatedHolderTest] ::
+      classOf[ActorHolderTest] ::
       classOf[TrailedParticleTest] ::
-      classOf[ActionPuzzleTableScreen] ::
       classOf[ParticleTest] ::
       classOf[UVTrailTest] ::
       classOf[ImmediateTest] ::
@@ -44,9 +45,9 @@ object TestClass {
   }
   val pkgBuilders = screenClasses map {
     clazz => new ScreenBuilder {
-      def requiredAssets: Set[(Class[_], Seq[String])] = Set()
+      def requirements: Set[(Class[_], Seq[String])] = Set()
 
-      def create(assetManager: AssetManager): Screen = clazz.newInstance()
+      def create(implicit assetManager: AssetManager): Screen = clazz.newInstance()
     } -> clazz.getSimpleName
   }
   val builders: Seq[ScreenBuilder -> String] = classBuilders ++ pkgBuilders ++ fileBuilders

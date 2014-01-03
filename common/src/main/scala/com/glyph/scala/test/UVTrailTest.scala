@@ -12,10 +12,9 @@ import Glyphs._
  * @author glyph
  */
 class UVTrailTest extends ScreenBuilder {
-  def requiredAssets: Set[(Class[_], Seq[String])] = Set(classOf[Texture] -> ("data/particle.png" :: Nil))
+  def requirements: Set[(Class[_], Seq[String])] = Set(classOf[Texture] -> ("data/particle.png" :: Nil))
 
-  def create(assetManager: AssetManager): Screen = {
-    implicit val am = assetManager
+  def create(implicit assetManager: AssetManager): Screen = {
     val texture: Texture = "data/particle.png".fromAssets
     new AppliedTrailTest(
       1000,

@@ -121,9 +121,9 @@ object ActionPuzzleTable {
 }
 
 class ActionPuzzleTableScreen extends ScreenBuilder {
-  def requiredAssets = ActionPuzzleTable.requiredAssets
+  def requirements = ActionPuzzleTable.requiredAssets
 
-  def create(assetManager: AssetManager): Screen = new ConfiguredScreen {
+  def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
     val table = new ActionPuzzleTable()(assetManager)
     root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
     root.debug()

@@ -26,7 +26,8 @@ import com.glyph.scala.lib.util.Logging
  */
 class TestRunner(className: String)
   extends ScreenBuilderSupport
-  with DrawFPS{
+  with DrawFPS
+  with Popped{
 
   import TestClass._
 
@@ -49,20 +50,20 @@ class TestRunner(className: String)
       case c => setBuilder(Class.forName(c).newInstance() match {
         case builder: ScreenBuilder => builder
         case screen: com.badlogic.gdx.Screen => new ScreenBuilder {
-          def requiredAssets: Set[(Class[_], Seq[String])] = Set()
+          def requirements: Set[(Class[_], Seq[String])] = Set()
 
-          def create(assetManager: AssetManager) = screen
+          def create(implicit assetManager: AssetManager) = screen
         }
       })
     }
 
     class MenuScreen extends ScreenBuilder {
-      def requiredAssets: Set[(Class[_], Seq[String])] = Set(
+      def requirements: Set[(Class[_], Seq[String])] = Set(
         classOf[TextureAtlas] -> ("skin/default.atlas" :: Nil),
         classOf[Skin] -> ("skin/holo/Holo-dark-xhdpi.json" :: Nil)
       )
 
-      def create(assets: AssetManager): gdx.Screen = new ConfiguredScreen {
+      def create(implicit assets: AssetManager): gdx.Screen = new ConfiguredScreen {
         debug() = false
         backgroundColor = Color.BLACK
         val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")

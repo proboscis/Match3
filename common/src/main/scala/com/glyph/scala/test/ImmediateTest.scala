@@ -18,9 +18,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
  * @author glyph
  */
 class ImmediateTest extends ScreenBuilder {
-  def requiredAssets: Set[(Class[_], Seq[String])] = Set(classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png"))
+  def requirements: Set[(Class[_], Seq[String])] = Set(classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png"))
 
-  def create(assetManager: AssetManager): GScreen = new ConfiguredScreen with Logging with Threading {
+  def create(implicit assetManager: AssetManager): GScreen = new ConfiguredScreen with Logging with Threading {
     val renderer = new ImmediateModeRenderer20(false, true, 1)
     val pRenderer = new ShapeRenderer(30000)
     val texture = assetManager.get[Texture]("data/particle.png")
