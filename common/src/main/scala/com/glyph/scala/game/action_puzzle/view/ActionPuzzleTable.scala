@@ -1,7 +1,5 @@
 package com.glyph.scala.game.action_puzzle.view
 
-import com.glyph.scala.lib.util.json.RVJSON
-import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.graphics.{Texture, Color}
 import com.badlogic.gdx.scenes.scene2d.ui.{Table, Skin}
 import com.glyph.scala.game.action_puzzle._
@@ -15,14 +13,13 @@ import com.badlogic.gdx.graphics.g2d.{TextureRegion, Sprite}
 import com.glyph.scala.lib.util.reactive.Reactor
 import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.assets.AssetManager
-import scalaz._
-import Scalaz._
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.Screen
 import com.glyph.scala.game.Glyphs
 import Glyphs._
 import scala.reflect.ClassTag
 import com.glyph.scala.lib.libgdx.actor.blend.AdditiveBlend
+import com.glyph.scala.game.action_puzzle.screen.{APViewTable, Resource, Trailed, Scoring}
 
 
 /**
@@ -33,51 +30,28 @@ class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reacto
   //TODO GameOver
   //TODO title screen
   //TODO loading screen
-  log("new ActionScreen")
-  val constants = RVJSON(GdxFile("constants/string.js"))
-  val colors = RVJSON(GdxFile("constants/colors.js"))
-  //RVJSON(constants.colors.asVnel[String])
-  //TODO ControllerはViewのイベントをModelに渡すためのもの。
-  //TODO ビューの状態遷移はビューで、ゲームの状態（ターン等）はモデルクラスでやればよい。
-  val bgColor = colors.background.as[String] map (_.map(Color.valueOf) | Color.WHITE)
+
+  //TODO what you can do to inject the dependency is to split the procedure into functions,
+  //TODO and making a class as trait as much as possible
+  //TODO so, do not declare val as much as possible. reusable objects do not have public values
+
   val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
   val game = new ComboPuzzle
-
+  val resource = new Resource()
   import game._
 
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
-  val view = new APView[Int,SpriteActor](puzzle)(new WithTextureRegion{
-    val r = new TextureRegion("data/round_rect.png".fromAssets[Texture])
-    def region: TextureRegion = r
-  },ClassTag.apply(classOf[SpriteActor])) with Updating with AdditiveBlend
-  view.add(easedScore)
-  val trailRenderer = new ParticleRenderer[MyTrail]("data/particle.png".fromAssets)
-  val scorePopper = new ScorePopper()
-  view.addActor(trailRenderer)
-  view.addActor(scorePopper)
-  def center(a:Float,width:Float)= a+width/2
-  view.onTokenRemove = token =>{
-    val cx = center(token.getX,token.getWidth)
-    val cy = center(token.getY,token.getHeight)
-    trailRenderer.addParticles(cx,cy,token.getColor)
-    scorePopper.showScoreParticle(cx,token.getY,token.getHeight/2,score())
+  val view = new APView[Int,SpriteActor](game.puzzle)(APViewTable.textured(resource.roundRect),ClassTag(classOf[SpriteActor]))
+    with Scoring[Int,SpriteActor]
+    with Trailed[Int,SpriteActor]
+    with Updating
+    with AdditiveBlend{
+    def score: Int = game.score()
+    def texture: Texture = resource.particle
   }
-
-  //val view = new APView2(puzzle)
-  /*
-   init layout
-   */
-  //view.setSize(STAGE_WIDTH, STAGE_WIDTH)
-  //this is required
+  view.add(easedScore)
   val scoreLabel = new RLabel(skin, easedScore.map("%.0f".format(_)))
   scoreLabel.setColor(Color.DARK_GRAY)
-
-  /**
-   * what to do
-   * react variable
-   * cancel previous effect
-   * add new effect
-   */
 
   import Actions._
   import Interpolation._
@@ -128,8 +102,8 @@ class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reacto
   puzzle.initialize()
 
   override def layout(): Unit = {
-    apViewCell.size(getWidth,getWidth)
-    gaugeCell.size(getWidth,getWidth/10)
+    apViewCell.size(getWidth, getWidth)
+    gaugeCell.size(getWidth, getWidth / 10)
     super.layout()
   }
 
@@ -138,18 +112,20 @@ class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reacto
     super.act(delta)
   }
 }
-object ActionPuzzleTable{
-  val requiredAssets:Set[(Class[_], Seq[String])] = Set(
-    classOf[Texture]->Seq("data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"),
-    classOf[Skin]->Seq("skin/holo/Holo-dark-xhdpi.json")
+
+object ActionPuzzleTable {
+  val requiredAssets: Set[(Class[_], Seq[String])] = Set(
+    classOf[Texture] -> Seq("data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"),
+    classOf[Skin] -> Seq("skin/holo/Holo-dark-xhdpi.json")
   )
 }
-class ActionPuzzleTableScreen extends ScreenBuilder{
+
+class ActionPuzzleTableScreen extends ScreenBuilder {
   def requiredAssets = ActionPuzzleTable.requiredAssets
 
-  def create(assetManager: AssetManager): Screen = new ConfiguredScreen{
+  def create(assetManager: AssetManager): Screen = new ConfiguredScreen {
     val table = new ActionPuzzleTable()(assetManager)
-    root.add(table).size(STAGE_WIDTH,STAGE_HEIGHT)
+    root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
     root.debug()
   }
 }

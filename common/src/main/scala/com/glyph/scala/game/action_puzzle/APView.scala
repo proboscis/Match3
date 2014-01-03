@@ -33,7 +33,7 @@ class APView[T, A <: Actor : Pooling:ClassTag](puzzle: ActionPuzzle[T])
   implicit val tokenPool = Pool[Token[T,A]](() => new Token[T,A](null, null.asInstanceOf[A]))((tgt: Token[T,A]) => tgt.resetForPool())(row * column * 2)
   preAlloc[Token[T,A]](100)
   preAlloc[A](100)
-  var onTokenRemove = (token: Token[T,A]) => {}
+  var tokenRemove = (token: Token[T,A]) => {}
   val gridFunctions = RVJSON(GdxFile("json/grid.json")).map(_.flatMap(Grid(_)))
   val alphaToIndex = gridFunctions map (_.map {
     case (fx, fy) => Grid.alphaToIndex(fx, fy)
@@ -92,6 +92,7 @@ class APView[T, A <: Actor : Pooling:ClassTag](puzzle: ActionPuzzle[T])
     result
   }
 
+  protected def onTokenRemove(token:Token[T,A]){}
   val panelRemove = (removed: IndexedSeq[ActionPuzzle[T]#AP]) => {
     var i = 0
     val size = removed.size
@@ -108,6 +109,7 @@ class APView[T, A <: Actor : Pooling:ClassTag](puzzle: ActionPuzzle[T])
           }
         })))
         onTokenRemove(token)
+        tokenRemove(token)
       }
       i += 1
     }
