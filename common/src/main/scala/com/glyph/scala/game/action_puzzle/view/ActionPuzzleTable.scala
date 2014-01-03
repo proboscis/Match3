@@ -9,14 +9,12 @@ import com.glyph.scala.lib.libgdx.actor.{SpriteActor, Updating}
 import com.glyph.scala.lib.libgdx.actor.ui.RLabel
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.Action
-import com.badlogic.gdx.graphics.g2d.{TextureRegion, Sprite}
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.glyph.scala.lib.util.reactive.Reactor
 import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.Screen
-import com.glyph.scala.game.Glyphs
-import Glyphs._
 import scala.reflect.ClassTag
 import com.glyph.scala.lib.libgdx.actor.blend.AdditiveBlend
 import com.glyph.scala.game.action_puzzle.screen.{APViewTable, Resource, Trailed, Scoring}
@@ -38,15 +36,17 @@ class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reacto
   val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
   val game = new ComboPuzzle
   val resource = new Resource()
+
   import game._
 
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
-  val view = new APView[Int,SpriteActor](game.puzzle)(APViewTable.textured(resource.roundRect),ClassTag(classOf[SpriteActor]))
-    with Scoring[Int,SpriteActor]
-    with Trailed[Int,SpriteActor]
+  val view = new APView[Int, SpriteActor](game.puzzle)(APViewTable.textured(resource.roundRect), ClassTag(classOf[SpriteActor]))
+    with Scoring[Int, SpriteActor]
+    with Trailed[Int, SpriteActor]
     with Updating
-    with AdditiveBlend{
+    with AdditiveBlend {
     def score: Int = game.score()
+
     def texture: Texture = resource.particle
   }
   view.add(easedScore)

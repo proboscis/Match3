@@ -11,43 +11,34 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx._
-import com.glyph.scala.game.action_puzzle.screen.ActionPuzzleScreen
 import scala.util.Try
 import scalaz._
 import Scalaz._
 import com.glyph.scala.lib.libgdx.font.FontUtil
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
 import com.glyph.scala.lib.libgdx.DrawFPS
-import scalaz.Success
 import com.badlogic.gdx.Input.Keys
 import scala.collection.mutable
-import com.glyph.scala.game.action_puzzle.view.ActionPuzzleTableScreen
 import com.glyph.scala.lib.util.Logging
 
 /**
  * @author glyph
  */
-class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS with Pop{
+class TestRunner(className: String)
+  extends ScreenBuilderSupport
+  with DrawFPS{
 
   import TestClass._
+
   lazy val font = FontUtil.internalFont("font/corbert.ttf", Gdx.graphics.getHeight / 20)
+
   def debugFont: BitmapFont = font
+
   def this() = this("")
 
-  import ScreenBuilder._
+
   //typeOf[Int] <:< typeOf[String]
 
-  override def resume(): Unit = {
-    println("resume!")
-    if(!assetManager.update()){
-      setScreenWithProcessor(new LoadingScreen(() => {
-        pausedScreen foreach setScreenWithProcessor
-      }, assetManager))
-    }else{
-      pausedScreen foreach setScreenWithProcessor
-    }
-    pausedScreen = None
-  }
 
   override def create() {
     super.create()
@@ -92,31 +83,33 @@ class TestRunner(className: String) extends ScreenBuilderSupport with DrawFPS wi
       }
     }
   }
+
   def tryToVnel2[T](t: Try[T]): ValidationNel[Throwable, T] = t match {
     case scala.util.Success(s) => s.successNel
     case scala.util.Failure(f) => f.failNel
   }
 }
-trait Pop extends Game with Logging{
+
+trait Pop extends Game with Logging {
   val screenStack = mutable.Stack[Screen]()
   val screenPopProcessor = new InputAdapter {
     override def keyDown(keycode: Int): Boolean = {
       if (keycode == Keys.BACK || keycode == Keys.ESCAPE) {
         popScreen()
         true
-      } else super.keyDown(keycode)
+      } else false
     }
   }
 
   override def setScreen(screen: Screen): Unit = {
-    if(getScreen != null){
+    if (getScreen != null) {
       screenStack.push(getScreen)
     }
     setScreenWithProcessor(screen)
   }
 
-  def setScreenWithProcessor(screen:Screen){
-    log("screen stack:"+screenStack.map(_.getClass.getSimpleName))
+  def setScreenWithProcessor(screen: Screen) {
+    log("screen stack:" + screenStack.map(_.getClass.getSimpleName))
     Gdx.input.setInputProcessor(screenPopProcessor)
     super.setScreen(screen)
     val screenInputProcessor = Gdx.input.getInputProcessor
@@ -125,16 +118,32 @@ trait Pop extends Game with Logging{
     multiplexer.addProcessor(screenInputProcessor)
     Gdx.input.setInputProcessor(multiplexer)
   }
-  def popScreen(){
-    log("pop screen"+screenStack.map(_.getClass.getSimpleName))
+
+  def popScreen() {
+    log("pop screen" + screenStack.map(_.getClass.getSimpleName))
     if (!screenStack.isEmpty) {
       screenStack.pop() match {
-        case s:LoadingScreen => popScreen()
+        case s: LoadingScreen => popScreen()
         case s => setScreenWithProcessor(s)
       }
-    }else{
+    } else {
       log("exit app")
       Gdx.app.exit()
     }
   }
+}
+
+trait Popped extends ScreenBuilderSupport with Pop{
+  override def resume(): Unit = {
+    println("resume!")
+    if (!assetManager.update()) {
+      setScreenWithProcessor(new LoadingScreen(() => {
+        pausedScreen foreach setScreenWithProcessor
+      }, assetManager))
+    } else {
+      pausedScreen foreach setScreenWithProcessor
+    }
+    pausedScreen = None
+  }
+
 }

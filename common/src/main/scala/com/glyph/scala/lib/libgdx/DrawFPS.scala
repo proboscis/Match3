@@ -22,7 +22,7 @@ trait DrawFPS extends Game {
     camera.update()
     debugBatch.setProjectionMatrix(camera.combined)
     debugBatch.begin()
-    //debugFont.draw(debugBatch, "%.0f".format(fps.fps), -Gdx.graphics.getWidth / 2, +Gdx.graphics.getHeight / 2) //+ debugFont.getLineHeight)
+    debugFont.draw(debugBatch, "%.0f".format(fps.fps), -Gdx.graphics.getWidth / 2, +Gdx.graphics.getHeight / 2) //+ debugFont.getLineHeight)
     debugBatch.end()
   }
 }

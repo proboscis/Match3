@@ -15,7 +15,8 @@ object TestClass {
   type ->[A, B] = (A, B)
 
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
-    classOf[TrailedParticleTest] ::
+      classOf[ActorHolderTest]::
+      classOf[TrailedParticleTest] ::
       classOf[ActionPuzzleTableScreen] ::
       classOf[ParticleTest] ::
       classOf[UVTrailTest] ::
