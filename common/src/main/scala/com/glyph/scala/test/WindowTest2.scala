@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable
 /**
  * @author glyph
  */
-class ComboEffect extends ConfiguredScreen {
+class WindowTest2 extends ConfiguredScreen {
   backgroundColor = Color.BLACK
   val group = new Group with Tasking with SpriteBatchRenderer
   val skin = new Skin(Gdx.files.internal("skin/default.json"))

@@ -32,7 +32,7 @@ object TestClass {
       classOf[EffectTest] ::
       classOf[FrameBufferTest] ::
       classOf[WindowTest] ::
-      classOf[ComboEffect] ::
+      classOf[WindowTest2] ::
       Nil
   val widgetGroupClasses: List[Class[_ <: WidgetGroup]] =
     classOf[ActionPuzzleTable] :: Nil
