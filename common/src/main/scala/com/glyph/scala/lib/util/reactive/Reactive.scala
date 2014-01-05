@@ -3,6 +3,7 @@ package com.glyph.scala.lib.util.reactive
 import ref.WeakReference
 import com.badlogic.gdx.utils.{Array => GdxArray}
 import com.glyph.scala.lib.util.collection.GlyphArray
+import scala.reflect.ClassTag
 
 /**
  * you cannot make this class covariant because of the notifyObserver() method.
@@ -18,8 +19,8 @@ trait Reactive[T] {
   protected var debugging = false
   protected var debugMsg = ""
 
-  def debugReactive[R: Manifest](str: String) {
-    debugMsg = implicitly[Manifest[R]].runtimeClass.getSimpleName + "," + str
+  def debugReactive[R: ClassTag](str: String) {
+    debugMsg = implicitly[ClassTag[R]].runtimeClass.getSimpleName + "," + str
     debugging = true
   }
   def subscribe(callback: T => Unit) {
