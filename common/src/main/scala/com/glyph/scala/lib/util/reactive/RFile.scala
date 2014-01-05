@@ -26,9 +26,7 @@ class RFile(val adapter: FileAdapter) extends Varying[Try[String]] {
       val file = new File(filePath)
 
       def name: String = file.getName
-
       def lastModified = file.lastModified()
-
       def readString = Try {
         Source.fromFile(file).getLines().reduceOption {
           _ + "\n" + _
@@ -36,7 +34,6 @@ class RFile(val adapter: FileAdapter) extends Varying[Try[String]] {
       }
     })
   }
-
   var _string = null.asInstanceOf[Try[String]]
 
   def string_=(str: Try[String]) {
@@ -83,6 +80,7 @@ object RFile extends Reactor {
               }
             }
           }
+
         }
       })
       println("FileChecker enabled. polling interval:" + interval)

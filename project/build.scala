@@ -21,12 +21,14 @@ object Settings {
         "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
         "net.liftweb" %% "lift-json" % liftVersion,
         "io.spray" %%  "spray-json" % "1.2.5",
+        "com.googlecode.scalascriptengine" % "scalascriptengine" % ("1.3.7-"+sversion),
+        "org.scala-lang" % "scala-compiler" % sversion,
         //"net.liftweb" %% "lift-json-scalaz" % liftVersion,
         "org.scala-lang" % "scala-reflect" % sversion,
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test")
-      //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
+        //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
     },
-    scalacOptions ++=Seq("-optimize"),
+    //scalacOptions ++=Seq("-optimize"),
     //scalacOptions ++=Seq("-Xprint:lambdalift"),
     scalacOptions ++=Seq("-feature"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),//this is required to avoid "bad file magic" problems

@@ -129,7 +129,7 @@ trait Reactor {
     val itr = observers.iterator()
     while(itr.hasNext){
       val next = itr.next()
-      if(next eq r)next.unSubscribe()
+      if(next.reactive eq r)next.unSubscribe()
     }
   }
 }
