@@ -1,0 +1,6 @@
+config={
+    width:1080/2,
+    height:(1920*15/16/2),
+    debug:false,
+    background:"belize_hole"
+}

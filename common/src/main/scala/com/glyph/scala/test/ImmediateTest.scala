@@ -19,7 +19,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
  */
 class ImmediateTest extends ScreenBuilder {
   def requirements: Set[(Class[_], Seq[String])] = Set(classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png"))
-
   def create(implicit assetManager: AssetManager): GScreen = new ConfiguredScreen with Logging with Threading {
     val renderer = new ImmediateModeRenderer20(false, true, 1)
     val pRenderer = new ShapeRenderer(30000)
@@ -261,6 +260,8 @@ class ImmediateTest extends ScreenBuilder {
         import Interpolation._
         follower.addAction(moveTo(x, y, 1f, exp10Out))
 
+        //texture of position,velocity,angle, and additional infos.
+        //use vertex shader with dummy vertices to retrieve info.
         /*
         records += new Vector2(x, y)
         if (records.length > 2) {

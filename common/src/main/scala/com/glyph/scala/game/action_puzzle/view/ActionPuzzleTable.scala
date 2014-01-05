@@ -18,8 +18,12 @@ import com.badlogic.gdx.Screen
 import scala.reflect.ClassTag
 import com.glyph.scala.lib.libgdx.actor.blend.AdditiveBlend
 import com.glyph.scala.game.action_puzzle.screen.{APViewTable, Resource, Trailed, Scoring}
-
-
+import com.glyph.scala.lib.util.json.RVJSON
+import com.glyph.scala.lib.libgdx.reactive.GdxFile
+import com.glyph.scala.game.Glyphs
+import Glyphs._
+import scalaz.Scalaz
+import Scalaz._
 /**
  * @author glyph
  */
@@ -43,8 +47,7 @@ class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reacto
   val view = new APView[Int, SpriteActor](game.puzzle)(APViewTable.textured(resource.roundRect), ClassTag(classOf[SpriteActor]))
     with Scoring[Int, SpriteActor]
     with Trailed[Int, SpriteActor]
-    with Updating
-    with AdditiveBlend {
+    with Updating{
     def score: Int = game.score()
 
     def texture: Texture = resource.particle
@@ -124,6 +127,12 @@ class ActionPuzzleTableScreen extends ScreenBuilder {
   def requirements = ActionPuzzleTable.requiredAssets
 
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
+    backgroundColor = ColorTheme.varyingColorMap()("asbestos")
+    override def configSrc: RVJSON = RVJSON(GdxFile("json/actionPuzzleConfig.js"))
+
+    reactVar(config.background.as[String] ~ ColorTheme.varyingColorMap){
+      case str~map => backgroundColor = map.lift(str | "")|Color.WHITE
+    }
     val table = new ActionPuzzleTable()(assetManager)
     root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
     root.debug()

@@ -87,6 +87,7 @@ class BaseStripBatch(size: Int, attributes: VertexAttributes) extends Logging {
       position += VERTEX_SIZE
     }
     //now start copying actual values
+    //TODO let the strips do this and avoid memory copy
     System.arraycopy(vertexArray, 0, vertices, position, verticesLength * VERTEX_SIZE)
     position += verticesLength * VERTEX_SIZE
     //done!

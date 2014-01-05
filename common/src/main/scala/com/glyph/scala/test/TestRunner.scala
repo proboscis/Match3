@@ -60,13 +60,14 @@ class TestRunner(className: String)
     class MenuScreen extends ScreenBuilder {
       def requirements: Set[(Class[_], Seq[String])] = Set(
         classOf[TextureAtlas] -> ("skin/default.atlas" :: Nil),
-        classOf[Skin] -> ("skin/holo/Holo-dark-xhdpi.json" :: Nil)
+        classOf[Skin] -> ("skin/holo/Holo-dark-xhdpi.json"::
+            "skin/holo/Holo-light-xhdpi.json" :: Nil)
       )
 
       def create(implicit assets: AssetManager): gdx.Screen = new ConfiguredScreen {
         debug() = false
-        backgroundColor = Color.BLACK
-        val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
+        backgroundColor = Color.WHITE
+        val skin = assets.get[Skin]("skin/holo/Holo-light-xhdpi.json")
         val tbStyle = skin.get("default", classOf[TextButtonStyle])
         val list = builders.map {
           case (builder, name) => name

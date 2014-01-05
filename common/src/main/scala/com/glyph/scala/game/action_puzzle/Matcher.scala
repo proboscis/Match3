@@ -78,7 +78,6 @@ object Main {
     val filling = puzzle.createFillingPuzzle(()=>MathUtils.random(6),6)
     println(filling.text)
     val filter = (a:Int,b:Int) => a==b
-    //matcher.scanVertical(filling,0,6,filter,println)
     matcher.scanAll(filling, 6, 6, (a, b) => a == b,seq=>if(seq.size>1)println(seq))
   }
 }
