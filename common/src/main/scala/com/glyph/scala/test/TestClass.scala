@@ -7,15 +7,18 @@ import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
+import com.glyph.scala.lib.util.reactive.{VClass, Varying}
+import scala.reflect.ClassTag
 
 /**
  * @author glyph
  */
 object TestClass {
   type ->[A, B] = (A, B)
-
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
     classOf[ActionPuzzleTableScreen] ::
+  classOf[TransformFeedback]::
+      classOf[VaryingScreen]::
       classOf[AnimatedHolderTest] ::
       classOf[ActorHolderTest] ::
       classOf[TrailedParticleTest] ::
@@ -36,7 +39,7 @@ object TestClass {
       Nil
   val widgetGroupClasses: List[Class[_ <: WidgetGroup]] =
     classOf[ActionPuzzleTable] :: Nil
-
+  val classNameSet = builderClasses ++ screenClasses map (s =>s->s.getSimpleName)
   val classBuilders = builderClasses map (c => c.newInstance() -> c.getSimpleName)
   val fileBuilders = files map {
     f => createFromJson(f) -> f

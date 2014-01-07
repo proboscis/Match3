@@ -57,12 +57,29 @@ class ClassScripter(srcDir: String, outDir: String, classDir: String) extends So
       }
     }
   }
+  def getClass[I](clsName:String):Varying[Option[Class[I]]] = {
+    super.get[I](clsName).map {
+      file => {
+        log(("mapFileToClass", file.getAbsolutePath))
+        val cls = Class.forName(clsName)
+        val canon = cls.getCanonicalName
+        val simple = cls.getSimpleName
+        val replaced = canon.replace(simple, prefix  + simple)
+        log("replaced", replaced)
+        val opt = try2Opt(Try(sse.get[I](replaced)))
+        if (opt.isDefined) opt
+        else {
+          try2Opt(Try(cls.asInstanceOf[Class[I]]))
+        }
+      }
+    }
+  }
   start()
 }
 
 object VClass{
   import Application.ApplicationType._
-  var srcDir = "./common/src/main/scala"
+  var srcDir = "./src/main/scala"
   var mirrorDir = "./.changed"
   var mirrorClassDirName =  ".classes"
   lazy val scripter = Gdx.app.getType match{
@@ -74,10 +91,11 @@ object VClass{
     case Success(s)=>Some(s)
     case Failure(f)=>f.printStackTrace();None
   }
-  def apply[I,T<:I:ClassTag]:Varying[Option[Class[I]]] = Gdx.app.getType match{
-    case Android => Var(handleTry(Try(Class.forName(implicitly[ClassTag[T]].runtimeClass.getCanonicalName).asInstanceOf[Class[I]])))
+  def apply[I,T<:I:ClassTag]:Varying[Option[Class[I]]] = apply[I](implicitly[ClassTag[T]].runtimeClass.getCanonicalName)
+  def apply[I](className:String):Varying[Option[Class[I]]] = Gdx.app.getType match{
+    case Android => Var(handleTry(Try(Class.forName(className).asInstanceOf[Class[I]])))
     case Desktop => new Varying[Option[Class[I]]] with Reactor{
-      val varying = scripter.getClass[I,T]
+      val varying = scripter.getClass[I](className)
       reactVar(varying){
         c => GdxUtil.post(notifyObservers(c))
       }

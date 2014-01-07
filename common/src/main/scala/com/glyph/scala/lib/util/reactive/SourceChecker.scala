@@ -17,7 +17,7 @@ class SourceChecker(sourceDir: String, outputDir: String)
   def tagToDir(c: ClassTag[_]) = c.runtimeClass.getCanonicalName.replace(".", "/") + ".scala"
 
   def get[T: ClassTag]: Varying[File] = getFile(sourceDir + "/" + tagToDir(implicitly[ClassTag[T]]))
-
+  def get[T](clsName:String):Varying[File] = getFile(sourceDir+"/"+clsName.replace(".","/")+".scala")
   def onFileChange(file: File): Unit = {
     copyToOutput(file)
   }

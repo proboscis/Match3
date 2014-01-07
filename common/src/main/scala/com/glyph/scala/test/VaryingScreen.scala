@@ -48,6 +48,8 @@ class VaryingScreen extends ScreenBuilder{
       r.vertex(x, y+height, 0)
       r.color(color.r, color.g, color.b, color.a)
       r.vertex(x+width, y, 0)
+      r.color(color.r, color.g, color.b, color.a)
+      r.vertex(x+width,y+height,0)
     }
   }
 }

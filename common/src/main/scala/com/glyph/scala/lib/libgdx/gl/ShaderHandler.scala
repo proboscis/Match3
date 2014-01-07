@@ -29,8 +29,13 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
       case Failure(f) => f foreach (_.printStackTrace()); failed = true; None
     }
   }
+  var prevShader:Option[ShaderProgram] = None
   reactVar(shader) {
-    _ => failed = false
+    s => {
+      prevShader foreach(_.dispose())
+      failed = false
+      prevShader = s
+    }
   }
 
   /**

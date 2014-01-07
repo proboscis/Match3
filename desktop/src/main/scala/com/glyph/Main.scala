@@ -108,7 +108,7 @@ object Main {
           }
           case util.Failure(f) =>
             testScreen match {
-              case "" => new LwjglApplication(new TestRunner, cfg)
+              case "" => new LwjglApplication(new TestRunner, cfg)//TODO abstract this class or setGame
               case _ => new LwjglApplication(new TestRunner(testScreen), cfg)
               case _ => new LwjglApplication(new ScreenTester(testScreen), cfg)
             }

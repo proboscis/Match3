@@ -17,7 +17,7 @@ trait FileChecker extends Logging {
       def run() {
         while (true) {
           //log("check")
-          // log(registeredFiles)
+          //log(registeredFiles)
           Thread.sleep(interval)
           registeredFiles.synchronized {
             registeredFiles ++= registeredFiles collect {
@@ -36,7 +36,7 @@ trait FileChecker extends Logging {
 
   def getFile(fileName: String): Varying[File] = {
     log("getFile", fileName)
-    val file = new File(fileName)
+    val file = new File(new File(fileName).getAbsolutePath)
     registeredFiles.get(file) match {
       case Some(s) => s._1
       case None =>
@@ -47,6 +47,6 @@ trait FileChecker extends Logging {
         }
         pair._1
     }
-    registeredFiles(new File(fileName))._1
+    registeredFiles(file)._1
   }
 }

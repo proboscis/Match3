@@ -41,7 +41,7 @@ trait ReloadOnPause extends Game with Logging {
   }
 
   def create() {
-    new MemoryAnalyzer
+   // new MemoryAnalyzer
   }
 
   override def render() {

@@ -1,14 +1,14 @@
 package com.glyph.scala.lib.libgdx.game
 
 import com.glyph.scala.lib.libgdx.screen.{LoadingScreen, ScreenBuilder}
-import com.badlogic.gdx.Gdx
-import com.glyph.scala.lib.libgdx.GdxUtil
+import com.badlogic.gdx.{Screen, Gdx}
+import com.glyph.scala.lib.libgdx.{Builder, GdxUtil}
 
 /**
  * @author glyph
  */
 trait ScreenBuilderSupport extends ReloadOnPause {
-  def setBuilder(builder: ScreenBuilder) {
+  def setBuilder(builder: Builder[Screen]) {
     //if all resources are ready
     if (builder.requirements forall {
       case (clazz, fileNames) => fileNames forall {

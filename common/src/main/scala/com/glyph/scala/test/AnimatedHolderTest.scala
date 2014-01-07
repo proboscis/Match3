@@ -22,7 +22,6 @@ class AnimatedHolderTest extends ScreenBuilder {
 
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
     debug() = true
-
     import AnimatedHolderTest._
 
     val skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets[Skin]
@@ -50,13 +49,14 @@ object AnimatedHolderTest {
       val skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets[Skin]
       val table = new Table
       addActor(table)
-      val labels = 1 to 10 map (i => new Label(i.toString, skin))
+      val labels = 1 to 5 map (i => new Label(i.toString, skin))
       labels foreach addActor
       val pairs = labels map {
         l => val cell = table.add()
           cell.fill.expand().row()
           l -> cell
       }
+
       val delayTime = 0.032f
 
       def come(cb: () => Unit)(right: Boolean) {
