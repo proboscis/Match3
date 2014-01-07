@@ -29,7 +29,6 @@ class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
   implicit val assetManager = new AssetManager
 
   override def deskTopConfig: ApplicationConfig = ApplicationConfig(w * 3, h)
-
   val builder = new ScreenBuilder {
     def requirements: Set[(Class[_], Seq[String])] = ActionPuzzleTable.requiredAssets
 

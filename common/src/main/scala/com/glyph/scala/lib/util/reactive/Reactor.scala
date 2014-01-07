@@ -186,5 +186,5 @@ object Reactor{
     def reset(tgt: Observer[_]): Unit = tgt.reset()
   }
   val observerPool = Pool[Observer[_]](10000)
-  def obtainObserver[T]:Observer[T] =observerPool.auto.asInstanceOf[Observer[T]]
+  def obtainObserver[T]:Observer[T] = new Observer[T]//observerPool.auto.asInstanceOf[Observer[T]]
 }

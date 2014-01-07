@@ -14,7 +14,6 @@ import com.glyph.scala.test.TestRunner
 import com.badlogic.gdx.Game
 
 object Main {
-
   case class Config(
                      screenFile: String = "screens/action.js",
                      resDir: File = new File("../common/src/main/resources/"),

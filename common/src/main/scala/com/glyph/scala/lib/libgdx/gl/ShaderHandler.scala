@@ -37,7 +37,6 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
       prevShader = s
     }
   }
-
   /**
    * calling this method on rendering thread may cause allocations
    * @param block

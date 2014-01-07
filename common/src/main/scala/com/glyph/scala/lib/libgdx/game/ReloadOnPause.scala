@@ -2,7 +2,7 @@ package com.glyph.scala.lib.libgdx.game
 
 import com.badlogic.gdx._
 import com.glyph.scala.lib.libgdx.screen.LoadingScreen
-import com.glyph.scala.lib.util.{Logging, MemoryAnalyzer}
+import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.graphics.GL10
 import scala.Some
 import com.badlogic.gdx.assets.AssetManager
@@ -13,19 +13,20 @@ import com.badlogic.gdx.assets.AssetManager
 trait ReloadOnPause extends Game with Logging {
   val assetManager = new AssetManager
 
-  var pausedScreen: Option[Screen] = None
 
   override def resume() {
     super.resume()
     println("resume!")
-    if (!assetManager.update()) {
-      setScreen(new LoadingScreen(() => {
-        pausedScreen foreach setScreen
-      }, assetManager))
-    } else {
-      pausedScreen foreach setScreen
+    val current = getScreen
+    if (current != null) {
+      if (!assetManager.update()) {
+        setScreen(new LoadingScreen(() => {
+          setScreen(current)
+        }, assetManager))
+      } else {
+        setScreen(current)
+      }
     }
-    pausedScreen = None
   }
 
 
@@ -37,11 +38,10 @@ trait ReloadOnPause extends Game with Logging {
   override def pause() {
     super.pause()
     println("pause!")
-    pausedScreen = Some(getScreen)
   }
 
   def create() {
-   // new MemoryAnalyzer
+    // new MemoryAnalyzer
   }
 
   override def render() {

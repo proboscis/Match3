@@ -34,13 +34,14 @@ class TestRunner(className: String)
 
   //typeOf[Int] <:< typeOf[String]
 
-  def classToVSB(cls:Class[_]):Varying[Option[ScreenBuilder]] = cls match{
+  def classToVSB(cls: Class[_]): Varying[Option[ScreenBuilder]] = cls match {
     case c: Class[ScreenBuilder] => {
       VClass[ScreenBuilder](c.getCanonicalName).map(_.map(_.newInstance()))
     }
     case c: Class[Screen] => VClass[Screen](c.getCanonicalName).map(_.map(
-      scls => new ScreenBuilder{
+      scls => new ScreenBuilder {
         def requirements: Set[(Class[_], Seq[String])] = Set()
+
         def create(implicit assetManager: AssetManager): Screen = scls.newInstance()
       }
     ))
@@ -55,12 +56,20 @@ class TestRunner(className: String)
           val result = super.create(assets)
           result.onLaunch = cls => {
             clearReaction()
-            reactSome(classToVSB(cls))(setBuilder)
+            reactSome(classToVSB(cls)) {
+              b =>
+                popScreen(exit = false)
+                setBuilder(b)
+            }
           }
           result
         }
       })
-      case c => reactSome(classToVSB(Class.forName(c)))(setBuilder)
+      case c => reactSome(classToVSB(Class.forName(c))) {
+        b =>
+          popScreen(exit = false)
+          setBuilder(b)
+      }
     }
   }
 
@@ -99,14 +108,14 @@ trait Pop extends Game with Logging {
     Gdx.input.setInputProcessor(multiplexer)
   }
 
-  def popScreen() {
+  def popScreen(exit: Boolean = true) {
     log("pop screen" + screenStack.map(_.getClass.getSimpleName))
     if (!screenStack.isEmpty) {
       screenStack.pop() match {
-        case s: LoadingScreen => popScreen()
+        case s: LoadingScreen => popScreen(exit)
         case s => setScreenWithProcessor(s)
       }
-    } else {
+    } else if (exit) {
       log("exit app")
       Gdx.app.exit()
     }
@@ -116,14 +125,16 @@ trait Pop extends Game with Logging {
 trait Popped extends ScreenBuilderSupport with Pop {
   override def resume(): Unit = {
     println("resume!")
-    if (!assetManager.update()) {
-      setScreenWithProcessor(new LoadingScreen(() => {
-        pausedScreen foreach setScreenWithProcessor
-      }, assetManager))
-    } else {
-      pausedScreen foreach setScreenWithProcessor
+    val current = getScreen
+    if (current != null) {
+      if (!assetManager.update()) {
+        setScreenWithProcessor(new LoadingScreen(() => {
+          setScreenWithProcessor(current)
+        }, assetManager))
+      } else {
+        setScreenWithProcessor(current)
+      }
     }
-    pausedScreen = None
   }
 
 }

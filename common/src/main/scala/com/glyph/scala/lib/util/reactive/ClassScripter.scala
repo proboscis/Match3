@@ -24,6 +24,7 @@ class ClassScripter(srcDir: String, outDir: String, classDir: String) extends So
   } catch {
     case e: Throwable => e.printStackTrace()
   }
+
   override def onFileChange(file: File): Unit = {
     super.onFileChange(file)
     log("fileChange")
@@ -33,9 +34,10 @@ class ClassScripter(srcDir: String, outDir: String, classDir: String) extends So
       case e: Throwable => e.printStackTrace()
     }
   }
+
   def try2Opt[T](t: Try[T]): Option[T] = t match {
     case Success(s) => Some(s)
-    case Failure(e:IllegalStateException) => None
+    case Failure(e: IllegalStateException) => None
     case Failure(f) => f.printStackTrace(); None
   }
 
@@ -47,7 +49,7 @@ class ClassScripter(srcDir: String, outDir: String, classDir: String) extends So
         val tag = implicitly[ClassTag[T]]
         val canon = tag.runtimeClass.getCanonicalName
         val simple = tag.runtimeClass.getSimpleName
-        val replaced = canon.replace(simple, prefix  + simple)
+        val replaced = canon.replace(simple, prefix + simple)
         log("replaced", replaced)
         val opt = try2Opt(Try(sse.get[I](replaced)))
         if (opt.isDefined) opt
@@ -57,14 +59,15 @@ class ClassScripter(srcDir: String, outDir: String, classDir: String) extends So
       }
     }
   }
-  def getClass[I](clsName:String):Varying[Option[Class[I]]] = {
+
+  def getClass[I](clsName: String): Varying[Option[Class[I]]] = {
     super.get[I](clsName).map {
       file => {
         log(("mapFileToClass", file.getAbsolutePath))
         val cls = Class.forName(clsName)
         val canon = cls.getCanonicalName
         val simple = cls.getSimpleName
-        val replaced = canon.replace(simple, prefix  + simple)
+        val replaced = canon.replace(simple, prefix + simple)
         log("replaced", replaced)
         val opt = try2Opt(Try(sse.get[I](replaced)))
         if (opt.isDefined) opt
@@ -74,34 +77,53 @@ class ClassScripter(srcDir: String, outDir: String, classDir: String) extends So
       }
     }
   }
+
   start()
 }
 
-object VClass{
+object VClass {
+
   import Application.ApplicationType._
+
   var srcDir = "./src/main/scala"
   var mirrorDir = "./.changed"
-  var mirrorClassDirName =  ".classes"
-  lazy val scripter = Gdx.app.getType match{
-    case Android=> throw new RuntimeException("cannot use VClass on android!")
-    case Desktop=>new ClassScripter(srcDir,mirrorDir,mirrorDir+"/"+mirrorClassDirName)
-    case _=> throw new RuntimeException("VClass is not supported on this device")
+  var mirrorClassDirName = ".classes"
+  lazy val scripter = if (Gdx.app == null) {
+    new ClassScripter(srcDir, mirrorDir, mirrorDir + "/" + mirrorClassDirName)
+  } else Gdx.app.getType match {
+    case Android => throw new RuntimeException("cannot use VClass on android!")
+    case Desktop => new ClassScripter(srcDir, mirrorDir, mirrorDir + "/" + mirrorClassDirName)
+    case _ => throw new RuntimeException("VClass is not supported on this device")
   }
-  def handleTry[T](t:Try[T]):Option[T] = t match {
-    case Success(s)=>Some(s)
-    case Failure(f)=>f.printStackTrace();None
+
+  def handleTry[T](t: Try[T]): Option[T] = t match {
+    case Success(s) => Some(s)
+    case Failure(f) => f.printStackTrace(); None
   }
-  def apply[I,T<:I:ClassTag]:Varying[Option[Class[I]]] = apply[I](implicitly[ClassTag[T]].runtimeClass.getCanonicalName)
-  def apply[I](className:String):Varying[Option[Class[I]]] = Gdx.app.getType match{
-    case Android => Var(handleTry(Try(Class.forName(className).asInstanceOf[Class[I]])))
-    case Desktop => new Varying[Option[Class[I]]] with Reactor{
+
+  def apply[I, T <: I : ClassTag]: Varying[Option[Class[I]]] = apply[I](implicitly[ClassTag[T]].runtimeClass.getCanonicalName)
+
+  def apply[I](className: String): Varying[Option[Class[I]]] = {
+    def desktop = new Varying[Option[Class[I]]] with Reactor {
       val varying = scripter.getClass[I](className)
-      reactVar(varying){
-        c => GdxUtil.post(notifyObservers(c))
+      reactVar(varying) {
+        c => if (Gdx.app != null) GdxUtil.post(notifyObservers(c))
+        else {
+          notifyObservers(c)
+        }
       }
+
       def current: Option[Class[I]] = varying()
     }
-    case iOS => ???
-    case WebGL => ???
+    def nop = Var(handleTry(Try(Class.forName(className).asInstanceOf[Class[I]])))
+    if (Gdx.app == null) desktop
+    else {
+      Gdx.app.getType match {
+        case Android => nop
+        case Desktop => desktop
+        case iOS => nop
+        case WebGL => nop
+      }
+    }
   }
 }
