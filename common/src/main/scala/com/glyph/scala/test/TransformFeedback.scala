@@ -14,17 +14,18 @@ import Scalaz._
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph.scala.lib.libgdx.actor.SpriteActor
+import com.glyph.scala.lib.util.Logging
 
 /**
  * @author glyph
  */
-class TransformFeedback extends ScreenBuilder {
+class TransformFeedback extends ScreenBuilder with Logging{
   def requirements: Set[(Class[_], Seq[String])] = Set(
     classOf[Texture] -> Seq("data/sword.png", "data/dummy.png","data/particle.png")
   )
 
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
-    ShaderProgram.pedantic = true
+    ShaderProgram.pedantic = false
     override def STAGE_WIDTH: Int = 960
     override def STAGE_HEIGHT: Int = 540
     val pointShaderHandler = new ShaderHandler("shader/point.vert", "shader/point.frag")
@@ -55,18 +56,19 @@ class TransformFeedback extends ScreenBuilder {
 
     val default = ImmediateModeRenderer20.createDefaultShader(false,true,0)
 
+    var renderFailed = false
     val renderFunction = pointShaderHandler.shader ~ feedbackShaderHandler.shader map {
       case pointShaderOpt ~ feedbackShaderOpt => {
-        var failed = false
+        renderFailed = false
         () => {
-          if (!failed && pointShaderOpt.isDefined && feedbackShaderOpt.isDefined) {
+          if (!renderFailed && pointShaderOpt.isDefined && feedbackShaderOpt.isDefined) {
             try {
+              //log("drawing")
               val pointShader = pointShaderOpt.get
               val feedbackShader = feedbackShaderOpt.get
               val pr = pointRenderer
               val tr = textureRenderer
               pr.setShader(pointShader)
-              //pr.setShader(default)
               tr.setShader(feedbackShader)
               camera.update()
               //shader.begin()
@@ -78,7 +80,9 @@ class TransformFeedback extends ScreenBuilder {
               Gdx.gl.glEnable(GL10.GL_BLEND)
               Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA)
               frameBuffers(0).begin()
+              Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
               tr.begin(camera.combined, GL10.GL_TRIANGLE_STRIP)
+              feedbackShader.setUniformi("u_state",0)
               texture.bind()
               texturedRect(tr)(Color.WHITE, -40, -40, 80, 80)
               tr.end()
@@ -92,7 +96,7 @@ class TransformFeedback extends ScreenBuilder {
 
               //shader.end()
             } catch {
-              case e: Throwable => e.printStackTrace(); failed = true
+              case e: Throwable => e.printStackTrace(); renderFailed = true
             }
           }
         }
