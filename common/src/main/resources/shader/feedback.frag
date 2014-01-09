@@ -1,5 +1,5 @@
 #ifdef GL_ES
-precision mediump float;
+//precision mediump float;
 #endif
 varying vec4 v_color;
 varying vec2 v_texCoords;
@@ -8,5 +8,9 @@ uniform int u_state;
 void main(){
     //gl_FlagColor = vec4(u_state,0,0,1);
     //gl_FlagColor = v_color;
-    gl_FragColor = v_color * texture2D(u_sampler0, v_texCoords);
+    if(u_state == 0){//velocity update
+        gl_FragColor = vec4(u_state,1,1,1);//v_color * texture2D(u_sampler0, v_texCoords);
+    }else{//position update
+        gl_FragColor = vec4(u_state,0,0,1);//v_color * texture2D(u_sampler0, v_texCoords);
+    }
 }

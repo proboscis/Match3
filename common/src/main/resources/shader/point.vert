@@ -10,5 +10,5 @@ void main(){
     v_color = a_color;
     //v_texCoords = a_texCoord0;
     gl_Position = u_projModelView * a_position;
-    gl_PointSize = 60;
+    gl_PointSize = 100.0;
 }
