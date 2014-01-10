@@ -40,11 +40,11 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val pointRenderer = new ImmediateModeRenderer20(1000, false, true, 0)
     val textureRenderer = new ImmediateModeRenderer20(1000, false, true, 1)
     //TODO this format defines whether the texture2D in glsl returns clamped data or not
-    val PARTICLE_COUNT_W = 100
-    val PARTICLE_COUNT_H =100
+    val PARTICLE_COUNT_W = 500
+    val PARTICLE_COUNT_H =500
 
     val frameBuffers = Array(1 to 2 map (_ => new FrameBuffer(FloatTexture(PARTICLE_COUNT_W,PARTICLE_COUNT_H), false)): _*)
-    val powerMap = new FrameBuffer(FloatTexture(500,500),false)
+    val powerMap = new FrameBuffer(FloatTexture(100,100),false)
     //TODO extend FrameBuffer to use my own Texture which internally uses FloatBuffer
     //TODO extends Texture to fool the FrameBuffer class
     val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
@@ -94,12 +94,13 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val powerActor = new TextureRenderActor(powerMap.getColorBufferTexture)
     val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
     val DST_FUNC: Int = GL10.GL_ONE
-    frameBufferActors:+forceActor foreach {
+    frameBufferActors:+forceActor:+powerActor foreach {
       actor => rightTable.add(actor).fill.expand.row
     }
 
 
-    val renderActor = new Actor{
+
+
       val camera = new OrthographicCamera(1, 1)
       val powerCamera = new OrthographicCamera(100,100)
       camera.update()
@@ -138,7 +139,7 @@ class TransformFeedback extends ScreenBuilder with Logging {
                   ps.setUniformMatrix("u_projModelView", stage.getCamera.combined)
                   ps.setUniformi("u_sampler0",0)
                   ps.setUniformi("u_sampler1",1)
-                  ps.setUniformf("u_pointSize",50)
+                  ps.setUniformf("u_pointSize",20)
                   import GL20._
                   Gdx.gl.glDisable(GL_DEPTH_TEST)
                   Gdx.gl.glEnable(GL_BLEND)
@@ -162,7 +163,7 @@ class TransformFeedback extends ScreenBuilder with Logging {
                   fs.setUniformMatrix("u_projModelView", camera.combined)
                   fs.setUniformi("u_sampler0", 0)
                   fs.setUniformi("u_sampler1",1)
-                  fs.setUniformf("u_dt", Gdx.graphics.getDeltaTime)
+                  fs.setUniformf("u_dt", 0.016f)
                   fs.setUniformi("u_state", 0)
                   fs.setUniformi("u_init", if (init) 1 else 0)
                   fs.setUniformf("mouse",mouseX,mouseY)
@@ -183,11 +184,12 @@ class TransformFeedback extends ScreenBuilder with Logging {
                   frameBuffers(i2).getColorBufferTexture.bind(0)
                   particleTexture.bind(1)
                   //forceTexture.bind(1)
-                  //powerMap.getColorBufferTexture.bind(1)
-                  ps.setUniformMatrix("u_projModelView", getStage.getSpriteBatch.getProjectionMatrix)
+                  powerMap.getColorBufferTexture.bind(2)
+                  ps.setUniformMatrix("u_projModelView",stage.getCamera.combined)
                   ps.setUniformi("u_sampler0",0)
                   ps.setUniformi("u_sampler1",1)
-                  ps.setUniformf("u_pointSize",5)
+                  ps.setUniformi("u_sampler2",2)
+                  ps.setUniformf("u_pointSize",1)
                   particleVertices.render(ps, GL10.GL_POINTS)
                   ps.end()
                 }
@@ -199,23 +201,16 @@ class TransformFeedback extends ScreenBuilder with Logging {
         }
       }
 
-
-      override def draw(batch: Batch, parentAlpha: Float): Unit = {
-        super.draw(batch, parentAlpha)
-        batch.end()
-        renderFunction()()
-        Gdx.gl.glActiveTexture(GL10.GL_TEXTURE0)// <= this is required
-        batch.begin()
-      }
-
-    }
-
-    leftTable.add(renderActor).fill.expand
-    centerTable.add(powerActor).fill.expand
-    root.add(centerTable).fill.expand(1,1)
-    root.add(leftTable).fill.expand(1,1)
+    root.add(leftTable).fill.expand(3,1)
     root.add(rightTable).fill.expand(1,1)
     powerActor.toFront()
+
+    override def render(delta: Float): Unit = {
+      super.render(delta)
+      renderFunction()()
+      Gdx.gl.glActiveTexture(GL10.GL_TEXTURE0)// <= this is required
+    }
+
     var mouseX = 0f
     var mouseY = 0f
     stage.addListener(new InputListener{
@@ -226,6 +221,7 @@ class TransformFeedback extends ScreenBuilder with Logging {
         true
       }
     })
+
 
     def drawRect(r: ImmediateModeRenderer)(color: Color, x: Float, y: Float, w: Float, h: Float) {
       r.color(color.r, color.g, color.b, color.a)

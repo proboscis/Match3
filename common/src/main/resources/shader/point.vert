@@ -10,7 +10,7 @@ void main(){
     vec4 t = texture2D(u_sampler0,a_position);
     gl_Position = u_projModelView * vec4(t.zw,0,1);
     //v_color = vec4(t.xy,t.zw*0.001);
-    //v_color = vec4(1,1,1,1);
-    v_color=vec4(a_position,0,1);
+    v_color = vec4(1,1,1,1);
+    //v_color=vec4(a_position,0,1);
     gl_PointSize = u_pointSize;
 }
