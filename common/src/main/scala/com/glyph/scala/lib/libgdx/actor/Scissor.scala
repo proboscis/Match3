@@ -20,10 +20,12 @@ trait Scissor extends Actor {
     ScissorStack.calculateScissors(getStage.getCamera,0,0,Gdx.graphics.getWidth,Gdx.graphics.getHeight, batch.getTransformMatrix, clipBounds, scissors)
     if (ScissorStack.pushScissors(scissors)) {
       super.draw(batch, parentAlpha)
+      onScissor(batch,parentAlpha)
       ScissorStack.popScissors()
     } else {
       super.draw(batch, parentAlpha)
     }
     batch.flush()
   }
+  def onScissor(batch:Batch,parentAlpha:Float){}
 }

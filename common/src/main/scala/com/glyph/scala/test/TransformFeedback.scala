@@ -19,7 +19,7 @@ import java.nio.{FloatBuffer, ByteOrder, ByteBuffer}
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Actor}
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.glyph.scala.lib.libgdx.actor.Scissor
-
+import com.badlogic.gdx.math.{MathUtils, Vector2}
 /**
  * @author glyph
  */
@@ -40,10 +40,11 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val pointRenderer = new ImmediateModeRenderer20(1000, false, true, 0)
     val textureRenderer = new ImmediateModeRenderer20(1000, false, true, 1)
     //TODO this format defines whether the texture2D in glsl returns clamped data or not
-    val PARTICLE_COUNT_W = 1000
-    val PARTICLE_COUNT_H = 1000
+    val PARTICLE_COUNT_W = 100
+    val PARTICLE_COUNT_H =100
 
-    val frameBuffers = Array(1 to 2 map (_ => new FrameBuffer(new FloatTexture(PARTICLE_COUNT_W,PARTICLE_COUNT_H), false)): _*)
+    val frameBuffers = Array(1 to 2 map (_ => new FrameBuffer(FloatTexture(PARTICLE_COUNT_W,PARTICLE_COUNT_H), false)): _*)
+    val powerMap = new FrameBuffer(FloatTexture(500,500),false)
     //TODO extend FrameBuffer to use my own Texture which internally uses FloatBuffer
     //TODO extends Texture to fool the FrameBuffer class
     val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
@@ -65,19 +66,22 @@ class TransformFeedback extends ScreenBuilder with Logging {
       particleVertices.setVertices(Array(vertices: _*))
       println(vertices.size)
     }
-    val frameBufferActors = frameBuffers map ( buf =>new Actor{
+    class TextureRenderActor(tex:GLTexture) extends Actor{
       override def draw(batch: Batch, parentAlpha: Float): Unit = {
         super.draw(batch, parentAlpha)
         batch.end()
         val tr = textureRenderer
         tr.begin(batch.getProjectionMatrix, GL10.GL_TRIANGLE_STRIP)
-        buf.getColorBufferTexture.bind()
+        tex.bind()
         texturedRect(tr)(Color.WHITE,getX,getY,getWidth,getHeight)
         tr.end()
         batch.begin()
       }
-    })
+    }
+    val frameBufferActors = frameBuffers map ( buf =>new TextureRenderActor(buf.getColorBufferTexture))
 
+    val centerTable = new Table
+    centerTable.debug()
     val leftTable = new Table
     leftTable.debug()
     val rightTable = new Table
@@ -85,16 +89,21 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val texture: Texture = "data/sword.png".fromAssets
     val dummyTexture: Texture = "data/dummy.png".fromAssets
     val particleTexture: Texture = "data/particle.png".fromAssets
+    val forceTexture = createForceFieldTexture(100)
+    val forceActor = new TextureRenderActor(forceTexture)
+    val powerActor = new TextureRenderActor(powerMap.getColorBufferTexture)
     val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
     val DST_FUNC: Int = GL10.GL_ONE
-    frameBufferActors foreach {
+    frameBufferActors:+forceActor foreach {
       actor => rightTable.add(actor).fill.expand.row
     }
 
-    val renderActor = new Actor with Scissor{
+
+    val renderActor = new Actor{
       val camera = new OrthographicCamera(1, 1)
+      val powerCamera = new OrthographicCamera(100,100)
       camera.update()
-      val renderCamera = new OrthographicCamera()
+      powerCamera.update()
       val renderFunction = pointShaderHandler.shader ~ feedbackShaderHandler.shader map {
         case pointShaderOpt ~ feedbackShaderOpt => {
           var renderFailed = false
@@ -119,12 +128,40 @@ class TransformFeedback extends ScreenBuilder with Logging {
                    * 力場をgpuでフレームバッファに加算合成することで作ることができるぞ！
                    */
 
+
+                {//update power map
+
+                  ps.begin()
+                  //stage.getCamera.position.set(0,0,0)
+                  frameBuffers(i1).getColorBufferTexture.bind(0)
+                  forceTexture.bind(1)
+                  ps.setUniformMatrix("u_projModelView", stage.getCamera.combined)
+                  ps.setUniformi("u_sampler0",0)
+                  ps.setUniformi("u_sampler1",1)
+                  ps.setUniformf("u_pointSize",50)
+                  import GL20._
+                  Gdx.gl.glDisable(GL_DEPTH_TEST)
+                  Gdx.gl.glEnable(GL_BLEND)
+                  Gdx.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE)
+                  //Gdx.gl20.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE)
+                  powerMap.begin()
+                  Gdx.gl.glClear(GL_COLOR_BUFFER_BIT )
+                  particleVertices.render(ps, GL_POINTS)
+                  powerMap.end()
+                  ps.end()
+                }
+
+
                 {
+                  Gdx.gl.glDisable(GL10.GL_BLEND)
                   //ping-pong the vel pos texture
                   fs.begin()
                   frameBuffers(i1).getColorBufferTexture.bind(0) //this costs nothing.
+                  powerMap.getColorBufferTexture.bind(1)
+                  //forceTexture.bind(1)
                   fs.setUniformMatrix("u_projModelView", camera.combined)
                   fs.setUniformi("u_sampler0", 0)
+                  fs.setUniformi("u_sampler1",1)
                   fs.setUniformf("u_dt", Gdx.graphics.getDeltaTime)
                   fs.setUniformi("u_state", 0)
                   fs.setUniformi("u_init", if (init) 1 else 0)
@@ -145,9 +182,12 @@ class TransformFeedback extends ScreenBuilder with Logging {
                   //stage.getCamera.position.set(0,0,0)
                   frameBuffers(i2).getColorBufferTexture.bind(0)
                   particleTexture.bind(1)
+                  //forceTexture.bind(1)
+                  //powerMap.getColorBufferTexture.bind(1)
                   ps.setUniformMatrix("u_projModelView", getStage.getSpriteBatch.getProjectionMatrix)
                   ps.setUniformi("u_sampler0",0)
                   ps.setUniformi("u_sampler1",1)
+                  ps.setUniformf("u_pointSize",5)
                   particleVertices.render(ps, GL10.GL_POINTS)
                   ps.end()
                 }
@@ -159,6 +199,7 @@ class TransformFeedback extends ScreenBuilder with Logging {
         }
       }
 
+
       override def draw(batch: Batch, parentAlpha: Float): Unit = {
         super.draw(batch, parentAlpha)
         batch.end()
@@ -166,10 +207,15 @@ class TransformFeedback extends ScreenBuilder with Logging {
         Gdx.gl.glActiveTexture(GL10.GL_TEXTURE0)// <= this is required
         batch.begin()
       }
+
     }
+
     leftTable.add(renderActor).fill.expand
-    root.add(leftTable).fill.expand(23,9)
-    root.add(rightTable).fill.expand(9,9)
+    centerTable.add(powerActor).fill.expand
+    root.add(centerTable).fill.expand(1,1)
+    root.add(leftTable).fill.expand(1,1)
+    root.add(rightTable).fill.expand(1,1)
+    powerActor.toFront()
     var mouseX = 0f
     var mouseY = 0f
     stage.addListener(new InputListener{
@@ -223,6 +269,34 @@ class TransformFeedback extends ScreenBuilder with Logging {
       r.vertex(x + width, y + height, 0)
     }
   }
+
+  def createForceField(size:Int):FloatBuffer = {
+    val result = BufferUtils.newFloatBuffer(size*size*4)
+    val center = new Vector2(size/2,size/2)
+    val tmp = new Vector2()
+    val data = new Array[Float](size* size*4)
+    var x = 0
+    while ( x < size){
+      var y = 0
+      while(y < size){
+        val idx = (y*size + x)*4
+        tmp.set(x,y).sub(center)
+        val l2 = tmp.len2()
+        val amp = if(l2 > size/2*size/2 || l2 < 0.1) 0 else 1/l2
+        tmp.nor()
+        data(idx) = tmp.x * amp
+        data(idx + 1) =  tmp.y * amp
+        data(idx + 2) = 0
+        data(idx + 3) = 1f
+        y += 1
+      }
+      x += 1
+    }
+    result.put(data)
+    result.flip()
+    result
+  }
+  def createForceFieldTexture(size:Int):FloatTexture = new FloatTexture(size,size,createForceField(size))
 }
 
 class FrameBuffer(val colorTexture:GLTexture,val hasDepth: Boolean) extends Disposable {
@@ -378,7 +452,8 @@ object FrameBuffer {
 
   def getManagedStatus: String = getManagedStatus(new StringBuilder).toString()
 }
-class FloatTexture(val width:Int,val height:Int) extends GLTexture(GL10.GL_TEXTURE_2D,GLTextureWrapper.createGLHandle()){
+
+class FloatTexture(val width:Int,val height:Int,buffer:FloatBuffer ) extends GLTexture(GL10.GL_TEXTURE_2D,GLTextureWrapper.createGLHandle()){
   load()
 
   def load(){
@@ -390,7 +465,7 @@ class FloatTexture(val width:Int,val height:Int) extends GLTexture(GL10.GL_TEXTU
       // target, level, internal format, width, height
       GL10.GL_TEXTURE_2D,/*RGBA32F_ARB 0x8814*/ 0,0x8814, width, height,
       // border, data format, data type, pixels
-      0, GL10.GL_RGBA,GL10.GL_FLOAT,BufferUtils.newFloatBuffer(width*height*4)
+      0, GL10.GL_RGBA,GL10.GL_FLOAT, buffer
     )
     println(Gdx.gl.glGetString(GL10.GL_EXTENSIONS))
     setFilter(minFilter,magFilter)
@@ -407,4 +482,7 @@ class FloatTexture(val width:Int,val height:Int) extends GLTexture(GL10.GL_TEXTU
   def isManaged: Boolean = false
 
   def reload(): Unit = load()
+}
+object FloatTexture{
+  def apply(width:Int,height:Int):FloatTexture = new FloatTexture(width,height,BufferUtils.newFloatBuffer(width*height*4))
 }

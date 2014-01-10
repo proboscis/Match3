@@ -3,6 +3,7 @@
 #endif
 varying vec2 v_texCoords;
 uniform sampler2D u_sampler0;
+uniform sampler2D u_sampler1;
 uniform float u_dt;
 uniform bool u_init;
 uniform vec2 mouse;
@@ -28,14 +29,15 @@ void main(){
         vec4 t = texture2D(u_sampler0,v_texCoords);
         vec2 v = t.xy;
         vec2 p = t.zw;
-        vec2 d = mouse - p;
+        vec2 d = vec2(480,270)-p;//mouse - p;
         float l = length(d);
-        vec2 a = normalize(d) *l * l *0.001;
+        vec2 power = texture2D(u_sampler1,vec2(p.x/960.0,p.y/540.0)).xy;
+        vec2 a = normalize(d) *l  *0.1 + power*1000;
         vec2 nv = v + a * u_dt;
         vec2 np = p + v * u_dt;
         if(np.x >=960 || np.x < 0 || np.y >= 540 || np.y < 0){
             //normalize(rand(nv))*100;
-            np =vec2(480,270);
+            np =vec2(0,0);
         }
         gl_FragColor = vec4(nv,np);
     }

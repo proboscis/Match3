@@ -3,6 +3,7 @@ attribute vec2 a_position;
 uniform mat4 u_projModelView;
 uniform sampler2D u_sampler0;
 uniform sampler2D u_sampler1;
+uniform float u_pointSize;
 varying vec4 v_color;
 varying vec2 v_texCoords;
 void main(){
@@ -11,5 +12,5 @@ void main(){
     //v_color = vec4(t.xy,t.zw*0.001);
     //v_color = vec4(1,1,1,1);
     v_color=vec4(a_position,0,1);
-    gl_PointSize = 5.0;
+    gl_PointSize = u_pointSize;
 }
