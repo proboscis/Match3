@@ -4,21 +4,20 @@ import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.{Gdx, Screen}
 import com.glyph.scala.lib.libgdx.gl.ShaderHandler
-import com.badlogic.gdx.graphics.glutils.{ImmediateModeRenderer20, ShaderProgram, ImmediateModeRenderer}
+import com.badlogic.gdx.graphics.glutils.{ShaderProgram, ImmediateModeRenderer, ImmediateModeRenderer20}
 import com.badlogic.gdx.graphics.Pixmap.Format
 import com.badlogic.gdx.graphics._
 import com.glyph.scala.game.Glyphs
 import Glyphs._
-import scalaz._
-import Scalaz._
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.glyph.scala.lib.libgdx.actor.SpriteActor
 import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.graphics.VertexAttributes.Usage
 import com.badlogic.gdx.utils.{BufferUtils, GdxRuntimeException, Disposable}
 import com.badlogic.gdx.graphics.Texture.{TextureFilter, TextureWrap}
 import com.badlogic.gdx.Application.ApplicationType
 import java.nio.{ByteOrder, ByteBuffer}
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.graphics.g2d.Batch
 
 /**
  * @author glyph
@@ -46,16 +45,15 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
     val a_texCoord = VertexAttribute.TexCoords(0)
     val rect = new Mesh(true, 4, 0, a_position, a_texCoord)
-    val particleVertices = new Mesh(true, 16, 0, a_position) {
-      // init rectangle mesh
-      val (x, y, w, h) = (-0.5f, -0.5f, 1f, 1f)
-      rect.setVertices(Array[Float](
-        x, y, 0, 0,
-        x, y + h, 0, 1,
-        x + w, y, 1, 0,
-        x + w, y + h, 1, 1
-      ))
-    }
+    rect.setVertices(rectangle(-0.5f, -0.5f, 1f, 1f))
+    val particleVertices = new Mesh(true, 16, 0, a_position)
+
+    def rectangle(x: Float, y: Float, w: Float, h: Float): Array[Float] = Array[Float](
+      x, y, 0, 0,
+      x, y + h, 0, 1,
+      x + w, y, 1, 0,
+      x + w, y + h, 1, 1
+    )
 
     {
       //init particleVertices
@@ -66,7 +64,18 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val camera = new OrthographicCamera(1, 1)
     camera.update()
 
-    val frameBufferActors = frameBuffers map (_.getColorBufferTexture |> SpriteActor.apply)
+    val frameBufferActors = frameBuffers map ( buf =>new Actor{
+      override def draw(batch: Batch, parentAlpha: Float): Unit = {
+        super.draw(batch, parentAlpha)
+        batch.end()
+        val tr = textureRenderer
+        tr.begin(batch.getProjectionMatrix, GL10.GL_TRIANGLE_STRIP)
+        buf.getColorBufferTexture.bind()
+        texturedRect(tr)(Color.WHITE,getX,getY,getWidth,getHeight)
+        tr.end()
+        batch.begin()
+      }
+    })
 
     val leftTable = new Table
     leftTable.debug()
@@ -78,7 +87,7 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
     val DST_FUNC: Int = GL10.GL_ONE
     frameBufferActors foreach {
-      a => rightTable.add(a).fill.expand.row
+      actor => rightTable.add(actor).fill.expand.row
     }
     root.add(leftTable).fill.expand
     root.add(rightTable).fill.expand
@@ -100,8 +109,6 @@ class TransformFeedback extends ScreenBuilder with Logging {
               val fs = feedbackShaderOpt.get
               val pr = pointRenderer
               val tr = textureRenderer
-              pr.setShader(ps)
-              tr.setShader(fs)
               camera.update()
 
               {
