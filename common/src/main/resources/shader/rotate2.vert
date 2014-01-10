@@ -8,16 +8,6 @@ attribute float a_length;
 uniform mat4 u_projTrans;
 varying vec4 v_color;
 varying vec2 v_texCoords;
-mat2 rot2(float rad){
-    float s = sin(rad);
-    float c = cos(rad);
-    return mat2( c, -s, s ,c);
-}
-float rand(vec2 n)
-{
-  return 0.5 + 0.5 *
-     fract(sin(dot(n.xy, vec2(12.9898, 78.233)))* 43758.5453);
-}
 void main(){
     vec2 nor = normalize(a_normal);
     v_color = a_color * vec4(nor,1,0.5);
