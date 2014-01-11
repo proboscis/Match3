@@ -5,7 +5,6 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.{Gdx, Screen}
 import com.glyph.scala.lib.libgdx.gl.ShaderHandler
 import com.badlogic.gdx.graphics.glutils.{ShaderProgram, ImmediateModeRenderer, ImmediateModeRenderer20}
-import com.badlogic.gdx.graphics.Pixmap.Format
 import com.badlogic.gdx.graphics._
 import com.glyph.scala.game.Glyphs
 import Glyphs._
@@ -18,8 +17,8 @@ import com.badlogic.gdx.Application.ApplicationType
 import java.nio.{FloatBuffer, ByteOrder, ByteBuffer}
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener, Actor}
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.glyph.scala.lib.libgdx.actor.Scissor
-import com.badlogic.gdx.math.{MathUtils, Vector2}
+import com.badlogic.gdx.math.Vector2
+
 /**
  * @author glyph
  */
@@ -37,21 +36,25 @@ class TransformFeedback extends ScreenBuilder with Logging {
 
     val pointShaderHandler = new ShaderHandler("shader/point.vert", "shader/point.frag")
     val feedbackShaderHandler = new ShaderHandler("shader/feedback.vert", "shader/feedback.frag")
+    val powerShaderHandler = new ShaderHandler("shader/power.vert", "shader/power.frag")
+    val densityShaderHandler = new ShaderHandler("shader/density.vert", "shader/density.frag")
     val pointRenderer = new ImmediateModeRenderer20(1000, false, true, 0)
     val textureRenderer = new ImmediateModeRenderer20(1000, false, true, 1)
     //TODO this format defines whether the texture2D in glsl returns clamped data or not
-    val PARTICLE_COUNT_W = 500
-    val PARTICLE_COUNT_H =500
-
-    val frameBuffers = Array(1 to 2 map (_ => new FrameBuffer(FloatTexture(PARTICLE_COUNT_W,PARTICLE_COUNT_H), false)): _*)
-    val powerMap = new FrameBuffer(FloatTexture(100,100),false)
+    val PARTICLE_COUNT_W = 100
+    val PARTICLE_COUNT_H = 100
+    val MAP_RESOLUTION = 200
+    val RADIUS = 10
+    val frameBuffers = Array(1 to 2 map (_ => new FrameBuffer(FloatTexture(PARTICLE_COUNT_W, PARTICLE_COUNT_H), false)): _*)
+    val powerMap = new FrameBuffer(FloatTexture(MAP_RESOLUTION, MAP_RESOLUTION), false)
+    val densityMap = new FrameBuffer(FloatTexture(MAP_RESOLUTION, MAP_RESOLUTION), false)
     //TODO extend FrameBuffer to use my own Texture which internally uses FloatBuffer
     //TODO extends Texture to fool the FrameBuffer class
     val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
     val a_texCoord = VertexAttribute.TexCoords(0)
     val rect = new Mesh(true, 4, 0, a_position, a_texCoord)
     rect.setVertices(rectangle(-0.5f, -0.5f, 1f, 1f))
-    val particleVertices = new Mesh(true, PARTICLE_COUNT_W*PARTICLE_COUNT_H, 0, a_position)
+    val particleVertices = new Mesh(true, PARTICLE_COUNT_W * PARTICLE_COUNT_H, 0, a_position)
 
     def rectangle(x: Float, y: Float, w: Float, h: Float): Array[Float] = Array[Float](
       x, y, 0, 0,
@@ -62,23 +65,23 @@ class TransformFeedback extends ScreenBuilder with Logging {
 
     {
       //init particleVertices
-      val vertices = (0 until PARTICLE_COUNT_W*PARTICLE_COUNT_H map (i => Array((i / PARTICLE_COUNT_W)/PARTICLE_COUNT_W.toFloat, (i % PARTICLE_COUNT_W)/PARTICLE_COUNT_H.toFloat))).flatten
+      val vertices = (0 until PARTICLE_COUNT_W * PARTICLE_COUNT_H map (i => Array((i / PARTICLE_COUNT_W) / PARTICLE_COUNT_W.toFloat, (i % PARTICLE_COUNT_W) / PARTICLE_COUNT_H.toFloat))).flatten
       particleVertices.setVertices(Array(vertices: _*))
       println(vertices.size)
     }
-    class TextureRenderActor(tex:GLTexture) extends Actor{
+
+    class TextureRenderActor(tex: GLTexture) extends Actor {
       override def draw(batch: Batch, parentAlpha: Float): Unit = {
         super.draw(batch, parentAlpha)
         batch.end()
         val tr = textureRenderer
         tr.begin(batch.getProjectionMatrix, GL10.GL_TRIANGLE_STRIP)
         tex.bind()
-        texturedRect(tr)(Color.WHITE,getX,getY,getWidth,getHeight)
+        texturedRect(tr)(Color.WHITE, getX, getY, getWidth, getHeight)
         tr.end()
         batch.begin()
       }
     }
-    val frameBufferActors = frameBuffers map ( buf =>new TextureRenderActor(buf.getColorBufferTexture))
 
     val centerTable = new Table
     centerTable.debug()
@@ -89,131 +92,17 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val texture: Texture = "data/sword.png".fromAssets
     val dummyTexture: Texture = "data/dummy.png".fromAssets
     val particleTexture: Texture = "data/particle.png".fromAssets
-    val forceTexture = createForceFieldTexture(100)
+    val forceTexture = createForceFieldTexture(MAP_RESOLUTION)
     val forceActor = new TextureRenderActor(forceTexture)
     val powerActor = new TextureRenderActor(powerMap.getColorBufferTexture)
-    val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
-    val DST_FUNC: Int = GL10.GL_ONE
-    frameBufferActors:+forceActor:+powerActor foreach {
+    val textureActors = ((frameBuffers :+ powerMap :+ densityMap).map(_.getColorBufferTexture) :+ forceTexture).map(new TextureRenderActor(_))
+    textureActors foreach {
       actor => rightTable.add(actor).fill.expand.row
-    }
-
-
-
-
-      val camera = new OrthographicCamera(1, 1)
-      val powerCamera = new OrthographicCamera(100,100)
-      camera.update()
-      powerCamera.update()
-      val renderFunction = pointShaderHandler.shader ~ feedbackShaderHandler.shader map {
-        case pointShaderOpt ~ feedbackShaderOpt => {
-          var renderFailed = false
-          var swap = false
-          var init = true
-          () => {
-            if (!renderFailed && pointShaderOpt.isDefined && feedbackShaderOpt.isDefined) {
-              try {
-                Gdx.gl20.glEnable(GL11.GL_POINT_SPRITE_OES) //this is required!!!
-                //// http://stackoverflow.com/questions/13213227/gl-pointcoord-has-incorrect-uninitialized-value
-                Gdx.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE)
-                //log("drawing")
-                val ps = pointShaderOpt.get
-                val fs = feedbackShaderOpt.get
-                val pr = pointRenderer
-                val tr = textureRenderer
-                camera.update()
-                val i1 = if (swap) 0 else 1
-                val i2 = if (swap) 1 else 0
-
-                  /**
-                   * 力場をgpuでフレームバッファに加算合成することで作ることができるぞ！
-                   */
-
-
-                {//update power map
-
-                  ps.begin()
-                  //stage.getCamera.position.set(0,0,0)
-                  frameBuffers(i1).getColorBufferTexture.bind(0)
-                  forceTexture.bind(1)
-                  ps.setUniformMatrix("u_projModelView", stage.getCamera.combined)
-                  ps.setUniformi("u_sampler0",0)
-                  ps.setUniformi("u_sampler1",1)
-                  ps.setUniformf("u_pointSize",20)
-                  import GL20._
-                  Gdx.gl.glDisable(GL_DEPTH_TEST)
-                  Gdx.gl.glEnable(GL_BLEND)
-                  Gdx.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-                  //Gdx.gl20.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE)
-                  powerMap.begin()
-                  Gdx.gl.glClear(GL_COLOR_BUFFER_BIT )
-                  particleVertices.render(ps, GL_POINTS)
-                  powerMap.end()
-                  ps.end()
-                }
-
-
-                {
-                  Gdx.gl.glDisable(GL10.GL_BLEND)
-                  //ping-pong the vel pos texture
-                  fs.begin()
-                  frameBuffers(i1).getColorBufferTexture.bind(0) //this costs nothing.
-                  powerMap.getColorBufferTexture.bind(1)
-                  //forceTexture.bind(1)
-                  fs.setUniformMatrix("u_projModelView", camera.combined)
-                  fs.setUniformi("u_sampler0", 0)
-                  fs.setUniformi("u_sampler1",1)
-                  fs.setUniformf("u_dt", 0.016f)
-                  fs.setUniformi("u_state", 0)
-                  fs.setUniformi("u_init", if (init) 1 else 0)
-                  fs.setUniformf("mouse",mouseX,mouseY)
-                  frameBuffers(i2).begin()
-                  rect.render(fs, GL10.GL_TRIANGLE_STRIP)
-                  frameBuffers(i2).end()
-                  fs.end()
-                  swap = !swap
-                  init = false
-                }
-
-                {
-                  // now draw particles with vel_pos texture
-                  Gdx.gl.glEnable(GL10.GL_BLEND)
-                  Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE)
-                  ps.begin()
-                  //stage.getCamera.position.set(0,0,0)
-                  frameBuffers(i2).getColorBufferTexture.bind(0)
-                  particleTexture.bind(1)
-                  //forceTexture.bind(1)
-                  powerMap.getColorBufferTexture.bind(2)
-                  ps.setUniformMatrix("u_projModelView",stage.getCamera.combined)
-                  ps.setUniformi("u_sampler0",0)
-                  ps.setUniformi("u_sampler1",1)
-                  ps.setUniformi("u_sampler2",2)
-                  ps.setUniformf("u_pointSize",1)
-                  particleVertices.render(ps, GL10.GL_POINTS)
-                  ps.end()
-                }
-              } catch {
-                case e: Throwable => e.printStackTrace(); renderFailed = true
-              }
-            }
-          }
-        }
-      }
-
-    root.add(leftTable).fill.expand(3,1)
-    root.add(rightTable).fill.expand(1,1)
-    powerActor.toFront()
-
-    override def render(delta: Float): Unit = {
-      super.render(delta)
-      renderFunction()()
-      Gdx.gl.glActiveTexture(GL10.GL_TEXTURE0)// <= this is required
     }
 
     var mouseX = 0f
     var mouseY = 0f
-    stage.addListener(new InputListener{
+    stage.addListener(new InputListener {
       override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = {
         super.mouseMoved(event, x, y)
         mouseX = x
@@ -221,6 +110,145 @@ class TransformFeedback extends ScreenBuilder with Logging {
         true
       }
     })
+
+
+    val camera = new OrthographicCamera(1, 1)
+    camera.update()
+    val renderFunction = pointShaderHandler.shader ~ feedbackShaderHandler.shader ~ powerShaderHandler.shader ~ densityShaderHandler.shader map {
+      case pointShaderOpt ~ feedbackShaderOpt ~ powerShaderOpt ~ densityShaderOpt => {
+        var renderFailed = false
+        var swap = false
+        var init = true
+        () => {
+          if (!renderFailed && pointShaderOpt.isDefined && feedbackShaderOpt.isDefined) {
+            try {
+              Gdx.gl20.glEnable(GL11.GL_POINT_SPRITE_OES) //this is required!!!
+              //// http://stackoverflow.com/questions/13213227/gl-pointcoord-has-incorrect-uninitialized-value
+              Gdx.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE)
+              //log("drawing")
+              val pointShader = pointShaderOpt.get
+              val feedbackShader = feedbackShaderOpt.get
+              val powerShader = powerShaderOpt.get
+              val densityShader = densityShaderOpt.get
+              val pr = pointRenderer
+              val tr = textureRenderer
+              camera.update()
+              val i1 = if (swap) 0 else 1
+              val i2 = if (swap) 1 else 0
+
+              /**
+               * 力場をgpuでフレームバッファに加算合成することで作ることができるぞ！
+               */
+              //TODO viscocity etc..
+              val gl = Gdx.gl
+              import gl._
+
+              {
+                //update power map
+                import powerShader._
+                begin()
+                //stage.getCamera.position.set(0,0,0)
+                frameBuffers(i1).getColorBufferTexture.bind(0)
+                forceTexture.bind(1)
+                setUniformMatrix("u_projModelView", stage.getCamera.combined)
+                setUniformi("u_sampler0", 0)
+                setUniformi("u_sampler1", 1)
+                setUniformf("u_pointSize", MAP_RESOLUTION/RADIUS)
+                import GL20._
+                glDisable(GL_DEPTH_TEST)
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_ONE, GL_ONE)
+                //Gdx.gl20.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE)
+                powerMap.begin()
+                glClear(GL_COLOR_BUFFER_BIT)
+                particleVertices.render(powerShader, GL_POINTS)
+                powerMap.end()
+                end()
+              }
+
+              {
+                //update density map
+                import densityShader._
+                begin()
+                //stage.getCamera.position.set(0,0,0)
+                frameBuffers(i1).getColorBufferTexture.bind(0)
+                forceTexture.bind(1)
+                setUniformMatrix("u_projModelView", stage.getCamera.combined)
+                setUniformi("u_sampler0", 0)
+                setUniformi("u_sampler1", 1)
+                setUniformf("u_pointSize", MAP_RESOLUTION/RADIUS)
+                import GL20._
+                glDisable(GL_DEPTH_TEST)
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_ONE, GL_ONE)
+                //Gdx.gl20.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE)
+                densityMap.begin()
+                glClear(GL_COLOR_BUFFER_BIT)
+                particleVertices.render(densityShader, GL_POINTS)
+                densityMap.end()
+                end()
+              }
+
+              {
+                import feedbackShader._
+                Gdx.gl.glDisable(GL10.GL_BLEND)
+                //ping-pong the vel pos texture
+                begin()
+                frameBuffers(i1).getColorBufferTexture.bind(0) //this costs nothing.
+                powerMap.getColorBufferTexture.bind(1)
+                densityMap.getColorBufferTexture.bind(2)
+                //forceTexture.bind(1)
+                setUniformMatrix("u_projModelView", camera.combined)
+                setUniformi("u_sampler0", 0)
+                setUniformi("u_sampler1", 1)
+                setUniformi("u_sampler2", 2)
+                setUniformf("u_dt", 0.016f)
+                setUniformi("u_state", 0)
+                setUniformi("u_init", if (init) 1 else 0)
+                setUniformf("mouse", mouseX, mouseY)
+                frameBuffers(i2).begin()
+                rect.render(feedbackShader, GL10.GL_TRIANGLE_STRIP)
+                frameBuffers(i2).end()
+                end()
+                swap = !swap
+                init = false
+              }
+
+              {
+                // now draw particles with vel_pos texture
+                Gdx.gl.glEnable(GL10.GL_BLEND)
+                Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE)
+                pointShader.begin()
+                //stage.getCamera.position.set(0,0,0)
+                frameBuffers(i2).getColorBufferTexture.bind(0)
+                particleTexture.bind(1)
+                //forceTexture.bind(1)
+                powerMap.getColorBufferTexture.bind(2)
+                pointShader.setUniformMatrix("u_projModelView", stage.getCamera.combined)
+                pointShader.setUniformi("u_sampler0", 0)
+                pointShader.setUniformi("u_sampler1", 1)
+                pointShader.setUniformi("u_sampler2", 2)
+                pointShader.setUniformf("u_pointSize", 10)
+                particleVertices.render(pointShader, GL10.GL_POINTS)
+                pointShader.end()
+              }
+            } catch {
+              case e: Throwable => e.printStackTrace(); renderFailed = true
+            }
+          }
+        }
+      }
+    }
+
+    root.add(leftTable).fill.expand(142, 90)
+    root.add(rightTable).fill.expand(18, 90)
+    powerActor.toFront()
+
+    override def render(delta: Float): Unit = {
+      super.render(delta)
+      renderFunction()()
+      Gdx.gl.glActiveTexture(GL10.GL_TEXTURE0) // <= this is required
+    }
 
 
     def drawRect(r: ImmediateModeRenderer)(color: Color, x: Float, y: Float, w: Float, h: Float) {
@@ -266,23 +294,23 @@ class TransformFeedback extends ScreenBuilder with Logging {
     }
   }
 
-  def createForceField(size:Int):FloatBuffer = {
-    val result = BufferUtils.newFloatBuffer(size*size*4)
-    val center = new Vector2(size/2,size/2)
+  def createForceField(size: Int): FloatBuffer = {
+    val result = BufferUtils.newFloatBuffer(size * size * 4)
+    val center = new Vector2(size / 2, size / 2)
     val tmp = new Vector2()
-    val data = new Array[Float](size* size*4)
+    val data = new Array[Float](size * size * 4)
     var x = 0
-    while ( x < size){
+    while (x < size) {
       var y = 0
-      while(y < size){
-        val idx = (y*size + x)*4
-        tmp.set(x,y).sub(center)
+      while (y < size) {
+        val idx = (y * size + x) * 4
+        tmp.set(x, y).sub(center)
         val l2 = tmp.len2()
-        val amp = if(l2 > size/2*size/2 || l2 < 0.1) 0 else 1/l2
+        val amp = if (l2 > size / 2 * size / 2 || l2 < 0.0000001) 0 else 1f / l2
         tmp.nor()
         data(idx) = tmp.x * amp
-        data(idx + 1) =  tmp.y * amp
-        data(idx + 2) = 0
+        data(idx + 1) = tmp.y * amp
+        data(idx + 2) = amp
         data(idx + 3) = 1f
         y += 1
       }
@@ -292,10 +320,11 @@ class TransformFeedback extends ScreenBuilder with Logging {
     result.flip()
     result
   }
-  def createForceFieldTexture(size:Int):FloatTexture = new FloatTexture(size,size,createForceField(size))
+
+  def createForceFieldTexture(size: Int): FloatTexture = new FloatTexture(size, size, createForceField(size))
 }
 
-class FrameBuffer(val colorTexture:GLTexture,val hasDepth: Boolean) extends Disposable {
+class FrameBuffer(val colorTexture: GLTexture, val hasDepth: Boolean) extends Disposable {
 
   import FrameBuffer._
 
@@ -449,25 +478,26 @@ object FrameBuffer {
   def getManagedStatus: String = getManagedStatus(new StringBuilder).toString()
 }
 
-class FloatTexture(val width:Int,val height:Int,buffer:FloatBuffer ) extends GLTexture(GL10.GL_TEXTURE_2D,GLTextureWrapper.createGLHandle()){
+class FloatTexture(val width: Int, val height: Int, buffer: FloatBuffer) extends GLTexture(GL10.GL_TEXTURE_2D, GLTextureWrapper.createGLHandle()) {
   load()
 
-  def load(){
+  def load() {
     //load
     bind()
     //uploadImageData
     //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_HALF_FLOAT_OES, NULL) <= this seem to work on ios
     Gdx.gl.glTexImage2D(
       // target, level, internal format, width, height
-      GL10.GL_TEXTURE_2D,/*RGBA32F_ARB 0x8814*/ 0,0x8814, width, height,
+      GL10.GL_TEXTURE_2D, /*RGBA32F_ARB 0x8814*/ 0, 0x8814, width, height,
       // border, data format, data type, pixels
-      0, GL10.GL_RGBA,GL10.GL_FLOAT, buffer
+      0, GL10.GL_RGBA, GL10.GL_FLOAT, buffer
     )
     println(Gdx.gl.glGetString(GL10.GL_EXTENSIONS))
-    setFilter(minFilter,magFilter)
-    setWrap(uWrap,vWrap)
-    Gdx.gl.glBindTexture(glTarget,0)
+    setFilter(minFilter, magFilter)
+    setWrap(uWrap, vWrap)
+    Gdx.gl.glBindTexture(glTarget, 0)
   }
+
   //if managed, add managedtexture
   def getWidth: Int = width
 
@@ -479,6 +509,7 @@ class FloatTexture(val width:Int,val height:Int,buffer:FloatBuffer ) extends GLT
 
   def reload(): Unit = load()
 }
-object FloatTexture{
-  def apply(width:Int,height:Int):FloatTexture = new FloatTexture(width,height,BufferUtils.newFloatBuffer(width*height*4))
+
+object FloatTexture {
+  def apply(width: Int, height: Int): FloatTexture = new FloatTexture(width, height, BufferUtils.newFloatBuffer(width * height * 4))
 }
