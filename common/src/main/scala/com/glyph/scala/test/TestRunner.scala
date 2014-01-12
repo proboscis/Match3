@@ -71,6 +71,15 @@ class TestRunner(className: String)
           setBuilder(b)
       }
     }
+    Gdx.app.addLifecycleListener(new LifecycleListener {
+      def dispose(){
+        System.exit(0)
+      }
+
+      def pause(): Unit = {}
+
+      def resume(): Unit = {}
+    })
   }
 
   def tryToVnel2[T](t: Try[T]): ValidationNel[Throwable, T] = t match {

@@ -4,8 +4,9 @@
 varying vec2 v_texCoords;
 uniform sampler2D u_sampler0;// velocity and position
 uniform sampler2D u_sampler1;// power and viscosity map
+uniform sampler2D u_sampler2;// ages
 uniform float u_dt;
-uniform bool u_init;
+uniform int u_state;
 uniform vec2 mouse;
 vec2 rand(vec2 pos)
 {
@@ -18,10 +19,11 @@ vec2 rand(vec2 pos)
         )*22222.0
       )
     );
+
 }
 /*using an internal format:RGBA32F_ARB 0x8814 made this work!*/
 void main(){
-    if(u_init){
+    if(u_state == 1){
         vec2 r = rand(vec2(0.1,0.4));
         vec2 tex = v_texCoords;
         gl_FragColor = vec4(0,0,tex.x*960.0,tex.y*540.0);
@@ -32,16 +34,13 @@ void main(){
         vec2 d = vec2(480,270)-p;
         vec2 index = vec2(p.x/(960.0),p.y/540.0);
         vec4 power = texture2D(u_sampler1,index);
-        vec2 gravity = normalize(d)*0;
-        vec2 a = gravity + power.xy*10;
+        vec2 gravity = normalize(d) * 0;
+        vec2 a = gravity + power.xy* 10;
         vec2 nv = v + a * u_dt;
         vec2 np = p + nv * u_dt;
-        if(np.x < 0 || np.x > 960 || np.y < 0 || np.y > 540){
-            np = vec2(480,270);
-        }
         gl_FragColor = vec4(nv,np);
-
     }
+
 }
 /*
 // Fill the texture with the initial particle data

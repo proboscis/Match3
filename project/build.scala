@@ -3,7 +3,8 @@ import sbt._
 import Keys._
 import org.scalasbt.androidplugin._
 import org.scalasbt.androidplugin.AndroidKeys._
-
+import sbtassembly.Plugin._
+import AssemblyKeys._
 object Settings {
   val scalazVersion = "7.0.4"
   val liftVersion = "2.5"
@@ -40,9 +41,9 @@ object Settings {
     ,
     updateLibgdxTask
    )
-  lazy val desktop = Settings.common ++ Seq (
+  lazy val desktop = Settings.common ++  Seq (
     fork in Compile := true
-  )
+  ) 
   lazy val android = Settings.common ++
     AndroidProject.androidSettings ++
     AndroidMarketPublish.settings ++ Seq (
@@ -219,8 +220,8 @@ object LibgdxBuild extends Build {
   lazy val desktop = Project (
     "desktop",
     file("desktop"),
-    settings = Settings.desktop
-  ) dependsOn common
+    settings = Settings.desktop ++ assemblySettings 
+  ) dependsOn common 
 
   lazy val android = Project (
     "android",

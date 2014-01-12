@@ -17,7 +17,7 @@ object TestClass {
   type ->[A, B] = (A, B)
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
     classOf[ActionPuzzleTableScreen] ::
-  classOf[TransformFeedback]::
+    classOf[TransformFeedback]::
       classOf[VaryingScreen]::
       classOf[AnimatedHolderTest] ::
       classOf[ActorHolderTest] ::
