@@ -42,8 +42,8 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val feedbackShaderHandler = new ShaderHandler("shader/feedback.vert", "shader/feedback.frag")
     val textureRenderer = new ImmediateModeRenderer20(1000, false, true, 1)
     //TODO this format defines whether the texture2D in glsl returns clamped data or not
-    val PARTICLE_COUNT_W = 3000
-    val PARTICLE_COUNT_H = 3000
+    val PARTICLE_COUNT_W = 1000
+    val PARTICLE_COUNT_H = 1000
     val MAP_RESOLUTION = 200
     val frameBuffers = Array(1 to 2 map (_ => new GlyphFrameBuffer(FloatTexture(PARTICLE_COUNT_W, PARTICLE_COUNT_H), false)): _*)
     //TODO extend FrameBuffer to use my own Texture which internally uses FloatBuffer

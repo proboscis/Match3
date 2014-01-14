@@ -145,5 +145,4 @@ trait Popped extends ScreenBuilderSupport with Pop {
       }
     }
   }
-
 }

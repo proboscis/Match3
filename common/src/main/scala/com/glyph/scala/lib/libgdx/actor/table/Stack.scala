@@ -66,6 +66,13 @@ trait StackActor extends ActorHolder {
 trait Progressing {
   def progress: Float
 }
+
+/**
+ * use this task to load the assets
+ * @param assets
+ * @param progress
+ * @param am
+ */
 class AssetTask(assets:Assets)(progress:Float=>Unit)(implicit am:AssetManager)extends Task with AssetManagerOps{
   am.load(assets)
   protected var completed = am.isLoaded(assets)
