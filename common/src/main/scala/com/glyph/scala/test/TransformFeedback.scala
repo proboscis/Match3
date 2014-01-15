@@ -24,7 +24,7 @@ import Scalaz._
  */
 class TransformFeedback extends ScreenBuilder with Logging {
   def requirements: Set[(Class[_], Seq[String])] = Set(
-    classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png","data/penmark.jpg","data/yukich.png","data/picture.png")
+    classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png","data/penmark.jpg")
   )
 
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
@@ -42,8 +42,8 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val feedbackShaderHandler = new ShaderHandler("shader/feedback.vert", "shader/feedback.frag")
     val textureRenderer = new ImmediateModeRenderer20(1000, false, true, 1)
     //TODO this format defines whether the texture2D in glsl returns clamped data or not
-    val PARTICLE_COUNT_W = 960
-    val PARTICLE_COUNT_H = 540
+    val PARTICLE_COUNT_W = 1000
+    val PARTICLE_COUNT_H = 1000
     val MAP_RESOLUTION = 200
     val frameBuffers = Array(1 to 2 map (_ => new GlyphFrameBuffer(FloatTexture(PARTICLE_COUNT_W, PARTICLE_COUNT_H), false)): _*)
     //TODO extend FrameBuffer to use my own Texture which internally uses FloatBuffer
@@ -89,8 +89,6 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val dummyTexture: Texture = "data/dummy.png".fromAssets
     val particleTexture: Texture = "data/particle.png".fromAssets
     val penmark:Texture = "data/penmark.jpg".fromAssets
-    val yukichi:Texture = "data/yukich.png".fromAssets
-    val picture:Texture = "data/picture.png".fromAssets
     import Noise._
 
     val RESOLUTION = 400
@@ -172,7 +170,7 @@ class TransformFeedback extends ScreenBuilder with Logging {
                 pointShader.begin()
                 //stage.getCamera.position.set(0,0,0)
                 frameBuffers(i2).getColorBufferTexture.bind(0)
-                picture.bind(1)
+                penmark.bind(1)
                 pointShader.setUniformMatrix("u_projModelView", stage.getCamera.combined)
                 pointShader.setUniformi("u_sampler0", 0)
                 pointShader.setUniformi("u_sampler1", 1)

@@ -24,18 +24,22 @@ import com.glyph.scala.game.Glyphs
 import Glyphs._
 import scalaz.Scalaz
 import Scalaz._
+import com.glyph.scala.lib.libgdx.game.LimitDelta
+
 /**
  * @author glyph
  */
-class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reactor with Logging {
-  //TODO design the gauge
+class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reactor with Logging{
+  //TODO implement the basic system.
   //TODO GameOver
-  //TODO title screen
-  //TODO loading screen
-
+  //TODO Title screen
+  //TODO Loading screen
+  //TODO design the gauge
   //TODO what you can do to inject the dependency is to split the procedure into functions,
   //TODO and making a class as trait as much as possible
   //TODO so, do not declare val as much as possible. reusable objects do not have public values
+
+  //TODO do the initialization on another thread
 
   val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
   val game = new ComboPuzzle
@@ -126,7 +130,7 @@ object ActionPuzzleTable {
 class ActionPuzzleTableScreen extends ScreenBuilder {
   def requirements = ActionPuzzleTable.requiredAssets
 
-  def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
+  def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen with LimitDelta{
     backgroundColor = ColorTheme.varyingColorMap()("asbestos")
     override def configSrc: RVJSON = RVJSON(GdxFile("json/actionPuzzleConfig.js"))
 
