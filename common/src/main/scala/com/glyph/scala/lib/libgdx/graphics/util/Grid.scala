@@ -21,11 +21,5 @@ class Grid(nx:Int,ny:Int,var size:Float){
       x += 1
     }
     s.translate(tx,ty,0)
-    /*
-    s.setColor(Color.BLUE)
-    s.line(0,0,nx/2*size,0)
-    s.setColor(Color.RED)
-    s.line(0,0,0,ny/2*size)
-    */
   }
 }
