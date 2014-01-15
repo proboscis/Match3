@@ -1,7 +1,7 @@
 package com.glyph.scala.test
 
 import com.glyph.scala.lib.libgdx.game.ScreenBuilderSupport
-import com.glyph.scala.lib.libgdx.screen.{LoadingScreen, ScreenBuilder}
+import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, LoadingScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx._
@@ -9,11 +9,13 @@ import scala.util.Try
 import scalaz._
 import Scalaz._
 import com.glyph.scala.lib.libgdx.font.FontUtil
-import com.glyph.scala.lib.libgdx.DrawFPS
+import com.glyph.scala.lib.libgdx.{Builder, DrawFPS}
 import com.badlogic.gdx.Input.Keys
 import scala.collection.mutable
-import com.glyph.scala.lib.util.Logging
-import com.glyph.scala.lib.util.reactive.{Varying, VClass, Reactor}
+import com.glyph.scala.lib.util.{Animated, Logging}
+import com.glyph.scala.lib.util.reactive.{Var, Varying, VClass, Reactor}
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder
 
 /**
  * @author glyph
@@ -143,6 +145,18 @@ trait Popped extends ScreenBuilderSupport with Pop {
       } else {
         setScreenWithProcessor(current)
       }
+    }
+  }
+}
+
+class AnimatedRunner(tgt:Varying[Option[Class[Builder[Actor with Animated]]]]) extends ScreenBuilder{
+  def requirements: Set[(Class[_], Seq[String])] =Set()
+
+  def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen with Reactor{
+    val holder = new AnimatedBuilderHolder{}
+    root.add(holder).fill.expand
+    reactSome(tgt){
+      c => holder.push(c.newInstance())
     }
   }
 }

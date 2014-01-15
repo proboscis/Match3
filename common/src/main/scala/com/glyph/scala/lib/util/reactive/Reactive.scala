@@ -32,6 +32,7 @@ trait Reactive[T] {
     }
     onSubscribe(callback)
   }
+  //TODO make this out so that this can be covariant
   def notifyObservers(t: T) {
     import Reactive._
     stack += 1
