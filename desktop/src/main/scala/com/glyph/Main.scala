@@ -23,7 +23,6 @@ object Main {
                      gameClass: String = "",
                      height: Int = 1920 / 3,
                      width: Int = (1920 / 3 * 9d / 16d).toInt)
-
   implicit object ScoptClass extends scopt.Read[Class[_ <: ScreenBuilder]] {
     def arity: Int = 1
 
