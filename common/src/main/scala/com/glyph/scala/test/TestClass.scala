@@ -1,6 +1,6 @@
 package com.glyph.scala.test
 
-import com.glyph.scala.game.action_puzzle.view.{ActionPuzzleTable, ActionPuzzleTableScreen}
+import com.glyph.scala.game.action_puzzle.view.{TitleBuilder, ActionPuzzleTable, ActionPuzzleTableScreen}
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder._
 import scalaz.Success
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
@@ -9,6 +9,9 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.glyph.scala.lib.util.reactive.{VClass, Varying}
 import scala.reflect.ClassTag
+import com.glyph.scala.lib.libgdx.Builder
+import com.glyph.scala.lib.util.Animated
+import com.badlogic.gdx.scenes.scene2d.Actor
 
 /**
  * @author glyph
@@ -39,7 +42,10 @@ object TestClass {
       Nil
   val widgetGroupClasses: List[Class[_ <: WidgetGroup]] =
     classOf[ActionPuzzleTable] :: Nil
-  val classNameSet = builderClasses ++ screenClasses map (s =>s->s.getSimpleName)
+  //Classes are not covariant
+  val animatedClasses:List[Class[_ <: Builder[Actor with Animated]]] =
+    classOf[TitleBuilder]::Nil
+  val classNameSet = animatedClasses ++ builderClasses ++ screenClasses map (s =>s->s.getSimpleName)
   val classBuilders = builderClasses map (c => c.newInstance() -> c.getSimpleName)
   val fileBuilders = files map {
     f => createFromJson(f) -> f

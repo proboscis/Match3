@@ -12,7 +12,7 @@ import com.glyph.scala.lib.libgdx.Builder
 /**
  * @author glyph
  */
-class Title(implicit assets: AssetManager) extends WidgetGroup with Logging with Animated{
+class Title(implicit assets: AssetManager) extends WidgetGroup with Logging with Animated {
   val skin: Skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets[Skin]
   val table = new Table
   addActor(table)
@@ -53,6 +53,14 @@ class Title(implicit assets: AssetManager) extends WidgetGroup with Logging with
   def pause(cb: () => Unit): Unit = ???
 
   def resume(cb: () => Unit): Unit = ???
+}
+
+class TitleBuilder extends Builder[Title] {
+  def requirements: Set[(Class[_], Seq[String])] = Set(
+    classOf[Skin] -> Seq("skin/holo/Holo-dark-xhdpi.json")
+  )
+
+  def create(implicit assets: AssetManager): Title = new Title()
 }
 
 object TitleBuilder extends Builder[Title] {

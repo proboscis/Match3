@@ -35,18 +35,32 @@ class TestRunner(className: String)
 
 
   //typeOf[Int] <:< typeOf[String]
-
+  //TODO this function cannot be done without a class tag.
   def classToVSB(cls: Class[_]): Varying[Option[ScreenBuilder]] = cls match {
-    case c: Class[ScreenBuilder] => {
+    case c if classOf[ScreenBuilder].isAssignableFrom(c) => {
       VClass[ScreenBuilder](c.getCanonicalName).map(_.map(_.newInstance()))
     }
-    case c: Class[Screen] => VClass[Screen](c.getCanonicalName).map(_.map(
+    case c if classOf[Screen].isAssignableFrom(c) => VClass[Screen](c.getCanonicalName).map(_.map(
       scls => new ScreenBuilder {
         def requirements: Set[(Class[_], Seq[String])] = Set()
 
         def create(implicit assetManager: AssetManager): Screen = scls.newInstance()
       }
     ))
+    case c if classOf[Builder[Actor with Animated]].isAssignableFrom(c) => VClass[Builder[Actor with Animated]](c.getCanonicalName).map{
+      _.map{
+        c=>new ScreenBuilder{
+          val builder = c.newInstance()
+          def requirements: Set[(Class[_], Seq[String])] = builder.requirements
+
+          def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
+            val holder = new AnimatedBuilderHolder{}
+            root.add(holder).fill.expand
+            holder.push(builder)
+          }
+        }
+      }
+    }
   }
 
   override def create() {
@@ -145,18 +159,6 @@ trait Popped extends ScreenBuilderSupport with Pop {
       } else {
         setScreenWithProcessor(current)
       }
-    }
-  }
-}
-
-class AnimatedRunner(tgt:Varying[Option[Class[Builder[Actor with Animated]]]]) extends ScreenBuilder{
-  def requirements: Set[(Class[_], Seq[String])] =Set()
-
-  def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen with Reactor{
-    val holder = new AnimatedBuilderHolder{}
-    root.add(holder).fill.expand
-    reactSome(tgt){
-      c => holder.push(c.newInstance())
     }
   }
 }
