@@ -16,7 +16,7 @@ import com.badlogic.gdx.Game
 object Main {
   case class Config(
                      screenFile: String = "screens/action.js",
-                     resDir: File = new File("../common/src/main/resources/"),
+                     resDir: File = new File("../common/assets/"),
                      fileCheck: Boolean = false,
                      packTexture: Boolean = false,
                      testScreen: String = "",

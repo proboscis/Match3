@@ -46,7 +46,8 @@ object Settings {
           ""
         }
       }
-    )}
+    )},
+    sourcesInBase:=false
   )
 
   lazy val desktop = common ++ Seq(
@@ -187,3 +188,11 @@ object LibgdxBuild extends Build {
     settings = Settings.common)
     .aggregate(common, desktop, android, ios)
 }
+/*
+object MyTask{
+  lazy val runTest = TaskKey[Unit]("runTest", "run test key")
+  val runTestTask = fullRunTask(runTest,Test,"com.glyph.Main")
+  lazy val menuTest = TaskKey[Unit]("menuTest", "run menu test")
+  val menuTestTask = fullRunTask(menuTest,Test,"com.glyph.Main","-f","-t","com.glyph.scala.game.action_puzzle.view.ActionPuzzleTableScreen")
+}
+*/
