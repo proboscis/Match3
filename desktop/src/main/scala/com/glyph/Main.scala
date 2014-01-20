@@ -2,7 +2,6 @@ package com.glyph
 
 import _root_.java.io.File
 import _root_.scala.util.Try
-import com.badlogic.gdx.backends.lwjgl._
 import com.badlogic.gdx.tools.imagepacker.TexturePacker2
 import com.glyph.scala.lib.util.reactive.RFile
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
@@ -12,8 +11,10 @@ import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
 import com.glyph.scala.lib.libgdx.game.{ApplicationConfig, ConfiguredGame, ScreenTester}
 import com.glyph.scala.test.TestRunner
 import com.badlogic.gdx.Game
+import com.badlogic.gdx.backends.lwjgl.{LwjglApplication, LwjglApplicationConfiguration}
 
 object Main {
+
   case class Config(
                      screenFile: String = "screens/action.js",
                      resDir: File = new File("../common/assets/"),
@@ -23,6 +24,7 @@ object Main {
                      gameClass: String = "",
                      height: Int = 1920 / 3,
                      width: Int = (1920 / 3 * 9d / 16d).toInt)
+
   implicit object ScoptClass extends scopt.Read[Class[_ <: ScreenBuilder]] {
     def arity: Int = 1
 
@@ -106,7 +108,7 @@ object Main {
           }
           case util.Failure(f) =>
             testScreen match {
-              case "" => new LwjglApplication(new TestRunner, cfg)//TODO abstract this class or setGame
+              case "" => new LwjglApplication(new TestRunner, cfg) //TODO abstract this class or setGame
               case _ => new LwjglApplication(new TestRunner(testScreen), cfg)
               case _ => new LwjglApplication(new ScreenTester(testScreen), cfg)
             }
