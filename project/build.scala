@@ -4,15 +4,19 @@ import Defaults._
 
 import sbtandroid.AndroidPlugin._
 import sbtrobovm.RobovmPlugin._
-
-object Settings {
-  lazy val desktopJarName = SettingKey[String]("desktop-jar-name", "name of JAR file for desktop")
-
-  lazy val nativeExtractions = SettingKey[Seq[(String, NameFilter, File)]]("native-extractions", "(jar name partial, sbt.NameFilter of files to extract, destination directory)")
+object Constants{
   val scalazVersion = "7.0.4"
   val liftVersion = "2.5"
   val sVersion = "2.10.3"
   val gdxVersion = "1.0-SNAPSHOT"
+}
+
+object Settings {
+  import Constants._
+  lazy val desktopJarName = SettingKey[String]("desktop-jar-name", "name of JAR file for desktop")
+
+  lazy val nativeExtractions = SettingKey[Seq[(String, NameFilter, File)]]("native-extractions", "(jar name partial, sbt.NameFilter of files to extract, destination directory)")
+
   lazy val common = Defaults.defaultSettings ++ Seq(
     version := "0.1",
     scalaVersion := sVersion,
@@ -23,65 +27,58 @@ object Settings {
     resolvers ++= Seq("Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots","spray" at "http://repo.spray.io/"),
     libraryDependencies ++= Seq(
       "com.badlogicgames.gdx" % "gdx" % gdxVersion,
-      "com.github.scopt" %% "scopt" % "3.1.0", 
-        "org.scalaz" %% "scalaz-core" % scalazVersion,
-        "org.scalaz" %% "scalaz-effect" % scalazVersion,
-        "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
-        "net.liftweb" %% "lift-json" % liftVersion,
-        "io.spray" %%  "spray-json" % "1.2.5",
-        "com.googlecode.scalascriptengine" % "scalascriptengine" % ("1.3.7-"+sVersion),
-        "org.scala-lang" % "scala-compiler" % sVersion,
-        //"net.liftweb" %% "lift-json-scalaz" % liftVersion,
-        "org.scala-lang" % "scala-reflect" % sVersion,
-        "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
-        //libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.1"
-    ),
+      "org.scalaz" %% "scalaz-core" % scalazVersion,
+      "org.scalaz" %% "scalaz-effect" % scalazVersion,
+      "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
+      "net.liftweb" %% "lift-json" % liftVersion,
+      "io.spray" %%  "spray-json" % "1.2.5"
+      ),
     cancelable := true,
     proguardOptions <<= (baseDirectory) { (b) => Seq(
       scala.io.Source.fromFile(file("common/src/main/proguard.cfg")).getLines.map(_.takeWhile(_!='#')).filter(_!="").mkString("\n"), {
         val path = b/"src/main/proguard.cfg"
         if (path.exists()) {
           scala.io.Source.fromFile(b/"src/main/proguard.cfg").getLines.map(_.takeWhile(_!='#')).filter(_!="").mkString("\n")
-        } else {
-          ""
+          } else {
+            ""
+          }
         }
-      }
-    )},
+        )},
     sourcesInBase:=false
+    )
+
+lazy val desktop = common ++ Seq(
+  unmanagedResourceDirectories in Compile += file("common/assets"),
+  fork in Compile := true,
+  libraryDependencies ++= Seq(
+    "net.sf.proguard" % "proguard-base" % "4.8" % "provided",
+    "com.badlogicgames.gdx" % "gdx-backend-lwjgl" % gdxVersion,
+    "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion classifier "natives-desktop"
+    ),
+  Tasks.assembly,
+  desktopJarName := "actionpuzzle"
   )
 
-  lazy val desktop = common ++ Seq(
-    unmanagedResourceDirectories in Compile += file("common/assets"),
-    fork in Compile := true,
-    libraryDependencies ++= Seq(
-      "net.sf.proguard" % "proguard-base" % "4.8" % "provided",
-      "com.badlogicgames.gdx" % "gdx-backend-lwjgl" % gdxVersion,
-      "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion classifier "natives-desktop"
+lazy val android = common ++ Tasks.natives ++ Seq(
+  versionCode := 0,
+  keyalias := "change-me",
+  platformName := "android-10",
+  mainAssetsPath in Compile := file("common/assets"),
+  unmanagedJars in Compile <+= (libraryJarPath) (p => Attributed.blank(p)) map( x=> x),
+  libraryDependencies ++= Seq(
+    "com.badlogicgames.gdx" % "gdx-backend-android" % gdxVersion,
+    "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion % "natives" classifier "natives-armeabi",
+    "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion % "natives" classifier "natives-armeabi-v7a"
     ),
-    Tasks.assembly,
-    desktopJarName := "actionpuzzle"
-  )
-
-  lazy val android = common ++ Tasks.natives ++ Seq(
-    versionCode := 0,
-    keyalias := "change-me",
-    platformName := "android-10",
-    mainAssetsPath in Compile := file("common/assets"),
-    unmanagedJars in Compile <+= (libraryJarPath) (p => Attributed.blank(p)) map( x=> x),
-    libraryDependencies ++= Seq(
-      "com.badlogicgames.gdx" % "gdx-backend-android" % gdxVersion,
-      "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion % "natives" classifier "natives-armeabi",
-      "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion % "natives" classifier "natives-armeabi-v7a"
-    ),
-    nativeExtractions <<= (baseDirectory) { base => Seq(
-      ("natives-armeabi.jar", new ExactFilter("libgdx.so"), base / "lib" / "armeabi"),
-      ("natives-armeabi-v7a.jar", new ExactFilter("libgdx.so"), base / "lib" / "armeabi-v7a")
+  nativeExtractions <<= (baseDirectory) { base => Seq(
+    ("natives-armeabi.jar", new ExactFilter("libgdx.so"), base / "lib" / "armeabi"),
+    ("natives-armeabi-v7a.jar", new ExactFilter("libgdx.so"), base / "lib" / "armeabi-v7a")
     )}
   )
 
-  lazy val ios = common ++ Tasks.natives ++ Seq(
-    unmanagedResources in Compile <++= (baseDirectory) map { _ =>
-      (file("common/assets") ** "*").get
+lazy val ios = common ++ Tasks.natives ++ Seq(
+  unmanagedResources in Compile <++= (baseDirectory) map { _ =>
+    (file("common/assets") ** "*").get
     },
     forceLinkClasses := Seq("com.badlogic.gdx.scenes.scene2d.ui.*"),
     skipPngCrush := true,
@@ -91,11 +88,11 @@ object Settings {
     libraryDependencies ++= Seq(
       "com.badlogicgames.gdx" % "gdx-backend-robovm" % gdxVersion,
       "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion % "natives" classifier "natives-ios"
-    ),
+      ),
     nativeExtractions <<= (baseDirectory) { base => Seq(
       ("natives-ios.jar", new ExactFilter("libgdx.a") | new ExactFilter("libObjectAL.a"), base / "lib")
-    )}
-  )
+      )}
+    )
 }
 
 object Tasks {
@@ -112,12 +109,12 @@ object Tasks {
       val jars = up.select(configurationFilter("natives"))
       ne foreach { case (jarName, fileFilter, outputPath) =>
         jars find(_.getName.contains(jarName)) map { jar =>
-            IO.unzip(jar, outputPath, fileFilter)
+          IO.unzip(jar, outputPath, fileFilter)
         }
       }
-    },
-    compile in Compile <<= (compile in Compile) dependsOn (extractNatives)
-  )
+      },
+      compile in Compile <<= (compile in Compile) dependsOn (extractNatives)
+      )
 
   lazy val assemblyKey = TaskKey[Unit]("assembly", "Assembly desktop using Proguard")
 
@@ -145,49 +142,58 @@ object Tasks {
       "-injars", manifest,
       "-libraryjars", libraryJars,
       "-outjars", outfile)
-   
+
     s.log.info("preparing proguarded assembly")
     s.log.debug("Proguard command:")
     s.log.debug("java "+proguard.mkString(" "))
     val exitCode = Process("java", proguard) ! s.log
     if (exitCode != 0) {
       sys.error("Proguard failed with exit code [%s]" format exitCode)
-    } else {
-      s.log.info("Output file: "+outfile)
+      } else {
+        s.log.info("Output file: "+outfile)
+      }
     }
   }
-}
 
-object LibgdxBuild extends Build {
-  lazy val common = Project(
-    "common",
-    file("common"),
-    settings = Settings.common)
+  object LibgdxBuild extends Build {
+    import Constants._
+    lazy val common = Project(
+      "common",
+      file("common"),
+      settings = Settings.common )
 
-  lazy val desktop = Project(
-    "desktop",
-    file("desktop"),
-    settings = Settings.desktop)
+    lazy val desktop = Project(
+      "desktop",
+      file("desktop"),
+      settings = Settings.desktop++ Seq(
+        libraryDependencies ++= Seq(
+          "com.googlecode.scalascriptengine" % "scalascriptengine" % ("1.3.7-"+sVersion),
+          "org.scala-lang" % "scala-compiler" % sVersion,
+          "org.scala-lang" % "scala-reflect" % sVersion,
+          "org.scalacheck" %% "scalacheck" % "1.10.1" % "test",
+          "com.github.scopt" %% "scopt" % "3.1.0"
+          )
+        ))
     .dependsOn(common)
 
-  lazy val android = AndroidProject(
-    "android",
-    file("android"),
-    settings = Settings.android)
+    lazy val android = AndroidProject(
+      "android",
+      file("android"),
+      settings = Settings.android)
     .dependsOn(common)
 
-  lazy val ios = RobovmProject(
-    "ios",
-    file("ios"),
-    settings = Settings.ios)
+    lazy val ios = RobovmProject(
+      "ios",
+      file("ios"),
+      settings = Settings.ios)
     .dependsOn(common)
 
-  lazy val all = Project(
-    "all-platforms",
-    file("."),
-    settings = Settings.common)
+    lazy val all = Project(
+      "all-platforms",
+      file("."),
+      settings = Settings.common)
     .aggregate(common, desktop, android, ios)
-}
+  }
 /*
 object MyTask{
   lazy val runTest = TaskKey[Unit]("runTest", "run test key")

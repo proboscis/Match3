@@ -1,17 +1,15 @@
 package com.glyph.scala.lib.util.reactive
 
-import com.glyph.scala.lib.util.Logging
-import scala.reflect.io.{Directory, Path}
-import java.io.File
-import com.googlecode.scalascriptengine.{SourcePath, Config, ScalaScriptEngine}
 import scala.util.{Failure, Success, Try}
 import scala.reflect.ClassTag
 import com.badlogic.gdx.{Application, Gdx}
 import com.glyph.scala.lib.libgdx.GdxUtil
+import com.badlogic.gdx.Application.ApplicationType
 
-trait VClass{
-  def getClass[I,T<:I:ClassTag]:Varying[Option[Class[I]]]
-  def getClass[I](clsName:String):Varying[Option[Class[I]]]
+trait VClass {
+  def getClass[I, T <: I : ClassTag]: Varying[Option[Class[I]]]
+
+  def getClass[I](clsName: String): Varying[Option[Class[I]]]
 }
 
 object VClass {
@@ -21,12 +19,14 @@ object VClass {
   var srcDir = "./src/main/scala"
   var mirrorDir = "./.changed"
   var mirrorClassDirName = ".classes"
-  def desktopImpl = Class.forName("com.glyph.scala.lib.util.reactive.ClassScripter").getConstructor(classOf[String],classOf[String],classOf[String]).newInstance(srcDir, mirrorDir, mirrorDir + "/" + mirrorClassDirName).asInstanceOf[VClass]
+
+  lazy val desktopImpl = Class.forName("com.glyph.scala.lib.util.reactive.ClassScripter").getConstructor(classOf[String], classOf[String], classOf[String]).newInstance(srcDir, mirrorDir, mirrorDir + "/" + mirrorClassDirName).asInstanceOf[VClass]
+
   lazy val scripter = if (Gdx.app == null) {
     throw new RuntimeException("cannot create VClass the application is created")
   } else Gdx.app.getType match {
     case Android => throw new RuntimeException("cannot use VClass on android!")
-    case Desktop =>desktopImpl
+    case Desktop => desktopImpl
     case _ => throw new RuntimeException("VClass is not supported on this device")
   }
 
@@ -53,10 +53,10 @@ object VClass {
     if (Gdx.app == null) desktop
     else {
       Gdx.app.getType match {
-        case Android => nop
-        case Desktop => desktop
-        case iOS=> nop
-        case WebGL => nop
+        case ApplicationType.Android => nop
+        case ApplicationType.Desktop => desktop
+        case ApplicationType.iOS => nop
+        case ApplicationType.WebGL => nop
       }
     }
   }
