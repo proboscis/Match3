@@ -12,6 +12,7 @@ object Settings {
   val scalazVersion = "7.0.4"
   val liftVersion = "2.5"
   val sVersion = "2.10.3"
+  val gdxVersion = "1.0-SNAPSHOT"
   lazy val common = Defaults.defaultSettings ++ Seq(
     version := "0.1",
     scalaVersion := sVersion,
@@ -21,8 +22,7 @@ object Settings {
     scalacOptions ++= Seq("-Xlint", "-Ywarn-dead-code", "-Ywarn-value-discard", "-Ywarn-numeric-widen", "-unchecked", "-deprecation", "-feature"),
     resolvers ++= Seq("Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots","spray" at "http://repo.spray.io/"),
     libraryDependencies ++= Seq(
-      "com.badlogicgames.gdx" % "gdx" % "1.0-SNAPSHOT",
-      //"com.badlogicgames.gdx" % "gdx" % "0.9.9",
+      "com.badlogicgames.gdx" % "gdx" % gdxVersion,
       "com.github.scopt" %% "scopt" % "3.1.0", 
         "org.scalaz" %% "scalaz-core" % scalazVersion,
         "org.scalaz" %% "scalaz-effect" % scalazVersion,
@@ -55,8 +55,8 @@ object Settings {
     fork in Compile := true,
     libraryDependencies ++= Seq(
       "net.sf.proguard" % "proguard-base" % "4.8" % "provided",
-      "com.badlogicgames.gdx" % "gdx-backend-lwjgl" % "0.9.9",
-      "com.badlogicgames.gdx" % "gdx-platform" % "0.9.9" classifier "natives-desktop"
+      "com.badlogicgames.gdx" % "gdx-backend-lwjgl" % gdxVersion,
+      "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion classifier "natives-desktop"
     ),
     Tasks.assembly,
     desktopJarName := "actionpuzzle"
@@ -69,9 +69,9 @@ object Settings {
     mainAssetsPath in Compile := file("common/assets"),
     unmanagedJars in Compile <+= (libraryJarPath) (p => Attributed.blank(p)) map( x=> x),
     libraryDependencies ++= Seq(
-      "com.badlogicgames.gdx" % "gdx-backend-android" % "0.9.9",
-      "com.badlogicgames.gdx" % "gdx-platform" % "0.9.9" % "natives" classifier "natives-armeabi",
-      "com.badlogicgames.gdx" % "gdx-platform" % "0.9.9" % "natives" classifier "natives-armeabi-v7a"
+      "com.badlogicgames.gdx" % "gdx-backend-android" % gdxVersion,
+      "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion % "natives" classifier "natives-armeabi",
+      "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion % "natives" classifier "natives-armeabi-v7a"
     ),
     nativeExtractions <<= (baseDirectory) { base => Seq(
       ("natives-armeabi.jar", new ExactFilter("libgdx.so"), base / "lib" / "armeabi"),
@@ -89,8 +89,8 @@ object Settings {
     frameworks := Seq("UIKit", "OpenGLES", "QuartzCore", "CoreGraphics", "OpenAL", "AudioToolbox", "AVFoundation"),
     nativePath <<= (baseDirectory){ bd => Seq(bd / "lib") },
     libraryDependencies ++= Seq(
-      "com.badlogicgames.gdx" % "gdx-backend-robovm" % "0.9.9",
-      "com.badlogicgames.gdx" % "gdx-platform" % "0.9.9" % "natives" classifier "natives-ios"
+      "com.badlogicgames.gdx" % "gdx-backend-robovm" % gdxVersion,
+      "com.badlogicgames.gdx" % "gdx-platform" % gdxVersion % "natives" classifier "natives-ios"
     ),
     nativeExtractions <<= (baseDirectory) { base => Seq(
       ("natives-ios.jar", new ExactFilter("libgdx.a") | new ExactFilter("libObjectAL.a"), base / "lib")
