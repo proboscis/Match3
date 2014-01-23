@@ -12,6 +12,8 @@ object Constants{
 }
 object DependingProjects{
   lazy val util = RootProject(uri("https://github.com/proboscis/glyphs.git#master"))
+  lazy val libgdxUtil = RootProject(uri("https://github.com/proboscis/glyphs-libgdx.git#master"))
+
 }
 
 object Settings {
@@ -163,7 +165,7 @@ object Tasks {
     lazy val common = Project(
       "common",
       file("common"),
-      settings = Settings.common ).dependsOn(DependingProjects.util)
+      settings = Settings.common ).dependsOn(DependingProjects.util,DependingProjects.libgdxUtil)
 
     lazy val desktop = Project(
       "desktop",
