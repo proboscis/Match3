@@ -12,7 +12,8 @@ import scala.reflect.ClassTag
 import com.glyph.scala.lib.libgdx.Builder
 import com.glyph.scala.lib.util.Animated
 import com.badlogic.gdx.scenes.scene2d.Actor
-
+import scalaz._
+import Scalaz._
 /**
  * @author glyph
  */
@@ -52,6 +53,7 @@ object TestClass {
   } collect {
     case (Success(s), f) => s -> f
   }
+
   val pkgBuilders = screenClasses map {
     clazz => new ScreenBuilder {
       def requirements: Set[(Class[_], Seq[String])] = Set()

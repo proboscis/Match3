@@ -1,5 +1,6 @@
 package com.glyph
 
+import _root_.scala.util.{Success,Failure}
 import _root_.java.io.File
 import _root_.scala.util.Try
 import com.badlogic.gdx.tools.imagepacker.TexturePacker2
@@ -14,7 +15,6 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.backends.lwjgl.{LwjglApplication, LwjglApplicationConfiguration}
 
 object Main {
-
   case class Config(
                      screenFile: String = "screens/action.js",
                      resDir: File = new File("../common/assets/"),
@@ -95,7 +95,7 @@ object Main {
         cfg.width = width
         cfg.useGL20 = true
         Try(Class.forName(gameClass)) match {
-          case util.Success(s) => {
+          case Success(s) => {
             (s.newInstance() match {
               case game: ConfiguredGame => {
                 val ApplicationConfig(width, height) = game.deskTopConfig
@@ -106,7 +106,7 @@ object Main {
               case game => game
             }).asInstanceOf[Game] |> (new LwjglApplication(_, cfg))
           }
-          case util.Failure(f) =>
+          case Failure(f) =>
             testScreen match {
               case "" => new LwjglApplication(new TestRunner, cfg) //TODO abstract this class or setGame
               case _ => new LwjglApplication(new TestRunner(testScreen), cfg)

@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.{Interpolation, MathUtils, Vector2}
 import scalaz._
 import Scalaz._
+import com.glyph.util.Noise
 
 /**
  * @author glyph
@@ -217,107 +218,6 @@ class TransformFeedback extends ScreenBuilder with Logging {
     result
   }
 }
-
-object Noise{
-
-  def randomValues(n: Int): Array[Float] = Array.fill(n)(MathUtils.random(-1f, 1f))
-
-  def bilinear(a: Float, b: Float, c: Float, d: Float, ax: Float, ay: Float): Float = {
-    val _ax = 1f - ax
-    val _ay = 1f - ay
-    _ax * (a * _ay + b * ay) + ax * (c * _ay + d * ay)
-  }
-
-  def interpolate2D(vertices: IndexedSeq[Float], nx: Int, ny: Int)(ax: Float, ay: Float): Float = {
-    import MathUtils._
-    val dx = 1f / (nx - 1).toFloat
-    val dy = 1f / (ny - 1).toFloat
-    val ix = (clamp(ax, 0, 1) / dx).toInt
-    val iy = (clamp(ay, 0, 1) / dy).toInt
-    val nix = clamp(ix + 1, 0, nx - 1)
-    val niy = clamp(iy + 1, 0, ny - 1)
-    bilinear(vertices(iy * nx + ix),vertices(niy * nx + ix),vertices(iy * nx + nix),vertices(niy * nx + nix),(ax%dx)/dx,(ay%dy)/dy)
-  }
-  def nop2D(vertices: IndexedSeq[Float], nx: Int, ny: Int)(ax: Float, ay: Float): Float = {
-    import MathUtils._
-    val dx = 1f / (nx - 1).toFloat
-    val dy = 1f / (ny - 1).toFloat
-    val ix = (clamp(ax, 0, 1) / dx).toInt
-    val iy = (clamp(ay, 0, 1) / dy).toInt
-    val ia = iy * nx + ix
-    val a = vertices(ia)
-    a
-  }
-  def random2D(width: Int, height: Int, level: Int)= fill2D(width, height)(
-    interpolate2D(randomValues(level * level), level, level)
-  )
-
-  def fill2D(width: Int, height: Int)(values: (Float, Float) => Float): Array[Float] = {
-    val result = new Array[Float](width * height)
-    var x = 0
-    val wf = width.toFloat
-    val hf = height.toFloat
-    while (x < width) {
-      var y = 0
-      while (y < height) {
-        // println(x/wf,y/wf)
-        result(y * width + x) = values(x.toFloat / wf, y.toFloat / hf)
-        y += 1
-      }
-      x += 1
-    }
-    result
-  }
-
-  def float1DToFloat4D(data: Array[Float]): Array[Float] = {
-    val result = new Array[Float](data.length * 4)
-    var i = 0
-    val l = data.length
-    while (i < l) {
-      val ri = i * 4
-      result(ri) = data(i)
-      result(ri + 1) = 0
-      result(ri + 2) = 0
-      result(ri + 3) = 0
-      i += 1
-    }
-    result
-  }
-  def floatNDToFloatMD(dataSet:IndexedSeq[Array[Float]],dimension:Int):Array[Float]={
-    val dataDimension = dataSet.length
-    val result = new Array[Float](dataSet(0).length*dimension)
-    val l = dataSet(0).length
-    var i = 0
-    while (i < l) {
-      var y = 0
-      while(y < dimension){
-        result(i * dimension+y) = if(y < dataDimension) dataSet(y)(i) else 0
-        y += 1
-      }
-      i += 1
-    }
-    result
-  }
-  def generateNoise(level:Int) = {
-    val n = 1 << level
-    interpolate2D(Array.fill(n*n)(MathUtils.random(-1f,1f)),n,n)_
-  }
-  def generateNoises(min:Int,max:Int) = min to max map generateNoise
-  def generatePerlinNoise(min:Int,max:Int)(factor:Float=>Float):(Float,Float)=>Float = {
-    val noises = generateNoises(min,max)
-    val l = noises.length
-    (x:Float,y:Float)=>{
-      var i = 0
-      var sum = 0f
-      while(i < l){
-        sum += factor(i+1) * noises(i)(x,y)
-        i += 1
-      }
-      sum
-    }
-  }
-}
-
 
 
 

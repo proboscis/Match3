@@ -10,6 +10,9 @@ object Constants{
   val sVersion = "2.10.3"
   val gdxVersion = "1.0-SNAPSHOT"
 }
+object DependingProjects{
+  lazy val util = RootProject(uri("https://github.com/proboscis/glyphs.git#master"))
+}
 
 object Settings {
   import Constants._
@@ -20,6 +23,7 @@ object Settings {
   lazy val common = Defaults.defaultSettings ++ Seq(
     version := "0.1",
     scalaVersion := sVersion,
+    scalaBinaryVersion:= CrossVersion.binaryScalaVersion("2.10.3"),
     javacOptions ++= Seq("-encoding", "UTF-8", "-source", "1.6", "-target", "1.6"),
     scalacOptions ++= Seq("-encoding", "UTF-8", "-target:jvm-1.6"),
     javacOptions += "-Xlint",
@@ -30,7 +34,6 @@ object Settings {
       "org.scalaz" %% "scalaz-core" % scalazVersion,
       "org.scalaz" %% "scalaz-effect" % scalazVersion,
       "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
-      "net.liftweb" %% "lift-json" % liftVersion,
       "io.spray" %%  "spray-json" % "1.2.5"
       ),
     cancelable := true,
@@ -160,7 +163,7 @@ object Tasks {
     lazy val common = Project(
       "common",
       file("common"),
-      settings = Settings.common )
+      settings = Settings.common ).dependsOn(DependingProjects.util)
 
     lazy val desktop = Project(
       "desktop",
