@@ -12,8 +12,4 @@ addSbtPlugin("com.github.mpeltonen" % "sbt-android-plugin" % "0.6.3-SNAPSHOT")
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.3.0-SNAPSHOT")
 
-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.1.2")
-
-addSbtPlugin("org.ensime" % "ensime-sbt-cmd" % "0.1.1")
-
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.9.2")
