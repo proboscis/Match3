@@ -1,7 +1,7 @@
 package com.glyph.scala.test
 
 import com.glyph.scala.lib.libgdx.game.ScreenBuilderSupport
-import com.glyph.scala.lib.libgdx.screen.{LoadingScreen, ScreenBuilder}
+import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, LoadingScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx._
@@ -9,11 +9,13 @@ import scala.util.Try
 import scalaz._
 import Scalaz._
 import com.glyph.scala.lib.libgdx.font.FontUtil
-import com.glyph.scala.lib.libgdx.DrawFPS
+import com.glyph.scala.lib.libgdx.{Builder, DrawFPS}
 import com.badlogic.gdx.Input.Keys
 import scala.collection.mutable
-import com.glyph.scala.lib.util.Logging
-import com.glyph.scala.lib.util.reactive.{Varying, VClass, Reactor}
+import com.glyph.scala.lib.util.{Animated, Logging}
+import com.glyph.scala.lib.util.reactive.{Var, Varying, VClass, Reactor}
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder
 
 /**
  * @author glyph
@@ -33,18 +35,31 @@ class TestRunner(className: String)
 
 
   //typeOf[Int] <:< typeOf[String]
-
+  //TODO this function cannot be done without a class tag.
   def classToVSB(cls: Class[_]): Varying[Option[ScreenBuilder]] = cls match {
-    case c: Class[ScreenBuilder] => {
+    case c if classOf[ScreenBuilder].isAssignableFrom(c) =>
       VClass[ScreenBuilder](c.getCanonicalName).map(_.map(_.newInstance()))
-    }
-    case c: Class[Screen] => VClass[Screen](c.getCanonicalName).map(_.map(
+    case c if classOf[Screen].isAssignableFrom(c) => VClass[Screen](c.getCanonicalName).map(_.map(
       scls => new ScreenBuilder {
         def requirements: Set[(Class[_], Seq[String])] = Set()
 
         def create(implicit assetManager: AssetManager): Screen = scls.newInstance()
       }
     ))
+    case c if classOf[Builder[Actor with Animated]].isAssignableFrom(c) => VClass[Builder[Actor with Animated]](c.getCanonicalName).map{
+      _.map{
+        c=>new ScreenBuilder{
+          val builder = c.newInstance()
+          def requirements: Set[(Class[_], Seq[String])] = builder.requirements
+
+          def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
+            val holder = new AnimatedBuilderHolder{}
+            root.add(holder).fill.expand
+            holder.push(builder)
+          }
+        }
+      }
+    }
   }
 
   override def create() {
