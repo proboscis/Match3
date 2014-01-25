@@ -33,6 +33,7 @@ class ScorePopper extends Group with SpriteBatchRenderer with Logging{
   def showScoreParticle(x:Float,y:Float,height:Float,score: Int) {
     val sprites = WordParticle.StringToSprites(font)(score.toString)(0.7f)
     WordParticle.start(sprites, WordParticle.popSprites(sprites)(x - halfW(sprites), y, () => height-meanH(sprites), 0.7f))
+    log("show score")//TODO this is not called
   }
 
   override def act(delta: Float): Unit = {

@@ -3,7 +3,6 @@ package com.glyph.scala.game.action_puzzle.view
 import com.badlogic.gdx.scenes.scene2d.ui._
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.game.Glyphs
-import Glyphs._
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.glyph.scala.lib.util.{Animated, Logging}
 import com.badlogic.gdx.math.Interpolation
@@ -50,7 +49,6 @@ object Title{
 
     def resume(cb: () => Unit): Unit = ???
   }
-  def dummy:Builder[Actor with Animated] = ???
 }
 
 class TitleBuilder extends Builder[Actor with Animated] {

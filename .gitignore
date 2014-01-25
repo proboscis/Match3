@@ -15,5 +15,7 @@ target/
 #scala/java
 .class
 
+#log
+*.log
 #generated
 .changed/

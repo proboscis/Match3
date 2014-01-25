@@ -13,6 +13,7 @@ trait Scoring[A,B<:Actor]{
   def score:Int
   override protected def onTokenRemove(token: Token[A, B]): Unit = {
     self.onTokenRemove(token)
+    log("onTokenRemove")//TODO not called
     scorePopper.showScoreParticle(token.getX + token.getWidth/2,token.getY,token.getHeight/2,score)
   }
 }

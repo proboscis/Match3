@@ -13,6 +13,7 @@ trait Trailed[A,B<:Actor]{
   val trailRenderer = new ParticleRenderer[MyTrail](texture)
   addActor(trailRenderer)
   override protected def onTokenRemove(token: Token[A, B]){
+    self.onTokenRemove(token)
     trailRenderer.addParticles(token.getX+token.getWidth/2,token.getY+token.getHeight/2,token.getColor)
   }
 }

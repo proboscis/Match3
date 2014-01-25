@@ -7,7 +7,7 @@ import Scalaz._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.generic.CanBuildFrom
 import com.glyph.scala.lib.util.pool.Pool
-
+import scala.language.higherKinds
 /**
  * @author glyph
  */

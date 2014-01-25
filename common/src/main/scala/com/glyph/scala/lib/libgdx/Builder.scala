@@ -8,13 +8,15 @@ import com.glyph.scala.lib.libgdx.Builder.Assets
  * thing that require assets to be loaded should use this builder.
  * @tparam T
  */
-trait Builder[+T] {
-  self=>
+trait Builder[+T]{
   def requirements: Builder.Assets
   def create(implicit assets:AssetManager): T
-  def map[R](f:T=>R)= new Builder[R]{
-    def requirements: Builder.Assets = self.requirements
-    def create(implicit assets: AssetManager): R = f(self.create)
+  def map[R](f:T=>R):Builder[R] = {
+    val self = this
+    new Builder[R]{
+      def requirements: Builder.Assets = self.requirements
+      def create(implicit assets: AssetManager): R = f(self.create)
+    }
   }
 }
 object BuilderOps{
@@ -30,11 +32,6 @@ object BuilderOps{
       def create(implicit assets: AssetManager): B = f.create(assets)(fa.create(assets))
     }
   }
-  /*
-  val wa = ((am:AssetManager)=>3).set(Set():Assets)
-  val wb = ((am:AssetManager)=>10).set(Set():Assets)
-  val ab = (wa |@| wb)((a,b)=>(am:AssetManager)=>a(am)+b(am))
-  */
 }
 object Builder{
   type Assets = Set[(Class[_],Seq[String])]
