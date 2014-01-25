@@ -16,27 +16,16 @@ import scalaz._
 import Scalaz._
 import com.glyph.scala.lib.libgdx.Builder
 
-class MenuScreenBuilder extends Builder[MenuScreen] {
-  def requirements: Set[(Class[_], Seq[String])] = Set(
-    classOf[TextureAtlas] -> ("skin/default.atlas" :: Nil),
-    classOf[Skin] -> ("skin/holo/Holo-dark-xhdpi.json"::
-      "skin/holo/Holo-light-xhdpi.json" :: Nil)
-  )
-  def create(implicit assets: AssetManager) = new MenuScreen
-}
-class MenuScreen(implicit assets:AssetManager) extends ConfiguredScreen{
-  var onLaunch = (cls:Class[_])=>{}
+class MenuScreen[E](skin:Skin,elements:Seq[(String,E)],onLaunch:E=>Unit = (e:E)=>{}) extends ConfiguredScreen{
   debug() = false
   backgroundColor = Color.WHITE
-  val skin = assets.get[Skin]("skin/holo/Holo-light-xhdpi.json")
-  val tbStyle = skin.get("default", classOf[TextButtonStyle])
-  val list = classNameSet.map {
-    case (c, name) => name
+  val list = elements.map {
+    case (name,c) =>name
   }.toArray[Object] |> (new GdxList(_, skin))
   val button = new TextButton("launch", skin)
   button.addListener(new ChangeListener {
     def changed(p1: ChangeEvent, p2: Actor) {
-      classNameSet(list.getSelectedIndex)._1 |> onLaunch
+      elements(list.getSelectedIndex)._2 |> onLaunch
     }
   })
   val scrolling = new ScrollPane(list, skin)

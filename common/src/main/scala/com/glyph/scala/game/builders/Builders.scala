@@ -1,13 +1,17 @@
 package com.glyph.scala.game.builders
 
-import com.glyph.scala.lib.libgdx.Builder
+import com.glyph.scala.lib.libgdx.{BuilderOps, Builder}
 import com.badlogic.gdx.assets.AssetManager
 import scala.reflect.ClassTag
 import com.badlogic.gdx.scenes.scene2d.ui.{Label, Skin}
-import com.badlogic.gdx.graphics.Texture
-import com.glyph.scala.game.action_puzzle.view.Title
+import com.badlogic.gdx.graphics.{Color, Texture}
+import com.glyph.scala.game.action_puzzle.view.{ActionPuzzleTable, Title}
+import com.badlogic.gdx.Screen
 import scala.language.implicitConversions
-
+import scalaz._
+import Scalaz._
+import BuilderOps._
+import com.glyph.scala.test.MenuScreen
 /**
  * @author proboscis
  */
@@ -18,13 +22,16 @@ object Builders {
       def create(implicit assets: AssetManager): T = assets.get[T](name)
     }
   }
-
-  val darkHolo:Builder[Skin] = "skin/holo/Holo-dark-xhdpi.json".builder
-  val lightHolo:Builder[Skin] = "skin/holo/Holo-light-xhdpi.json".builder
-  val particleTexture:Builder[Texture] = "data/particle.png".builder
-  val dummyTexture:Builder[Texture] = "data/dummy.png".builder
-  val swordTexture:Builder[Texture] = "data/sword.png".builder
-  val roundRectTexture:Builder[Texture]="data/round_rect.png".builder
+  val darkHolo = "skin/holo/Holo-dark-xhdpi.json".builder[Skin]
+  val lightHolo = "skin/holo/Holo-light-xhdpi.json".builder[Skin]
+  val particleTexture = "data/particle.png".builder[Texture]
+  val dummyTexture = "data/dummy.png".builder[Texture]
+  val swordTexture = "data/sword.png".builder[Texture]
+  val roundRectTexture = "data/round_rect.png".builder[Texture]
   val label = (_:Builder[Skin]) map (skin=> new Label(_:String,skin))
   val title = label(lightHolo) map Title.apply
+  def menuScreenBuilder[E]:(Seq[(String,E)],E=>Unit)=>Builder[Screen] = (elements,cb)=>{lightHolo map (skin => new MenuScreen[E](skin,elements,cb))}
+  val actionPuzzleBuilder:Builder[ActionPuzzleTable] = (roundRectTexture |@| particleTexture |@| dummyTexture  |@| lightHolo )(new ActionPuzzleTable(_,_,_,_))
+  val actionPuzzleScreenBuilder:Builder[Screen] = actionPuzzleBuilder map ActionPuzzleTable.toScreen
+  val screenBuilders = Map("ActionPuzzle"->actionPuzzleScreenBuilder)
 }

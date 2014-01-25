@@ -12,7 +12,7 @@ import com.glyph.scala.lib.util.json.RJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import scala.collection.mutable
 import scala.util.{Failure, Success}
-
+import scala.language.implicitConversions
 /**
  * use table as a layout manager! and don't ever let them use drawing method.
  * @author glyph

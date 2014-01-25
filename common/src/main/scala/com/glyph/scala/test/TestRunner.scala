@@ -16,6 +16,7 @@ import com.glyph.scala.lib.util.{Animated, Logging}
 import com.glyph.scala.lib.util.reactive.{Var, Varying, VClass, Reactor}
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder
+import com.glyph.scala.game.builders.Builders
 
 /**
  * @author glyph
@@ -25,7 +26,6 @@ class TestRunner(className: String)
   with DrawFPS
   with Popped
   with Reactor {
-
 
   lazy val font = FontUtil.internalFont("font/corbert.ttf", Gdx.graphics.getHeight / 20)
 
@@ -66,7 +66,11 @@ class TestRunner(className: String)
     super.create()
     Gdx.input.setCatchBackKey(true)
     className match {
-      case "" => setBuilder(new MenuScreenBuilder {
+      case "" =>
+        //TODO make this work with VClass
+        setBuilder(Builders.menuScreenBuilder(TestClass.builders,setBuilder))
+        /*
+        setBuilder(new MenuScreenBuilder {
         override def create(implicit assets: AssetManager): MenuScreen = {
           val result = super.create(assets)
           result.onLaunch = cls => {
@@ -79,7 +83,7 @@ class TestRunner(className: String)
           }
           result
         }
-      })
+      })*/
       case c => reactSome(classToVSB(Class.forName(c))) {
         b =>
           popScreen(exit = false)

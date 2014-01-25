@@ -123,12 +123,7 @@ object ActionPuzzleTable {
     classOf[Texture] -> Seq("data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"),
     classOf[Skin] -> Seq("skin/holo/Holo-dark-xhdpi.json")
   )
-  import Builders._
-  import BuilderOps._
-  import scalaz._
-  import Scalaz._
-  val builder = (roundRectTexture |@| dummyTexture |@| particleTexture |@| lightHolo )(new ActionPuzzleTable(_,_,_,_))
-  val screenBuilder = builder map (table => new ConfiguredScreen with LimitDelta{
+  val toScreen = (table:ActionPuzzleTable) =>  new ConfiguredScreen with LimitDelta{
     backgroundColor = ColorTheme.varyingColorMap()("asbestos")
     override def configSrc: RVJSON = RVJSON(GdxFile("json/actionPuzzleConfig.js"))
 
@@ -137,7 +132,7 @@ object ActionPuzzleTable {
     }
     root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
     root.debug()
-  })
+  }
 }
 
 class ActionPuzzleTableScreen extends ScreenBuilder {
