@@ -7,7 +7,7 @@ import com.glyph.scala.lib.libgdx.actor.table.{BuilderSupport, StackActor, Actor
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Label}
 import com.glyph.scala.game.Glyphs
 import Glyphs._
-import com.glyph.scala.game.action_puzzle.view.TitleBuilder
+import com.glyph.scala.game.action_puzzle.view.{Title, TitleBuilder}
 
 /**
  * @author glyph
@@ -21,7 +21,7 @@ class ActorHolderTest extends ScreenBuilder {
     val skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets[Skin]
     val holder = new ActorHolder with StackActor with BuilderSupport
     val loadingLabel = new Label("Loading", skin)
-    holder.setFromBuilder(TitleBuilder)(loadingLabel)(f => loadingLabel.setText("%.0f".format(f)))
+    holder.setFromBuilder(Title.dummy)(loadingLabel)(f => loadingLabel.setText("%.0f".format(f)))
     root.add(holder).fill.expand()
   }
 }
