@@ -33,6 +33,7 @@ trait PoolingGdxOps {
     }
   }
   implicit object PoolingSpriteActorObject extends PoolingSpriteActor
+
   class WithTextureRegion(region:TextureRegion) extends PoolingSpriteActor{
     override def reset(tgt: SpriteActor): Unit = {
       super.reset(tgt)

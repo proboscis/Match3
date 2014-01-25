@@ -23,6 +23,8 @@ object Builders {
   val lightHolo:Builder[Skin] = "skin/holo/Holo-light-xhdpi.json".builder
   val particleTexture:Builder[Texture] = "data/particle.png".builder
   val dummyTexture:Builder[Texture] = "data/dummy.png".builder
+  val swordTexture:Builder[Texture] = "data/sword.png".builder
+  val roundRectTexture:Builder[Texture]="data/round_rect.png".builder
   val label = (_:Builder[Skin]) map (skin=> new Label(_:String,skin))
 
   val title = label(lightHolo) map Title.apply

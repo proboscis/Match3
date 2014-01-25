@@ -17,24 +17,17 @@ class LongedGame {
   def score: Int = 100
 }
 
-class Resource(implicit assets: AssetManager) {
-  val roundRect: Texture = "data/round_rect.png".fromAssets
-  val particle: Texture = "data/particle.png".fromAssets
-}
-
-class LongedTable(val assets: AssetManager) {
+class LongedTable(particleTex:Texture,roundTex:Texture) {
 
   import APViewTable._
-
-  val resource = new Resource()(assets)
   val game = new LongedGame
-  val main = new APView[Int, SpriteActor](game.puzzle)(textured(resource.roundRect), ClassTag(classOf[SpriteActor]))
+  val main = new APView[Int, SpriteActor](game.puzzle)(textured(roundTex), ClassTag(classOf[SpriteActor]))
     with Scoring[Int, SpriteActor]
     with Trailed[Int, SpriteActor]
     with AdditiveBlend{
     def score: Int = game.score
 
-    def texture: Texture = resource.particle
+    def texture: Texture = particleTex
   }
 }
 

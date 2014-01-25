@@ -16,8 +16,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.Screen
 import scala.reflect.ClassTag
-import com.glyph.scala.lib.libgdx.actor.blend.AdditiveBlend
-import com.glyph.scala.game.action_puzzle.screen.{APViewTable, Resource, Trailed, Scoring}
+import com.glyph.scala.game.action_puzzle.screen.{APViewTable, Trailed, Scoring}
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.game.Glyphs
@@ -25,11 +24,12 @@ import Glyphs._
 import scalaz.Scalaz
 import Scalaz._
 import com.glyph.scala.lib.libgdx.game.LimitDelta
+import com.glyph.scala.game.builders.Builders
 
 /**
  * @author glyph
  */
-class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reactor with Logging{
+class ActionPuzzleTable(roundTex:Texture,particleTex:Texture,dummyTex:Texture,skin:Skin) extends Table with Reactor with Logging{
   //TODO implement the basic system.
   //TODO GameOver
   //TODO Title screen
@@ -41,20 +41,17 @@ class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reacto
 
   //TODO do the initialization on another thread
 
-  val skin = assets.get[Skin]("skin/holo/Holo-dark-xhdpi.json")
   val game = new ComboPuzzle
-  val resource = new Resource()
 
   import game._
 
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
-  val view = new APView[Int, SpriteActor](game.puzzle)(APViewTable.textured(resource.roundRect), ClassTag(classOf[SpriteActor]))
+  val view = new APView[Int, SpriteActor](game.puzzle)(APViewTable.textured(roundTex), ClassTag(classOf[SpriteActor]))
     with Scoring[Int, SpriteActor]
     with Trailed[Int, SpriteActor]
     with Updating{
     def score: Int = game.score()
-
-    def texture: Texture = resource.particle
+    def texture: Texture = particleTex
   }
   view.add(easedScore)
   val scoreLabel = new RLabel(skin, easedScore.map("%.0f".format(_)))
@@ -84,7 +81,7 @@ class ActionPuzzleTable(implicit assets: AssetManager) extends Table with Reacto
   apViewCell.left.row
 
   val gaugeCell = this.add(new Table {
-    val back = SpriteActor(new Sprite(assets.get[Texture]("data/dummy.png")))
+    val back = SpriteActor(new Sprite(dummyTex))
     add(back).fill.expand
     time map (_ / 60f * getWidth) += back.setWidth
   })
@@ -125,6 +122,18 @@ object ActionPuzzleTable {
     classOf[Texture] -> Seq("data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"),
     classOf[Skin] -> Seq("skin/holo/Holo-dark-xhdpi.json")
   )
+  import Builders._
+  val builder = (roundRectTexture |@| dummyTexture |@| particleTexture |@| lightHolo )(new ActionPuzzleTable(_,_,_,_))
+  val screenBuilder = builder map (table => new ConfiguredScreen with LimitDelta{
+    backgroundColor = ColorTheme.varyingColorMap()("asbestos")
+    override def configSrc: RVJSON = RVJSON(GdxFile("json/actionPuzzleConfig.js"))
+
+    reactVar(config.background.as[String] ~ ColorTheme.varyingColorMap){
+      case str~map => backgroundColor = map.lift(str | "")|Color.WHITE
+    }
+    root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
+    root.debug()
+  })
 }
 
 class ActionPuzzleTableScreen extends ScreenBuilder {
@@ -137,8 +146,7 @@ class ActionPuzzleTableScreen extends ScreenBuilder {
     reactVar(config.background.as[String] ~ ColorTheme.varyingColorMap){
       case str~map => backgroundColor = map.lift(str | "")|Color.WHITE
     }
-    val table = new ActionPuzzleTable()(assetManager)
-    root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
+    //root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
     root.debug()
   }
 }

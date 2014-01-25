@@ -18,6 +18,7 @@ trait Builder[+T]{
       def create(implicit assets: AssetManager): R = f(self.create)
     }
   }
+  //flatMap cannot be created
 }
 object BuilderOps{
   implicit def applicativeBuilder = new Applicative[Builder]{
