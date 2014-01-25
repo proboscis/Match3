@@ -17,7 +17,6 @@ object TestClass {
   type ->[A, B] = (A, B)
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
     classOf[ActionPuzzleTableScreen] ::
-    classOf[TransformFeedback]::
       classOf[VaryingScreen]::
       classOf[AnimatedHolderTest] ::
       classOf[ActorHolderTest] ::
@@ -25,6 +24,7 @@ object TestClass {
       classOf[ParticleTest] ::
       classOf[UVTrailTest] ::
       classOf[ImmediateTest] ::
+      classOf[TransformFeedback]::
       classOf[WordParticle] :: Nil
   val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
   val screenClasses: List[Class[_ <: Screen]] =
