@@ -25,6 +25,7 @@ import scalaz.Scalaz
 import Scalaz._
 import com.glyph.scala.lib.libgdx.game.LimitDelta
 import com.glyph.scala.game.builders.Builders
+import com.glyph.scala.lib.libgdx.BuilderOps
 
 /**
  * @author glyph
@@ -123,6 +124,9 @@ object ActionPuzzleTable {
     classOf[Skin] -> Seq("skin/holo/Holo-dark-xhdpi.json")
   )
   import Builders._
+  import BuilderOps._
+  import scalaz._
+  import Scalaz._
   val builder = (roundRectTexture |@| dummyTexture |@| particleTexture |@| lightHolo )(new ActionPuzzleTable(_,_,_,_))
   val screenBuilder = builder map (table => new ConfiguredScreen with LimitDelta{
     backgroundColor = ColorTheme.varyingColorMap()("asbestos")

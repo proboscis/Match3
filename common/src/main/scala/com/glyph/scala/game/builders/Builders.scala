@@ -26,6 +26,5 @@ object Builders {
   val swordTexture:Builder[Texture] = "data/sword.png".builder
   val roundRectTexture:Builder[Texture]="data/round_rect.png".builder
   val label = (_:Builder[Skin]) map (skin=> new Label(_:String,skin))
-
   val title = label(lightHolo) map Title.apply
 }
