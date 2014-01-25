@@ -92,7 +92,8 @@ class TestRunner(className: String)
     }
     Gdx.app.addLifecycleListener(new LifecycleListener {
       def dispose(){
-        System.exit(0)
+         log("releasing assetManager")
+         assetManager.dispose()
       }
 
       def pause(): Unit = {}
