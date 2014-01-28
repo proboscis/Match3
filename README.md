@@ -1,4 +1,14 @@
-#Branch for CG report
+#Master
+
+TODO:
+
+* create SceneGraphs
+* manage resources
+* install adMob
+# release alpha
+* create MatchingSystem
+# release beta
+
 
 How to build
 
