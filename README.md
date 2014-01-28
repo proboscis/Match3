@@ -6,9 +6,8 @@ TODO:
 * create SceneGraphs
 * manage resources
 * install adMob
-* 
-#release beta
 
+#release beta
 * create MatchingSystem
 
 
