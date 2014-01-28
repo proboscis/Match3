@@ -2,12 +2,15 @@
 
 TODO:
 
+#release alpha
 * create SceneGraphs
 * manage resources
 * install adMob
-# release alpha
+* 
+#release beta
+
 * create MatchingSystem
-# release beta
+
 
 
 How to build
