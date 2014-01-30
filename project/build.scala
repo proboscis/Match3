@@ -24,6 +24,7 @@ object Settings {
         "org.scalaz" %% "scalaz-effect" % scalazVersion,
         "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
         "com.assembla.scala-incubator" %% "graph-core" % "1.7.2",
+        "com.chuusai" % "shapeless" % "2.0.0-M1" cross CrossVersion.full,
         "io.spray" %%  "spray-json" % "1.2.5")
       },
     //scalacOptions ++=Seq("-optimize"),
