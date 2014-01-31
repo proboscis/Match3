@@ -29,7 +29,6 @@ object BuilderOps{
 
     def ap[A, B](fa: => Builder[A])(f: => Builder[(A) => B]): Builder[B] =new Builder[B]{
       def requirements: Assets = fa.requirements ++ f.requirements
-
       def create(implicit assets: AssetManager): B = f.create(assets)(fa.create(assets))
     }
   }

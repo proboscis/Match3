@@ -1,5 +1,12 @@
 package com.glyph.scala.lib.util
 import scala.collection.{mutable=>m}
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.Screen
+import com.glyph.scala.lib.libgdx.screen.ConfiguredScreen
+import com.glyph.scala.lib.libgdx.{BuilderOps, Builder}
+import com.badlogic.gdx.assets.AssetManager
+import com.glyph.scala.game.builders.Builders
+import shapeless.PolyDefns.->
 
 /**
  * @author glyph
@@ -50,4 +57,23 @@ object Graph{
     case (a, b) if a == root => b
   }
   def relatives[G](root:G,set:Set[(G,G)]) = ancestors(root,set)++descendants(root,set)
+}
+object Mock{
+  import Builders._
+  import BuilderOps._
+  import scalaz._
+  import Scalaz._
+  def createScreenBuilder = dummyTexture as new ConfiguredScreen{}
+
+  def main(args: Array[String]){
+
+  }
+  class SceneGraph{
+
+  }
+  object SceneGraph{
+    type SetterBuilderPair[P] = ((P=>Unit)=>Unit,Builder[P=>Screen])
+    type BuilderEdge = (Builder[Screen],Set[SetterBuilderPair[_]])
+    //val a :BuilderEdge = (Builder())
+  }
 }
