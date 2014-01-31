@@ -35,6 +35,11 @@ object BuilderOps{
 }
 object Builder{
   type Assets = Set[(Class[_],Seq[String])]
+  def apply[T](assets:Assets,constructor:AssetManager=>T):Builder[T]= new Builder[T]{
+    def requirements: Assets = assets
+
+    def create(implicit assets: AssetManager): T = constructor(assets)
+  }
 }
 object BuilderTest{
   def main(args: Array[String]) {
