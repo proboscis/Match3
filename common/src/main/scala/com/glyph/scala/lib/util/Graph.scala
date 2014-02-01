@@ -68,12 +68,4 @@ object Mock{
   def main(args: Array[String]){
 
   }
-  class SceneGraph{
-
-  }
-  object SceneGraph{
-    type SetterBuilderPair[P] = ((P=>Unit)=>Unit,Builder[P=>Screen])
-    type BuilderEdge = (Builder[Screen],Set[SetterBuilderPair[_]])
-    //val a :BuilderEdge = (Builder())
-  }
 }

@@ -3,7 +3,7 @@ package com.glyph.scala.test
 import com.glyph.scala.game.action_puzzle.view.{TitleBuilder, ActionPuzzleTable, ActionPuzzleTableScreen}
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder._
 import scalaz.Success
-import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
+import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
@@ -12,6 +12,7 @@ import com.glyph.scala.lib.util.Animated
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph.scala.game.builders.Builders
 import scalaz.Success
+import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder
 
 /**
  * @author glyph
@@ -53,9 +54,19 @@ object TestClass {
   val pkgBuilders = screenClasses map {
     clazz => clazz.getSimpleName -> new ScreenBuilder {
       def requirements: Set[(Class[_], Seq[String])] = Set()
-
       def create(implicit assetManager: AssetManager): Screen = clazz.newInstance()
     }
   }
-  val builders: Seq[String -> Builder[Screen]] = Builders.screenBuilders.toSeq ++ classBuilders ++ pkgBuilders ++ fileBuilders
+  def animatedActorBuilderToScreenBuilder(actorBuilder:Builder[Actor with Animated]):Builder[Screen] =
+    Builder(actorBuilder.requirements,assets => new ConfiguredScreen {
+      val holder = new AnimatedBuilderHolder {}
+      root.add(holder).fill.expand
+      holder.push(actorBuilder)(assets)
+    })
+  val builders: Seq[String -> Builder[Screen]] =
+    (Builders.animatedBuilders mapValues animatedActorBuilderToScreenBuilder).toSeq ++
+      Builders.screenBuilders.toSeq ++
+      classBuilders ++
+      pkgBuilders ++
+      fileBuilders
 }

@@ -11,3 +11,4 @@ trait ActionOps {
       def run() = f()
     })
 }
+object ActionOps extends ActionOps
