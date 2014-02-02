@@ -2,11 +2,10 @@ package com.glyph.scala.lib.libgdx.actor.table
 
 import com.glyph.scala.lib.util.{Logging, Animated}
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.glyph.scala.lib.libgdx.Builder
+import com.glyph.scala.lib.libgdx.{BuilderExtractor, Builder}
 import com.glyph.scala.lib.libgdx.actor.Tasking
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.util.updatable.task.{Do, Sequence}
-import com.glyph.scala.lib.libgdx.actor.transition.BuilderExtractor
 import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder.{AnimatedActor, AnimatedBuilder}
 
 /**
@@ -116,11 +115,16 @@ trait AnimatedBuilderHolder2
   }
 
   protected def pauseCurrent() {
+    log("pause current")
     if (currentAnimated != null) {
+      log("current animated is not null")
       val view = currentAnimated
       view.pause(() => {
+        log("pause finish")
         view.remove()
       })
+    }else{
+      log("what a hell?")
     }
   }
 
@@ -154,7 +158,7 @@ trait AnimatedBuilderHolder2
     }(log)
   }
 
-  def infoText: String = s"AnimatedBuilderHolder2:$builderStack , $currentAnimated"
+  def infoText: String = s"AnimatedBuilderHolder2:$builderStack , ${"%x".format(currentAnimated.hashCode())}"
 }
 
 

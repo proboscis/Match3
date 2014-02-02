@@ -58,7 +58,7 @@ object AnimatedHolderTest {
       }
 
       val delayTime = 0.032f
-
+      import scala.language.existentials
       def come(cb: () => Unit)(right: Boolean) {
         table.setSize(getWidth, getHeight)
         table.layout()

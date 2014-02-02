@@ -1,6 +1,6 @@
 package com.glyph.scala.test
 
-import com.glyph.scala.game.action_puzzle.view.{TitleBuilder, ActionPuzzleTable}
+import com.glyph.scala.game.action_puzzle.view.ActionPuzzleTable
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder._
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
@@ -36,8 +36,7 @@ object TestClass {
       Nil
   val widgetGroupClasses: List[Class[_ <: WidgetGroup]] =
     classOf[ActionPuzzleTable] :: Nil
-  val animatedClasses: List[Class[_ <: Builder[Actor with Animated]]] =
-    classOf[TitleBuilder] :: Nil
+  val animatedClasses: List[Class[_ <: Builder[Actor with Animated]]] =  Nil
   val classNameSet = animatedClasses ++ builderClasses ++ screenClasses map (s => s.getSimpleName -> s)
   val classBuilders = builderClasses map (c => c.getSimpleName -> c.newInstance())
   val fileBuilders = files map {
