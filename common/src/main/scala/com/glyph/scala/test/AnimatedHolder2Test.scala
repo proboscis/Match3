@@ -23,6 +23,6 @@ object AnimatedHolder2Test{
     val title = Builders.title
     val push = holder.push(_:AnimatedBuilder)(assets)
     val manager = new AnimatedManager(Map(title->Map("dummy"->(push,title))))
-    manager.init(title,Map(),push)
+    manager.start(title,Map(),push)
   })
 }
