@@ -13,7 +13,7 @@ trait Logging {
   private def app = Option(Gdx.app)
   private def printer = (tag:String)=>(msg:String)=>println(tag+":"+msg)
   private def printerE = (tag:String)=>(msg:String)=>(e:Throwable) => println(tag+":"+msg+"\n"+e.getStackTraceString)
-  private def applyName[R] = (f:(String)=>R) => f(this.getClass.getSimpleName+"_%8x".format(System.identityHashCode(this)))
+  private def applyName[R] = (f:(String)=>R) => f(this.getClass.getName.replaceAll("anonfun|anon","@").replaceAll("\\$","-")+"_%8x".format(System.identityHashCode(this)))
   private def curry2[P,Q,R]:((P,Q)=>R)=>P=>Q=>R=f=>p=>q=>f(p,q)
   private def curry3[O,P,Q,R]:((O,P,Q)=>R)=>O=>P=>Q=>R=f=>o=>p=>q=>f(o,p,q)
   private def appLog:Log2 = ap => curry2(ap.log)

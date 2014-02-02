@@ -22,7 +22,7 @@ class ActorHolderTest extends ScreenBuilder {
     val skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets[Skin]
     val holder = new ActorHolder with StackActor with BuilderSupport
     val loadingLabel = new Label("Loading", skin)
-    holder.setFromBuilder(Builders.title("actorHolderTest",()=>{}))(loadingLabel)(f => loadingLabel.setText("%.0f".format(f)))
+    holder.setFromBuilder(Builders.title.map(_(Map())(Map())))(loadingLabel)(f => loadingLabel.setText("%.0f".format(f)))
     root.add(holder).fill.expand()
   }
 }

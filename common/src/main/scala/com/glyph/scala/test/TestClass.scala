@@ -1,8 +1,7 @@
 package com.glyph.scala.test
 
-import com.glyph.scala.game.action_puzzle.view.{TitleBuilder, ActionPuzzleTable, ActionPuzzleTableScreen}
+import com.glyph.scala.game.action_puzzle.view.{TitleBuilder, ActionPuzzleTable}
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder._
-import scalaz.Success
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.Screen
@@ -20,14 +19,13 @@ import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder
 object TestClass {
   type ->[A, B] = (A, B)
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
-      classOf[VaryingScreen] ::
+    classOf[VaryingScreen] ::
       classOf[AnimatedHolderTest] ::
       classOf[ActorHolderTest] ::
       classOf[TrailedParticleTest] ::
       classOf[ParticleTest] ::
       classOf[UVTrailTest] ::
       classOf[ImmediateTest] ::
-      classOf[TransformFeedback] ::
       classOf[WordParticle] :: Nil
   val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
   val screenClasses: List[Class[_ <: Screen]] =
@@ -35,37 +33,35 @@ object TestClass {
       classOf[ExplosionTest] ::
       classOf[MeshTest] ::
       classOf[TrailTest] ::
-      classOf[EffectTest] ::
-      classOf[FrameBufferTest] ::
-      classOf[WindowTest] ::
-      classOf[WindowTest2] ::
       Nil
   val widgetGroupClasses: List[Class[_ <: WidgetGroup]] =
     classOf[ActionPuzzleTable] :: Nil
   val animatedClasses: List[Class[_ <: Builder[Actor with Animated]]] =
     classOf[TitleBuilder] :: Nil
   val classNameSet = animatedClasses ++ builderClasses ++ screenClasses map (s => s.getSimpleName -> s)
-  val classBuilders = builderClasses map (c =>  c.getSimpleName ->c.newInstance())
+  val classBuilders = builderClasses map (c => c.getSimpleName -> c.newInstance())
   val fileBuilders = files map {
-    f =>  createFromJson(f)->f
+    f => createFromJson(f) -> f
   } collect {
-    case (Success(s), f) => f ->s
+    case (Success(s), f) => f -> s
   }
   val pkgBuilders = screenClasses map {
     clazz => clazz.getSimpleName -> new ScreenBuilder {
       def requirements: Set[(Class[_], Seq[String])] = Set()
+
       def create(implicit assetManager: AssetManager): Screen = clazz.newInstance()
     }
   }
-  def animatedActorBuilderToScreenBuilder(actorBuilder:Builder[Actor with Animated]):Builder[Screen] =
-    Builder(actorBuilder.requirements,assets => new ConfiguredScreen {
+
+  def animatedActorBuilderToScreenBuilder(actorBuilder: Builder[Actor with Animated]): Builder[Screen] =
+    Builder(actorBuilder.requirements, assets => new ConfiguredScreen {
       val holder = new AnimatedBuilderHolder {}
       root.add(holder).fill.expand
       holder.push(actorBuilder)(assets)
     })
+
   val builders: Seq[String -> Builder[Screen]] =
-    (Builders.animatedBuilders mapValues animatedActorBuilderToScreenBuilder).toSeq ++
-      Builders.screenBuilders.toSeq ++
+    Builders.screenBuilders.toSeq ++
       classBuilders ++
       pkgBuilders ++
       fileBuilders

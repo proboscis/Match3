@@ -29,6 +29,11 @@ trait ActorHolder extends WidgetGroup {
     super.layout()
     setSizeOfChildren()
   }
+
+  override def addActor(actor: Actor): Unit = {
+    super.addActor(actor)
+    setSizeOfChildren()
+  }
 }
 
 /**

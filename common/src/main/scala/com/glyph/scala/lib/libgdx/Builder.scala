@@ -11,18 +11,14 @@ import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.Assets
  */
 trait Builder[+T] {
   def requirements: Builder.Assets
-
   def create(implicit assets: AssetManager): T
-
   def map[R](f: T => R): Builder[R] = Builder(requirements,assets =>  f(create(assets)))
-
   //flatMap cannot be created
 }
 
 object BuilderOps {
   implicit def applicativeBuilder = new Applicative[Builder] {
     def point[A](a: => A): Builder[A] = Builder(Set(), _ => a)
-
     def ap[A, B](fa: => Builder[A])(f: => Builder[(A) => B]): Builder[B] = Builder(fa.requirements ++ f.requirements,assets =>  f.create(assets)(fa.create(assets)))
   }
 }

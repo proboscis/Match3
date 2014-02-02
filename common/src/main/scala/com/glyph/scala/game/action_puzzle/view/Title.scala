@@ -11,39 +11,51 @@ import scalaz._
 import Scalaz._
 import com.badlogic.gdx.scenes.scene2d.actions.Actions._
 import com.glyph.scala.lib.libgdx.actor.action.ActionOps
+import scala.collection.mutable
+import com.glyph.scala.lib.libgdx.actor.transition.AnimatedManager.{Callbacks, Info}
 
 object Title {
-  def apply(title: String,labelConstructor: String => Actor, startCallback: () => Unit) = new WidgetGroup with Animated with Logging {
-    val table = new Table
-    table.debug()
-    addActor(table)
-    val label = labelConstructor(title) <| addActor
-    val cell = table.add() <| (_.fill.expand.row)
+  def apply(labelConstructor: String => Actor): Info => Callbacks => Actor with Animated =
+    info =>
+      callbacks =>
+        new WidgetGroup with Animated with Logging {
+          log("title is created")
+          val table = new Table
+          table.debug()
+          addActor(table)
+          val label = labelConstructor((info.get("name") | "name is not set").toString) <| addActor
+          val cell = table.add() <| (_.fill.expand.row)
 
-    def animation(cb: () => Unit = () => {}) {
-      log(s"start animation:${cell.getWidgetX},${cell.getWidgetY}")
-      label.clearActions()
-      label.addAction(
-        sequence(
-          ActionOps.run(()=>{label.setPosition(400,400)}),
-          moveTo(cell.getWidgetX, cell.getWidgetY, 0.3f, Interpolation.exp10Out),
-          ActionOps.run(cb)
-        )
-      )
-    }
+          def animation(cb: () => Unit = () => {}) {
+            label.clearActions()
+            label.addAction(
+              sequence(
+                ActionOps.run(() => {
+                  label.setPosition(400, 400)
+                }),
+                moveTo(cell.getWidgetX, cell.getWidgetY, 0.3f, Interpolation.exp10Out),
+                ActionOps.run(()=>{
+                  cb()
+                  callbacks("dummy")(Map())
+                })
+              )
+            )
+          }
 
-    override def layout(): Unit = {
-      super.layout()
-      table.setSize(getWidth, getHeight)
-      table.layout()
-      animation()
-    }
+          override def layout(): Unit = {
+            super.layout()
+            table.setSize(getWidth, getHeight)
+            table.layout()
+          }
 
-    def in(cb: () => Unit): Unit = animation(cb)
-    def out(cb: () => Unit): Unit = animation(cb)
-    def pause(cb: () => Unit): Unit = animation(cb)
-    def resume(cb: () => Unit): Unit = animation(cb)
-  }
+          def in(cb: () => Unit): Unit = animation(cb)
+
+          def out(cb: () => Unit): Unit = animation(cb)
+
+          def pause(cb: () => Unit): Unit = animation(cb)
+
+          def resume(cb: () => Unit): Unit = animation(cb)
+        }
 }
 
 class TitleBuilder extends Builder[Actor with Animated] {
@@ -52,4 +64,16 @@ class TitleBuilder extends Builder[Actor with Animated] {
   )
 
   def create(implicit assets: AssetManager) = ???
+}
+
+class WaitCallback(onComplete: () => Unit) {
+  val callbackFlag = new mutable.HashMap[AnyRef, Boolean]() withDefault (_ => false)
+
+  def token[P, R](f: P => R): P => R = param => {
+    callbackFlag(f) = true
+    if (callbackFlag.values.forall(identity)) {
+      onComplete
+    }
+    f(param)
+  }
 }

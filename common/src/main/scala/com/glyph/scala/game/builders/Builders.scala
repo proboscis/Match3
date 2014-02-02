@@ -12,6 +12,7 @@ import scalaz._
 import Scalaz._
 import BuilderOps._
 import com.glyph.scala.test.MenuScreen
+import com.glyph.scala.test.AnimatedHolder2Test
 /**
  * @author proboscis
  */
@@ -28,11 +29,13 @@ object Builders {
   val dummyTexture = "data/dummy.png".builder[Texture]
   val swordTexture = "data/sword.png".builder[Texture]
   val roundRectTexture = "data/round_rect.png".builder[Texture]
-  val label = (_:Builder[Skin]) map (skin=> new Label(_:String,skin))
-  val title =(title:String,cb:()=>Unit)=> label(darkHolo) map (l => Title.apply(title,l,cb))
+  val label:Skin=>String=>Label = skin => new Label(_:String,skin)
+  val title = darkHolo map label map Title.apply
   def menuScreenBuilder[E]:(Seq[(String,E)],E=>Unit)=>Builder[Screen] = (elements,cb)=>{lightHolo map (skin => new MenuScreen[E](skin,elements,cb))}
   val actionPuzzleBuilder:Builder[ActionPuzzleTable] = (roundRectTexture |@| particleTexture |@| dummyTexture  |@| lightHolo )(new ActionPuzzleTable(_,_,_,_))
   val actionPuzzleScreenBuilder:Builder[Screen] = actionPuzzleBuilder map ActionPuzzleTable.toScreen
-  val screenBuilders = Map("ActionPuzzle"->actionPuzzleScreenBuilder)
-  val animatedBuilders = Map("Title"->title("Title",()=>{}))
+  val screenBuilders = Map(
+    "ActionPuzzle"->actionPuzzleScreenBuilder,
+    "AnimatedHolder2"->AnimatedHolder2Test.builder
+  )
 }
