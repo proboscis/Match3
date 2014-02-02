@@ -5,7 +5,7 @@ import com.badlogic.gdx.assets.AssetManager
 import scala.reflect.ClassTag
 import com.badlogic.gdx.scenes.scene2d.ui.{Label, Skin}
 import com.badlogic.gdx.graphics.{Color, Texture}
-import com.glyph.scala.game.action_puzzle.view.{ActionPuzzleTable, Title}
+import com.glyph.scala.game.action_puzzle.view.{ActionPuzzleTable}
 import com.badlogic.gdx.Screen
 import scala.language.implicitConversions
 import scalaz._
@@ -13,6 +13,8 @@ import Scalaz._
 import BuilderOps._
 import com.glyph.scala.test.MenuScreen
 import com.glyph.scala.test.AnimatedHolder2Test
+import com.glyph.scala.game.action_puzzle.view.animated.Title
+
 /**
  * @author proboscis
  */

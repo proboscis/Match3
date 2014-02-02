@@ -1,4 +1,4 @@
-package com.glyph.scala.game.action_puzzle.view
+package com.glyph.scala.game.action_puzzle.view.animated
 
 import com.badlogic.gdx.scenes.scene2d.ui._
 import com.glyph.scala.lib.util.{Animated, Logging}
@@ -39,7 +39,9 @@ object Title {
                 ActionOps.run(() => {
                   cb()
                   GdxUtil.post{// you must post!!! this bug is so hard to find the cause...
-                    callbacks("dummy")(Map())
+                    for(cb <- callbacks.get("dummy")){
+                      cb(Map())
+                    }
                   }
                 })
               )

@@ -7,7 +7,6 @@ import com.glyph.scala.lib.libgdx.actor.table.{BuilderSupport, StackActor, Actor
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Label}
 import com.glyph.scala.game.Glyphs
 import Glyphs._
-import com.glyph.scala.game.action_puzzle.view.{Title, TitleBuilder}
 import com.glyph.scala.game.builders.Builders
 
 /**
@@ -26,4 +25,5 @@ class ActorHolderTest extends ScreenBuilder {
     root.add(holder).fill.expand()
   }
 }
+
 //TODO アニメーションで画面を切り替えるにはテーブルの切り替えではなくデータ構造の切り替えをしなければならない
