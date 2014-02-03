@@ -28,7 +28,9 @@ object AnimatedHolder2Test{
     val manager = new AnimatedManager(
       Map(
         title->Map("dummy"->(push,menu)),
-        menu->Map()
+        menu->Map(
+          "1"->(push,title),
+          "2"->(push,menu))
       )
     )
     manager.start(title,Map(),push)

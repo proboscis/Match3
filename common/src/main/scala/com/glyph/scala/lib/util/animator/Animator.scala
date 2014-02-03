@@ -20,7 +20,7 @@ object Animator extends AnimatorOps {
   }
 }
 trait AnimatorOps {
-  implicit def var2Animating[T](v: Var[T]) = new Animator.Var2Animating[T](v)
+  //implicit def var2Animating[T](v: Var[T]) = new Animator.Var2Animating[T](v)
   class IPAnimator(var target: Animating[Float]) extends InterpolationTask with AutoFree{
     def this() = this(null)
     var start: Float = 0f

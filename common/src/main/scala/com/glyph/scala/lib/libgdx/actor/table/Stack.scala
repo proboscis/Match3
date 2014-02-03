@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.{Label, Skin, Table, WidgetGroup}
 import com.badlogic.gdx.scenes.scene2d.Actor
 import scala.collection.mutable
 import scala.util.Try
-import com.glyph.scala.lib.util.updatable.task.{Do, Sequence, Task}
+import com.glyph.scala.lib.util.updatable.task.{Block, Do, Sequence, Task}
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.libgdx.actor.Tasking
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.Assets
@@ -102,7 +102,7 @@ trait TaskSupport extends StackActor with Tasking{
     } else {
       callRemoveOfTop()
       addActor(view)
-      add(Sequence(task,Do{
+      add(Sequence(task,Block{
         view.remove()
         callback()
       }))

@@ -1,6 +1,7 @@
 package com.glyph.scala.lib.util.updatable.task
 
 import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.game.Glyphs
 
 trait Accessor[T] {
   def size: Int
@@ -73,4 +74,9 @@ class Interpolator[T] extends InterpolationTask with AutoFree with Logging {
     accessor = null.asInstanceOf[Accessor[T]]
     size = 0
   }
+}
+object Interpolate{
+  import com.glyph.scala.lib.util.pool.GlobalPool.globals
+  implicit val gen =  Glyphs.genPooling[Interpolator[AnyRef]]
+  def apply[T](target:T):Interpolator[T] = globals(classOf[Interpolator[AnyRef]]).auto.asInstanceOf[Interpolator[T]] set target
 }

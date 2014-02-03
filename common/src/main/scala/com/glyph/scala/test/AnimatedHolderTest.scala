@@ -73,7 +73,7 @@ object AnimatedHolderTest {
             seq.add(it set label of ActorAccessor.XY to(cell.getWidgetX, cell.getWidgetY) in 0.3f using Interpolation.exp10Out)
             par.add(seq)
         }
-        add(Sequence(par, Do(cb())))
+        add(Sequence(par, Do(cb)))
       }
 
       def go(cb: () => Unit)(right: Boolean) {
@@ -87,12 +87,12 @@ object AnimatedHolderTest {
             val it = new Interpolator[Actor]
             seq.add(Delay(i * delayTime))
             seq.add(it set label of ActorAccessor.XY to(if (right) getWidth else -getWidth, cell.getWidgetY) in 0.3f using Interpolation.exp10Out)
-            seq.add(Do {
+            seq.add(Block {
               log(i + " done")
             })
             par.add(seq)
         }
-        add(Sequence(par, Do(cb())))
+        add(Sequence(par, Do(cb)))
       }
 
       //table.debug()

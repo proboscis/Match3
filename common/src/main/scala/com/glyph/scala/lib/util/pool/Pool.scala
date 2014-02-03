@@ -7,7 +7,6 @@ import com.glyph.scala.lib.util.pool.Pool.PooledAny
 
 trait Pooling[T] {
   def newInstance: T
-
   def reset(tgt: T)
 }
 
@@ -29,14 +28,16 @@ trait Poolable extends Logging {
   }
 }
 
-class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
-  log("created a pool for:" + implicitly[ClassTag[P]])
+class Pool[P: Pooling](val max: Int,cls:Class[P]) extends Logging {
+  def this(m:Int,tag:ClassTag[P]) = this(m,tag.runtimeClass.asInstanceOf[Class[P]])
+  log("created a pool for:"+cls.getSimpleName)
   private val pool = new com.badlogic.gdx.utils.Array[P]()
 
   def manual: P = {
     if (pool.size == 0) {
-      log("created new instance!:" + implicitly[ClassTag[P]].runtimeClass.getSimpleName)
-      implicitly[Pooling[P]].newInstance
+      val result = implicitly[Pooling[P]].newInstance
+      log("created new instance!:" + cls.getSimpleName)
+      result
     } else {
       pool.pop()
     }
@@ -72,8 +73,8 @@ class Pool[P: Pooling : ClassTag](val max: Int) extends Logging {
 }
 
 object Pool {
-  def apply[T: Pooling : ClassTag](size: Int): Pool[T] = new Pool(size)
-
+  def apply[T:Pooling](cls:Class[T],size:Int):Pool[T] = new Pool(size,cls)
+  def apply[T: Pooling : ClassTag](size: Int): Pool[T] = new Pool(size,implicitly[ClassTag[T]])
   /*
   def apply[T <: {def reset()} : ClassTag](constructor: () => T)(size: Int): Pool[T] = {
     implicit val pooler = new Pooling[T] {
@@ -89,7 +90,8 @@ object Pool {
       def newInstance: T = constructor()
       def reset(tgt: T): Unit = finalizer(tgt)
     }
-    new Pool(size)(pooling, implicitly[ClassTag[T]])
+    val tag = implicitly[ClassTag[T]]
+    new Pool(size,tag)(pooling)
   }
 
   implicit class PooledAny[T](val self: T) extends AnyVal {
@@ -103,3 +105,4 @@ trait PoolOps {
   def preAlloc[T:Pool](size:Int):Unit = implicitly[Pool[T]].preAlloc(size)
   implicit def AnytoPooledAny[T](tgt:T):PooledAny[T] = new PooledAny[T](tgt)
 }
+object PoolOps extends PoolOps

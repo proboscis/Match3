@@ -161,14 +161,14 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       val taskA = swipeAnimation(nx, ny, pa)
       val seqA = auto[Sequence]
       seqA.add(taskA)
-      seqA.add(Do {
+      seqA.add(Block {
         //TODO fix ALLOCATION!!!
         pa.swipeAnimation -= taskA
       })
       val taskB = swipeAnimation(x, y, pb)
       val seqB = auto[Sequence]
       seqB.add(taskB)
-      seqB.add(Do {
+      seqB.add(Block {
         //TODO fix ALLOCATION!!!
         pb.swipeAnimation -= taskB
       })
@@ -177,7 +177,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       par.add(seqA)
       par.add(seqB)
       seq.add(par)
-      seq.add(Do {
+      seq.add(Block {
         //TODO ALLOCATION!
         if (verified(x)(y)(nx)(ny)) {
           GMatch3.swap(fixed, x, y, nx, ny)

@@ -3,7 +3,8 @@ package com.glyph.scala.lib.util.pooling_task
 import com.glyph.scala.lib.util.pool.Pooling
 import scala.reflect.ClassTag
 import com.glyph.scala.lib.util.Logging
-
+import scala.collection.mutable
+import scala.language.reflectiveCalls
 object ReflectedPooling extends Logging{
 
   /*

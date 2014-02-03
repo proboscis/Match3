@@ -15,4 +15,5 @@ trait PoolingTask {
   implicit val poolingSequence = genPooling(classOf[Sequence])
   implicit val poolingIntegratingTask = genPooling(classOf[IntegratingFTask])
   */
+  implicit val poolingAutoFreeTask = genPooling[AutoFree]
 }

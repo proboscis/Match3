@@ -5,7 +5,7 @@ import com.glyph.scala.lib.util.Logging
 /**
  * @author glyph
  */
-trait TimedTask extends Task with Logging{
+trait TimedTask extends Task with Logging with AutoFree{
   self =>
   protected var duration: Float = 0f
   protected var time = 0f
