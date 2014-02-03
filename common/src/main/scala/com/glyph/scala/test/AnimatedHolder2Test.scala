@@ -7,7 +7,7 @@ import com.glyph.scala.lib.libgdx.screen.ConfiguredScreen
 import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder2
 import com.glyph.scala.lib.libgdx.actor.transition.AnimatedManager
 import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder.AnimatedBuilder
-import com.glyph.scala.game.action_puzzle.view.animated.Menu
+import com.glyph.scala.game.action_puzzle.view.animated.{AnimatedPuzzleTable, Menu}
 
 /**
  * @author glyph
@@ -24,13 +24,16 @@ object AnimatedHolder2Test{
     val holder = new AnimatedBuilderHolder2{} <| (root.add(_).fill.expand)
     val title = Builders.title
     val menu = Builders.darkHolo map Menu.constructor
+    val puzzle =Builders.actionPuzzleBuilder map AnimatedPuzzleTable.animated
     val push = holder.push(_:AnimatedBuilder)(assets)
     val manager = new AnimatedManager(
       Map(
         title->Map("dummy"->(push,menu)),
         menu->Map(
           "1"->(push,title),
-          "2"->(push,menu))
+          "2"->(push,menu),
+          "3"->(push,puzzle)
+        )
       )
     )
     manager.start(title,Map(),push)

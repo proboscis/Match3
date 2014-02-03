@@ -14,12 +14,6 @@ import com.glyph.scala.lib.libgdx.actor.action.ActionOps
 import com.glyph.scala.lib.libgdx.actor.Tasking
 import com.glyph.scala.lib.util.updatable.task._
 
-/**
- * @author glyph
- */
-class Menu {
-
-}
 
 object Menu {
   import scalaz._
