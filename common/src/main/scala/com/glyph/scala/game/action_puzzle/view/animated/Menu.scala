@@ -19,7 +19,6 @@ object Menu {
   import scalaz._
   import Scalaz._
   val constructor: Skin => AnimatedConstructor = skin => info => callbacks => new AnimatedTable{
-    debug()
     def label(any:Any) = new TextButton(any.toString,skin) <| (_.addListener(new ChangeListener{
       def changed(p1: ChangeEvent, p2: Actor){
         callbacks(any.toString)(Map())
@@ -44,6 +43,14 @@ class AnimatedTable extends Table with Animated with Logging with Tasking{
     cell
   }
 
+
+  override def layout(): Unit = {
+    super.layout()
+    for((actor,cell) <- actorLayouts){
+      actor.setSize(cell.getWidgetWidth,cell.getWidgetHeight)
+    }
+  }
+
   def setPositions(f: (Actor, Cell[_]) => (Float, Float)) {
     for ((actor, cell) <- actorLayouts) {
       val (x, y) = f(actor, cell)
@@ -51,10 +58,9 @@ class AnimatedTable extends Table with Animated with Logging with Tasking{
     }
   }
 
-  def moveToPositions(f: (Actor, Cell[_]) => (Float, Float))(cb:()=>Unit) {
+  def moveToPositions(f: (Actor, Cell[_]) => (Float, Float),duration:Float = 0.5f)(cb:()=>Unit) {
     val size = actorLayouts.size
     var i = 0
-    val duration = 0.5f
     val par = Parallel()
     for ((actor, cell) <- actorLayouts) {
       import Interpolation._
@@ -75,7 +81,7 @@ class AnimatedTable extends Table with Animated with Logging with Tasking{
   }
 
   def out(cb: () => Unit) {
-    moveToPositions((actor, cell) => (-actor.getWidth, cell.getWidgetY))(cb)
+    moveToPositions((actor, cell) => (-actor.getWidth, cell.getWidgetY),0.2f)(cb)
   }
 
   def pause(cb: () => Unit): Unit = out(cb)
