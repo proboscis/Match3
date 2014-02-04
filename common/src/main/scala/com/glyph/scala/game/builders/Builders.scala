@@ -37,7 +37,7 @@ object Builders {
   val title = lightHolo map label map Title.apply
   def menuScreenBuilder[E]:(Seq[(String,E)],E=>Unit)=>Builder[Screen] = (elements,cb)=>{lightHolo map (skin => new MenuScreen[E](skin,elements,cb))}
   val actionPuzzleBuilder:Builder[ActionPuzzleTable] = (roundRectTexture |@| particleTexture |@| dummyTexture  |@| darkHolo )(new ActionPuzzleTable(_,_,_,_))
-  val actionPuzzleFunctionBuilder:Builder[Future[AnimatedConstructor]] = (roundRectTexture |@| particleTexture |@| dummyTexture |@| darkHolo)((a,b,c,d) =>ActionPuzzleTable.futurePuzzle(a,b,c,d).map(AnimatedPuzzleTable.animated)(ExecutionContext.Implicits.global))
+  val actionPuzzleFunctionBuilder:Builder[()=>Future[AnimatedConstructor]] = (roundRectTexture |@| particleTexture |@| dummyTexture |@| darkHolo)((a,b,c,d) =>()=>ActionPuzzleTable.futurePuzzle(a,b,c,d).map(AnimatedPuzzleTable.animated)(ExecutionContext.Implicits.global))
   val actionPuzzleScreenBuilder:Builder[Screen] = actionPuzzleBuilder map ActionPuzzleTable.toScreen
   val screenBuilders = Map(
     "ActionPuzzle"->actionPuzzleScreenBuilder,

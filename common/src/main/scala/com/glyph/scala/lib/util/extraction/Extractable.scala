@@ -29,3 +29,15 @@ object ExtractableFunction0 extends Extractable[Function0]{
   }
   override def isExtracted[T](target: () => T): Boolean = false
 }
+
+/**
+ * type lambda! for higher kinded types.
+ */
+object ExtractableFunctionFuture extends Extractable[({type l[A] = ()=>Future[A]})#l]{
+  import scala.concurrent.ExecutionContext.Implicits.global
+  override def extract[T](target: () => Future[T])(callback: (T) => Unit): Unit = target().onComplete{
+    case Success(s) => callback(s)
+    case Failure(f) => f.printStackTrace()
+  }
+  override def isExtracted[T](target: () => Future[T]): Boolean = false
+}

@@ -9,8 +9,9 @@ import com.glyph.scala.game.action_puzzle.view.animated.{AnimatedTable, Animated
 import com.glyph.scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
 import com.badlogic.gdx.graphics.{Color, Texture}
 import com.glyph.scala.lib.libgdx.actor.{Tasking, SpriteActor}
-import com.glyph.scala.lib.util.extraction.{ExtractableFuture, Extractable, ExtractableFunction0}
+import com.glyph.scala.lib.util.extraction.{ExtractableFunctionFuture, ExtractableFuture, Extractable, ExtractableFunction0}
 import com.badlogic.gdx.assets.AssetManager
+import scala.concurrent.Future
 
 object AnimatedHolder2Test {
   //TODO make unit test for animated classes
@@ -33,11 +34,12 @@ object AnimatedHolder2Test {
     implicit val _1 = assets
     implicit val _2 = holder
     implicit val builderExtractor = new BuilderExtractor2
-    implicit val functionExtractor = ExtractableFuture
+    implicit val functionExtractor = ExtractableFunctionFuture
     val title = extract(Builders.title)(a=>a)
     val menu = extract(Builders.lightHolo map Menu.constructor)(a=>a)
     val puzzleBuilder = Builders.actionPuzzleFunctionBuilder
-    val puzzle = extract(puzzleBuilder)(builder=>extract(builder)(a=>a))
+    //you need to specify the type lambda since the compiler cannot infer the nested higher kinded types.
+    val puzzle = extract(puzzleBuilder)(builder=>extract[({type l[A] = ()=>Future[A]})#l,AnimatedConstructor](builder)(a=>a))
     val push = holder.push(_: AnimatedActor)
 
     val manager = new AnimatedManager(
