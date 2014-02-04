@@ -128,5 +128,13 @@ object BuilderOpsModule{
   class AssetManagerOpsImpl(val am:AssetManager) extends AnyVal{
     def load(assets:Assets) = for ((c, files) <- assets; file <- files) am.load(file, c)
     def isLoaded(assets:Assets) = assets.forall(_._2.forall(am.isLoaded))
+    def unload(assets:Assets){
+      for{
+        (cls,files)<-assets
+        file <- files if am.isLoaded(file)
+      }{
+        am.unload(file)
+      }
+    }
   }
 }

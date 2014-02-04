@@ -9,7 +9,7 @@ import aurelienribon.tweenengine.{Tween, TweenAccessor}
  */
 object Test extends GdxTweenOps
 
-trait GdxTweenOps extends Logging {
+trait GdxTweenOps {
   Tween.setCombinedAttributesLimit(4)
 
   object SpriteAccessor extends TweenAccessor[Sprite] {

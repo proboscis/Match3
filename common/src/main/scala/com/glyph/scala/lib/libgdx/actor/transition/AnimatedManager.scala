@@ -5,10 +5,12 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import AnimatedManager._
 import com.glyph.scala.lib.libgdx.{BuilderExtractor, Builder}
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder.{AnimatedBuilder, AnimatedActor}
+import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder.AnimatedActor
 import com.glyph.scala.lib.libgdx.actor.Tasking
 import com.glyph.scala.lib.libgdx.actor.table.Layers
 import com.glyph.scala.lib.util.updatable.task.Task
+import com.glyph.scala.game.Glyphs
+import Glyphs._
 
 
 //TODO make this manager don't handle the builder and initializer and let the animated itself to handle it.
@@ -35,7 +37,42 @@ object AnimatedManager {
 }
 
 
-class AnimatedBuilderExtractor(info: Info, callbacks: Callbacks, builder: Builder[AnimatedConstructor])(implicit assets: AssetManager)
+trait LoadingAnimation extends AnimatedBuilderExtractor {
+  val loadingAnimation: AnimatedActor
+
+  override def onExtractionComplete(): Unit = {
+    super.onExtractionComplete()
+    if (getChildren.contains(loadingAnimation, true)) {
+      out(loadingAnimation)(()=>{})
+    }
+  }
+
+  override def in(cb: () => Unit): Unit = {
+    if (!builder.isReady) {
+      in(loadingAnimation)(() => {})
+    }else{
+      import scala.collection.JavaConversions._
+      assets.getAssetNames.iterator() foreach log
+    }
+    super.in(cb)
+  }
+
+  override def resume(cb: () => Unit): Unit = {
+    if (!builder.isReady) {
+      resume(loadingAnimation)(() => {})
+    }
+    super.resume(cb)
+  }
+
+  override def out(cb: () => Unit): Unit = {
+    if (getChildren.contains(loadingAnimation, true)) {
+      out(loadingAnimation)(()=>{})
+    }
+    super.out(cb)
+  }
+}
+
+class AnimatedBuilderExtractor(info: Info, callbacks: Callbacks, val builder: Builder[AnimatedConstructor])(implicit val assets: AssetManager)
   extends Layers
   with Animated
   with Tasking
@@ -44,7 +81,7 @@ class AnimatedBuilderExtractor(info: Info, callbacks: Callbacks, builder: Builde
   var extractTask: Task = null
   var constructed: AnimatedActor = null
 
-  def onExtractionComplete(){}
+  def onExtractionComplete() {}
 
   override def in(cb: () => Unit): Unit = {
     extractTask = extract(builder)(constructor => {
@@ -88,7 +125,6 @@ class AnimatedBuilderExtractor(info: Info, callbacks: Callbacks, builder: Builde
       in(constructed)(cb)
     })(log)
   }
-
 }
 
 trait AnimatedActorHolder extends Layers {
@@ -126,7 +162,7 @@ trait AnimatedActorHolder extends Layers {
   }
 }
 
-trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging{
+trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging {
   val builderStack = collection.mutable.Stack[AnimatedActor]()
   var currentAnimated: Actor with Animated = null
 
@@ -136,7 +172,7 @@ trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging{
     builderStack.push(animated)
   }
 
-  def pop(){
+  def pop() {
     outCurrent()
     if (!builderStack.isEmpty) {
       builderStack.pop()

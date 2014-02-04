@@ -20,7 +20,7 @@ object ReflectedPooling extends Logging {
   }*/
 }
 
-trait PoolingOps extends Logging {
+trait PoolingOps extends Logging{
   val poolingCache = mutable.HashMap[Class[_], Pooling[_]]()
   implicit def genPooling[T <: {def reset()} : Class]: Pooling[T] =
     poolingCache.getOrElseUpdate(implicitly[Class[T]],
