@@ -13,15 +13,20 @@ import com.glyph.scala.lib.libgdx.Builder
 
 trait Layers extends WidgetGroup {
   def setSizeOfChildren() {
-    val it = getChildren.iterator()
-    while (it.hasNext) {
-      val child = it.next
+    // this is called as nested ? how ?
+    val array = getChildren
+    val items = array.begin()
+    var i = 0
+    val L = array.size
+    while(i < L){
+      val child = items(i)
       child.setPosition(0, 0)
       child.setSize(getWidth, getHeight)
       child match{
         case c:Layout => c.layout()
         case _=> // do nothing
       }
+      i += 1
     }
   }
 
