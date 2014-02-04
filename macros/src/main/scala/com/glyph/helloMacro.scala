@@ -4,6 +4,8 @@ import scala.annotation.StaticAnnotation
 import scala.reflect.macros.Context
 import scala.language.experimental.macros
 import scala.annotation.StaticAnnotation
+
+
 /**
  * @author glyph
  */

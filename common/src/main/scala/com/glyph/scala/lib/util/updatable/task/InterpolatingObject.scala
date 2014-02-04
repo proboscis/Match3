@@ -77,6 +77,6 @@ class Interpolator[T] extends InterpolationTask with AutoFree with Logging {
 }
 object Interpolate{
   import com.glyph.scala.lib.util.pool.GlobalPool.globals
-  implicit val gen =  Glyphs.genPooling[Interpolator[AnyRef]]
-  def apply[T](target:T):Interpolator[T] = globals(classOf[Interpolator[AnyRef]]).auto.asInstanceOf[Interpolator[T]] set target
+  import Glyphs._
+  def apply[T](target:T):Interpolator[T] = auto[Interpolator[AnyRef]].asInstanceOf[Interpolator[T]] set target
 }

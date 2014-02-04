@@ -30,12 +30,12 @@ class Do(var block: ()=>Unit) extends Task with AutoFree{
   }
 }
 object Do{
-  import com.glyph.scala.lib.util.pool.GlobalPool.globals
-  implicit val gen = Glyphs.genPooling[Do]
-  def apply(f:()=>Unit):Do =  globals(classOf[Do]).auto.setCallback(f)
+  import com.glyph.scala.lib.util.pool.GlobalPool._
+  import Glyphs._
+  def apply(f:()=>Unit):Do =  auto[Do].setCallback(f)
 }
 object Block{
-  import com.glyph.scala.lib.util.pool.GlobalPool.globals
-  implicit val gen = Glyphs.genPooling[Do]
-  def apply(f: =>Unit):Do = globals(classOf[Do]).auto.setCallback(()=>f)
+  import com.glyph.scala.lib.util.pool.GlobalPool._
+  import Glyphs._
+  def apply(f: =>Unit):Do = auto[Do].setCallback(()=>f)
 }

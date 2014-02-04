@@ -1,6 +1,7 @@
 package com.glyph.scala.lib.util.updatable.task
 
 import com.glyph.scala.game.Glyphs
+import com.glyph.scala.lib.util.pool.Pool
 
 /**
  * @author glyph
@@ -17,9 +18,9 @@ class Sequence extends SequentialProcessor with Task with AutoFree{
 
 object Sequence {
   import com.glyph.scala.lib.util.pool.GlobalPool._
-  implicit val gen = Glyphs.genPooling[Sequence]
+  import Glyphs._
   def apply(tasks: Task*): Sequence = {
-    val seq = globals(classOf[Sequence]).auto
+    val seq = auto[Sequence]
     tasks foreach seq.add
     seq
   }

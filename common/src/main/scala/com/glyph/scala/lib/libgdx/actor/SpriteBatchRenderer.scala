@@ -66,13 +66,13 @@ trait SpriteBatchRenderer extends Group with SBDrawableObject{
 
 object SpriteBatchRenderer extends Logging{
   var pools: Class[_] Map Any = Map.empty.withDefault(_ => null)
-  implicit def rendererPool[T](implicit ev: SBDrawable[T], tag: Class[T], poolTag: ClassTag[PooledRenderer[T]]): Pool[PooledRenderer[T]] = {
+  implicit def rendererPool[T](implicit ev: SBDrawable[T], tag: Class[T], poolClass: Class[PooledRenderer[T]]): Pool[PooledRenderer[T]] = {
     val result = pools(tag)
     if (result != null) result.asInstanceOf[Pool[PooledRenderer[T]]]
     else {
       import PooledRenderer._
-      val created = Pool[PooledRenderer[T]](100)(genPoolingPooledRenderer[T], poolTag)
-      log("created a pool for : "+poolTag.runtimeClass)
+      val created = Pool[PooledRenderer[T]](100)(genPoolingPooledRenderer[T], poolClass)
+      log("created a pool for : "+poolClass)
       pools += (tag -> created)
       created
     }

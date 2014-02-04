@@ -1,12 +1,9 @@
 package com.glyph.scala.lib.util.reactive
 
-import ref.WeakReference
-import scala.util.{Success, Failure, Try}
-import java.util.Observer
-import com.glyph.scala.lib.util.collection.GlyphArray
+import scala.util.Try
 import com.glyph.scala.lib.util.pool.{Poolable, Pool, Pooling}
-import com.glyph.scala.lib.util.{Logging, reactive}
-import com.glyph.scala.lib.util
+import com.glyph.scala.lib.util.Logging
+import com.glyph.scala.game.Glyphs
 
 //TODO the observer is not released even if the reactive is disposed!!
 /**
@@ -18,6 +15,7 @@ trait Reactor {
   var reactorDebugMsg = " "
 
   import Reactor._
+
   def debugReaction(msg: String = "") {
     reactorDebugging = true
     reactorDebugMsg = msg
@@ -35,13 +33,13 @@ trait Reactor {
    */
   def reactVar[T](v: Varying[T])(callback: (T) => Unit): Observer[T] = {
     val observer = obtainObserver[T]
-    observer.init(this,v,callback)
+    observer.init(this, v, callback)
     observer
   }
 
-  def reactEvent[T](src: EventSource[T])(callback: (T) => Unit): Observer[T] ={
+  def reactEvent[T](src: EventSource[T])(callback: (T) => Unit): Observer[T] = {
     val observer = obtainObserver[T]
-    observer.init(this,src,callback)
+    observer.init(this, src, callback)
     observer
   }
 
@@ -52,10 +50,10 @@ trait Reactor {
    * @tparam T
    * @return
    */
-  def reactSome[T](v: Varying[Option[T]])(callback: (T) => Unit): Observer[Option[T]] ={
+  def reactSome[T](v: Varying[Option[T]])(callback: (T) => Unit): Observer[Option[T]] = {
     val observer = obtainObserver[Option[T]]
-    observer.init(this,v,opt =>{
-      if(opt.isDefined)callback(opt.get)
+    observer.init(this, v, opt => {
+      if (opt.isDefined) callback(opt.get)
     })
     observer
   }
@@ -68,10 +66,11 @@ trait Reactor {
    * @tparam R
    * @return
    */
-  def reactSuccess[T,R](v: Varying[Try[T]])(cb: (T) => R): Observer[Try[T]] = {
+  def reactSuccess[T, R](v: Varying[Try[T]])(cb: (T) => R): Observer[Try[T]] = {
     val observer = obtainObserver[Try[T]]
-    observer.init(this,v,t =>{
-      if(t.isSuccess)cb(t.get)else{
+    observer.init(this, v, t => {
+      if (t.isSuccess) cb(t.get)
+      else {
         t.failed.get.printStackTrace()
       }
     })
@@ -87,7 +86,7 @@ trait Reactor {
    */
   protected def reactAnd[T](v: Reactive[T])(callback: (T, Observer[T]) => Unit): Observer[T] = {
     val observer = obtainObserver[T]
-    observer.init(this,v,(t:T)=>{
+    observer.init(this, v, (t: T) => {
       callback(t, observer)
     })
     observer
@@ -118,26 +117,28 @@ trait Reactor {
     }
   }
 
-  
 
   def clearReaction() {
     val itr = observers.iterator()
-    while(itr.hasNext)itr.next().unSubscribe()
+    while (itr.hasNext) itr.next().unSubscribe()
   }
 
   def stopReact(r: Reactive[_]) {
     val itr = observers.iterator()
-    while(itr.hasNext){
+    while (itr.hasNext) {
       val next = itr.next()
-      if(next.reactive eq r)next.unSubscribe()
+      if (next.reactive eq r) next.unSubscribe()
     }
   }
 }
-class Observer[T] extends Poolable with Logging{
-  var partner:Reactor = null
+
+class Observer[T] extends Poolable with Logging {
+  var partner: Reactor = null
   var reactive: Reactive[T] = null
-  var f:T=>Unit = null// you cannot hook this function or the specialization will corrupt
-  def init(part:Reactor,reactive:Reactive[T],func:T=>Unit){
+  var f: T => Unit = null
+
+  // you cannot hook this function or the specialization will corrupt
+  def init(part: Reactor, reactive: Reactive[T], func: T => Unit) {
     this.partner = part
     this.reactive = reactive
     f = func
@@ -145,7 +146,7 @@ class Observer[T] extends Poolable with Logging{
     partner.reactors add this
   }
 
-  def reset(){
+  def reset() {
     partner = null
     reactive = null
   }
@@ -156,11 +157,11 @@ class Observer[T] extends Poolable with Logging{
   def unSubscribe() {
     def printReactiveObservers() {
       val itr = reactive.reactiveObservers.iterator()
-      while(itr.hasNext){
+      while (itr.hasNext) {
         val value = itr.next().underlying.get()
-        if(value != null){
+        if (value != null) {
           println("%x".format(value.hashCode()) + " " + partner)
-        }else{
+        } else {
           println("what a hell!" + null)
         }
       }
@@ -171,7 +172,7 @@ class Observer[T] extends Poolable with Logging{
     }
     reactive.unSubscribe(f)
     //reactive.validateObserver()
-    partner.reactors.removeValue(this,false)
+    partner.reactors.removeValue(this, false)
     if (partner.reactorDebugging) {
       println(partner.reactorDebugMsg + " : unSubscribe<=" + reactive)
       printReactiveObservers()
@@ -179,12 +180,17 @@ class Observer[T] extends Poolable with Logging{
     //freeToPool()
   }
 }
-object Reactor{
+
+object Reactor {
+
   //TODO you can't pool the observers since they are
-  implicit object PoolingObserver extends Pooling[Observer[_]]{
+  implicit object PoolingObserver extends Pooling[Observer[_]] {
     def newInstance: Observer[_] = new Observer[Any]
+
     def reset(tgt: Observer[_]): Unit = tgt.reset()
   }
+  import Glyphs._
   val observerPool = Pool[Observer[_]](10000)
-  def obtainObserver[T]:Observer[T] = new Observer[T]//observerPool.auto.asInstanceOf[Observer[T]]
+
+  def obtainObserver[T]: Observer[T] = new Observer[T] //observerPool.auto.asInstanceOf[Observer[T]]
 }

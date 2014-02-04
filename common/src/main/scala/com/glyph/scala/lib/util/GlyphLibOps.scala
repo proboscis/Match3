@@ -5,6 +5,7 @@ import com.glyph.scala.lib.util.pooling_task.{PoolingTask, PoolingOps}
 import com.glyph.scala.lib.scalaz.ScalazOps
 import com.glyph.scala.lib.util.reactive.{ReactiveOps, VaryingOps}
 import com.glyph.scala.lib.util.pool.PoolOps
+import com.glyph.ClassMacro
 
 /**
  * @author glyph
@@ -17,3 +18,4 @@ trait GlyphLibOps
   with PoolOps
   with PoolingOps
   with PoolingTask
+  with ClassMacro

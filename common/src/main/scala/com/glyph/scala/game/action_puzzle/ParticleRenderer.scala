@@ -22,7 +22,7 @@ import Glyphs._
 /**
  * @author glyph
  */
-class ParticleRenderer[GivenTrail <: BaseTrail : ClassTag](particleTexture: Texture)
+class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture)
   extends Group
   with Tasking
   with SpriteBatchRenderer

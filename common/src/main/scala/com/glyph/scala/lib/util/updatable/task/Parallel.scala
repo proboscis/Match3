@@ -16,9 +16,9 @@ class Parallel extends ParallelProcessor with Task with AutoFree {
 
 object Parallel {
   import com.glyph.scala.lib.util.pool.GlobalPool.globals
-  implicit val gen = Glyphs.genPooling[Parallel]
+  import Glyphs._
   def apply(tasks: Task*): Parallel = {
-    val par = globals(classOf[Parallel]).auto
+    val par = auto[Parallel]
     tasks foreach {
       par.add
     }

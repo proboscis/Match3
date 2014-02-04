@@ -7,14 +7,8 @@ import com.glyph.scala.lib.libgdx.{BuilderExtractor, Builder}
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder.AnimatedActor
 
-/**
- * i dont want the screen to care anything about transitioning.?
- */
-/**
- * well, this is useless since this forces some class to manage whole scene transitions!
- * @param builderMap
- * @param assets
- */
+
+//TODO make this manager don't handle the builder and initializer and let the animated itself to handle it.
 class AnimatedManager
 (builderMap: Map[Builder[AnimatedConstructor], Map[String, (Builder[AnimatedActor] => Unit, Builder[AnimatedConstructor])]])
 (implicit assets: AssetManager)

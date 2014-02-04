@@ -14,7 +14,6 @@ import com.glyph.scala.lib.util.pool.Pool
 import com.glyph.scala.game.Glyphs
 import Glyphs._
 import aurelienribon.tweenengine._
-import aurelienribon.tweenengine.Tween
 import com.glyph.scala.lib.libgdx.WordParticle
 
 /**

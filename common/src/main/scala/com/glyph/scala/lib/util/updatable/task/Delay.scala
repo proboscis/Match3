@@ -8,6 +8,6 @@ import com.glyph.scala.game.Glyphs
 class Delay extends TimedTask
 object Delay{
   import com.glyph.scala.lib.util.pool.GlobalPool._
-  implicit val poolingDelay = Glyphs.genPooling[Delay]
-  def apply(d:Float):Delay= globals(classOf[Delay]).auto in d
+  import Glyphs._
+  def apply(d:Float):Delay= auto[Delay] in d
 }
