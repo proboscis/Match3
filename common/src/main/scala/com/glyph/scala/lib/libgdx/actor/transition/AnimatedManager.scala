@@ -85,6 +85,7 @@ class AnimatedExtractor[E[_],T](info: Info, callbacks: Callbacks, val target: E[
       if (extracting) {
         onExtractionComplete()
         constructed = mapper(constructor)(info)(callbacks)
+        System.gc()
         in(constructed)(cb)
       }
       extracting = false
