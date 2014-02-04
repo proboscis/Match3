@@ -1,7 +1,6 @@
 package com.glyph.scala.game.action_puzzle
 
 import com.glyph.scala.lib.libgdx.gl.{UVTrail, BaseStripBatch, ShaderHandler, BaseTrail}
-import scala.reflect.ClassTag
 import com.badlogic.gdx.graphics.{Color, GL10, Texture}
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.glyph.scala.lib.libgdx.actor.{SBDrawableObject, Tasking, SpriteBatchRenderer}
@@ -17,12 +16,13 @@ import com.glyph.scala.lib.util.animator.Explosion
 import com.glyph.scala.lib.util.ColorUtil
 import com.glyph.scala.game.Glyphs
 import Glyphs._
+import com.glyph.scala.lib.libgdx.GLFuture
 
 
 /**
  * @author glyph
  */
-class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture)
+class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture)(shader: ShaderHandler, batch: BaseStripBatch)
   extends Group
   with Tasking
   with SpriteBatchRenderer
@@ -32,9 +32,6 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
   import MathUtils._
 
   ShaderProgram.pedantic = false
-
-  val shader = ShaderHandler("shader/rotate2.vert", "shader/default.frag")
-  val batch = new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES)
   val spriteTrailArray = new com.badlogic.gdx.utils.Array[Seq[(Sprite, GivenTrail)]](1000)
   implicit val velBufPool = Pool[ArrayBuffer[Float]](() => ArrayBuffer[Float]())((buf: ArrayBuffer[Float]) => buf.clear())(1000)
   implicit val trailPool = Pool[GivenTrail](10000)
@@ -136,4 +133,17 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
       }
     }) in duration * 2)
   }
+}
+
+object ParticleRenderer {
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  def futureShader = GLFuture(ShaderHandler("shader/rotate2.vert", "shader/default.frag"))
+
+  def futureBatch = GLFuture(new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES))
+
+  def futureRenderer[GivenTrail <: BaseTrail:Class](texture: Texture) = for {
+    shader <- futureShader
+    batch <- futureBatch
+  } yield new ParticleRenderer[GivenTrail](texture)(shader, batch)
 }

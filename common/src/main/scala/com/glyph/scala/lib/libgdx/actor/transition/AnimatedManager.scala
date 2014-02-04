@@ -33,7 +33,6 @@ object AnimatedManager {
   type AnimatedConstructor = Info => Callbacks => Actor with Animated
 }
 
-
 trait LoadingAnimation[E[_],T] extends AnimatedExtractor[E,T] {
   val loadingAnimation: AnimatedActor
 
@@ -46,18 +45,23 @@ trait LoadingAnimation[E[_],T] extends AnimatedExtractor[E,T] {
 
   override def in(cb: () => Unit): Unit = {
     if (!extractable.isExtracted(target)) {
-      in(loadingAnimation)(() => {})
-    } else {
-      import scala.collection.JavaConversions._
+      in(loadingAnimation)(() => {
+        //start loading after animation
+        super.in(cb)
+      })
+    }else{
+      super.in(cb)
     }
-    super.in(cb)
   }
 
   override def resume(cb: () => Unit): Unit = {
     if (!extractable.isExtracted(target)) {
-      resume(loadingAnimation)(() => {})
+      resume(loadingAnimation)(() => {
+        super.resume(cb)
+      })
+    }else{
+      super.resume(cb)
     }
-    super.resume(cb)
   }
 
   override def out(cb: () => Unit): Unit = {
@@ -156,7 +160,6 @@ trait AnimatedActorHolder extends Layers {
 trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging {
   val builderStack = collection.mutable.Stack[AnimatedActor]()
   var currentAnimated: Actor with Animated = null
-
   def push(animated: AnimatedActor) {
     pauseCurrent()
     inBuilder(animated)
@@ -172,7 +175,6 @@ trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging {
       }
     }
   }
-
   def switch(animated: AnimatedActor) {
     if (!builderStack.isEmpty) {
       outCurrent()

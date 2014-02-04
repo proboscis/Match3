@@ -23,8 +23,9 @@ import Scalaz._
 import com.glyph.scala.lib.libgdx.game.LimitDelta
 import com.glyph.scala.lib.util.pool.Pooling
 import com.glyph.scala.lib.libgdx.GLFuture
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{Await, Future, ExecutionContext}
 import com.glyph.scala.lib.libgdx.font.FontUtil
+import scala.concurrent.duration.Duration
 
 /**
  * @author glyph
@@ -49,6 +50,8 @@ class ActionPuzzleTable(roundTex: Texture, particleTex: Texture, dummyTex: Textu
 
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
 
+  val particleRenderer = Await.result(ParticleRenderer.futureRenderer[MyTrail](particleTex), Duration.Inf)
+
   val view = new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor] {
     override def newInstance: SpriteActor = new SpriteActor()
 
@@ -63,9 +66,9 @@ class ActionPuzzleTable(roundTex: Texture, particleTex: Texture, dummyTex: Textu
     with Updating {
     def score: Int = game.score()
 
-    override val font: BitmapFont = skin.get("font/corbert.ttf", classOf[BitmapFont])
+    override def trailRenderer: ParticleRenderer[MyTrail] = particleRenderer
 
-    def texture: Texture = particleTex
+    override val font: BitmapFont = skin.get("font/corbert.ttf", classOf[BitmapFont])
   }
   view.add(easedScore)
   val scoreLabel = new RLabel(skin, easedScore.map("%.0f".format(_)))
@@ -155,24 +158,32 @@ object ActionPuzzleTable extends Logging with Threading {
       val game = new ComboPuzzle
       import game._
       val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
-      val view = GLFuture {
-        val corbert = FontUtil.internalFont("font/corbert.ttf", 50)
-        new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor] {
-          override def newInstance: SpriteActor = new SpriteActor()
-          override def reset(tgt: SpriteActor): Unit = {
-            tgt.reset()
-            tgt.sprite.setTexture(roundTex)
-            tgt.sprite.asInstanceOf[TextureRegion].setRegion(0, 0, roundTex.getWidth, roundTex.getHeight)
-          }
-        }, classOf[SpriteActor])
-          with Scoring[Int, SpriteActor]
-          with Trailed[Int, SpriteActor]
-          with Updating {
-          def score: Int = game.score()
-          override def font: BitmapFont = corbert
-          def texture: Texture = particleTex
-        }
-      }
+      val futureRenderer = ParticleRenderer.futureRenderer[MyTrail](particleTex)
+      val futureCorbert = GLFuture(FontUtil.internalFont("font/corbert.ttf", 50))
+      val view = futureCorbert.flatMap {
+        corbert =>
+          futureRenderer.map {
+            renderer =>
+              new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor] {
+                override def newInstance: SpriteActor = new SpriteActor()
+
+                override def reset(tgt: SpriteActor): Unit = {
+                  tgt.reset()
+                  tgt.sprite.setTexture(roundTex)
+                  tgt.sprite.asInstanceOf[TextureRegion].setRegion(0, 0, roundTex.getWidth, roundTex.getHeight)
+                }
+              }, classOf[SpriteActor])
+                with Scoring[Int, SpriteActor]
+                with Trailed[Int, SpriteActor]
+                with Updating {
+                def score: Int = game.score()
+
+                override def font: BitmapFont = corbert
+
+                override def trailRenderer: ParticleRenderer[MyTrail] = renderer
+              }
+          }(gl)
+      }(gl)
       view.map(apView => new Table with Reactor with Logging with Threading {
         apView.add(easedScore)
         val scoreLabel = new RLabel(skin, easedScore.map("%.0f".format(_)))
@@ -220,11 +231,13 @@ object ActionPuzzleTable extends Logging with Threading {
         init after the layout is setup
          */
         puzzle.initialize()
+
         override def layout(): Unit = {
           apViewCell.size(getWidth, getWidth)
           gaugeCell.size(getWidth, getWidth / 10)
           super.layout()
         }
+
         override def act(delta: Float): Unit = {
           game.update(delta)
           super.act(delta)
