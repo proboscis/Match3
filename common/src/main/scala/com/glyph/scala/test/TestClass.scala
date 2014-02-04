@@ -11,7 +11,7 @@ import com.glyph.scala.lib.util.Animated
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph.scala.game.builders.Builders
 import scalaz.Success
-import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder
+import com.glyph.scala.lib.libgdx.actor.table.{AnimatedBuilderHolder2, AnimatedBuilderHolder}
 
 /**
  * @author glyph
@@ -20,7 +20,6 @@ object TestClass {
   type ->[A, B] = (A, B)
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
     classOf[VaryingScreen] ::
-      classOf[AnimatedHolderTest] ::
       classOf[ActorHolderTest] ::
       classOf[TrailedParticleTest] ::
       classOf[ParticleTest] ::
@@ -54,7 +53,7 @@ object TestClass {
 
   def animatedActorBuilderToScreenBuilder(actorBuilder: Builder[Actor with Animated]): Builder[Screen] =
     Builder(actorBuilder.requirements, assets => new ConfiguredScreen {
-      val holder = new AnimatedBuilderHolder {}
+      val holder = new AnimatedBuilderHolder2 {}
       root.add(holder).fill.expand
       holder.push(actorBuilder)(assets)
     })

@@ -8,82 +8,9 @@ import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.util.updatable.task.{Do, Sequence}
 import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder.{AnimatedActor, AnimatedBuilder}
 
-/**
- * @author glyph
- */
-trait AnimatedBuilderHolder
-  extends ActorHolder
-  with Tasking
-  with TaskWaiter
-  with Logging
-  with BuilderExtractor{
-
-  val builderStack = collection.mutable.Stack[AnimatedBuilder]()
-  var currentActor: AnimatedActor = null
-  var currentBuilder: AnimatedBuilder = null
-
-  override def addActor(actor: Actor) {
-    super.addActor(actor)
-    setSizeOfChildren()
-  }
-  //TODO check states!
-  def push(builder: AnimatedBuilder)(implicit am: AssetManager) {
-    if (currentActor != null) {
-      val c = currentActor
-      c.pause(() => {
-        c.remove()
-        log(builderStack,currentActor)
-      })
-      builderStack.push(currentBuilder)
-    }
-    currentBuilder = builder
-    extract(currentBuilder){
-      view => currentActor = view
-        addActor(view)
-        view.in(() => {
-          log(builderStack,currentActor)
-        })
-    }(log)
-  }
-
-  def pop()(implicit am: AssetManager) {
-    if (currentActor != null) {
-      val c = currentActor
-      c.out(() => {
-        c.remove()
-        log(builderStack,currentActor)
-      })
-      currentActor = null
-    }
-    if (!builderStack.isEmpty) {
-      val prev = builderStack.pop()
-      currentBuilder = prev
-      extract(prev){
-        view =>
-          addActor(view)
-          currentActor = view
-          view.resume(() => {
-            log(builderStack,currentActor)
-          })
-      }(log)
-    }
-  }
-  def switch(builder:AnimatedBuilder)(implicit am:AssetManager){
-  }
-  def pauseCurrent(){
-    if(currentActor != null){
-      val c = currentActor
-      c.pause(() => {
-        c.remove()
-        log(builderStack,currentActor)
-      })
-      builderStack.push(currentBuilder)
-    }
-  }
-}
 
 trait AnimatedBuilderHolder2
-  extends ActorHolder
+  extends Layers
   with Tasking
   with BuilderExtractor {
   val builderStack = collection.mutable.Stack[AnimatedBuilder]()

@@ -15,7 +15,7 @@ import scala.collection.mutable
 import com.glyph.scala.lib.util.{Animated, Logging}
 import com.glyph.scala.lib.util.reactive.{Var, Varying, VClass, Reactor}
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder
+import com.glyph.scala.lib.libgdx.actor.table.{AnimatedBuilderHolder2, AnimatedBuilderHolder}
 import com.glyph.scala.game.builders.Builders
 
 /**
@@ -53,7 +53,7 @@ class TestRunner(className: String)
           def requirements: Set[(Class[_], Seq[String])] = builder.requirements
 
           def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
-            val holder = new AnimatedBuilderHolder{}
+            val holder = new AnimatedBuilderHolder2{}
             root.add(holder).fill.expand
             holder.push(builder)
           }

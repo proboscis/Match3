@@ -3,7 +3,7 @@ package com.glyph.scala.test
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.Screen
-import com.glyph.scala.lib.libgdx.actor.table.{BuilderSupport, StackActor, ActorHolder}
+import com.glyph.scala.lib.libgdx.actor.table.{BuilderSupport, StackActor, Layers}
 import com.badlogic.gdx.scenes.scene2d.ui.{Skin, Label}
 import com.glyph.scala.game.Glyphs
 import Glyphs._
@@ -19,7 +19,7 @@ class ActorHolderTest extends ScreenBuilder {
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
     debug() = true
     val skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets[Skin]
-    val holder = new ActorHolder with StackActor with BuilderSupport
+    val holder = new Layers with StackActor with BuilderSupport
     val loadingLabel = new Label("Loading", skin)
     holder.setFromBuilder(Builders.title.map(_(Map())(Map())))(loadingLabel)(f => loadingLabel.setText("%.0f".format(f)))
     root.add(holder).fill.expand()

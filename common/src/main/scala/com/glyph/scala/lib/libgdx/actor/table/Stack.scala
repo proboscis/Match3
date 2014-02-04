@@ -11,7 +11,7 @@ import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.Assets
 import com.badlogic.gdx.scenes.scene2d.utils.Layout
 import com.glyph.scala.lib.libgdx.Builder
 
-trait ActorHolder extends WidgetGroup {
+trait Layers extends WidgetGroup {
   def setSizeOfChildren() {
     val it = getChildren.iterator()
     while (it.hasNext) {
@@ -39,7 +39,7 @@ trait ActorHolder extends WidgetGroup {
 /**
  * @author glyph
  */
-trait StackActor extends ActorHolder {
+trait StackActor extends Layers {
   val actorStack = mutable.Stack[Actor]()
 
   def push(actor: Actor) {
