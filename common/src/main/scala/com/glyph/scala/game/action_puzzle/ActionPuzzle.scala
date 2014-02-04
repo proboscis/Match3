@@ -87,11 +87,6 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   implicit val sequencePool = Pool[Sequence](100)
   implicit val interpolatorPool = Pool[Interpolator[AP]](100)
   implicit val arrayBufferAPPool = Pool(() => ArrayBuffer[AP]())(_.clear())(100)
-  preAlloc[AP](100)
-  preAlloc[PuzzleBuffer](30)
-  preAlloc[Parallel](100)
-  preAlloc[Sequence](100)
-  preAlloc[Interpolator[AP]](100)
   val matcher = new Matcher[AP]
   val MATCHING_TIME = 1f
   val gravity = -10f

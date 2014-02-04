@@ -18,7 +18,7 @@ class MyTrail() extends UVTrail(5)
 /**
  * @author glyph
  */
-class APView[T, A <: Actor : Pooling:ClassTag](puzzle: ActionPuzzle[T])
+class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   extends Group
   with Reactor
   with Logging
@@ -31,8 +31,6 @@ class APView[T, A <: Actor : Pooling:ClassTag](puzzle: ActionPuzzle[T])
   //TODO there is 1mb of allocation when the panel is removed,added
   implicit val spriteActorPool = Pool[A](100)
   implicit val tokenPool = Pool[Token[T,A]](() => new Token[T,A](null, null.asInstanceOf[A]))((tgt: Token[T,A]) => tgt.resetForPool())(row * column * 2)
-  preAlloc[Token[T,A]](100)
-  preAlloc[A](100)
   var tokenRemove = (token: Token[T,A]) => {}
   val gridFunctions = RVJSON(GdxFile("json/grid.json")).map(_.flatMap(Grid(_)))
   val alphaToIndex = gridFunctions map (_.map {
@@ -115,23 +113,6 @@ class APView[T, A <: Actor : Pooling:ClassTag](puzzle: ActionPuzzle[T])
     }
   }
 
-
-  /*
-  this.addListener(new InputListener() {
-    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-      for (ai <- alphaToIndex()) {
-        val (ix, iy) = ai(x / getWidth, y / getHeight) //positionToIndex(x, y)
-        for {ap <- puzzle.future.lift(ix).map(_.lift(iy)).flatten
-             token <- tokens.find(_.panel == ap)
-        } {
-          log(ix, iy, ap.tx(), ap.ty(), token)
-          //puzzle.removeFillUpdateTargetPosition(ap::Nil)
-        }
-      }
-      super.touchDown(event, x, y, pointer, button)
-    }
-  })
-*/
   override def act(delta: Float) {
     super.act(delta) //this call causes Some allocation!
     updateTokenPosition(delta)

@@ -27,6 +27,7 @@ trait PoolingOps extends Logging {
       new Pooling[T] {
         val clazz = implicitly[Class[T]]
         log("generating pooling evidence via reflection for:" + clazz)
+        //Inner class cannot be instantiated without a parent class!a
         val constructor = clazz.getConstructor()
         log("success")
         def newInstance: T = constructor.newInstance()

@@ -9,14 +9,13 @@ import com.glyph.scala.lib.libgdx.actor.{SpriteActor, Updating}
 import com.glyph.scala.lib.libgdx.actor.ui.RLabel
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.Action
-import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.{TextureRegion, Sprite}
 import com.glyph.scala.lib.util.reactive.Reactor
 import com.glyph.scala.lib.util.Logging
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.Screen
-import scala.reflect.ClassTag
-import com.glyph.scala.game.action_puzzle.screen.{APViewTable, Trailed, Scoring}
+import com.glyph.scala.game.action_puzzle.screen.{Trailed, Scoring}
 import com.glyph.scala.lib.util.json.RVJSON
 import com.glyph.scala.lib.libgdx.reactive.GdxFile
 import com.glyph.scala.game.Glyphs
@@ -24,13 +23,12 @@ import Glyphs._
 import scalaz.Scalaz
 import Scalaz._
 import com.glyph.scala.lib.libgdx.game.LimitDelta
-import com.glyph.scala.game.builders.Builders
-import com.glyph.scala.lib.libgdx.BuilderOps
+import com.glyph.scala.lib.util.pool.Pooling
 
 /**
  * @author glyph
  */
-class ActionPuzzleTable(roundTex:Texture,particleTex:Texture,dummyTex:Texture,skin:Skin) extends Table with Reactor with Logging{
+class ActionPuzzleTable(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin) extends Table with Reactor with Logging {
   //TODO implement the basic system.
   //TODO GameOver
   //TODO Title screen
@@ -47,11 +45,21 @@ class ActionPuzzleTable(roundTex:Texture,particleTex:Texture,dummyTex:Texture,sk
   import game._
 
   val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
-  val view = new APView[Int, SpriteActor](game.puzzle)(APViewTable.textured(roundTex), ClassTag(classOf[SpriteActor]))
+
+  val view = new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor]{
+    override def newInstance: SpriteActor = new   SpriteActor()
+
+    override def reset(tgt: SpriteActor): Unit = {
+      tgt.reset()
+      tgt.sprite.setTexture(roundTex)
+      tgt.sprite.asInstanceOf[TextureRegion].setRegion(0,0,roundTex.getWidth,roundTex.getHeight)
+    }
+  },classOf[SpriteActor])
     with Scoring[Int, SpriteActor]
     with Trailed[Int, SpriteActor]
-    with Updating{
+    with Updating {
     def score: Int = game.score()
+
     def texture: Texture = particleTex
   }
   view.add(easedScore)
@@ -123,12 +131,13 @@ object ActionPuzzleTable {
     classOf[Texture] -> Seq("data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"),
     classOf[Skin] -> Seq("skin/holo/Holo-dark-xhdpi.json")
   )
-  val toScreen = (table:ActionPuzzleTable) =>  new ConfiguredScreen with LimitDelta{
+  val toScreen = (table: ActionPuzzleTable) => new ConfiguredScreen with LimitDelta {
     backgroundColor = ColorTheme.varyingColorMap()("asbestos")
+
     override def configSrc: RVJSON = RVJSON(GdxFile("json/actionPuzzleConfig.js"))
 
-    reactVar(config.background.as[String] ~ ColorTheme.varyingColorMap){
-      case str~map => backgroundColor = map.lift(str | "")|Color.WHITE
+    reactVar(config.background.as[String] ~ ColorTheme.varyingColorMap) {
+      case str ~ map => backgroundColor = map.lift(str | "") | Color.WHITE
     }
     root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
     root.debug()
@@ -138,12 +147,13 @@ object ActionPuzzleTable {
 class ActionPuzzleTableScreen extends ScreenBuilder {
   def requirements = ActionPuzzleTable.requiredAssets
 
-  def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen with LimitDelta{
+  def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen with LimitDelta {
     backgroundColor = ColorTheme.varyingColorMap()("asbestos")
+
     override def configSrc: RVJSON = RVJSON(GdxFile("json/actionPuzzleConfig.js"))
 
-    reactVar(config.background.as[String] ~ ColorTheme.varyingColorMap){
-      case str~map => backgroundColor = map.lift(str | "")|Color.WHITE
+    reactVar(config.background.as[String] ~ ColorTheme.varyingColorMap) {
+      case str ~ map => backgroundColor = map.lift(str | "") | Color.WHITE
     }
     //root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
     root.debug()

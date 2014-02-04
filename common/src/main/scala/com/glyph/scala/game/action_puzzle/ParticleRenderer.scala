@@ -43,8 +43,8 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
   implicit val spritePool = Pool[Sprite](10000)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite]())((buf: ArrayBuffer[Sprite]) => buf.clear())(1000)
 
-  preAlloc[GivenTrail](1000)
-  preAlloc[Sprite](1000)
+  //preAlloc[GivenTrail](1000)
+  //preAlloc[Sprite](1000)
   val combined = new Matrix4
   // TODO these renderer should be made out of this class
 
