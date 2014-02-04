@@ -3,17 +3,14 @@ package com.glyph.scala.lib.libgdx.actor.transition
 import com.glyph.scala.lib.util.{Logging, Animated}
 import com.badlogic.gdx.scenes.scene2d.Actor
 import AnimatedManager._
-import com.glyph.scala.lib.libgdx.{BuilderExtractor, Builder}
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder.AnimatedActor
-import com.glyph.scala.lib.libgdx.actor.Tasking
 import com.glyph.scala.lib.libgdx.actor.table.Layers
-import com.glyph.scala.lib.util.updatable.task.Task
 import com.glyph.scala.game.Glyphs
 import Glyphs._
+import com.glyph.scala.lib.util.extraction.Extractable
 
 
-//TODO make this manager don't handle the builder and initializer and let the animated itself to handle it.
 class AnimatedManager
 (builderMap: Map[AnimatedConstructor, Map[String, (AnimatedActor => Unit, AnimatedConstructor)]])
 (implicit assets: AssetManager) {
@@ -37,28 +34,27 @@ object AnimatedManager {
 }
 
 
-trait LoadingAnimation extends AnimatedBuilderExtractor {
+trait LoadingAnimation[E[_],T] extends AnimatedExtractor[E,T] {
   val loadingAnimation: AnimatedActor
 
   override def onExtractionComplete(): Unit = {
     super.onExtractionComplete()
     if (getChildren.contains(loadingAnimation, true)) {
-      out(loadingAnimation)(()=>{})
+      out(loadingAnimation)(() => {})
     }
   }
 
   override def in(cb: () => Unit): Unit = {
-    if (!builder.isReady) {
+    if (!extractable.isExtracted(target)) {
       in(loadingAnimation)(() => {})
-    }else{
+    } else {
       import scala.collection.JavaConversions._
-      assets.getAssetNames.iterator() foreach log
     }
     super.in(cb)
   }
 
   override def resume(cb: () => Unit): Unit = {
-    if (!builder.isReady) {
+    if (!extractable.isExtracted(target)) {
       resume(loadingAnimation)(() => {})
     }
     super.resume(cb)
@@ -66,64 +62,59 @@ trait LoadingAnimation extends AnimatedBuilderExtractor {
 
   override def out(cb: () => Unit): Unit = {
     if (getChildren.contains(loadingAnimation, true)) {
-      out(loadingAnimation)(()=>{})
+      out(loadingAnimation)(() => {})
     }
     super.out(cb)
   }
 }
 
-class AnimatedBuilderExtractor(info: Info, callbacks: Callbacks, val builder: Builder[AnimatedConstructor])(implicit val assets: AssetManager)
+class AnimatedExtractor[E[_],T](info: Info, callbacks: Callbacks, val target: E[T],mapper:T=>AnimatedConstructor)(implicit val assets: AssetManager, val extractable: Extractable[E])
   extends Layers
   with Animated
-  with Tasking
-  with BuilderExtractor
   with AnimatedActorHolder {
-  var extractTask: Task = null
+  var extracting = false
   var constructed: AnimatedActor = null
-
   def onExtractionComplete() {}
-
   override def in(cb: () => Unit): Unit = {
-    extractTask = extract(builder)(constructor => {
-      onExtractionComplete()
-      constructed = constructor(info)(callbacks)
-      in(constructed)(cb)
-    })(log)
+    extracting = true
+    extractable.extract(target)(constructor => {
+      if (extracting) {
+        onExtractionComplete()
+        constructed = mapper(constructor)(info)(callbacks)
+        in(constructed)(cb)
+      }
+      extracting = false
+    })
   }
 
-
   override def out(cb: () => Unit): Unit = {
+    extracting = false
     if (constructed != null) {
       out(constructed)(cb)
     } else {
-      if (extractTask != null && !extractTask.isCompleted) {
-        extractTask.cancel()
-        cb()
-      } else {
-        cb()
-      }
+      cb()
     }
   }
 
   override def pause(cb: () => Unit): Unit = {
+    extracting = false
     if (constructed != null) {
       pause(constructed)(cb)
     } else {
-      if (extractTask != null && !extractTask.isCompleted) {
-        extractTask.cancel()
-        cb()
-      } else {
-        cb()
-      }
+      cb()
+
     }
   }
 
   override def resume(cb: () => Unit): Unit = {
-    extractTask = extract(builder)(constructor => {
-      onExtractionComplete()
-      constructed = constructor(info)(callbacks)
-      in(constructed)(cb)
-    })(log)
+    extracting = true
+    extractable.extract(target)(constructor => {
+      if (extracting) {
+        onExtractionComplete()
+        constructed = mapper(constructor)(info)(callbacks)
+        in(constructed)(cb)
+      }
+    })
   }
 }
 

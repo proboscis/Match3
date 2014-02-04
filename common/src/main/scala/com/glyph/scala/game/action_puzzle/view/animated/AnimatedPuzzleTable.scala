@@ -14,7 +14,6 @@ object AnimatedPuzzleTable{
   import Builders._
   import scalaz._
   import Scalaz._
-
   val animated :Actor => AnimatedConstructor = actor=> info=> callbacks =>{
     val result = new AnimatedTable
     result.add(actor).fill.expand

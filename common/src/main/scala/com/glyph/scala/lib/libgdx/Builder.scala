@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetManager
 import scalaz.Applicative
 import com.glyph.scala.lib.libgdx.Builder.Assets
 import com.glyph.scala.lib.libgdx.screen.ScreenBuilder.Assets
+import com.glyph.scala.lib.util.extraction.Extractable
 
 /**
  * thing that require assets to be loaded should use this builder.
@@ -16,7 +17,6 @@ trait Builder[+T] {
   def map[R](f: T => R): Builder[R] = Builder(requirements,assets =>  f(create(assets)))
   //flatMap cannot be created
 }
-
 object BuilderOps {
   implicit def applicativeBuilder = new Applicative[Builder] {
     def point[A](a: => A): Builder[A] = Builder(Set(), _ => a)

@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Group
 import com.glyph.scala.lib.libgdx.actor.SpriteBatchRenderer
 import aurelienribon.tweenengine.{Tween, TweenManager}
 import com.glyph.scala.lib.util.pool.Pool
-import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.{BitmapFont, Sprite}
 import com.glyph.scala.lib.libgdx.WordParticle
 import com.glyph.scala.game.Glyphs
 import Glyphs._
@@ -15,7 +15,7 @@ import com.glyph.scala.lib.util.Logging
 /**
  * @author glyph
  */
-class ScorePopper extends Group with SpriteBatchRenderer with Logging{
+class ScorePopper(font:BitmapFont) extends Group with SpriteBatchRenderer with Logging{
   implicit val renderer = this
   implicit val manager = new TweenManager
   implicit val spritePool = Pool[Sprite](10000)
@@ -24,8 +24,6 @@ class ScorePopper extends Group with SpriteBatchRenderer with Logging{
   Tween.registerAccessor(classOf[Sprite], SpriteAccessor)
   Tween.setCombinedAttributesLimit(4)
   log("set tween:combinedAttributesLimit(4)")
-  val font = internalFont("font/corbert.ttf", 50)
-
   def halfW(seq: Seq[Sprite]) = (0f /: seq)(widthFolder) / 2f
 
   def meanH(seq: Seq[Sprite]) = (0f /: seq)(heightFolder) / seq.size

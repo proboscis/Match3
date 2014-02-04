@@ -1,11 +1,11 @@
 package com.glyph.scala.lib.util.pool
 
-import scala.collection.mutable
 import com.glyph.scala.lib.util.Logging
 import com.glyph.scala.lib.util.pool.Pool.PooledAny
 
 trait Pooling[T] {
   def newInstance: T
+
   def reset(tgt: T)
 }
 
@@ -27,8 +27,8 @@ trait Poolable extends Logging {
   }
 }
 
-class Pool[P: Pooling:Class](val max: Int) extends Logging {
-  log("created a pool for:"+implicitly[Class[P]])
+class Pool[P: Pooling : Class](val max: Int) extends Logging {
+  log("created a pool for:" + implicitly[Class[P]])
   private val pool = new com.badlogic.gdx.utils.Array[P]()
 
   def manual: P = {
@@ -59,9 +59,10 @@ class Pool[P: Pooling:Class](val max: Int) extends Logging {
     }
   }
 
-  def preAlloc(size:Int){
-    1 to size map(_ => manual) foreach reset
+  def preAlloc(size: Int) {
+    1 to size map (_ => manual) foreach reset
   }
+
   override def toString: String = "pool" + pool.size
 
   def foreach(f: P => Unit) {
@@ -73,6 +74,7 @@ class Pool[P: Pooling:Class](val max: Int) extends Logging {
 
 object Pool {
   def apply[T: Pooling : Class](size: Int): Pool[T] = new Pool(size)
+
   /*
   def apply[T <: {def reset()} : ClassTag](constructor: () => T)(size: Int): Pool[T] = {
     implicit val pooler = new Pooling[T] {
@@ -83,24 +85,32 @@ object Pool {
     new Pool(size)
   }*/
 
-  def apply[T: Class](constructor: () => T)( finalizer: T => Unit)( size: Int): Pool[T] = {
+  def apply[T: Class](constructor: () => T)(finalizer: T => Unit)(size: Int): Pool[T] = {
     val pooling = new Pooling[T] {
       def newInstance: T = constructor()
+
       def reset(tgt: T): Unit = finalizer(tgt)
     }
-    new Pool[T](size)(pooling,implicitly[Class[T]])
+    new Pool[T](size)(pooling, implicitly[Class[T]])
   }
 
   implicit class PooledAny[T](val self: T) extends AnyVal {
-    def free(implicit pool:Pool[T]) = pool.reset(self)
+    def free(implicit pool: Pool[T]) = pool.reset(self)
   }
+
 }
 
 trait PoolOps {
+
   import scala.language.implicitConversions
+
   def manual[T: Pool]: T = implicitly[Pool[T]].manual
-  def auto[T<:Poolable:Pool]:T = implicitly[Pool[T]].auto
-  def preAlloc[T:Pool](size:Int):Unit = implicitly[Pool[T]].preAlloc(size)
-  implicit def AnyToPooledAny[T](tgt:T):PooledAny[T] = new PooledAny[T](tgt)
+
+  def auto[T <: Poolable : Pool]: T = implicitly[Pool[T]].auto
+
+  def preAlloc[T: Pool](size: Int): Unit = implicitly[Pool[T]].preAlloc(size)
+
+  implicit def AnyToPooledAny[T](tgt: T): PooledAny[T] = new PooledAny[T](tgt)
 }
+
 object PoolOps extends PoolOps

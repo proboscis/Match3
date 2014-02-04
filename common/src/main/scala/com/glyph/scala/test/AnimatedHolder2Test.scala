@@ -1,21 +1,16 @@
 package com.glyph.scala.test
 
 import com.glyph.scala.game.builders.Builders
-import com.glyph.scala.lib.libgdx.Builder
+import com.glyph.scala.lib.libgdx.{BuilderExtractor2, Builder}
 import com.glyph.scala.lib.libgdx.screen.ConfiguredScreen
-import com.glyph.scala.lib.libgdx.actor.transition.{LoadingAnimation, StackedAnimatedActorHolder, AnimatedBuilderExtractor, AnimatedManager}
+import com.glyph.scala.lib.libgdx.actor.transition.{LoadingAnimation, StackedAnimatedActorHolder, AnimatedExtractor, AnimatedManager}
 import com.glyph.scala.lib.libgdx.actor.table.AnimatedBuilderHolder.AnimatedActor
 import com.glyph.scala.game.action_puzzle.view.animated.{AnimatedTable, AnimatedPuzzleTable, Menu}
 import com.glyph.scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
 import com.badlogic.gdx.graphics.{Color, Texture}
-import com.glyph.scala.lib.libgdx.actor.SpriteActor
-
-/**
- * @author glyph
- */
-class AnimatedHolder2Test {
-
-}
+import com.glyph.scala.lib.libgdx.actor.{Tasking, SpriteActor}
+import com.glyph.scala.lib.util.extraction.{ExtractableFuture, Extractable, ExtractableFunction0}
+import com.badlogic.gdx.assets.AssetManager
 
 object AnimatedHolder2Test {
   //TODO make unit test for animated classes
@@ -23,24 +18,28 @@ object AnimatedHolder2Test {
   import scalaz._
   import Scalaz._
 
-  val builder = Builder(Set(classOf[Texture] -> Seq("data/dummy.png")), assets => new ConfiguredScreen {
-    implicit val _ = assets
-
-    def extract(builder: Builder[AnimatedConstructor]): AnimatedConstructor =
-      info => callbacks => new AnimatedBuilderExtractor(info, callbacks, builder)(assets) with LoadingAnimation {
-        override val loadingAnimation: AnimatedActor = new AnimatedTable {
-          debug()
-          val actor = new SpriteActor().setup(Builders.dummyTexture.create(assets))
-          actor.setColor(Color.RED)
-          add(actor).fill.expand
-        }
+  def extract[E[_],T](builder: E[T])(mapper:T=>AnimatedConstructor)(implicit extractor:Extractable[E], assets:AssetManager): AnimatedConstructor =
+    info => callbacks => new AnimatedExtractor(info, callbacks, builder,mapper) with LoadingAnimation[E,T] {
+      override val loadingAnimation: AnimatedActor = new AnimatedTable {
+        debug()
+        val actor = new SpriteActor().setup(Builders.dummyTexture.create)
+        actor.setColor(Color.RED)
+        add(actor).fill.expand
       }
+    }
 
-    val holder = new StackedAnimatedActorHolder {} <| (root.add(_).fill.expand)
-    val title = extract(Builders.title)
-    val menu = extract(Builders.lightHolo map Menu.constructor)
-    val puzzle = extract(Builders.actionPuzzleBuilder map AnimatedPuzzleTable.animated)
+  val builder = Builder(Set(classOf[Texture] -> Seq("data/dummy.png")), assets => new ConfiguredScreen {
+    val holder = new StackedAnimatedActorHolder with Tasking {} <| (root.add(_).fill.expand)
+    implicit val _1 = assets
+    implicit val _2 = holder
+    implicit val builderExtractor = new BuilderExtractor2
+    implicit val functionExtractor = ExtractableFuture
+    val title = extract(Builders.title)(a=>a)
+    val menu = extract(Builders.lightHolo map Menu.constructor)(a=>a)
+    val puzzleBuilder = Builders.actionPuzzleFunctionBuilder
+    val puzzle = extract(puzzleBuilder)(builder=>extract(builder)(a=>a))
     val push = holder.push(_: AnimatedActor)
+
     val manager = new AnimatedManager(
       Map(
         title -> Map("dummy" ->(push, menu)),

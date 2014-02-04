@@ -2,9 +2,9 @@ package com.glyph.scala.lib.libgdx.gl
 
 import java.nio.FloatBuffer
 import com.badlogic.gdx.graphics.{GL10, GLTexture}
-import com.glyph.scala.test.GLTextureWrapper
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.BufferUtils
+import com.glyph.scala.test.GLTextureWrapper
 
 /**
  * @author glyph
@@ -39,6 +39,7 @@ class FloatTexture(val width: Int, val height: Int, buffer: FloatBuffer) extends
 
   def reload(): Unit = load()
 }
+
 object FloatTexture {
   def apply(width: Int, height: Int): FloatTexture = new FloatTexture(width, height, BufferUtils.newFloatBuffer(width * height * 4))
 }
