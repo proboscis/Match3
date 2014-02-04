@@ -24,7 +24,8 @@ object Menu {
         callbacks(any.toString)(Map())
       }
     }))
-    1 to 10 map label foreach (add(_).expand.fill.row())
+    //TODO make this modifiable
+    "Title"::"Menu"::"Puzzle"::Nil map label foreach (add(_).expand.fill.row())
   }
 }
 

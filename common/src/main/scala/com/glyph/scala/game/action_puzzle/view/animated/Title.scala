@@ -12,6 +12,8 @@ import com.glyph.scala.lib.libgdx.actor.action.ActionOps
 import scala.collection.mutable
 import com.glyph.scala.lib.libgdx.actor.transition.AnimatedManager.{Callbacks, Info}
 import com.glyph.scala.lib.libgdx.GdxUtil
+import com.glyph.scala.lib.util.updatable.task.Delay
+import com.glyph.scala.lib.libgdx.actor.table.Layers
 
 object Title {
 
@@ -20,12 +22,12 @@ object Title {
   def apply(labelConstructor: String => Actor): Info => Callbacks => Actor with Animated =
     info =>
       callbacks =>
-        new WidgetGroup with Animated with Logging {
+        new WidgetGroup with Animated with Logging with Layers {
           log("title is created")
           val table = new Table
           table.debug()
           addActor(table)
-          val label = labelConstructor((info.get("name") | "name is not set").toString) <| addActor
+          val label = labelConstructor((info.get("name") | "Title").toString) <| addActor
           val cell = table.add() <| (_.fill.expand.row)
 
           def animation(cb: () => Unit) {
@@ -36,6 +38,7 @@ object Title {
                   label.setPosition(400, 400)
                 }),
                 moveTo(cell.getWidgetX, cell.getWidgetY, 0.3f, exp10Out),
+                delay(1f),
                 ActionOps.run(() => {
                   cb()
                   GdxUtil.post{// you must post!!! this bug is so hard to find the cause...

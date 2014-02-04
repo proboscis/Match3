@@ -34,7 +34,7 @@ object Builders {
   val swordTexture = "data/sword.png".builder[Texture]
   val roundRectTexture = "data/round_rect.png".builder[Texture]
   val label:Skin=>String=>Label = skin => new Label(_:String,skin)
-  val title = lightHolo map label map Title.apply
+  val title = darkHolo map label map Title.apply
   def menuScreenBuilder[E]:(Seq[(String,E)],E=>Unit)=>Builder[Screen] = (elements,cb)=>{lightHolo map (skin => new MenuScreen[E](skin,elements,cb))}
   val actionPuzzleBuilder:Builder[ActionPuzzleTable] = (roundRectTexture |@| particleTexture |@| dummyTexture  |@| darkHolo )(new ActionPuzzleTable(_,_,_,_))
   val actionPuzzleFunctionBuilder:Builder[()=>Future[AnimatedConstructor]] = (roundRectTexture |@| particleTexture |@| dummyTexture |@| darkHolo)((a,b,c,d) =>()=>ActionPuzzleTable.futurePuzzle(a,b,c,d).map(AnimatedPuzzleTable.animated)(ExecutionContext.Implicits.global))
