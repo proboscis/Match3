@@ -2,7 +2,7 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop.forAll
 import scalaz._
 import Scalaz._
-import com.glyph.scala.lib.util.reactive._
+import com.glyph._scala.lib.util.reactive._
 
 /**
  * @author glyph

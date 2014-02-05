@@ -1,4 +1,4 @@
-import com.glyph.scala.lib.util.collection.list.DoubleLinkedList
+import com.glyph._scala.lib.util.collection.list.DoubleLinkedList
 import scala.collection.mutable.ArrayBuffer
 
 /**

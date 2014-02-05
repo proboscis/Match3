@@ -1,4 +1,4 @@
-import com.glyph.scala.lib.util.reactive.{Varying, Var}
+import com.glyph._scala.lib.util.reactive.{Varying, Var}
 import org.scalacheck.Properties
 import org.scalacheck.Prop.forAll
 import scalaz._

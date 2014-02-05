@@ -4,16 +4,22 @@ import _root_.java.io.File
 import _root_.scala.util.Try
 import com.badlogic.gdx.backends.lwjgl._
 import com.badlogic.gdx.tools.imagepacker.TexturePacker2
-import com.glyph.scala.lib.util.reactive.RFile
-import com.glyph.scala.lib.libgdx.reactive.GdxFile
+import com.glyph._scala.lib.util.reactive.RFile
+import com.glyph._scala.lib.libgdx.reactive.GdxFile
 import scalaz._
 import Scalaz._
-import com.glyph.scala.lib.libgdx.screen.ScreenBuilder
-import com.glyph.scala.lib.libgdx.game.{ApplicationConfig, ConfiguredGame, ScreenTester}
-import com.glyph.scala.test.TestRunner
+import com.glyph._scala.lib.libgdx.screen.ScreenBuilder
+import com.glyph._scala.lib.libgdx.game.{ConfiguredGame, ScreenTester}
+import com.glyph._scala.test.TestRunner
 import com.badlogic.gdx.Game
+import com.google.inject._
+import com.glyph._scala.lib.injection.{DefaultGLExecutionContext, GLExecutionContext}
+import com.glyph._scala.lib.libgdx.game.ApplicationConfig
+import com.glyph._scala.lib.libgdx.GLFuture
+import scaldi.Module
 
 object Main {
+
   case class Config(
                      screenFile: String = "screens/action.js",
                      resDir: File = new File("../common/src/main/resources/"),
@@ -84,9 +90,9 @@ object Main {
 
         if (packTexture) {
           val setting = new TexturePacker2.Settings()
-          setting.maxWidth = 2048
-          setting.maxHeight = 2048
-          TexturePacker2.process(setting, resourceDir, "./skin", "default")
+          setting.maxWidth = 512
+          setting.maxHeight = 512
+          TexturePacker2.process(setting, resourceDir + "../unpacked/", "./skin", "default")
         }
         val cfg = new LwjglApplicationConfiguration()
         cfg.title = "Game"
@@ -94,7 +100,7 @@ object Main {
         cfg.width = width
         cfg.useGL20 = true
         Try(Class.forName(gameClass)) match {
-          case util.Success(s) => {
+          case scala.util.Success(s) => {
             (s.newInstance() match {
               case game: ConfiguredGame => {
                 val ApplicationConfig(width, height) = game.deskTopConfig
@@ -105,9 +111,9 @@ object Main {
               case game => game
             }).asInstanceOf[Game] |> (new LwjglApplication(_, cfg))
           }
-          case util.Failure(f) =>
+          case scala.util.Failure(f) =>
             testScreen match {
-              case "" => new LwjglApplication(new TestRunner, cfg)//TODO abstract this class or setGame
+              case "" => new LwjglApplication(new TestRunner, cfg) //TODO abstract this class or setGame
               case _ => new LwjglApplication(new TestRunner(testScreen), cfg)
               case _ => new LwjglApplication(new ScreenTester(testScreen), cfg)
             }
