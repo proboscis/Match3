@@ -12,11 +12,7 @@ import com.glyph._scala.lib.libgdx.screen.ScreenBuilder
 import com.glyph._scala.lib.libgdx.game.{ConfiguredGame, ScreenTester}
 import com.glyph._scala.test.TestRunner
 import com.badlogic.gdx.Game
-import com.google.inject._
-import com.glyph._scala.lib.injection.{DefaultGLExecutionContext, GLExecutionContext}
 import com.glyph._scala.lib.libgdx.game.ApplicationConfig
-import com.glyph._scala.lib.libgdx.GLFuture
-import scaldi.Module
 
 object Main {
 

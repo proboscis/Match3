@@ -22,11 +22,10 @@ import scalaz.Scalaz
 import Scalaz._
 import com.glyph._scala.lib.libgdx.game.LimitDelta
 import com.glyph._scala.lib.util.pool.Pooling
-import com.glyph._scala.lib.libgdx.GLFuture
 import scala.concurrent.{Await, Future, ExecutionContext}
 import com.glyph._scala.lib.libgdx.font.FontUtil
 import scala.concurrent.duration.Duration
-import com.badlogic.gdx.Gdx
+import com.glyph._scala.lib.injection.GLExecutionContext
 
 /**
  * @author glyph
@@ -152,99 +151,101 @@ object ActionPuzzleTable extends Logging with Threading {
     root.debug()
   }
 
-  val futurePuzzle: (Texture, Texture, Texture, Skin) => Future[Table] =
-    (roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin) => {
-      val global = ExecutionContext.Implicits.global
-      val gl = GLFuture.context
-      val game = new ComboPuzzle
-      import game._
-      val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
-      val futureRenderer = ParticleRenderer.futureRenderer[MyTrail](particleTex)
-      val futureCorbert = Future(FontUtil.internalFont("font/corbert.ttf", 50))(gl)
-      val view = futureCorbert.flatMap {
-        corbert =>
-          futureRenderer.map {
-            renderer =>
-              log("creating APView")
-              new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor] {
-                override def newInstance: SpriteActor = new SpriteActor()
 
-                override def reset(tgt: SpriteActor): Unit = {
-                  tgt.reset()
-                  tgt.sprite.setTexture(roundTex)
-                  tgt.sprite.asInstanceOf[TextureRegion].setRegion(0, 0, roundTex.getWidth, roundTex.getHeight)
-                }
-              }, classOf[SpriteActor])
-                with Scoring[Int, SpriteActor]
-                with Trailed[Int, SpriteActor]
-                with Updating {
-                def score: Int = game.score()
+  def futurePuzzle(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin): Future[Table] = {
+    val global = ExecutionContext.Implicits.global
+    val gl = GLExecutionContext
+    val game = new ComboPuzzle
+    import game._
+    val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
+    val futureRenderer = ParticleRenderer.futureRenderer[MyTrail](particleTex)
+    val futureCorbert = Future(FontUtil.internalFont("font/corbert.ttf", 50))(gl)
+    val view = futureCorbert.flatMap {
+      corbert =>
+        futureRenderer.map {
+          renderer =>
+            log("creating APView")
+            new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor] {
+              override def newInstance: SpriteActor = new SpriteActor()
 
-                override def font: BitmapFont = corbert
-
-                override def trailRenderer: ParticleRenderer[MyTrail] = renderer
+              override def reset(tgt: SpriteActor): Unit = {
+                tgt.reset()
+                tgt.sprite.setTexture(roundTex)
+                tgt.sprite.asInstanceOf[TextureRegion].setRegion(0, 0, roundTex.getWidth, roundTex.getHeight)
               }
-          }(gl)
-      }(gl)
-      view.map(apView => new Table with Reactor with Logging with Threading {
-        log ("initializing a table")
-        apView.add(easedScore)
-        val scoreLabel = new RLabel(skin, easedScore.map("%.0f".format(_)))
-        scoreLabel.setColor(Color.DARK_GRAY)
-        import Actions._
-        import Interpolation._
-        reactVar(score) {
-          val ic = scoreLabel.getColor.cpy()
-          var prevAction: Action = null
-          s => {
-            if (prevAction != null) {
-              scoreLabel.removeAction(prevAction)
+            }, classOf[SpriteActor])
+              with Scoring[Int, SpriteActor]
+              with Trailed[Int, SpriteActor]
+              with Updating {
+              def score: Int = game.score()
+
+              override def font: BitmapFont = corbert
+
+              override def trailRenderer: ParticleRenderer[MyTrail] = renderer
             }
-            prevAction = sequence(color(Color.WHITE, 0.5f, exp10Out), color(ic, 1f, exp10In))
-            scoreLabel.addAction(prevAction)
-          }
-        }
-        val comboLabel = new RLabel(skin, combo map (_.toString))
-        val inner = new Table()
-        inner.debug
-        inner.add(scoreLabel).expand
-        inner.add(comboLabel).expand
-        this.add(inner).fill.expand.row
-        val apViewCell = this.add(apView).fill().expand()
-        apViewCell.left.row
-        val gaugeCell = this.add(new Table {
-          val back = SpriteActor(new Sprite(dummyTex))
-          add(back).fill.expand
-          time map (_ / 60f * getWidth) += back.setWidth
-        })
-        gaugeCell.fill().expand()
-        game.onPanelAdd = apView.panelAdd
-        game.onPanelRemove = seq => {
-          apView.panelRemove(seq)
-        }
-        reactSome(apView.swipeChecker) {
-          case checker => {
-            apView.swipeStopper()
-            checker(puzzle.pooledSwipe)
-            //view.startSwipeCheck(puzzle.pooledSwipe)
-          }
-        }
-        this.debug()
-        /*
-        init after the layout is setup
-         */
-        puzzle.initialize()
+        }(gl)
+    }(gl)
+    view.map(apView => new Table with Reactor with Logging with Threading {
+      log("initializing a table")
+      apView.add(easedScore)
+      val scoreLabel = new RLabel(skin, easedScore.map("%.0f".format(_)))
+      scoreLabel.setColor(Color.DARK_GRAY)
 
-        override def layout(): Unit = {
-          apViewCell.size(getWidth, getWidth)
-          gaugeCell.size(getWidth, getWidth / 10)
-          super.layout()
-        }
+      import Actions._
+      import Interpolation._
 
-        override def act(delta: Float): Unit = {
-          game.update(delta)
-          super.act(delta)
+      reactVar(score) {
+        val ic = scoreLabel.getColor.cpy()
+        var prevAction: Action = null
+        s => {
+          if (prevAction != null) {
+            scoreLabel.removeAction(prevAction)
+          }
+          prevAction = sequence(color(Color.WHITE, 0.5f, exp10Out), color(ic, 1f, exp10In))
+          scoreLabel.addAction(prevAction)
         }
-      })(global)
-    }
+      }
+      val comboLabel = new RLabel(skin, combo map (_.toString))
+      val inner = new Table()
+      inner.debug
+      inner.add(scoreLabel).expand
+      inner.add(comboLabel).expand
+      this.add(inner).fill.expand.row
+      val apViewCell = this.add(apView).fill().expand()
+      apViewCell.left.row
+      val gaugeCell = this.add(new Table {
+        val back = SpriteActor(new Sprite(dummyTex))
+        add(back).fill.expand
+        time map (_ / 60f * getWidth) += back.setWidth
+      })
+      gaugeCell.fill().expand()
+      game.onPanelAdd = apView.panelAdd
+      game.onPanelRemove = seq => {
+        apView.panelRemove(seq)
+      }
+      reactSome(apView.swipeChecker) {
+        case checker => {
+          apView.swipeStopper()
+          checker(puzzle.pooledSwipe)
+          //view.startSwipeCheck(puzzle.pooledSwipe)
+        }
+      }
+      this.debug()
+      /*
+      init after the layout is setup
+       */
+      puzzle.initialize()
+
+      override def layout(): Unit = {
+        apViewCell.size(getWidth, getWidth)
+        gaugeCell.size(getWidth, getWidth / 10)
+        super.layout()
+      }
+
+      override def act(delta: Float): Unit = {
+        game.update(delta)
+        super.act(delta)
+      }
+    })(global)
+  }
 }
