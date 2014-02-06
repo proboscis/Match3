@@ -33,8 +33,7 @@ object TestClass {
       classOf[MeshTest] ::
       classOf[TrailTest] ::
       Nil
-  val widgetGroupClasses: List[Class[_ <: WidgetGroup]] =
-    classOf[ActionPuzzleTable] :: Nil
+  val widgetGroupClasses: List[Class[_ <: WidgetGroup]] = Nil
   val animatedClasses: List[Class[_ <: Builder[Actor with Animated]]] =  Nil
   val classNameSet = animatedClasses ++ builderClasses ++ screenClasses map (s => s.getSimpleName -> s)
   val classBuilders = builderClasses map (c => c.getSimpleName -> c.newInstance())

@@ -17,6 +17,7 @@ import com.glyph._scala.game.action_puzzle.view.animated.{AnimatedPuzzleTable, T
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
+import com.glyph._scala.game.action_puzzle.ComboPuzzle
 /**
  * @author proboscis
  */
@@ -36,11 +37,8 @@ object Builders {
   val label:Skin=>String=>Label = skin => new Label(_:String,skin)
   val title = darkHolo map label map Title.apply
   def menuScreenBuilder[E]:(Seq[(String,E)],E=>Unit)=>Builder[Screen] = (elements,cb)=>{lightHolo map (skin => new MenuScreen[E](skin,elements,cb))}
-  val actionPuzzleBuilder:Builder[ActionPuzzleTable] = (roundRectTexture |@| particleTexture |@| dummyTexture  |@| darkHolo )(new ActionPuzzleTable(_,_,_,_))
-  def actionPuzzleFunctionBuilder:Builder[()=>Future[AnimatedConstructor]] = (roundRectTexture |@| particleTexture |@| dummyTexture |@| darkHolo)((a,b,c,d) =>()=>ActionPuzzleTable.futurePuzzle(a,b,c,d).map(AnimatedPuzzleTable.animated)(ExecutionContext.Implicits.global))
-  val actionPuzzleScreenBuilder:Builder[Screen] = actionPuzzleBuilder map ActionPuzzleTable.toScreen
+  def actionPuzzleFunctionBuilder(game:()=>ComboPuzzle):Builder[()=>Future[AnimatedConstructor]] = (roundRectTexture |@| particleTexture |@| dummyTexture |@| darkHolo)((a,b,c,d) =>()=>ActionPuzzleTable.futurePuzzle(game())(a,b,c,d).map(AnimatedPuzzleTable.animated)(ExecutionContext.Implicits.global))
   val screenBuilders = Map(
-    "ActionPuzzle"->actionPuzzleScreenBuilder,
-    "AnimatedHolder2"->AnimatedHolder2Test.builder
+    "Mock"->AnimatedHolder2Test.builder
   )
 }

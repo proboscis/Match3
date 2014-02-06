@@ -13,6 +13,7 @@ import com.glyph._scala.lib.util.extraction.{ExtractableFunctionFuture, Extracta
 import com.badlogic.gdx.assets.AssetManager
 import scala.concurrent.Future
 import com.badlogic.gdx.scenes.scene2d.ui.{Label, Skin}
+import com.glyph._scala.game.action_puzzle.ComboPuzzle
 
 object AnimatedHolder2Test {
   //TODO make unit test for animated classes
@@ -36,7 +37,9 @@ object AnimatedHolder2Test {
     implicit val functionExtractor = ExtractableFunctionFuture
     val title = extract(Builders.title)(a => a)("loading")
     val menu = extract(Builders.darkHolo map Menu.constructor)(a => a)("loading")
-    val puzzleBuilder = Builders.actionPuzzleFunctionBuilder
+    val game = new ComboPuzzle
+    val puzzleBuilder = Builders.actionPuzzleFunctionBuilder(()=>new ComboPuzzle)
+
     //you need to specify the type lambda since the compiler cannot infer the nested higher kinded types.
     val puzzle = extract(puzzleBuilder)(builder => extract[({type l[A] = () => Future[A]})#l, AnimatedConstructor](builder)(a => a)("initializing"))("loading")
     val push = holder.push(_: AnimatedActor)

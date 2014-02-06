@@ -15,7 +15,7 @@ import Glyphs._
 import com.glyph._scala.lib.libgdx.actor.ActorUtil
 import com.badlogic.gdx.graphics.g2d.{Sprite, Batch, TextureRegion}
 import com.glyph._scala.lib.util.gl.ViewportStack
-import com.glyph._scala.game.action_puzzle.{APView, ActionPuzzle}
+import com.glyph._scala.game.action_puzzle.{ComboPuzzle, APView, ActionPuzzle}
 import com.glyph._scala.lib.libgdx.game.ApplicationConfig
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.utils.NumberUtils
@@ -25,13 +25,14 @@ import scala.language.existentials
 /**
  * @author glyph
  */
+/*
 class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
   val (h, w) = (1920 / 2, (1920 / 2 * 9d / 16d).toInt)
   implicit val assetManager = new AssetManager
 
   override def deskTopConfig: ApplicationConfig = ApplicationConfig(w * 3, h)
 
-  val screenConstructor = (table: ActionPuzzleTable) => new ConfiguredScreen {
+  val screenConstructor = (table: Table) => new ConfiguredScreen {
     override def STAGE_WIDTH: Int = w * 2
 
     override def STAGE_HEIGHT: Int = h
@@ -39,13 +40,14 @@ class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
     val skin: Skin = "skin/holo/Holo-dark-xhdpi.json".fromAssets
     val table2 = new Table()
     val hashColor = (t: Any) => new Color(NumberUtils.floatToIntColor(t.hashCode()))
+    val game = new ComboPuzzle
     //val nextColor = (p:ActionPuzzle[Int]#AP) => new Color(p.next().map(p=>NumberUtils.floatToIntColor(p.hashCode())).getOrElse(Color.rgba8888(1,1,1,1)))
-    table.game.puzzle.falling -> "falling" ::
-      table.game.puzzle.fixed -> "fixed" ::
-      table.game.puzzle.future -> "future" ::
-      table.game.puzzle.falling -> "next" :: Nil map {
+      game.puzzle.falling -> "falling" ::
+      game.puzzle.fixed -> "fixed" ::
+      game.puzzle.future -> "future" ::
+      game.puzzle.falling -> "next" :: Nil map {
       //case (buf, "next")=>new PuzzleBufferView(table.view, buf,nextColor) -> new Label("next", skin)
-      case (buf, str) => new PuzzleBufferView(table.view, buf, hashColor) -> new Label(str, skin)
+      case (buf, str) => /*new PuzzleBufferView(table.view, buf, hashColor)*/table -> new Label(str, skin)
     } foreach {
       case (view, label) => {
         label.setFontScale(0.4f)
@@ -68,7 +70,7 @@ class Debugger extends Game with AssetManagerSupport with ConfiguredGame {
       }
     }
   }
-  val builder = Builders.actionPuzzleBuilder map screenConstructor
+  //val builder = Builders.actionPuzzleBuilder map screenConstructor
 
   def create(): Unit = loadAndSetScreen()
 
@@ -205,3 +207,4 @@ trait TabledGame extends Game {
     stage.dispose()
   }
 }
+*/
