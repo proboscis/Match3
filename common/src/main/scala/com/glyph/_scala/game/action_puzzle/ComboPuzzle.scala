@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.MathUtils
  * @author glyph
  */
 class ComboPuzzle {
-  //TODO:VaryingCharSequence
   /**
    * どのような面白さにするか・・・
    * プレイヤーの目的は、パネルを消すことなんですよ。
@@ -20,9 +19,16 @@ class ComboPuzzle {
   val score = Var(0)
   val time = FloatVar(60f)// forget about the reactive programming!! the beauty of the implementation means nothing!!! the structure does matter, however.
   val combo = Var(0)
+  var isGameOver = false
   def update(delta:Float){
-    time() -= delta
-    puzzle.update(delta + (score()/1000f/1000f))
+    puzzle.update(delta)
+    if(!isGameOver){
+      time() -= delta
+    }
+    if(time() <= 0 && !isGameOver){
+      isGameOver = true
+      onGameOver()
+    }
   }
   var onPanelRemove = (seq:IndexedSeq[puzzle.AP])=>{}
   var onPanelAdd = (seq:IndexedSeq[IndexedSeq[puzzle.AP]])=>{}
@@ -33,5 +39,8 @@ class ComboPuzzle {
   }
   puzzle.panelAdd = seq=>{
     onPanelAdd(seq)
+  }
+  var onGameOver = ()=>{
+
   }
 }

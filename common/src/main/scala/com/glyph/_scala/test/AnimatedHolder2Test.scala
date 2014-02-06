@@ -37,7 +37,6 @@ object AnimatedHolder2Test {
     implicit val functionExtractor = ExtractableFunctionFuture
     val title = extract(Builders.title)(a => a)("loading")
     val menu = extract(Builders.darkHolo map Menu.constructor)(a => a)("loading")
-    val game = new ComboPuzzle
     val puzzleBuilder = Builders.actionPuzzleFunctionBuilder(()=>new ComboPuzzle)
 
     //you need to specify the type lambda since the compiler cannot infer the nested higher kinded types.

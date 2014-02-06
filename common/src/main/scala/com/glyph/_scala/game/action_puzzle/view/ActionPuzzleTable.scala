@@ -128,15 +128,16 @@ object ActionPuzzleTable extends Logging with Threading {
        */
       puzzle.initialize()
 
-      override def layout(): Unit = {
-        apViewCell.size(getWidth, getWidth)
-        gaugeCell.size(getWidth, getWidth / 10)
-        super.layout()
-      }
 
       override def act(delta: Float): Unit = {
         game.update(delta)
         super.act(delta)
+      }
+
+      override def layout(): Unit = {
+        apViewCell.size(getWidth, getWidth)
+        gaugeCell.size(getWidth, getWidth / 10)
+        super.layout()
       }
     })(global)
   }
