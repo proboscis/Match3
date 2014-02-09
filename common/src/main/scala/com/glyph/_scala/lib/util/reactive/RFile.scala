@@ -51,7 +51,6 @@ class RFile(val adapter: FileAdapter) extends Varying[Try[String]] {
   def current: Try[String] = _string
 
   RFile.register(this)
-
 }
 
 

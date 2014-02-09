@@ -1,0 +1,30 @@
+GIMP Palette
+Name:FlatDesign
+    
+136 224 46 water
+243 156 18 orange
+236 240 241 clouds
+189 195 199 silver
+52 73 94 wet_asphalt
+44 62 80 midnight_blue
+241 196 15 sun_flower
+142 68 173 wisteria
+231 76 60 alizarin
+51 51 51 monster
+230 126 34 carrot
+149 165 166 concrete
+22 160 133 green_sea
+192 57 43 pomegranate
+255 204 0 thunder
+52 152 219 peter_river
+41 128 185 belize_hole
+155 89 182 amethyst
+127 140 141 asbestos
+26 188 156 turquoise
+39 174 96 nephritis
+255 68 68 life
+211 84 0 pumpkin
+255 136 0 fire
+34 34 34 background
+46 204 113 emerald
+119 204 238 move

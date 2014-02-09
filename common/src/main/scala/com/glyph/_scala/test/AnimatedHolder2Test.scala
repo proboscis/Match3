@@ -41,8 +41,7 @@ object AnimatedHolder2Test {
 
     //you need to specify the type lambda since the compiler cannot infer the nested higher kinded types.
     val puzzle = extract(puzzleBuilder)(builder => extract[({type l[A] = () => Future[A]})#l, AnimatedConstructor](builder)(a => a)("initializing"))("loading")
-    val push = holder.push(_: AnimatedActor)
-
+    val push = holder.push _
     val manager = new AnimatedManager(
       Map(
         title -> Map("dummy" ->(push, menu)),
