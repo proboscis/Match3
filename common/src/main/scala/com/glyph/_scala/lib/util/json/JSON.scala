@@ -28,7 +28,7 @@ class JSON(o: Try[Object], scope: ScriptableObject) extends Dynamic {
     }, scope)
   }
 
-  def asMap: Try[Map[String, JSON]] = o.flatMap {
+  def asMapTry: Try[Map[String, JSON]] = o.flatMap {
     t => Try {
       t.asInstanceOf[NativeObject].entrySet().toArray(Array[Entry[Object, Object]]()).foldLeft(Map[String, JSON]()) {
         case (map, set) =>
@@ -37,7 +37,7 @@ class JSON(o: Try[Object], scope: ScriptableObject) extends Dynamic {
     }
   }
 
-  def toArray[T: ClassTag]: Try[Array[T]] = o.flatMap {
+  def toArrayTry[T: ClassTag]: Try[Array[T]] = o.flatMap {
     t => Try {
       val classT = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
       val ids = t.asInstanceOf[NativeArray].toArray
@@ -169,7 +169,7 @@ class RVJSON(o: Varying[TJSON]) extends Varying[Option[JSON]] with Dynamic with 
 
   def toArray[T:ClassTag]:Varying[Try[Array[T]]] = o.map{
     _.flatMap{
-      _.toArray
+      _.toArrayTry
     }
   }
 

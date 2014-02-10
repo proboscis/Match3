@@ -17,12 +17,13 @@ trait Builder[+T] {
   def map[R](f: T => R): Builder[R] = Builder(requirements,assets =>  f(create(assets)))
   //flatMap cannot be created
 }
-object BuilderOps {
+trait BuilderOps {
   implicit def applicativeBuilder = new Applicative[Builder] {
     def point[A](a: => A): Builder[A] = Builder(Set(), _ => a)
     def ap[A, B](fa: => Builder[A])(f: => Builder[(A) => B]): Builder[B] = Builder(fa.requirements ++ f.requirements,assets =>  f.create(assets)(fa.create(assets)))
   }
 }
+object BuilderOps extends BuilderOps
 
 object Builder {
   type Assets = Set[(Class[_], Seq[String])]

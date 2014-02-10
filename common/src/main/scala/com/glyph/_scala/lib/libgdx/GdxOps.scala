@@ -19,3 +19,4 @@ trait GdxOps
   with GdxTweenOps
   with GdxStringOps
   with AssetManagerOps
+  with BuilderOps

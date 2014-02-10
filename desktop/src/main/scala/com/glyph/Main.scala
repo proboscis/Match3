@@ -11,7 +11,7 @@ import Scalaz._
 import com.glyph._scala.lib.libgdx.screen.ScreenBuilder
 import com.glyph._scala.lib.libgdx.game.{ConfiguredGame, ScreenTester}
 import com.glyph._scala.test.TestRunner
-import com.badlogic.gdx.Game
+import com.badlogic.gdx.{Gdx, Game}
 import com.glyph._scala.lib.libgdx.game.ApplicationConfig
 
 object Main {
@@ -88,7 +88,7 @@ object Main {
           val setting = new TexturePacker2.Settings()
           setting.maxWidth = 512
           setting.maxHeight = 512
-          TexturePacker2.process(setting, resourceDir + "../unpacked/", "./skin", "default")
+          TexturePacker2.process(setting,resourceDir +"/../unpacked/", resourceDir+"/skin/flat", "flat")
         }
         val cfg = new LwjglApplicationConfiguration()
         cfg.title = "Game"

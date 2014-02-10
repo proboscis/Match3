@@ -19,7 +19,7 @@ object VClass {
   var mirrorDir = "./.changed"
   var mirrorClassDirName = ".classes"
 
-  lazy val desktopImpl = Class.forName("com.glyph.scala.lib.util.reactive.ClassScripter").getConstructor(classOf[String], classOf[String], classOf[String]).newInstance(srcDir, mirrorDir, mirrorDir + "/" + mirrorClassDirName).asInstanceOf[VClass]
+  lazy val desktopImpl = Class.forName("com.glyph._scala.lib.util.reactive.ClassScripter").getConstructor(classOf[String], classOf[String], classOf[String]).newInstance(srcDir, mirrorDir, mirrorDir + "/" + mirrorClassDirName).asInstanceOf[VClass]
 
   lazy val scripter = if (Gdx.app == null) {
     throw new RuntimeException("cannot create VClass the application is created")
