@@ -70,7 +70,12 @@ class JSON(o: Try[Object], scope: ScriptableObject) extends Dynamic {
     }
   }
 
-  def asFunction: Try[JSFunction] = o.flatMap {
+  def asFunction:JSFunction = o match{
+    case util.Success(s)=> new JSFunction(s.asInstanceOf[org.mozilla.javascript.Function])
+    case util.Failure(f)=> throw f
+  }
+
+  def asFunctionTry: Try[JSFunction] = o.flatMap {
     t => Try {
       new JSFunction(t.asInstanceOf[org.mozilla.javascript.Function])
     }
@@ -192,12 +197,11 @@ class RVJSON(o: Varying[TJSON]) extends Varying[Option[JSON]] with Dynamic with 
     case util.Failure(f) => f.failNel
   }
 
-  def asFunction: Varying[VNET[JSON#JSFunction]] = o.map(_.flatMap(_.asFunction) match {
+  def asFunction: Varying[VNET[JSON#JSFunction]] = o.map(_.flatMap(_.asFunctionTry) match {
     case util.Success(s) => s.successNel
     case util.Failure(f) => f.failNel
   })
 }
-
 class RJSON(o: Varying[JSON]) extends Varying[JSON] with Dynamic with Reactor {
   var variable: JSON = null
   reactVar(o) {
@@ -231,7 +235,7 @@ class RJSON(o: Varying[JSON]) extends Varying[JSON] with Dynamic with Reactor {
   }
 
   def asFunction: Varying[Try[JSON#JSFunction]] = o.map {
-    _.asFunction
+    _.asFunctionTry
   }
 }
 

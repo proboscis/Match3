@@ -17,7 +17,6 @@ object GdxFile extends Logging{
   //TODO fix resource not found errors...
   var absResourceDir: Option[String] = None
 
-
   def apply(filePath: String): RFile = new GdxFile(filePath)
 
   val absolute = {

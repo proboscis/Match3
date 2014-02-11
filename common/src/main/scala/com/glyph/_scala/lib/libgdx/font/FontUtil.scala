@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.{TextureRegion, BitmapFont}
  * @author glyph
  */
 object FontUtil {
+  //TODO use distance field font and custom shader for smooth font !
+  //hope if the libgdx uses it by default
   def internalFont(name: String, size: Int) = new FreeTypeFontGenerator(Gdx.files.internal(name)).generateFont(size)
 
   def charToRegion(font: BitmapFont)(c: Char)={

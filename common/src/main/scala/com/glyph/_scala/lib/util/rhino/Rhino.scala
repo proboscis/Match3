@@ -49,8 +49,4 @@ object Rhino extends Logging {
     }
     new JSON(rhino[Object](script), rhino.scope)
   }
-
-  def apply(script: Varying[String], env: Map[String, Any] = Map.empty): RJSON = {
-    RJSON(script, env)
-  }
 }

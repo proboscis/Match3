@@ -37,22 +37,23 @@ trait MockTransition extends AnimatedRunner {
   val result = AnimatedConstructors.result
   val puzzle = AnimatedConstructors.puzzle
   val push = holder.push _
+  val switch = holder.switch _
 
   override def graph: AnimatedGraph = Map(
     title -> Map(
       "dummy" ->(push, menu)
     ),
     menu -> Map(
-      "Title" ->(push, title),
-      "Menu" ->(push, menu),
+      "Title" ->(switch, title),
+      "Menu" ->(switch, menu),
       "Puzzle" ->(push, puzzle)
     ),
     puzzle -> Map(
-      "game_over" ->(push, result)
+      "game_over" ->(switch, result)
     ),
     result -> Map(
-      "replay" ->(push, puzzle),
-      "title" ->(push, title)
+      "replay" ->(switch, puzzle),
+      "title" ->(switch, title)
     )
   )
 }

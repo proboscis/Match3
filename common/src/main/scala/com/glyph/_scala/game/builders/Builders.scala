@@ -28,6 +28,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.glyph._scala.game.builders.Builders._
 import scala.language.higherKinds
+import com.glyph._scala.lib.libgdx.actor.widgets.Center
+
 /**
  * @author proboscis
  */
@@ -100,7 +102,7 @@ object AnimatedConstructors {
         debug()
         //TODO use preloaded resources to show while loading
         Builders.darkHolo.load
-        val actor = new Label(name, Builders.darkHolo.create(assets))
+        val actor = Center(new Label(name, Builders.darkHolo.create(assets)))
         add(actor).fill.expand
       }
     }

@@ -18,8 +18,8 @@ object Menu {
         callbacks(any.toString)(Map())
       }
     }))
-
+    defaults().space(20).padLeft(20).padRight(20).fill.expand
     //TODO make this modifiable
-    "Title" :: "Menu" :: "Puzzle" :: Nil map label foreach (add(_).fill.expand.space(10).row())
+    "Title" :: "Menu" :: "Puzzle" :: Nil map label foreach (add(_).row())
   }
 }

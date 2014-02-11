@@ -21,6 +21,12 @@ object Glyphs
         case util.Failure(f) => f.failNel
       }
     }
+    def toOpt:Option[T]={
+      t match{
+        case util.Success(s)=>Some(s)
+        case util.Failure(f)=>f.printStackTrace();None
+      }
+    }
   }
 
   implicit class FutureOps[T](val f: Future[T]) extends AnyVal {

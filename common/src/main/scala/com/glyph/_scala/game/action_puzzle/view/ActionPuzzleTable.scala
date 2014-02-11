@@ -27,6 +27,7 @@ import com.glyph._scala.lib.libgdx.actor.action.ActionOps
 import com.glyph._scala.lib.libgdx.gl.{UVTrail, BaseStripBatch, ShaderHandler}
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
+import com.glyph._scala.lib.libgdx.actor.widgets.Center
 
 class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin)
   extends Table
@@ -97,12 +98,11 @@ class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Textu
     apView.panelRemove(seq)
   }
   game.onGameOver = () => {
-    val style = new LabelStyle(skin.get("default", classOf[LabelStyle]))
-    style.background = skin.getDrawable("emerald")
-    val label = new Label("Time Up", style)
+    val label = Center(new Label("Time Up", skin)) <| (_.setBackground(skin.getDrawable("emerald")))
     import Actions._
     import Interpolation._
     label.setSize(getWidth,getHeight/5)
+
     val height = getHeight / 2 - label.getHeight / 2
     label.setPosition(getWidth, height)
     label.addAction(sequence(

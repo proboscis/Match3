@@ -42,7 +42,7 @@ class FlatSkin(val colors: Map[String, Color], tint: Color => Drawable, font: Bi
 
   def labelStyle(c: Color) = new LabelStyle(font, c)
 
-  val defaults = labelStyle(Color.WHITE)::buttonStyles("emerald") :: textButtonStyles("emerald") :: Nil
+  val defaults = labelStyle(Color.WHITE)::buttonStyles("carrot") :: textButtonStyles("carrot") :: Nil
   val defaultStyles = defaults map {
     style => "default"->style
   }

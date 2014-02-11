@@ -54,10 +54,6 @@ trait Varying[T] extends Reactive[T] {
     }
   }
 
-  def foreach(f: T => Unit) {
-    f(current)
-  }
-
   override def toString: String = "<" + current + ">" + super.toString
 
 }
