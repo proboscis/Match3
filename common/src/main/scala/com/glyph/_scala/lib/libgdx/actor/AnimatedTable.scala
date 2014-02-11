@@ -15,7 +15,7 @@ class AnimatedTable extends Table with Animated with Logging with Tasking{
   import com.glyph._scala.game.Glyphs
   import Glyphs._
   val actorLayouts = collection.mutable.ArrayBuffer[(Actor,Cell[_])]()
-
+  debug()
   override def add(actor: Actor): Cell[_] = {
     addActor(actor)
     val cell = super.add()

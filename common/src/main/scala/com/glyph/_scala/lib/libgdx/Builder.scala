@@ -15,12 +15,32 @@ trait Builder[+T] {
   def create(implicit assets: AssetManager): T
   def isReady(implicit assets:AssetManager):Boolean = requirements.forall(_._2.forall(assets.isLoaded))
   def map[R](f: T => R): Builder[R] = Builder(requirements,assets =>  f(create(assets)))
+  def &[R](tgt:Builder[R]):Builder[(T,R)] = Builder(requirements ++ tgt.requirements,am => create(am)->tgt.create(am))
+
+  /**
+   * blocks until all requirements and the other queued resources to be loaded
+   * @param assets
+   */
+  def load(implicit assets:AssetManager){
+    for{
+      (cls,files)<-requirements
+      file <- files
+    }{
+      assets.load(file,cls)
+    }
+    assets.finishLoading()
+  }
   //flatMap cannot be created
 }
 trait BuilderOps {
   implicit def applicativeBuilder = new Applicative[Builder] {
     def point[A](a: => A): Builder[A] = Builder(Set(), _ => a)
     def ap[A, B](fa: => Builder[A])(f: => Builder[(A) => B]): Builder[B] = Builder(fa.requirements ++ f.requirements,assets =>  f.create(assets)(fa.create(assets)))
+  }
+  object &{
+    def unapply[A,B](t:(A,B))={
+      Some(t)
+    }
   }
 }
 object BuilderOps extends BuilderOps

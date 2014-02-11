@@ -35,7 +35,7 @@ class Eased[T: Easing](src: Varying[T], interpolation: Float => Float, timeMulti
     if(elapsedTime > duration){}
     else{
       elapsedTime += delta
-      val alpha = if(elapsedTime < duration && elapsedTime+delta > duration) 1
+      val alpha = if( elapsedTime > duration) 1
       else interpolation(elapsedTime/duration)
       variable = easing(start, end,alpha)
       notifyObservers(variable)
@@ -53,5 +53,12 @@ object Eased {
     def apply(start: Float, end: Float, alpha: Float): Float = start + (end - start) * alpha
   }
 
+  /**
+   *
+   * @param src target
+   * @param interpolation ip
+   * @param time multiplier
+   * @return
+   */
   def apply(src: Varying[Float],interpolation:Float=>Float, time: Float => Float): Eased[Float] = new Eased(src, interpolation,(s:Float,e:Float)=>time(Math.abs(e-s)))
 }

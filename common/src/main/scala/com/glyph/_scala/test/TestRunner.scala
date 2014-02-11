@@ -13,10 +13,11 @@ import com.glyph._scala.lib.libgdx.{Builder, DrawFPS}
 import com.badlogic.gdx.Input.Keys
 import scala.collection.mutable
 import com.glyph._scala.lib.util.{Animated, Logging}
-import com.glyph._scala.lib.util.reactive.{Var, Varying, VClass, Reactor}
+import com.glyph._scala.lib.util.reactive.{Varying, VClass, Reactor}
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.glyph._scala.lib.libgdx.actor.table.{AnimatedBuilderHolder2, AnimatedBuilderHolder}
+import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder2
 import com.glyph._scala.game.builders.Builders
+import com.glyph._scala.game.Glyphs
 
 /**
  * @author glyph
@@ -33,7 +34,6 @@ class TestRunner(className: String)
 
   def this() = this("")
 
-
   //typeOf[Int] <:< typeOf[String]
   //TODO this function cannot be done without a class tag.
   def classToVSB(cls: Class[_]): Varying[Option[ScreenBuilder]] = cls match {
@@ -46,20 +46,25 @@ class TestRunner(className: String)
         def create(implicit assetManager: AssetManager): Screen = scls.newInstance()
       }
     ))
-    case c if classOf[Builder[Actor with Animated]].isAssignableFrom(c) => VClass[Builder[Actor with Animated]](c.getCanonicalName).map{
-      _.map{
-        c=>new ScreenBuilder{
+    case c if classOf[Builder[Actor with Animated]].isAssignableFrom(c) => VClass[Builder[Actor with Animated]](c.getCanonicalName).map {
+      _.map {
+        c => new ScreenBuilder {
           val builder = c.newInstance()
+
           def requirements: Set[(Class[_], Seq[String])] = builder.requirements
 
           def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
-            val holder = new AnimatedBuilderHolder2{}
+            val holder = new AnimatedBuilderHolder2 {}
             root.add(holder).fill.expand
             holder.push(builder)
           }
         }
       }
     }
+  }
+  import Glyphs._
+  def setScreenAsBuilder(screen:Screen){
+    setBuilder(Applicative[Builder].point(screen))
   }
 
   override def create() {
@@ -68,32 +73,36 @@ class TestRunner(className: String)
     className match {
       case "" =>
         //TODO make this work with VClass
-        setBuilder(Builders.menuScreenBuilder(TestClass.builders,setBuilder))
-        /*
-        setBuilder(new MenuScreenBuilder {
-        override def create(implicit assets: AssetManager): MenuScreen = {
-          val result = super.create(assets)
-          result.onLaunch = cls => {
-            clearReaction()
-            reactSome(classToVSB(cls)) {
-              b =>
-                popScreen(exit = false)
-                setBuilder(b)
-            }
+        setBuilder(Builders.menuScreenBuilder(TestClass.builders, setBuilder))
+      /*
+      setBuilder(new MenuScreenBuilder {
+      override def create(implicit assets: AssetManager): MenuScreen = {
+        val result = super.create(assets)
+        result.onLaunch = cls => {
+          clearReaction()
+          reactSome(classToVSB(cls)) {
+            b =>
+              popScreen(exit = false)
+              setBuilder(b)
           }
-          result
         }
-      })*/
-      case c => reactSome(classToVSB(Class.forName(c))) {
-        b =>
-          popScreen(exit = false)
-          setBuilder(b)
+        result
       }
+    })*/
+      case c =>
+        TestClass.builders.find(_._1 == c) match {
+          case Some((name,b)) => setBuilder(b)
+          case None => reactSome(classToVSB(Class.forName(c))) {
+            b =>
+              popScreen(exit = false)
+              setBuilder(b)
+          }
+        }
     }
     Gdx.app.addLifecycleListener(new LifecycleListener {
-      def dispose(){
-         log("releasing assetManager")
-         assetManager.dispose()
+      def dispose() {
+        log("releasing assetManager")
+        assetManager.dispose()
       }
 
       def pause(): Unit = {}

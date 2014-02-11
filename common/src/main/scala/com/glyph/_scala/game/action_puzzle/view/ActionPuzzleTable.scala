@@ -165,7 +165,7 @@ object ActionPuzzleTable extends Logging with Threading {
       val t = new AnimatedTable()
       t.add(view).fill.expand
       view.gameOverCallback = () => {
-        callbacks("game_over")(Map())
+        callbacks("game_over")(Map("score"->game.score()))
       }
       t
   }

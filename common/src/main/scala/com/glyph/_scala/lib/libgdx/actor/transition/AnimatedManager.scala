@@ -12,7 +12,7 @@ import com.glyph._scala.lib.util.extraction.Extractable
 
 
 class AnimatedManager
-(builderMap: Map[AnimatedConstructor, Map[String, (AnimatedActor => Unit, AnimatedConstructor)]])
+(builderMap: AnimatedGraph)
 (implicit assets: AssetManager) {
   val builders = builderMap withDefaultValue Map()
 
@@ -31,6 +31,8 @@ object AnimatedManager {
   type Callback = Info => Unit
   type Callbacks = String Map Callback
   type AnimatedConstructor = Info => Callbacks => Actor with Animated
+  type AnimatedGraph = Map[AnimatedConstructor, Map[String, (AnimatedActor => Unit, AnimatedConstructor)]]
+  type TransitionMethod= AnimatedActor => Unit
 }
 
 trait LoadingAnimation[E[_],T] extends AnimatedExtractor[E,T] {

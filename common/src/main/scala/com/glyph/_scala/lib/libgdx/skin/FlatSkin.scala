@@ -53,5 +53,4 @@ class FlatSkin(val colors: Map[String, Color], tint: Color => Drawable, font: Bi
   drawables foreach{
     case (name,style)=>add(name,style,classOf[Drawable])
   }
-
 }

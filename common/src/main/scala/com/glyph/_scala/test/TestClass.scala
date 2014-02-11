@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.game.builders.Builders
 import scalaz.Success
 import com.glyph._scala.lib.libgdx.actor.table.{AnimatedBuilderHolder2, AnimatedBuilderHolder}
+import com.glyph._scala.game.action_puzzle.view.animated.GameResultTest
 
 /**
  * @author glyph
@@ -28,6 +29,7 @@ object TestClass {
       classOf[WordParticle] :: Nil
   val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
   val screenClasses: List[Class[_ <: Screen]] =
+    classOf[GameResultTest]::
     classOf[ShaderRotationTest] ::
       classOf[ExplosionTest] ::
       classOf[MeshTest] ::
@@ -45,7 +47,6 @@ object TestClass {
   val pkgBuilders = screenClasses map {
     clazz => clazz.getSimpleName -> new ScreenBuilder {
       def requirements: Set[(Class[_], Seq[String])] = Set()
-
       def create(implicit assetManager: AssetManager): Screen = clazz.newInstance()
     }
   }
