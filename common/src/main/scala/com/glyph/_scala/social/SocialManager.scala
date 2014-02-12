@@ -14,4 +14,3 @@ object SocialManagerMock extends SocialManager{
 }
 object SocialManager{
   var manager:SocialManager = SocialManagerMock
-}

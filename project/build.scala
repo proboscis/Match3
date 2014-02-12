@@ -139,6 +139,10 @@ object LibgdxBuild extends Build {
   lazy val android = Project (
     "android",
     file("android"),
-    settings = Settings.android
+    settings = Settings.android ++ Seq(
+        libraryDependencies ++= Seq(
+            //"com.swarmconnect" % "library" % "1.0.0" artifacts(Artifact("library","apklib","apklib")) from "file:C:/Users/glyph/Documents/Github/Match3/swarm.zip"
+        )
+      )
     ) dependsOn common
 }
