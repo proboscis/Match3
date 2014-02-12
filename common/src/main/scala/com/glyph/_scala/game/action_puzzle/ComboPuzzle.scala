@@ -17,7 +17,7 @@ class ComboPuzzle {
     a == b
   })
   val score = Var(0)
-  val time = FloatVar(3f)// forget about the reactive programming!! the beauty of the implementation means nothing!!! the structure does matter, however.
+  val time = FloatVar(2f)// forget about the reactive programming!! the beauty of the implementation means nothing!!! the structure does matter, however.
   val combo = Var(0)
   var isGameOver = false
   def update(delta:Float){

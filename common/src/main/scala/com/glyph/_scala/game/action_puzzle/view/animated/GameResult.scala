@@ -1,6 +1,6 @@
 package com.glyph._scala.game.action_puzzle.view.animated
 
-import com.badlogic.gdx.scenes.scene2d.ui.{Table, TextButton, Skin}
+import com.badlogic.gdx.scenes.scene2d.ui.{Label, Table, TextButton, Skin}
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
 import com.glyph._scala.lib.libgdx.actor.AnimatedTable
 import com.glyph._scala.lib.util.updatable.reactive.Eased
@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.glyph._scala.test.MockTransition
 import com.badlogic.gdx.assets.AssetManager
-import com.esotericsoftware.tablelayout.BaseTableLayout
+import com.esotericsoftware.tablelayout.{Value, BaseTableLayout}
 import com.glyph._scala.lib.libgdx.actor.widgets.Center
 
 /**
@@ -29,7 +29,7 @@ object GameResult {
     val shownScore = Var(0f)
     val ease = Eased(shownScore, Interpolation.exp10Out.apply, t => 2f)
     //if you wanna center the elements, use inner table!
-    val scoreLabel = Center(new RLabel(skin, ease.map(s => "%.0f".format(s))))
+    val scoreLabel = Center(new RLabel(skin, ease.map(s => "%.0f".format(s)))).left()
     val replayButton = new TextButton("Replay", skin) with Change
     val titleButton = new TextButton("Back to Title", skin) with Change
     replayButton.onChange = (e, a) => callbacks("replay")(Map())
@@ -37,7 +37,11 @@ object GameResult {
     add(ease)
     shownScore() = score
     defaults().space(20).padLeft(20).padRight(20).fill.expand
-    add(scoreLabel).row()
+    setSkin(skin)
+    val scoreTable = new Table()
+    scoreTable.add(Center(new Label("Score: ",skin)).right()).width(Value.percentWidth(0.5f))
+    scoreTable.add(scoreLabel).fill.expand
+    add(scoreTable).height(Value.percentHeight(0.7f)).row()
     add(replayButton).row()
     add(titleButton).row()
   }

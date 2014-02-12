@@ -13,6 +13,8 @@ import com.glyph._scala.game.Glyphs
 import Glyphs._
 import com.glyph._scala.lib.libgdx.gl._
 import scala.reflect.ClassTag
+import com.glyph._scala.lib.libgdx.actor.table.Layers
+import com.glyph._scala.lib.libgdx.actor.widgets.Layered
 
 class MyTrail() extends UVTrail(5)
 /**
@@ -24,6 +26,7 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   with Logging
   with Tasking
   with Scissor
+  with Layered
   with Paneled2 {
 
   //TODO i want to remove all those drawing specific codes such as sprite,token,anything..
@@ -33,6 +36,8 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   implicit val tokenPool = Pool[Token[T,A]](() => new Token[T,A](null, null.asInstanceOf[A]))((tgt: Token[T,A]) => tgt.resetForPool())(row * column * 2)
   var tokenRemove = (token: Token[T,A]) => {}
   val gridFunctions = RVJSON(GdxFile("json/grid.json")).map(_.flatMap(Grid(_)))
+  val panelLayer = new Group
+  addActor(panelLayer)
   val alphaToIndex = gridFunctions map (_.map {
     case (fx, fy) => Grid.alphaToIndex(fx, fy)
   })
@@ -48,13 +53,13 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   def column: Int = puzzle.COLUMN
 
 
-  val tokens = new com.badlogic.gdx.utils.Array[Token[T,A]]()
+  val tokens = new com.badlogic.gdx.utils.DelayedRemovalArray[Token[T,A]]()
 
   private val tokenInitializer = (p: ActionPuzzle[T]#AP) => {
     val token = manual[Token[T,A]]
     token.init(p, manual[A])
     tokens add token
-    addActor(token)
+    panelLayer.addActor(token)
   }
 
   def updateTokenPosition(delta: Float) {
@@ -89,6 +94,27 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
     }
     result
   }
+  def removeToken(token:Token[T,A]){
+    tokens.removeValue(token, true)
+    token.clearReaction() //this must be done since the panel is immediately removed
+    token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
+      def run() {
+        //I need to take care of this allocation eventually
+        token.tgtActor.free
+        token.free
+      }
+    })))
+    onTokenRemove(token)
+    tokenRemove(token)
+  }
+  def removeAllToken(){
+    tokens.begin()
+    val it = tokens.iterator()
+    while(it.hasNext){
+      removeToken(it.next)
+    }
+    tokens.end()
+  }
 
   protected def onTokenRemove(token:Token[T,A]){}
   val panelRemove = (removed: IndexedSeq[ActionPuzzle[T]#AP]) => {
@@ -97,17 +123,7 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
     while (i < size) {
       val token = findTokenByPanel(removed(i))
       if (token != null) {
-        tokens.removeValue(token, true)
-        token.clearReaction() //this must be done since the panel is immediately removed
-        token.addAction(sequence(ExplosionFadeout(), Actions.run(new Runnable {
-          def run() {
-            //I need to take care of this allocation eventually
-            token.tgtActor.free
-            token.free
-          }
-        })))
-        onTokenRemove(token)
-        tokenRemove(token)
+        removeToken(token)
       }
       i += 1
     }

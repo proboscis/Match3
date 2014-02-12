@@ -16,6 +16,10 @@ trait Trailed[A,B<:Actor]{
   addActor(trailRenderer)
   override protected def onTokenRemove(token: Token[A, B]){
     self.onTokenRemove(token)
+    explodeToken(token)
+  }
+  def explodeToken(token:Token[_,_]){
     trailRenderer.addParticles(token.getX+token.getWidth/2,token.getY+token.getHeight/2,token.getColor)
   }
+
 }

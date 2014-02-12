@@ -105,6 +105,8 @@ class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Textu
 
     val height = getHeight / 2 - label.getHeight / 2
     label.setPosition(getWidth, height)
+
+    apView.removeAllToken()
     label.addAction(sequence(
       parallel(
         moveTo(getWidth / 2 - label.getWidth / 2, height, 0.5f, exp10Out),

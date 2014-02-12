@@ -1,19 +1,15 @@
 package com.glyph._scala.lib.libgdx.actor.widgets
 
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
-import com.badlogic.gdx.scenes.scene2d.{Touchable, Actor}
+import com.badlogic.gdx.scenes.scene2d.{Group, Touchable, Actor}
 import com.badlogic.gdx.math.Vector2
 
 /**
  * @author glyph
  */
-trait Layered extends WidgetGroup {
+trait Layered extends Group {
 
   setTouchable(Touchable.childrenOnly)
-  override def layout() {
-    super.layout()
-    updateChildren()
-  }
   private def updateChildren(){
     val children = getChildren
     val array = children.begin()
