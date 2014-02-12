@@ -15,6 +15,7 @@ import com.glyph._scala.test.MockTransition
 import com.badlogic.gdx.assets.AssetManager
 import com.esotericsoftware.tablelayout.{Value, BaseTableLayout}
 import com.glyph._scala.lib.libgdx.actor.widgets.Center
+import com.glyph._scala.social.SocialManager
 
 /**
  * @author glyph
@@ -32,8 +33,10 @@ object GameResult {
     val scoreLabel = Center(new RLabel(skin, ease.map(s => "%.0f".format(s)))).left()
     val replayButton = new TextButton("Replay", skin) with Change
     val titleButton = new TextButton("Back to Title", skin) with Change
+    val dashBoardButton = new TextButton("Dash Board",skin) with Change
     replayButton.onChange = (e, a) => callbacks("replay")(Map())
     titleButton.onChange = (e, a) => callbacks("title")(Map())
+    dashBoardButton.onChange = (e,a) => SocialManager.manager.showDashBoard()
     add(ease)
     shownScore() = score
     defaults().space(20).padLeft(20).padRight(20).fill.expand
@@ -43,6 +46,7 @@ object GameResult {
     scoreTable.add(scoreLabel).fill.expand
     add(scoreTable).height(Value.percentHeight(0.7f)).row()
     add(replayButton).row()
+    add(dashBoardButton).row()
     add(titleButton).row()
   }
 }
