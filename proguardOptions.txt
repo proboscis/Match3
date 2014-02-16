@@ -1,4 +1,8 @@
- -keep class com.badlogic.gdx.backends.android.** { *; }
+ -keep class com.badlogic.gdx.backends.android.** {*;}
+ -keep class com.badlogic.gdx.backends.android.AndroidInputThreePlus
+ -keep class com.badlogic.gdx.backends.android.AndroidInput
+ -keep class com.badlogic.gdx.backends.android.AndroidFragmentApplication
+ -keep class com.badlogic.gdx.backends.android.**
  -keep class scala.collection.SeqLike {public protected *;}
  -keep class org.mozilla.** {*;}
  -keep class com.esotericsoftware.** {*;}
@@ -6,35 +10,62 @@
  public static **[] values();
  public static ** valueOf(java.lang.String);
  }
+
+ #two lines below are required to load the skin fron json
  -keep class com.badlogic.gdx.scenes.scene2d.ui.**
+ -keepclassmembers class com.badlogic.gdx.scenes.scene2d.ui.** { *;}
  -keep class com.badlogic.gdx.graphics.g2d.Sprite
  -keep class com.badlogic.gdx.scenes.scene2d.Actor
  -keep class com.glyph._scala.lib.libgdx.actor.SpriteActor
  -keep class com.badlogic.gdx.physics.box2d.** {*;}
- -keep class com.glyph_scala.test.**
+ -keepnames class com.glyph_scala.test.** 
  -keep class scala.Function0 
  -keep class scala.Function1
  -keep class scala.Function2
 
- -optimizationpasses 5
+ #trying to use reflection to create some implicit evidences
+ #this is for the reflective pooling
+ -keepclassmembers class * {
+ 	void reset();
+ }
+
+#this is required since libgdx 1.0
+-keep public class com.badlogic.gdx.backends.android.AndroidVisibilityListener {
+  public void createListener(com.badlogic.gdx.backends.android.AndroidApplication);
+}
+
+ #-optimizationpasses 5
+ -dontoptimize
+ -dontobfuscate
  -dontusemixedcaseclassnames
  -dontskipnonpubliclibraryclasses
+ -dontskipnonpubliclibraryclassmembers
  -dontpreverify
  -verbose
- -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+ #-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 
  -renamesourcefileattribute SourceFile
  -keepattributes SourceFile,LineNumberTable
 
+ -keep class aurelienribon.tweenengine.**
+ -keep class com.glyph._scala.lib.util.reactive.ClassScripter
+
  # http://stackoverflow.com/questions/4525661/android-proguard-cant-find-dynamically-referenced-class-javax-swing
+ -dontwarn
+ -dontnote
  -dontwarn java.awt.**
  -dontnote java.awt.**
  -dontwarn com.badlogic.gdx.jnigen.**
  -dontwarn com.badlogic.**
  -dontnote com.badlogic.**
+ -dontwarn scala.**
+ -dontnote scala.**
+ -dontwarn org.mozilla.**
+ -dontnote org.mozilla.**
+ -dontwarn org.slf4j.**
 
- -libraryjars /libs/gdx-backend-android.jar
- -libraryjars ../Pogopainter/libs/gdx.jar
+ -keep class com.badlogic.gdx.backends.android.**
+ -keep class com.glyph._scala.lib.**
 
  -keep public class * extends android.app.Activity
  -keep public class * extends android.app.Application
@@ -49,16 +80,15 @@
  -keep class * implements com.badlogic.gdx.utils.Json*
  -keep class com.google.**
  -keep class java.lang.reflect.**
- -keep class scala.collection.**
+ #-keep class scala.collection.**
 
  -keep class com.glyph._scala.lib.libgdx.screen.**
 
- -keep class com.glyph._scala.lib.libgdx.GLFuture*
- -keep class com.glyph.LoaderContext* 
+ -keep class com.glyph._scala.lib.libgdx.GLFuture
+ -keep class com.glyph.LoaderContext
  -keepattributes Signature
 
  # https://ofdev.zendesk.com/entries/20461397-android-pointless-proguard-cfg
- -keep class com.openfeint** { <methods>; }
 
  -keepnames class * implements java.io.Serializable
 
@@ -95,3 +125,24 @@
  -keep class com.android.vending.billing.**
 
  -keep enum * {    public static **[] values();    public static ** valueOf(java.lang.String); }
+
+ #google play services
+ -keep class * extends java.util.ListResourceBundle {
+    protected java.lang.Object[][] getContents();
+}
+
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+-keepnames @com.google.android.gms.common.annotation.KeepName class *
+-keepclassmembernames class * {
+    @com.google.android.gms.common.annotation.KeepName *;
+}
+
+-keepnames class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}
+
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**

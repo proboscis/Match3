@@ -8,8 +8,6 @@ resolvers += "sonatype-public" at "https://oss.sonatype.org/content/groups/publi
 
 resolvers += "spray" at "http://repo.spray.io/"
 
-addSbtPlugin("com.github.mpeltonen" % "sbt-android-plugin" % "0.6.3-SNAPSHOT")
+addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % "1.2.9")
 
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.3.0-SNAPSHOT")
-
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.9.2")
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.7.0-SNAPSHOT")

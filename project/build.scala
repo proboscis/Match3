@@ -1,144 +1,65 @@
 import sbt._
+import sbt.Keys._
+import android.Keys._
+import android.Dependencies.{apklib,aar,AutoLibraryProject}
+import scala.io.Source
 
-import Keys._
-import org.scalasbt.androidplugin._
-import org.scalasbt.androidplugin.AndroidKeys._
-import sbtassembly.Plugin._
-import AssemblyKeys._
-object Constants{
+object LibgdxBuild extends Build {
+  val sVersion = "2.10.3"//scala version
   val scalazVersion = "7.0.4"
-  val liftVersion = "2.5"
-  val sVersion = "2.10.3"
-  val gdxVersion = "1.0-SNAPSHOT"
-}
-object Settings {
-  import Constants._
-  lazy val common = Defaults.defaultSettings ++ Seq (
-    version := "0.2",
+  lazy val droid = Project(id="android",base=file("android")) settings (androidSettings :_*) dependsOn(core)
+  lazy val desktop = Project(id="desktop",base=file("desktop")) settings (desktopSettings :_*) dependsOn(core)
+  lazy val core = Project(id="core",base=file("core")) settings(coreSettings:_*) dependsOn(macro)
+  lazy val macro = Project(id="macro",base=file("macro")) settings(macroSettings:_*)
+  lazy val root = Project(id="root",base=file(".")) settings(rootSettings:_*) aggregate(macro,core,desktop,droid)
+
+  lazy val commonSettings = (watchSources ~= { _.filterNot(_.isDirectory) }) ++ Seq (
     scalaVersion := sVersion,
-    resolvers += "spray" at "http://repo.spray.io/"//this is required to use spray
-    ,
-    {
-      libraryDependencies ++=  Seq(
-        "org.scalaz" %% "scalaz-core" % scalazVersion,
-        "org.scalaz" %% "scalaz-effect" % scalazVersion,
-        "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
-        "com.chuusai" % "shapeless" % "2.0.0-M1" cross CrossVersion.full,
-        "com.github.scaldi" %% "scaldi" % "0.2",
-        "io.spray" %%  "spray-json" % "1.2.5")
-      },
-    //scalacOptions ++=Seq("-optimize"),
-    //scalacOptions ++=Seq("-Xprint:lambdalift"),
     scalacOptions ++=Seq("-feature"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),//this is required to avoid "bad file magic" problems
     javacOptions ++= Seq("-encoding","utf8")//this is required to avoid encoding issues with japanese comments in Windows
-    ,
-    resolvers += Resolver.sonatypeRepo("snapshots")
-    ,
-    addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise" % "2.0.0-SNAPSHOT" cross CrossVersion.full)
-    ,
-    updateLibgdxTask
     )
-  lazy val desktop = Settings.common ++  Seq (
-    fork in Compile := true
-    ) 
-  lazy val android = Settings.common ++
-  AndroidProject.androidSettings ++
-  AndroidMarketPublish.settings ++ Seq (
-    platformName in Android := "android-11",
-    keyalias in Android := "change-me",
-    mainAssetsPath in Android := file("common/src/main/resources"),
-    unmanagedBase <<= baseDirectory( _ /"src/main/libs" ),
-    proguardOption in Android := {
-      import scala.io.Source
-      val options = Source.fromFile("./proguardOptions.txt").getLines.mkString(" ")
-      options
-    }
+  lazy val androidSettings = commonSettings ++ android.Plugin.androidBuild(core) ++ Seq(
+    platformTarget in Android := "android-11",
+    dexMaxHeap in Android := "1408m",
+    proguardCache in Android ++= Seq(
+      ProguardCache("scalaz") % "org.scalaz" ,
+      ProguardCache("android") % "android",
+      ProguardCache("java") % "java",
+      ProguardCache("javax") % "javax",
+      ProguardCache("io.spray") % "io.spray"
+      ),
+    proguardOptions in Android ++= Source.fromFile("./proguardOptions.txt").getLines.toSeq,
+      localProjects in Android <+= (baseDirectory) {
+        b => AutoLibraryProject(b/".."/"play")
+      }
     )
-  val updateLibgdx = TaskKey[Unit]("update-gdx", "Updates libgdx")
-
-  val updateLibgdxTask = updateLibgdx <<= streams map { (s: TaskStreams) =>
-    import Process._
-    import java.io._
-    import java.net.URL
-    import java.util.regex.Pattern
-
-    // Declare names
-    val baseUrl = "http://libgdx.badlogicgames.com/nightlies"
-    val gdxName = "libgdx-nightly-latest"
-
-    // Fetch the file.
-    s.log.info("Pulling %s" format(gdxName))
-    s.log.warn("This may take a few minutes...")
-    val zipName = "%s.zip" format(gdxName)
-    val zipFile = new java.io.File(zipName)
-    val url = new URL("%s/%s" format(baseUrl, zipName))
-    IO.download(url, zipFile)
-
-    // Extract jars into their respective lib folders.
-    s.log.info("Extracting common libs")
-    val commonDest = file("common/lib")
-    val commonFilter = new ExactFilter("gdx.jar")
-    IO.unzip(zipFile, commonDest, commonFilter)
-
-    s.log.info("Extracting desktop libs")
-    val desktopDest = file("desktop/lib")
-    val desktopFilter = new ExactFilter("gdx-natives.jar") |
-    new ExactFilter("gdx-backend-lwjgl.jar") |
-    new ExactFilter("gdx-backend-lwjgl-natives.jar")
-    IO.unzip(zipFile, desktopDest, desktopFilter)
-
-    s.log.info("Extracting ios libs")
-    val iosDest = file("ios/libs")
-    val iosFilter = GlobFilter("ios/*")
-    IO.unzip(zipFile, iosDest, iosFilter)
-
-    s.log.info("Extracting android libs")
-    val androidDest = file("android/src/main/libs")
-    val androidFilter = new ExactFilter("gdx-backend-android.jar") |
-    new ExactFilter("armeabi/libgdx.so") |
-    new ExactFilter("armeabi/libandroidgl20.so") |
-    new ExactFilter("armeabi-v7a/libgdx.so") |
-    new ExactFilter("armeabi-v7a/libandroidgl20.so")
-    IO.unzip(zipFile, androidDest, androidFilter)
-
-    // Destroy the file.
-    zipFile.delete
-    s.log.info("Update complete")
-  }
-}
-
-object LibgdxBuild extends Build {
-  import Constants._
-  lazy val macros = Project(
-    "macros",
-    file("macros"),
-    settings = Settings.common ++ Seq(libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _))
-    )
-
-  val common = Project (
-    "common",
-    file("common"),
-    settings = Settings.common
-    ) dependsOn macros
-
-  lazy val desktop = Project (
-    "desktop",
-    file("desktop"),
-    settings = Settings.desktop ++ assemblySettings ++ Seq(
-      libraryDependencies ++= Seq(
-        "com.googlecode.scalascriptengine" % "scalascriptengine" % ("1.3.7-"+sVersion),
-        "org.scala-lang" % "scala-compiler" % sVersion,
-        "org.scala-lang" % "scala-reflect" % sVersion,
-        "org.scalacheck" %% "scalacheck" % "1.10.1" % "test",
-        "com.github.scopt" %% "scopt" % "3.1.0"
-        )
+  lazy val desktopSettings = commonSettings ++ Seq(
+    //this creates new jvm for the task
+    fork in Compile := true,
+    //set android assets folder as working directory
+    baseDirectory in run <<= baseDirectory((base:File)=>base / "../android/assets"),
+    libraryDependencies ++= Seq(
+      "com.googlecode.scalascriptengine" % "scalascriptengine" % ("1.3.7-"+sVersion),
+      "org.scala-lang" % "scala-compiler" % sVersion,
+      "org.scala-lang" % "scala-reflect" % sVersion,
+      "org.scalacheck" %% "scalacheck" % "1.10.1" % "test",
+      "com.github.scopt" %% "scopt" % "3.1.0"
       )
-    ) dependsOn common 
-
-  lazy val android = Project (
-    "android",
-    file("android"),
-    settings = Settings.android
-    ) dependsOn common
-}
+    )
+  lazy val coreSettings = commonSettings ++ Seq(
+    exportJars in Compile := true,
+    libraryDependencies ++= Seq(
+      "org.scalaz" %% "scalaz-core" % scalazVersion,
+      "org.scalaz" %% "scalaz-effect" % scalazVersion,
+      "org.scalaz" %% "scalaz-typelevel" % scalazVersion,
+      "com.chuusai" % "shapeless" % "2.0.0-M1" cross CrossVersion.full,
+      "io.spray" %%  "spray-json" % "1.2.5"
+      )
+    )
+  lazy val macroSettings = commonSettings ++ Seq(
+    exportJars in Compile:= true,//dont forget to export this project as a jar!
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
+    )
+  lazy val rootSettings = commonSettings ++ android.Plugin.androidCommands
+} 
