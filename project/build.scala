@@ -22,13 +22,17 @@ object LibgdxBuild extends Build {
   lazy val androidSettings = commonSettings ++ android.Plugin.androidBuild(core) ++ Seq(
     platformTarget in Android := "android-11",
     dexMaxHeap in Android := "1408m",
+    /* //ProguardCache is disabled in my plugin!!!
     proguardCache in Android ++= Seq(
       ProguardCache("scalaz") % "org.scalaz" ,
       ProguardCache("android") % "android",
       ProguardCache("java") % "java",
       ProguardCache("javax") % "javax",
-      ProguardCache("io.spray") % "io.spray"
-      ),
+      ProguardCache("spray") % "io.spray",
+      ProguardCache("shapeless") % "com.chuusai"
+      )
+  */
+    proguardCache in Android := Seq(),
     proguardOptions in Android ++= Source.fromFile("./proguardOptions.txt").getLines.toSeq,
       localProjects in Android <+= (baseDirectory) {
         b => AutoLibraryProject(b/".."/"play")

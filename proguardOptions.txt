@@ -114,6 +114,8 @@
  public <init>(android.content.Context, android.util.AttributeSet, int);
  }
 
+ -keep class * extends android.view.View
+
  -keepclassmembers class * extends android.app.Activity {
  public void *(android.view.View);
  }
@@ -126,7 +128,15 @@
 
  -keep enum * {    public static **[] values();    public static ** valueOf(java.lang.String); }
 
+#============================================================
+# spray json
+#============================================================
+-keep class spray.json.**
+
+
+ #===========================================================================
  #google play services
+ #===========================================================================
  -keep class * extends java.util.ListResourceBundle {
     protected java.lang.Object[][] getContents();
 }
@@ -143,6 +153,7 @@
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
 }
-
--keep class com.google.android.gms.** { *; }
+# the last "{*;}" was important!!! never forget this or 
+# it ends with abstract method not implemented error
+-keep class com.google.** {*;}
 -dontwarn com.google.android.gms.**
