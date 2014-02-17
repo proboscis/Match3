@@ -16,6 +16,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.esotericsoftware.tablelayout.{Value, BaseTableLayout}
 import com.glyph._scala.lib.libgdx.actor.widgets.Center
 import com.glyph._scala.social.SocialManager
+import com.glyph._scala.game.action_puzzle.{ComboPuzzle, LocalLeaderBoard}
 
 /**
  * @author glyph
@@ -36,7 +37,7 @@ object GameResult {
     val dashBoardButton = new TextButton("Dash Board",skin) with Change
     replayButton.onChange = (e, a) => callbacks("replay")(Map())
     titleButton.onChange = (e, a) => callbacks("title")(Map())
-    dashBoardButton.onChange = (e,a) => SocialManager.manager.showDashBoard()
+    dashBoardButton.onChange = (e,a) => SocialManager.manager.showGlobalHighScore()
     add(ease)
     shownScore() = score
     defaults().space(20).padLeft(20).padRight(20).fill.expand
@@ -48,6 +49,9 @@ object GameResult {
     add(replayButton).row()
     add(dashBoardButton).row()
     add(titleButton).row()
+    log("highscore:=>")
+    LocalLeaderBoard.load(ComboPuzzle.LOCAL_LEADERBOARD).foreach(log)
+    log("highscore:<=")
   }
 }
 

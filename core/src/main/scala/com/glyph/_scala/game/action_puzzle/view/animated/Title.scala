@@ -38,7 +38,7 @@ object Title {
                   label.setPosition(400, 400)
                 }),
                 moveTo(cell.getWidgetX, cell.getWidgetY, 0.3f, exp10Out),
-                delay(1f),
+                delay(0.2f),
                 ActionOps.run(() => {
                   cb()
                   GdxUtil.post{// you must post!!! this bug is so hard to find the cause...

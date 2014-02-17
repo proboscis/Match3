@@ -39,6 +39,12 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
   implicit val iftPool = Pool[InterpolatedFunctionTask](1000)
   implicit val spritePool = Pool[Sprite](10000)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite]())((buf: ArrayBuffer[Sprite]) => buf.clear())(1000)
+  velBufPool.preAlloc(6*6)
+  trailPool.preAlloc(6*6*20)
+  tftPool.preAlloc(6*6)
+  iftPool.preAlloc(6*6)
+  spritePool.preAlloc(6*6*20)
+  bufPool.preAlloc(6*6)
 
   //preAlloc[GivenTrail](1000)
   //preAlloc[Sprite](1000)

@@ -8,13 +8,15 @@ import com.glyph._scala.test.TestRunner
 import javax.microedition.khronos.egl.{EGLConfig, EGL10, EGLContext}
 import com.glyph._scala.lib.injection.GLExecutionContext
 import android.graphics.SurfaceTexture
-import com.glyph.play.{GameService, PlayManagerActivity}
+import com.glyph.play.{SocialService, GameService, PlayManagerActivity}
+import com.badlogic.gdx.Gdx
 
 class Main
   extends AndroidApplication
   with Logging
   with PlayManagerActivity
-  with GameService {
+  with GameService
+  with SocialService{
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     val config = new AndroidApplicationConfiguration()
@@ -35,11 +37,6 @@ class Main
     }, Thread.currentThread().getName + "logic", 64000000).run()
     //TODO startactivity called from non activity context.
   }
-
-  override def onConnected(bundle: Bundle): Unit = {
-    super.onConnected(bundle)
-    queryLeaderBoard()
-  }
 }
 
 class LoaderContext extends GLExecutionContext {
@@ -57,7 +54,8 @@ object LoaderContext extends Logging with Threading {
   //I think i gotta handle the context loss too.
   val queue = new mutable.SynchronizedQueue[Runnable]()
   val EGL_CONTEXT_CLIENT_VERSION = 0x3098
-
+//TODO recreate this context on context loss
+  //this is a bit difficult task... but worth a time.
   def initialize() {
     val egl = EGLContext.getEGL.asInstanceOf[EGL10]
     val context = egl.eglGetCurrentContext()

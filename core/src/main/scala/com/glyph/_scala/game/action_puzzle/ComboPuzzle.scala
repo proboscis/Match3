@@ -2,14 +2,17 @@ package com.glyph._scala.game.action_puzzle
 
 import com.glyph._scala.lib.util.reactive.{FloatVar, Var}
 import com.badlogic.gdx.math.MathUtils
+import com.glyph._scala.lib.util.Logging
+import com.glyph._scala.social.SocialManager
 
 /**
  * @author glyph
  */
-class ComboPuzzle {
+class ComboPuzzle extends Logging{
+  import ComboPuzzle._
   /**
    * どのような面白さにするか・・・
-   * プレイヤーの目的は、パネルを消すことなんですよ。
+   * プレイヤーの目的は、パネルを消すことなんですよ。\
    * そこで、スコアは副次的なものなんですね
    * パネルを”うまく”消すのが、楽しいアクションパズルになるわけｓで
    */
@@ -17,7 +20,7 @@ class ComboPuzzle {
     a == b
   })
   val score = Var(0)
-  val time = FloatVar(2f)// forget about the reactive programming!! the beauty of the implementation means nothing!!! the structure does matter, however.
+  val time = FloatVar(10f)// forget about the reactive programming!! the beauty of the implementation means nothing!!! the structure does matter, however.
   val combo = Var(0)
   var isGameOver = false
   def update(delta:Float){
@@ -27,6 +30,9 @@ class ComboPuzzle {
     }
     if(time() <= 0 && !isGameOver){
       isGameOver = true
+      SocialManager.manager.submitScore(score().toLong)
+      val newScores = LocalLeaderBoard.load(LOCAL_LEADERBOARD) :+ (System.currentTimeMillis()->score().toLong)
+      LocalLeaderBoard.save(LOCAL_LEADERBOARD,newScores)
       onGameOver()
     }
   }
@@ -41,6 +47,9 @@ class ComboPuzzle {
     onPanelAdd(seq)
   }
   var onGameOver = ()=>{
-
   }
+
+}
+object ComboPuzzle{
+  val LOCAL_LEADERBOARD = getClass.getCanonicalName + "local_leaderboard.json"
 }

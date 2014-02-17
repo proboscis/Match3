@@ -1,6 +1,6 @@
 package com.glyph.play
 
-import com.google.android.gms.common.api.{ResultCallback, Scope, Api, GoogleApiClient}
+import com.google.android.gms.common.api.{Scope, Api, GoogleApiClient}
 import com.google.android.gms.common.api.GoogleApiClient.{OnConnectionFailedListener, ConnectionCallbacks, Builder}
 import android.content.Intent
 import android.os.Bundle
@@ -10,10 +10,9 @@ import com.glyph._scala.lib.util.Logging
 import com.google.android.gms.games.{GamesActivityResultCodes, Games}
 import scalaz._
 import Scalaz._
-import com.google.android.gms.drive.query.Query
-import com.google.android.gms.games.leaderboard.LeaderboardVariant
-import com.google.android.gms.games.leaderboard.Leaderboards.LoadScoresResult
 import com.glyph.make3.R
+import com.badlogic.gdx.math.MathUtils
+import com.glyph._scala.social.SocialManager
 
 /**
  * @author glyph
@@ -116,12 +115,14 @@ trait GameService extends PlayManagerActivity {
 
   lazy val highScoreId = getResources.getString(R.string.leaderboard_HighScore)
 
-  val REQUEST_SHOW_ALL_LEADERBOARD = 1006
+  object REQUEST extends Enumeration(1992){
+    val SHOW_ALL,HIGH_SCORE = Value
+  }
 
   def queryLeaderBoard() {
     log("query get leader board")
-    import LeaderboardVariant._
-    startActivityForResult(Games.Leaderboards.getAllLeaderboardsIntent(client),REQUEST_SHOW_ALL_LEADERBOARD)
+    startActivityForResult(Games.Leaderboards.getLeaderboardIntent(client,highScoreId),REQUEST.HIGH_SCORE.id)
+    //startActivityForResult(Games.Leaderboards.getAllLeaderboardsIntent(client), REQUEST.SHOW_ALL.id)
     /*
     // I want this api to be in a future form..
     val pendingResult = Games.Leaderboards.loadTopScores(client, highScoreId, TIME_SPAN_ALL_TIME, COLLECTION_PUBLIC, 10)
@@ -139,6 +140,16 @@ trait GameService extends PlayManagerActivity {
     }
     */
   }
+}
+trait SocialService extends GameService with SocialManager{
+  override def showGlobalHighScore(): Unit = queryLeaderBoard()
+  override def onConnected(bundle: Bundle): Unit = {
+    super.onConnected(bundle)
+    log("set social manager instance to this instance")
+    //this is required to invoke platform codes form core programs.
+    SocialManager.manager = this
+  }
+  override def submitScore(score: Long): Unit =  Games.Leaderboards.submitScore(client,highScoreId,score)
 }
 
 object PlayManagerHelper {
