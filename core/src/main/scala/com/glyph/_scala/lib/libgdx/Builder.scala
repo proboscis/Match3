@@ -7,7 +7,7 @@ import com.glyph._scala.lib.libgdx.screen.ScreenBuilder.Assets
 import com.glyph._scala.lib.util.extraction.Extractable
 
 /**
- * thing that require assets to be loaded should use this builder.
+ * thing that require assets to be loaded should use this target.
  * @tparam T
  */
 trait Builder[+T] {

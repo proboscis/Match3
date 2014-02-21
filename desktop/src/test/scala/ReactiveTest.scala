@@ -19,7 +19,7 @@ object ReactiveTest extends Properties("Var") {
       (a() + b()) == c()
     }
   }
-  property("apllicative builder") = forAll {
+  property("apllicative target") = forAll {
     (a1: Int, b1: String, c1: Double) => {
       // Some(1) |+| Some(2)
       val a = Var(a1)

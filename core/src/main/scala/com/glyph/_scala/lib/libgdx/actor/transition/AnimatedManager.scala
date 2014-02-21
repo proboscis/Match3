@@ -32,10 +32,10 @@ object AnimatedManager {
   type Callbacks = String Map Callback
   type AnimatedConstructor = Info => Callbacks => Actor with Animated
   type AnimatedGraph = Map[AnimatedConstructor, Map[String, (AnimatedActor => Unit, AnimatedConstructor)]]
-  type TransitionMethod= AnimatedActor => Unit
+  type TransitionMethod = AnimatedActor => Unit
 }
 
-trait LoadingAnimation[E[_],T] extends AnimatedExtractor[E,T] {
+trait LoadingAnimation[E[_], T] extends AnimatedExtractor[E, T] {
   val loadingAnimation: AnimatedActor
 
   override def onExtractionComplete(): Unit = {
@@ -51,7 +51,7 @@ trait LoadingAnimation[E[_],T] extends AnimatedExtractor[E,T] {
         //start loading after animation
         super.in(cb)
       })
-    }else{
+    } else {
       super.in(cb)
     }
   }
@@ -61,7 +61,7 @@ trait LoadingAnimation[E[_],T] extends AnimatedExtractor[E,T] {
       resume(loadingAnimation)(() => {
         super.resume(cb)
       })
-    }else{
+    } else {
       super.resume(cb)
     }
   }
@@ -73,14 +73,112 @@ trait LoadingAnimation[E[_],T] extends AnimatedExtractor[E,T] {
     super.out(cb)
   }
 }
+import scalaz._
+import Scalaz._
 
-class AnimatedExtractor[E[_],T](info: Info, callbacks: Callbacks, val target: E[T],mapper:T=>AnimatedConstructor)(implicit val assets: AssetManager, val extractable: Extractable[E])
+trait MonadicAnimated[T] extends Animated{
+  val holder:AnimatedActorHolder
+  val animation:Actor with Animated
+  def map[R](f:T=>R):MonadicAnimated[R]
+  def flatMap[R](f:T=>MonadicAnimated[R]):MonadicAnimated[R]
+  def addOnComplete(onComplete:T=>Unit)
+}
+class EmptyOne[E:Extractable,T](override val holder:AnimatedActorHolder) extends MonadicAnimated[T]{
+  var target:E[T] = null
+  def onComplete(result:T)
+  override def map[R](f: (T) => R): MonadicAnimated[R] = {
+    val empty = new EmptyOne[E,R](holder)
+    addOnComplete(t =>  empty.onComplete(f(t)))
+    empty
+    //TODO all animations are to be passed to the parent.
+    //TODO make animations work properly
+  }
+
+  override def flatMap[R](f: (T) => MonadicAnimated[R]): MonadicAnimated[R] = {
+    val empty = new EmptyOne[E,R](holder)
+    // when this is done
+    addOnComplete(res1 =>{
+      //create next one
+      val animated = f(res1)
+      //add a callback
+      animated.addOnComplete(res2 => {
+        empty.onComplete(res2)
+      })
+      //start animation
+      holder.in(animated.animation)(() =>{})
+      //will be callbacked as if this is calling back.
+    })
+    empty
+  }
+}
+
+class AnimatedExtraction[E: Extractable, T](target: E[T])(val animation: Actor with Animated)(override val holder: AnimatedActorHolder)
+  extends MonadicAnimated[T]{
+  self =>
+  var extracting = false
+  val extractable = implicitly[Extractable[E]]
+  var result: T = null
+
+  def isCompleted = result != null
+
+
+  override def map[R](f: (T) => R): MonadicAnimated[R] = new AnimatedExtraction(target.map(f))(animation)(holder)
+
+  override def flatMap[R](f: (T) => MonadicAnimated[R]): MonadicAnimated[R] = ???
+
+  def onComplete(res: T) {
+    if (holder.getChildren.contains(animation, true)) {
+      holder.out(animation)(() => {})
+    }
+  }
+
+  override def in(cb: () => Unit): Unit = {
+    if (!extractable.isExtracted(target)) {
+      holder.in(animation)(() => {
+        extractable.extract(target)(res => {
+          result = res
+          onComplete(res)
+        })
+      })
+    } else {
+      cb()
+    }
+  }
+
+  override def resume(cb: () => Unit): Unit = {
+    if (!extractable.isExtracted(target)) {
+      holder.resume(animation)(() => {
+        cb()
+      })
+    } else {
+      cb()
+    }
+  }
+
+  override def out(cb: () => Unit): Unit = {
+    if (holder.getChildren.contains(animation, true)) {
+      holder.out(animation)(() => {})
+    }
+    cb()
+  }
+
+  override def pause(cb: () => Unit): Unit = {
+    if (holder.getChildren.contains(animation, true)) {
+      holder.pause(animation)(() => {})
+    }
+    cb()
+  }
+}
+
+class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E[T], mapper: T => AnimatedConstructor)(implicit val assets: AssetManager, val extractable: Extractable[E])
   extends Layers
   with Animated
   with AnimatedActorHolder {
   var extracting = false
   var constructed: AnimatedActor = null
+
   def onExtractionComplete() {}
+
   override def in(cb: () => Unit): Unit = {
     extracting = true
     extractable.extract(target)(constructor => {
@@ -163,6 +261,7 @@ trait AnimatedActorHolder extends Layers {
 trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging {
   val builderStack = collection.mutable.Stack[AnimatedActor]()
   var currentAnimated: Actor with Animated = null
+
   def push(animated: AnimatedActor) {
     pauseCurrent()
     inBuilder(animated)
@@ -178,6 +277,7 @@ trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging {
       }
     }
   }
+
   def switch(animated: AnimatedActor) {
     if (!builderStack.isEmpty) {
       outCurrent()

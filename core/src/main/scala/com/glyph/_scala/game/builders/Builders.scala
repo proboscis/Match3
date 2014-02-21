@@ -29,6 +29,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.glyph._scala.game.builders.Builders._
 import scala.language.higherKinds
 import com.glyph._scala.lib.libgdx.actor.widgets.Center
+import com.glyph._scala.lib.util.Animated
+import com.badlogic.gdx.scenes.scene2d.Actor
 
 /**
  * @author proboscis
@@ -81,9 +83,15 @@ object Builders {
 }
 
 object AnimatedConstructors {
+  /*
+  trait AnimatedExtractor[E] extends Actor with Animated{
+  }
+  implicit object
+  */
+
   /**
    * this method requires some resources to be loaded
-   * @param builder
+   * @param target
    * @param mapper
    * @param name
    * @param extractor
@@ -93,11 +101,11 @@ object AnimatedConstructors {
    * @return
    */
   def extract[E[_], T]
-  (builder: E[T])
+  (target: E[T])
   (mapper: T => AnimatedConstructor)
   (name: String)
   (implicit extractor: Extractable[E], assets: AssetManager): AnimatedConstructor =
-    info => callbacks => new AnimatedExtractor(info, callbacks, builder, mapper) with LoadingAnimation[E, T] {
+    info => callbacks => new AnimatedExtractor(info, callbacks, target, mapper) with LoadingAnimation[E, T] {
       override val loadingAnimation: AnimatedActor = new AnimatedTable {
         debug()
         //TODO use preloaded resources to show while loading
@@ -121,4 +129,5 @@ object AnimatedConstructors {
         extract[({type l[A] = () => Future[A]})#l, AnimatedConstructor](builder)(a => a)
           ("initializing")
     )("loading")
+
 }

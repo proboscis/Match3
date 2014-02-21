@@ -30,8 +30,8 @@ trait AnimatedRunner extends ConfiguredScreen {
 }
 
 trait MockTransition extends AnimatedRunner {
-  implicit val _1 = builderExtractor
-  implicit val _2 = functionExtractor
+  private implicit val _1 = builderExtractor
+  private implicit val _2 = functionExtractor
   val menu = AnimatedConstructors.menu
   val title = AnimatedConstructors.title
   val result = AnimatedConstructors.result
@@ -56,4 +56,8 @@ trait MockTransition extends AnimatedRunner {
       "title" ->(switch, title)
     )
   )
+}
+trait AnimatedMock extends MockTransition{
+  //beware of second asset manager!
+  override implicit def assetManager: AssetManager = new AssetManager
 }

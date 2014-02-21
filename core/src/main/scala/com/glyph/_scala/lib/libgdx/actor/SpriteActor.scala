@@ -8,6 +8,10 @@ import com.badlogic.gdx.graphics.Texture
  */
 class SpriteActor extends DrawSprite{
   val sprite = new Sprite
+  def this(texture:Texture)={
+    this()
+    setup(texture)
+  }
   def reset() {
     sprite.setTexture(null)
     clear()

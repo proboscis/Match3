@@ -63,7 +63,7 @@ object Keys {
   val apkbuildExcludes = SettingKey[Seq[String]]("apkbuild-excludes",
     "filepaths to exclude from apk, e.g. in case of duplicates")
   val apkbuild = TaskKey[File]("apkbuild", "generates an apk")
-  val builder = TaskKey[AndroidBuilder]("builder", "AndroidBuilder object")
+  val builder = TaskKey[AndroidBuilder]("target", "AndroidBuilder object")
   val packageRelease = TaskKey[File]("package-release", "create a release apk")
   val packageDebug = TaskKey[File]("package-debug", "create a debug apk")
   val collectJni = TaskKey[File]("collect-jni",

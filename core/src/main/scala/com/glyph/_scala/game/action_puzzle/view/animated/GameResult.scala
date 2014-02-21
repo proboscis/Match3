@@ -67,6 +67,5 @@ trait Change {
 
 class GameResultTest extends MockTransition {
   override implicit def assetManager: AssetManager = new AssetManager()
-
   manager.start(result, Map("score" -> 1000), holder.push)
 }
