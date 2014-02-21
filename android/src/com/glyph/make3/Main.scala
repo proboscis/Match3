@@ -77,6 +77,7 @@ object LoaderContext extends Logging with Threading {
           //this only works on andriod 3.0 or later
           val surface = egl.eglCreateWindowSurface(display, configs(0), textureSurface, null)
           egl.eglMakeCurrent(display, surface, surface, loadingContext)
+
           log("start loading")
           while (true) {
             queue.synchronized {
@@ -95,5 +96,11 @@ object LoaderContext extends Logging with Threading {
         err("error code:" + egl.eglGetError())
       }
     }.start()
+  }
+  def onResume(){
+    
+  }
+  def onPause(){
+
   }
 }
