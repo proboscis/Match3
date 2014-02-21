@@ -2,16 +2,20 @@ package com.glyph._scala.lib.injection
 
 import scala.concurrent.ExecutionContext
 import com.badlogic.gdx.Gdx
-import com.glyph._scala.lib.libgdx.gl.ShaderHandler
 
 trait GLExecutionContext extends ExecutionContext
 
 object GLExecutionContext extends ExecutionContext {
-  var context: GLExecutionContext = new DefaultGLExecutionContext
+  private var _context: GLExecutionContext = new DefaultGLExecutionContext
+  def context_=(c:GLExecutionContext) = _context.synchronized {_context = c}
+  def context = _context.synchronized{_context}
+  override def execute(runnable: Runnable): Unit = _context.synchronized{
+      _context.execute(runnable)
+  }
 
-  override def execute(runnable: Runnable): Unit = context.execute(runnable)
-
-  override def reportFailure(t: Throwable): Unit = context.reportFailure(t)
+  override def reportFailure(t: Throwable): Unit = _context.synchronized{
+    _context.reportFailure(t)
+  }
 }
 
 class DefaultGLExecutionContext extends GLExecutionContext {
