@@ -21,7 +21,8 @@ resourceDirectory in Compile <<= baseDirectory(_ / "resources")
 libraryDependencies ++= Seq(
   "asm" % "asm-all" % "3.3.1",
   "net.sf.proguard" % "proguard-base" % "4.10",
-  "com.android.tools.build" % "target" % "0.7.3"
+  //"com.android.tools.build" % "target" % "0.7.3"
+  "com.android.tools.build" % "builder" % "0.7.3"
 )
 
 sbtPlugin := true
