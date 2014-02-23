@@ -27,12 +27,14 @@ trait AnimatedRunner extends ConfiguredScreen {
   implicit val builderExtractor = new BuilderExtractor2
   implicit val functionExtractor = ExtractableFunctionFuture
   lazy val manager = new AnimatedManager(graph)
+
 }
 
 trait MockTransition extends AnimatedRunner {
   private implicit val _1 = builderExtractor
   private implicit val _2 = functionExtractor
   val menu = AnimatedConstructors.menu
+
   val title = AnimatedConstructors.title
   val result = AnimatedConstructors.result
   val puzzle = AnimatedConstructors.puzzle

@@ -18,7 +18,7 @@ object Main {
 
   case class Config(
                      screenFile: String = "screens/action.js",
-                     resDir: File = new File("../android/assets/"),
+                     resDir: File = new File(""/*"../android/assets/"*/),
                      fileCheck: Boolean = false,
                      packTexture: Boolean = false,
                      testScreen: String = "",

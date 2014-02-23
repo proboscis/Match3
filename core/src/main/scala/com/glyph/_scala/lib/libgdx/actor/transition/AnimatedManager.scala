@@ -6,13 +6,11 @@ import AnimatedManager._
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder.AnimatedActor
 import com.glyph._scala.lib.libgdx.actor.table.Layers
-import com.glyph._scala.game.Glyphs
-import Glyphs._
 import com.glyph._scala.lib.util.extraction.Extractable
 import scala.collection.mutable.ArrayBuffer
-import com.glyph._scala.lib.libgdx.actor.AnimatedTable
 
-
+import scalaz._
+import Scalaz._
 class AnimatedManager
 (builderMap: AnimatedGraph)
 (implicit assets: AssetManager) {
@@ -76,83 +74,102 @@ trait LoadingAnimation[E[_], T] extends AnimatedExtractor[E, T] {
   }
 }
 
-import scalaz._
-import Scalaz._
 
-trait MonadicAnimated[T] extends Animated {
-  val holder: AnimatedActorHolder
+trait MonadicAnimated[T] extends AnimatedActorHolder with Animated {
   val animation: Actor with Animated
+
   def map[R](f: T => R): MonadicAnimated[R]
+
   def flatMap[R](f: T => MonadicAnimated[R]): MonadicAnimated[R]
+
   def addOnComplete(onComplete: T => Unit)
 }
 
-object MonadicAnimated{
-  def extract[E:Extractable,T]
-  (target:E[T])
-  (animation:Actor with Animated)
-  (holder:AnimatedActorHolder):MonadicAnimated[T] = {
-    val empty = new EmptyOne[E,T](holder)(animation)
+object MonadicAnimated extends Logging{
+  def extract[E[_] : Extractable, T]
+  (target: E[T])
+  (animation: Actor with Animated): MonadicAnimated[T] = {
+    val empty = new EmptyOne[E, T](animation)
     empty.target = target
     empty
   }
-}
 
-class EmptyOne[E: Extractable, T]
-(override val holder: AnimatedActorHolder)
-(override val animation:Actor with Animated)
-  extends MonadicAnimated[T] {
+  def toAnimatedConstructor(extractor: MonadicAnimated[AnimatedConstructor]): AnimatedConstructor = info => callbacks => {
+    extractor.addOnComplete(
+      constructor => {
+        log("summed extractable is extracted.")
+        extractor.in(constructor(info)(callbacks))(()=>{})
+      }
+    )
+    extractor
+  }
+}
+//ISSUE onComplet is not called some how..
+class EmptyOne[E[_] : Extractable, T]
+(override val animation: Actor with Animated)
+  extends MonadicAnimated[T] with Logging{
+  self =>
   val extractor = implicitly[Extractable[E]]
-  var target: E[T] = null
-  val callbacks = new ArrayBuffer[T=>Unit]()
+  var target: E[T] = null.asInstanceOf[E[T]]
+  val callbacks = new ArrayBuffer[T => Unit]()
   var extracting = false
 
-  def extract[F:Extractable,R](target:F[R])(callback:R=>Unit){
+  def extract[F[_] : Extractable, R](target: F[R])(callback: R => Unit) {
+    log("extract!")
     val extractor = implicitly[Extractable[F]]
-    if (!extractor.isExtracted(target) && extracting) {
-      holder.in(animation)(() => {
+    assert(target!= null)
+    if (!extractor.isExtracted(target) && !extracting) {
+      log("started animation because not extracted and extracting.")
+      in(animation)(() => {
+        log("start extraction")
         extractor.extract(target)(result => {
+          log("finished extraction")
           callback(result)
-          out(()=>{})
+          out(() => {})
         })
       })
-    }else if (extractor.isExtracted(target)){
-      extractor.extract(target)(result =>{
+    } else if (extractor.isExtracted(target)) {
+      log("already extracted, trying to extract without animation")
+      extractor.extract(target)(result => {
         callback(result)
         //no in , no out
       })
-    }else{//not extracted, but extracting
+    } else {
+      log("not extracted yet, but extract is called while extracting")
+      //not extracted, but extracting
       throw new IllegalStateException()
       // /do nothing but waiting
     }
   }
+
   def in(cb: () => Unit) {
-    extract(target)(result=>{
+    // why the hell is this not called????
+    log("start in animation")
+    extract(target)(result => {
       onComplete(result)
       cb()
     })
   }
 
-
   def out(cb: () => Unit): Unit = {
-    if(holder.getChildren.contains(animation,true)){
-      holder.out(animation)(()=>{})
+    if (getChildren.contains(animation, true)) {
+      out(animation)(() => {})
     }
   }
 
 
   def pause(cb: () => Unit): Unit = {
-    if(holder.getChildren.contains(animation,true)){
-      holder.pause(animation)(()=>{})
+    if (getChildren.contains(animation, true)) {
+      pause(animation)(() => {})
     }
   }
 
 
   def resume(cb: () => Unit): Unit = {
-    holder.resume(animation)(()=>{})
+    resume(animation)(() => {})
   }
 
-  def onComplete(result: T){
+  def onComplete(result: T) {
     callbacks foreach (_(result))
   }
 
@@ -160,20 +177,34 @@ class EmptyOne[E: Extractable, T]
   def addOnComplete(onComplete: (T) => Unit): Unit = callbacks += onComplete
 
   override def map[R](f: (T) => R): MonadicAnimated[R] = {
-    val empty = new EmptyOne[E, R](holder)(animation)
-    addOnComplete(t => empty.onComplete(f(t)))
+    log("map")
+    val empty = new EmptyOne[E, R](animation)
+    empty.target = target.map(f)
     empty
   }
 
   override def flatMap[R](f: (T) => MonadicAnimated[R]): MonadicAnimated[R] = {
-    val empty = new EmptyOne[E, R](holder)(animation){
+    log("flatMap")
+    //problem is that you cannot combine two animation
+    //i think i should split the visual effect and its effect as a monad.
+    // i cant under staaaaand!
+    val empty = new EmptyOne[E, R](animation) {
+      second=>
       override def in(cb: () => Unit): Unit = {
-        extract(target)(res1=>{
+        log("flat mapped in")
+        second.extract(self.target)(res1 => {
+          log("second extracted")
           val animated = f(res1)
-          animated.addOnComplete(res2 =>{
-            onComplete(res2)
+          log("flattening target is : " +animated.getClass.getCanonicalName)
+          animated.addOnComplete(res2 => {
+            log("second monadic animated is completed.")
+            second.onComplete(res2)
           })
-          holder.in(animated.animation)(cb)
+          log("start second animation")
+          second.in(animated)(()=>{
+            log("second animation done")
+            cb
+          })
         })
       }
     }

@@ -34,5 +34,10 @@ class BuilderExtractor2(implicit processor: TaskProcessor, am: AssetManager) ext
       )
     )
 
-  override def isExtracted[T](target: Builder[T]): Boolean = am.isLoaded(target.requirements)
+  override def isExtracted[T](target: Builder[T]): Boolean = {
+    assert(am != null)
+    am.isLoaded(target.requirements)
+  }
+
+  override def map[A, B](fa: Builder[A])(f: (A) => B): Builder[B] = Builder(fa.requirements,(fa.create(_:AssetManager)).andThen(f))
 }

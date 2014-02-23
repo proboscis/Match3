@@ -21,8 +21,9 @@ import com.glyph._scala.lib.libgdx.font.FontUtil
 import com.glyph._scala.test.MockTransition
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph._scala.lib.injection.GLExecutionContext
-import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager
-import com.glyph._scala.game.builders.AnimatedConstructors
+import com.glyph._scala.lib.libgdx.actor.transition.{MonadicAnimated, AnimatedManager}
+import com.glyph._scala.game.builders.{Builders, AnimatedConstructors}
+import scala.concurrent.Future
 
 object Title {
   import Interpolation._
@@ -93,15 +94,32 @@ object Title {
 }
 class TitleTest extends MockTransition{
   //beware of second asset manager!
-  override implicit def assetManager: AssetManager = new AssetManager()
+
+  // you have to make this before this instance.. making this instance lazy solved the problem,
+  // but i'm afraid this will cause some other problems...
+  lazy val am = new AssetManager
+
+  //beware of second asset manager!
+  override implicit def assetManager: AssetManager = am
+
   private implicit val _1 = builderExtractor
   private implicit val _2 = functionExtractor
-  AnimatedConstructors.extract(Title.second)()
+  //AnimatedConstructors.extract(Title.second)()
+  Builders.darkHolo.load
+  val label = Builders.darkHolo.map(Builders.label) <|(_.load) |>(_.create)
+  val animation = (name:String)=>new AnimatedTable{
+    add(label(name)).fill.expand
+  }
+  type FF[A] = () => Future[A]
+  val title2Animation = MonadicAnimated.extract[FF,Builder[AnimatedConstructor]](()=>Title.second)(animation("future")).flatMap{
+    builder => MonadicAnimated.extract(builder)(animation("builder"))
+  }
+  val title2 = MonadicAnimated.toAnimatedConstructor(title2Animation)
   override def graph: AnimatedManager.AnimatedGraph = {
-    super.graph + Map()
+    super.graph + (title2 -> Map())
   }
 
-  manager.start(title,Map(),holder.push)
+  manager.start(title2,Map(),holder.push)
 }
 
 class WaitCallback(onComplete: () => Unit) {
