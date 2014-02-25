@@ -141,7 +141,7 @@ object JSON {
     env foreach {
       case (k, v) => rhino +=(k, v)
     }
-    new JSON(rhino[Object](script), rhino.scope)
+    new JSON(rhino.eval[Object](script), rhino.scope)
   }
 }
 

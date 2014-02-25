@@ -17,7 +17,7 @@ class Rhino {
     Context.exit()
   }
 
-  def apply[T: Manifest](script: String):Try[T]= {
+  def eval[T: Manifest](script: String):Try[T]= {
     // Rhino.log("load javascript") {
     val context = Context.enter
     context.setOptimizationLevel(-1) //no byte-code generation
@@ -39,7 +39,7 @@ object Rhino extends Logging {
     env foreach {
       case (n, v) => rhino +=(n, v)
     }
-    rhino.apply(script)
+    rhino.eval(script)
   }
 
   def apply(script: String, env: Map[String, Any]): JSON = {
@@ -47,6 +47,6 @@ object Rhino extends Logging {
     env foreach {
       case (n, v) => rhino +=(n, v)
     }
-    new JSON(rhino[Object](script), rhino.scope)
+    new JSON(rhino.eval[Object](script), rhino.scope)
   }
 }

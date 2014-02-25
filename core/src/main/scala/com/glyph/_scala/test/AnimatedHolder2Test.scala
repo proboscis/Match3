@@ -30,6 +30,7 @@ trait AnimatedRunner extends ConfiguredScreen {
 
 }
 
+
 trait MockTransition extends AnimatedRunner {
   private implicit val _1 = builderExtractor
   private implicit val _2 = functionExtractor

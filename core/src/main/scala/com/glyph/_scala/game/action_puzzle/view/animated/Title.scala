@@ -18,7 +18,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.glyph._scala.lib.libgdx.actor.{SpriteActor, AnimatedTable}
 import com.badlogic.gdx.graphics.Texture
 import com.glyph._scala.lib.libgdx.font.FontUtil
-import com.glyph._scala.test.MockTransition
+import com.glyph._scala.test.{AnimatedRunner, MockTransition}
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph._scala.lib.injection.GLExecutionContext
 import com.glyph._scala.lib.libgdx.actor.transition.{MonadicAnimated, AnimatedManager}
@@ -92,15 +92,12 @@ object Title {
           def resume(cb: () => Unit): Unit = animation(cb)
         }
 }
-class TitleTest extends MockTransition{
-  //beware of second asset manager!
+class TitleTest extends MockTransition with LazyAssets{
 
-  // you have to make this before this instance.. making this instance lazy solved the problem,
-  // but i'm afraid this will cause some other problems...
-  lazy val am = new AssetManager
 
-  //beware of second asset manager!
-  override implicit def assetManager: AssetManager = am
+
+
+
 
   private implicit val _1 = builderExtractor
   private implicit val _2 = functionExtractor
@@ -120,6 +117,15 @@ class TitleTest extends MockTransition{
   }
 
   manager.start(title2,Map(),holder.push)
+}
+
+trait LazyAssets extends AnimatedRunner{
+  // you have to make this before this instance.. making this instance lazy solved the problem,
+  // but i'm afraid this will cause some other problems...
+  lazy val am = new AssetManager
+
+  //beware of second asset manager!
+  override implicit def assetManager: AssetManager = am
 }
 
 class WaitCallback(onComplete: () => Unit) {
