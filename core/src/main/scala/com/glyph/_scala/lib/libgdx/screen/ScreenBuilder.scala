@@ -12,7 +12,7 @@ import spray.json.{JsValue, RootJsonFormat}
 import spray.json._
 import DefaultJsonProtocol._
 import com.glyph._scala.lib.libgdx.Builder
-
+import scala.language.implicitConversions
 /**
  * @author glyph
  */

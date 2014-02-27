@@ -11,6 +11,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import scalaz._
 import Scalaz._
+import scala.language.higherKinds
 class AnimatedManager
 (builderMap: AnimatedGraph)
 (implicit assets: AssetManager) {
@@ -85,7 +86,7 @@ trait MonadicAnimated[T] extends AnimatedActorHolder with Animated {
   def addOnComplete(onComplete: T => Unit)
 }
 
-object MonadicAnimated extends Logging{
+object MonadicAnimated extends Logging {
   def extract[E[_] : Extractable, T]
   (target: E[T])
   (animation: Actor with Animated): MonadicAnimated[T] = {
@@ -94,20 +95,37 @@ object MonadicAnimated extends Logging{
     empty
   }
 
+  /**
+   * this works, at least for now...
+   * @param extractor
+   * @return
+   */
   def toAnimatedConstructor(extractor: MonadicAnimated[AnimatedConstructor]): AnimatedConstructor = info => callbacks => {
-    extractor.addOnComplete(
-      constructor => {
-        log("summed extractable is extracted.")
-        extractor.in(constructor(info)(callbacks))(()=>{})
+    new AnimatedActorHolder with Animated {
+      var constructed: Actor with Animated = null
+      override def in(cb: () => Unit): Unit = {
+        extractor.addOnComplete(
+          constructor => {
+            log("summed extractable is extracted.")
+            constructed = constructor(info)(callbacks)
+            in(constructed)(cb)
+          }
+        )
+        in(extractor)(() => {})
       }
-    )
-    extractor
+      //TODO the code below won't work properly in certain conditions.
+      def currentAnimated = if(constructed != null) constructed else extractor
+      override def out(cb: () => Unit): Unit = currentAnimated |> (out(_)(cb))
+      override def pause(cb: () => Unit): Unit = currentAnimated|> (pause(_)(cb))
+      override def resume(cb: () => Unit): Unit = currentAnimated |> (resume(_)(cb))
+    }
   }
 }
+
 //ISSUE onComplet is not called some how..
 class EmptyOne[E[_] : Extractable, T]
 (override val animation: Actor with Animated)
-  extends MonadicAnimated[T] with Logging{
+  extends MonadicAnimated[T] with Logging {
   self =>
   val extractor = implicitly[Extractable[E]]
   var target: E[T] = null.asInstanceOf[E[T]]
@@ -117,7 +135,7 @@ class EmptyOne[E[_] : Extractable, T]
   def extract[F[_] : Extractable, R](target: F[R])(callback: R => Unit) {
     log("extract!")
     val extractor = implicitly[Extractable[F]]
-    assert(target!= null)
+    assert(target != null)
     if (!extractor.isExtracted(target) && !extracting) {
       log("started animation because not extracted and extracting.")
       in(animation)(() => {
@@ -189,19 +207,19 @@ class EmptyOne[E[_] : Extractable, T]
     //i think i should split the visual effect and its effect as a monad.
     // i cant under staaaaand!
     val empty = new EmptyOne[E, R](animation) {
-      second=>
+      second =>
       override def in(cb: () => Unit): Unit = {
         log("flat mapped in")
         second.extract(self.target)(res1 => {
           log("second extracted")
           val animated = f(res1)
-          log("flattening target is : " +animated.getClass.getCanonicalName)
+          log("flattening target is : " + animated.getClass.getCanonicalName)
           animated.addOnComplete(res2 => {
             log("second monadic animated is completed.")
             second.onComplete(res2)
           })
           log("start second animation")
-          second.in(animated)(()=>{
+          second.in(animated)(() => {
             log("second animation done")
             cb
           })
@@ -266,15 +284,15 @@ class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E
 }
 
 trait AnimatedActorHolder extends Layers {
-  def checkExistance(actor: Actor) = if (!this.getChildren.contains(actor, true)) addActor(actor)
+  def checkExistence(actor: Actor) = if (!this.getChildren.contains(actor, true)) addActor(actor)
 
   def in(animated: AnimatedActor)(cb: () => Unit) {
-    checkExistance(animated)
+    checkExistence(animated)
     animated.in(cb)
   }
 
   def out(animated: AnimatedActor)(cb: () => Unit) {
-    checkExistance(animated)
+    checkExistence(animated)
     animated.out(() => {
       animated.remove()
       cb()
@@ -282,7 +300,7 @@ trait AnimatedActorHolder extends Layers {
   }
 
   def pause(animated: AnimatedActor)(cb: () => Unit) {
-    checkExistance(animated)
+    checkExistence(animated)
     animated.pause(() => {
       animated.remove()
       cb()
@@ -290,7 +308,7 @@ trait AnimatedActorHolder extends Layers {
   }
 
   def resume(animated: AnimatedActor)(cb: () => Unit) {
-    checkExistance(animated)
+    checkExistence(animated)
     animated.resume(cb)
   }
 

@@ -25,7 +25,7 @@ import com.glyph._scala.game.Glyphs
 import Glyphs._
 import com.glyph._scala.lib.libgdx.skin.FlatSkin
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable
-import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.{BitmapFont, Sprite}
 import com.glyph._scala.game.builders.Builders._
 import scala.language.higherKinds
 import com.glyph._scala.lib.libgdx.actor.widgets.Center
@@ -36,7 +36,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
  * @author proboscis
  */
 object Builders {
-
   private implicit class ResourceBuilder(name: String) {
     def builder[T: ClassTag]: Builder[T] = new Builder[T] {
       def requirements: Builder.Assets = Set(implicitly[ClassTag[T]].runtimeClass -> Seq(name))
@@ -44,7 +43,7 @@ object Builders {
       def create(implicit assets: AssetManager): T = assets.get[T](name)
     }
   }
-
+  val corbert:Builder[BitmapFont] = "font/corbert.fnt".builder[BitmapFont]
   val darkHolo: Builder[Skin] = "skin/holo/Holo-dark-xhdpi.json".builder[Skin]
   val lightHolo: Builder[Skin] = "skin/holo/Holo-light-xhdpi.json".builder[Skin]
   val particleTexture: Builder[Texture] = "data/particle.png".builder[Texture]
@@ -60,7 +59,6 @@ object Builders {
       )
   }
   val label: Skin => String => Label = skin => new Label(_: String, skin)
-  val title = darkHolo map label map Title.apply
 
   def menuScreenBuilder[E]: (Seq[(String, E)], E => Unit) => Builder[Screen] = (elements, cb) => {
     lightHolo map (skin => new MenuScreen[E](skin, elements, cb))
@@ -74,60 +72,4 @@ object Builders {
   val screenBuilders = Map(
     "Mock" -> AnimatedHolder2Test.builder
   )
-  val puzzleBuilder = (roundRectTexture & particleTexture & dummyTexture & flat).map {
-    case a & b & c & d => () => {
-      GLFuture(ActionPuzzleTable.animated(new ComboPuzzle)(a, b, c, d))
-    }
-  }
-  val menu = flat map Menu.constructor
-}
-
-object AnimatedConstructors {
-  /*
-  trait AnimatedExtractor[E] extends Actor with Animated{
-  }
-  implicit object
-  */
-
-  /**
-   * this method requires some resources to be loaded
-   * @param target
-   * @param mapper
-   * @param name
-   * @param extractor
-   * @param assets
-   * @tparam E
-   * @tparam T
-   * @return
-   */
-  def extract[E[_], T]
-  (target: E[T])
-  (mapper: T => AnimatedConstructor)
-  (name: String)
-  (implicit extractor: Extractable[E], assets: AssetManager): AnimatedConstructor =
-    info => callbacks => new AnimatedExtractor(info, callbacks, target, mapper) with LoadingAnimation[E, T] {
-      override val loadingAnimation: AnimatedActor = new AnimatedTable {
-        debug()
-        //TODO use preloaded resources to show while loading
-        Builders.darkHolo.load
-        val actor = Center(new Label(name, Builders.darkHolo.create(assets)))
-        add(actor).fill.expand
-      }
-    }
-
-  def menu(implicit am:AssetManager,ex:Extractable[Builder]) = extract(Builders.menu)(a=>a)("loading menu")
-
-  def title(implicit am: AssetManager, ex: Extractable[Builder]) =
-    extract(Builders.title)(a => a)("loading")
-
-  def result(implicit am: AssetManager, ex: Extractable[Builder]) =
-    extract(flat map GameResult.constructor)(identity)("loading result")
-
-  def puzzle(implicit am: AssetManager, ex1: Extractable[Builder], ex2: Extractable[({type l[A] = () => Future[A]})#l]) =
-    extract(puzzleBuilder)(
-      builder =>
-        extract[({type l[A] = () => Future[A]})#l, AnimatedConstructor](builder)(a => a)
-          ("initializing")
-    )("loading")
-
 }

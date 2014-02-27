@@ -34,8 +34,9 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   //TODO there is 1mb of allocation when the panel is removed,added
   implicit val spriteActorPool = Pool[A](100)
   //this pool can never be made global since the target uses an inner class
-  implicit val tokenPool = Pool[Token[T,A]](() => new Token[T,A](null, null.asInstanceOf[A]))((tgt: Token[T,A]) => tgt.resetForPool())(row * column * 2)
-
+  implicit val tokenPool = Pool[Token[T,A]](
+    () => new Token[T,A](null, null.asInstanceOf[A]))(
+      (tgt: Token[T,A]) => tgt.resetForPool())(row * column * 2)
   spriteActorPool.preAlloc(6*6)
   tokenPool.preAlloc(6*6)
 
@@ -69,7 +70,6 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
 
   def updateTokenPosition(delta: Float) {
     if (gridFunctions().isDefined) {
-      //val(fx,fy) = gridFunctions().get//damn,this allocates a new tuple2...
       val fs = gridFunctions().get
       val fx = fs._1
       val fy = fs._2

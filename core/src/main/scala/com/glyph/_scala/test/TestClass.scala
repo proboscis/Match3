@@ -1,6 +1,5 @@
 package com.glyph._scala.test
 
-import com.glyph._scala.game.action_puzzle.view.ActionPuzzleTable
 import com.glyph._scala.lib.libgdx.screen.ScreenBuilder._
 import com.glyph._scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.AssetManager
@@ -11,8 +10,8 @@ import com.glyph._scala.lib.util.Animated
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.game.builders.Builders
 import scalaz.Success
-import com.glyph._scala.lib.libgdx.actor.table.{AnimatedBuilderHolder2, AnimatedBuilderHolder}
-import com.glyph._scala.game.action_puzzle.view.animated.{TitleTest, GameResultTest}
+import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder2
+import com.glyph._scala.game.action_puzzle.view.animated.GameResultTest
 
 /**
  * @author glyph
@@ -21,7 +20,6 @@ object TestClass {
   type ->[A, B] = (A, B)
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
     classOf[VaryingScreen] ::
-      classOf[ActorHolderTest] ::
       classOf[TrailedParticleTest] ::
       classOf[ParticleTest] ::
       classOf[UVTrailTest] ::
@@ -29,15 +27,14 @@ object TestClass {
       classOf[WordParticle] :: Nil
   val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
   val screenClasses: List[Class[_ <: Screen]] =
-    classOf[TitleTest]::
-    classOf[GameResultTest]::
-    classOf[ShaderRotationTest] ::
+    classOf[GameResultTest] ::
+      classOf[ShaderRotationTest] ::
       classOf[ExplosionTest] ::
       classOf[MeshTest] ::
       classOf[TrailTest] ::
       Nil
   val widgetGroupClasses: List[Class[_ <: WidgetGroup]] = Nil
-  val animatedClasses: List[Class[_ <: Builder[Actor with Animated]]] =  Nil
+  val animatedClasses: List[Class[_ <: Builder[Actor with Animated]]] = Nil
   val classNameSet = animatedClasses ++ builderClasses ++ screenClasses map (s => s.getSimpleName -> s)
   val classBuilders = builderClasses map (c => c.getSimpleName -> c.newInstance())
   val fileBuilders = files map {
@@ -48,6 +45,7 @@ object TestClass {
   val pkgBuilders = screenClasses map {
     clazz => clazz.getSimpleName -> new ScreenBuilder {
       def requirements: Set[(Class[_], Seq[String])] = Set()
+
       def create(implicit assetManager: AssetManager): Screen = clazz.newInstance()
     }
   }

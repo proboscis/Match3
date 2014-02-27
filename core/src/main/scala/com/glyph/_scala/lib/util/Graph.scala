@@ -64,8 +64,6 @@ object Mock{
   import scalaz._
   import Scalaz._
   def createScreenBuilder = dummyTexture as new ConfiguredScreen{}
-
   def main(args: Array[String]){
-
   }
 }

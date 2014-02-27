@@ -22,9 +22,11 @@ import com.glyph._scala.game.action_puzzle.{ComboPuzzle, LocalLeaderBoard}
  * @author glyph
  */
 object GameResult {
-  val constructor: Skin => AnimatedConstructor = skin => info => callbacks => new AnimatedTable
+  case class Style(pad:Float = 20, space:Float = 20,skin:Skin)
+  val constructor: Style => AnimatedConstructor = style => info => callbacks => new AnimatedTable
     with Updatables
     with Reactor {
+    import style._
     debug(BaseTableLayout.Debug.all)
     log("creating game result view")
     val score = info("score").asInstanceOf[Int]
@@ -40,7 +42,7 @@ object GameResult {
     dashBoardButton.onChange = (e,a) => SocialManager.manager.showGlobalHighScore()
     add(ease)
     shownScore() = score
-    defaults().space(20).padLeft(20).padRight(20).fill.expand
+    defaults().space(space).padLeft(style.pad).padRight(style.pad).fill.expand
     setSkin(skin)
     val scoreTable = new Table()
     scoreTable.add(Center(new Label("Score: ",skin)).right()).width(Value.percentWidth(0.5f))

@@ -7,7 +7,9 @@ import com.esotericsoftware.tablelayout.Cell
 import com.glyph._scala.lib.util.updatable.task._
 import com.badlogic.gdx.math.Interpolation
 
-
+/**
+ * actors added through "add" method will be animated when this Table's animation is invoked.
+ */
 class AnimatedTable extends Table with Animated with Logging with Tasking {
 
   import com.glyph._scala.game.Glyphs
@@ -81,7 +83,6 @@ class AnimatedTable extends Table with Animated with Logging with Tasking {
     moveToPositions({
       case holder@Holder(actor) => (-getWidth,0)
     }, 0.2f)(cb)
-
   }
 
   def pause(cb: () => Unit): Unit = out(cb)

@@ -1,20 +1,25 @@
 package com.glyph._scala.test
 
-import com.glyph._scala.game.builders.AnimatedConstructors
-import com.glyph._scala.lib.libgdx.{BuilderExtractor2, Builder}
+import com.glyph._scala.game.builders.Builders
+import com.glyph._scala.lib.libgdx.{BuilderOps, GLFuture, BuilderExtractor2, Builder}
 import com.glyph._scala.lib.libgdx.screen.ConfiguredScreen
-import com.glyph._scala.lib.libgdx.actor.transition.{StackedAnimatedActorHolder, AnimatedManager}
-import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedGraph
-import com.glyph._scala.lib.libgdx.actor.Tasking
-import com.glyph._scala.lib.util.extraction.ExtractableFunctionFuture
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.glyph._scala.lib.libgdx.actor.transition.{MonadicAnimated, StackedAnimatedActorHolder, AnimatedManager}
+import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.{AnimatedConstructor, AnimatedGraph}
+import com.glyph._scala.lib.libgdx.actor.{SpriteActor, AnimatedTable, Tasking}
+import com.glyph._scala.lib.util.extraction.{Extractable, ExtractableFunctionFuture}
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
+import com.glyph._scala.game.action_puzzle.view.animated.{GameResult, Menu, Title}
+import com.glyph._scala.lib.libgdx.game.LimitDelta
+import scala.concurrent.Future
+import com.glyph._scala.game.action_puzzle.view.ActionPuzzleTable
+import com.glyph._scala.game.action_puzzle.ComboPuzzle
 
 object AnimatedHolder2Test {
-  val builder = Builder(Set(classOf[Skin] -> Seq("skin/holo/Holo-dark-xhdpi.json")), assets => new MockTransition {
+  val builder = Builder(Set(), assets => new MockTransition {
     override implicit def assetManager = assets
+
     manager.start(title, Map(), push)
   })
 }
@@ -27,18 +32,13 @@ trait AnimatedRunner extends ConfiguredScreen {
   implicit val builderExtractor = new BuilderExtractor2
   implicit val functionExtractor = ExtractableFunctionFuture
   lazy val manager = new AnimatedManager(graph)
-
 }
 
 
-trait MockTransition extends AnimatedRunner {
-  private implicit val _1 = builderExtractor
-  private implicit val _2 = functionExtractor
-  val menu = AnimatedConstructors.menu
-
-  val title = AnimatedConstructors.title
-  val result = AnimatedConstructors.result
-  val puzzle = AnimatedConstructors.puzzle
+trait MockTransition
+  extends AnimatedRunner
+  with AnimatedConstructors
+  with LimitDelta {
   val push = holder.push _
   val switch = holder.switch _
 
@@ -60,7 +60,45 @@ trait MockTransition extends AnimatedRunner {
     )
   )
 }
-trait AnimatedMock extends MockTransition{
+
+trait AnimatedMock extends MockTransition {
   //beware of second asset manager!
   override implicit def assetManager: AssetManager = new AssetManager
+}
+
+trait AnimatedConstructors {
+  type FF[A] = () => Future[A]
+
+  implicit def builderExtractor: Extractable[Builder]
+
+  implicit def functionExtractor: Extractable[FF]
+
+  implicit def assetManager: AssetManager
+
+  import Builders._
+  import BuilderOps._
+  import MonadicAnimated._
+
+  val splashAnimation = swordTexture.map {
+    tex => new AnimatedTable {
+      add(new SpriteActor(tex)).fill.expand
+      override def in(cb: () => Unit): Unit = {
+        log("splash screen in")
+        super.in(cb)
+      }
+    }
+  } <| (_.load) |> (_.create)
+  val menu = extract(flat map(skin => Menu.Style(skin = skin)) map Menu.constructor)(splashAnimation) |> toAnimatedConstructor
+  val title = extract(darkHolo & roundRectTexture)(splashAnimation).map {
+    case skin & rect => val style = Title.TitleStyle(titleFont = skin.getFont("default-font"), roundTex = rect, skin = skin)
+      Title.third(style)
+  } |> toAnimatedConstructor
+  val result = flat.map(skin => GameResult.Style(skin = skin) |> GameResult.constructor) |> (extract(_)(splashAnimation)) |> toAnimatedConstructor
+  val puzzle = (roundRectTexture & particleTexture & dummyTexture & flat).map {
+    case a & b & c & d => () => {
+      GLFuture(ActionPuzzleTable.animated(new ComboPuzzle)(a, b, c, d))
+    }
+  } |> (extract(_)(splashAnimation).flatMap(
+    extract[FF, AnimatedConstructor](_)(splashAnimation)
+  )) |> toAnimatedConstructor
 }

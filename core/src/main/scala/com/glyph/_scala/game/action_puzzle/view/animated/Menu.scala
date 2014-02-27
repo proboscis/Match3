@@ -12,13 +12,16 @@ object Menu {
   import scalaz._
   import Scalaz._
 
-  val constructor: Skin => AnimatedConstructor = skin => info => callbacks => new AnimatedTable {
+  case class Style(space:Float = 20,padding:Float = 20,skin:Skin)
+
+  val constructor: Style => AnimatedConstructor = style => info => callbacks => new AnimatedTable {
+    import style._
     def label(any: Any) = new TextButton(any.toString, skin) <| (_.addListener(new ChangeListener {
       def changed(p1: ChangeEvent, p2: Actor) {
         callbacks(any.toString)(Map())
       }
     }))
-    defaults().space(20).padLeft(20).padRight(20).fill.expand
+    defaults().space(space).padLeft(padding).padRight(padding).fill.expand
     //TODO make this modifiable
     "Title" :: "Menu" :: "Puzzle" :: Nil map label foreach (add(_).row())
   }
