@@ -93,12 +93,6 @@ object Title {
         }
 }
 class TitleTest extends MockTransition with LazyAssets{
-
-
-
-
-
-
   private implicit val _1 = builderExtractor
   private implicit val _2 = functionExtractor
   //AnimatedConstructors.extract(Title.second)()
@@ -138,4 +132,23 @@ class WaitCallback(onComplete: () => Unit) {
     }
     f(param)
   }
+}
+
+trait UIStyle{
+  def margin:Float
+  def space:Float
+
+}
+
+/**
+ * the styles should be an option, but how would i implement that?
+ * 65
+ * i guess i should make it a val, not def.
+ */
+
+
+//how do i create a 9 patch?
+
+object NinePatch{
+  val p = new com.badlogic.gdx.graphics.g2d.NinePatch()
 }
