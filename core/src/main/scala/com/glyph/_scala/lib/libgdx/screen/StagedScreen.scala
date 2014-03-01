@@ -24,8 +24,8 @@ trait StagedScreen extends GlyphScreen {
    */
   var autoClearScreen = true
   val stage = new Stage(STAGE_WIDTH, STAGE_HEIGHT, true)
-  private val _STAGE_WIDTH:Int = config().flatMap(_.width.as[Int])|(1080 / 2)
-  private val _STAGE_HEIGHT:Int = config().flatMap(_.height.as[Int])| (1920f * 15f / 16f / 2f).toInt
+  private val _STAGE_WIDTH:Int = config().flatMap(_.width.asOpt[Int])|(1080 / 2)
+  private val _STAGE_HEIGHT:Int = config().flatMap(_.height.asOpt[Int])| (1920f * 15f / 16f / 2f).toInt
   def STAGE_WIDTH:Int = _STAGE_WIDTH
   def STAGE_HEIGHT:Int = _STAGE_HEIGHT
   override def show() {

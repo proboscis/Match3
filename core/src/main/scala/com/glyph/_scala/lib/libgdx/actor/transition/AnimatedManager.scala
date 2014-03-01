@@ -122,7 +122,6 @@ object MonadicAnimated extends Logging {
   }
 }
 
-//ISSUE onComplet is not called some how..
 class EmptyOne[E[_] : Extractable, T]
 (override val animation: Actor with Animated)
   extends MonadicAnimated[T] with Logging {
@@ -137,12 +136,14 @@ class EmptyOne[E[_] : Extractable, T]
     val extractor = implicitly[Extractable[F]]
     assert(target != null)
     if (!extractor.isExtracted(target) && !extracting) {
+      extracting = true
       log("started animation because not extracted and extracting.")
       in(animation)(() => {
         log("start extraction")
         extractor.extract(target)(result => {
           log("finished extraction")
           callback(result)
+          extracting= false
           out(() => {})
         })
       })
@@ -161,7 +162,7 @@ class EmptyOne[E[_] : Extractable, T]
   }
 
   def in(cb: () => Unit) {
-    // why the hell is this not called????
+    //this is called twice by someone...
     log("start in animation")
     extract(target)(result => {
       onComplete(result)
@@ -189,6 +190,7 @@ class EmptyOne[E[_] : Extractable, T]
 
   def onComplete(result: T) {
     callbacks foreach (_(result))
+    callbacks.clear()
   }
 
 
@@ -230,7 +232,8 @@ class EmptyOne[E[_] : Extractable, T]
   }
 }
 
-class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E[T], mapper: T => AnimatedConstructor)(implicit val assets: AssetManager, val extractable: Extractable[E])
+class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E[T], mapper: T => AnimatedConstructor)
+                                (implicit val assets: AssetManager, val extractable: Extractable[E])
   extends Layers
   with Animated
   with AnimatedActorHolder {
@@ -283,10 +286,12 @@ class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E
   }
 }
 
-trait AnimatedActorHolder extends Layers {
+trait AnimatedActorHolder extends Layers with Logging{
   def checkExistence(actor: Actor) = if (!this.getChildren.contains(actor, true)) addActor(actor)
 
   def in(animated: AnimatedActor)(cb: () => Unit) {
+    log("AnimatedActorHolder:calling in of " + animated)
+    log("hashCode:%x".format(animated.hashCode()))
     checkExistence(animated)
     animated.in(cb)
   }

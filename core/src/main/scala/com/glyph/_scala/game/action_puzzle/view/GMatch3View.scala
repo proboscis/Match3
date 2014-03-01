@@ -17,9 +17,9 @@ class GridFunctions(nToken: Int, ratio: Int) {
 
 object Grid {
   def apply(json: JSON) = for {
-    row <- json.row.as[Int]
-    column <- json.column.as[Int]
-    ratio <- json.ratio.as[Int]
+    row <- json.row.asOpt[Int]
+    column <- json.column.asOpt[Int]
+    ratio <- json.ratio.asOpt[Int]
   } yield (new GridFunctions(row, ratio), new GridFunctions(column, ratio))
   def alphaToIndex(fx:GridFunctions,fy:GridFunctions) = (ax:Float,ay:Float)=>(fx.alphaToIndex(ax),fy.alphaToIndex(ay))
 }

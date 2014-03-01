@@ -23,6 +23,14 @@ trait Varying[T] extends Reactive[T] {
   def map[R](f: (T) => R): Varying[R] = new Mapped(self, f)
 
   /*
+  def flatMap[R](f:T=>Varying[R]) = new Var(null.asInstanceOf[R],"flatMapped") with Reactor{
+    reactVar(self)(value =>{
+      reactVar(f(value))(update)
+    })
+  }
+  */
+
+  /*
   def flatMap[R](f: T => Varying[R]): Varying[R] = f(current) match {
     case noneMapped =>
       new Varying[R] with Reactor {

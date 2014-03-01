@@ -97,7 +97,7 @@ object ColorTheme {
   lazy val scheme = RJSON(GdxFile("constants/colors.js").map {
     _ getOrElse ""
   })
-  val varyingColorMap:Varying[String Map Color]= scheme.map(_.asMapTry.map(_.mapValues(_.as[String].map(Color.valueOf).getOrElse(Color.WHITE)))).map{
+  val varyingColorMap:Varying[String Map Color]= scheme.map(_.asMapTry.map(_.mapValues(_.asOpt[String].map(Color.valueOf).getOrElse(Color.WHITE)))).map{
     case Success(s) => s
     case Failure(e) => e.printStackTrace();Map()
   }

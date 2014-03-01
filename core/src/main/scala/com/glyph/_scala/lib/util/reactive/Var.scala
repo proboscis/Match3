@@ -6,13 +6,13 @@ import scala.reflect.ClassTag
 /**
  * @author glyph
  */
-class Var[T: ClassTag](protected var variable: T, name: String = "undefined") extends Varying[T] {
+class Var[T](protected var variable: T, name: String = "undefined") extends Varying[T] {
   self =>
   def current: T = variable
 
   def unary_~ : self.type = self
 
-  debugReactive[T]("name:" + name)
+  //debugReactive[T]("name:" + name)
 
   def update(f: T => T) {
     variable = f(current)
@@ -31,7 +31,7 @@ object Var {
   //this is fixed in scala 2.11.0-M1 and is closed, so there is no hope on fixes for 2.10.3
   //https://issues.scala-lang.org/browse/SI-4996
   //finally, i couldn't make this work............omg
-  def apply[T: ClassTag](v: T, name: String = "undefined") = new Var(v, name)
+  def apply[T](v: T, name: String = "undefined") = new Var(v, name)
 
   // how can i keep using reactive?
   // i guess this is not possible....

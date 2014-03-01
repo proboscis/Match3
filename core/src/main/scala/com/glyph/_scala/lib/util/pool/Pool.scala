@@ -35,7 +35,7 @@ class Pool[P: Pooling : Class](val max: Int) extends Logging {
     if (pool.size == 0) {
       val result = implicitly[Pooling[P]].newInstance
       implicitly[Pooling[P]].reset(result)
-      log("created new instance!:" + implicitly[Class[P]].getSimpleName)
+      //log("created new instance!:" + implicitly[Class[P]].getSimpleName)
       result
     } else {
       pool.pop()

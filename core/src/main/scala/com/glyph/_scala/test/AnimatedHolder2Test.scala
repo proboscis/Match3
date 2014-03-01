@@ -1,36 +1,42 @@
 package com.glyph._scala.test
 
-import com.glyph._scala.game.builders.Builders
-import com.glyph._scala.lib.libgdx.{BuilderOps, GLFuture, BuilderExtractor2, Builder}
+import com.glyph._scala.lib.libgdx.{GLFuture, BuilderExtractor2, Builder}
 import com.glyph._scala.lib.libgdx.screen.ConfiguredScreen
-import com.glyph._scala.lib.libgdx.actor.transition.{MonadicAnimated, StackedAnimatedActorHolder, AnimatedManager}
+import com.glyph._scala.lib.libgdx.actor.transition._
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.{AnimatedConstructor, AnimatedGraph}
-import com.glyph._scala.lib.libgdx.actor.{SpriteActor, AnimatedTable, Tasking}
-import com.glyph._scala.lib.util.extraction.{Extractable, ExtractableFunctionFuture}
+import com.glyph._scala.lib.libgdx.actor.Tasking
+import com.glyph._scala.lib.util.extraction.ExtractableFunctionFuture
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
 import com.glyph._scala.game.action_puzzle.view.animated.{GameResult, Menu, Title}
 import com.glyph._scala.lib.libgdx.game.LimitDelta
-import scala.concurrent.Future
+import com.glyph._scala.lib.util.json.GdxJSON
+import com.glyph._scala.game.builders.Builders._
+import com.glyph._scala.game.action_puzzle.view.animated.Title.TitleStyle
+import com.glyph._scala.lib.libgdx.BuilderOps.&
 import com.glyph._scala.game.action_puzzle.view.ActionPuzzleTable
 import com.glyph._scala.game.action_puzzle.ComboPuzzle
+import com.glyph._scala.lib.util.Logging
 
 object AnimatedHolder2Test {
   val builder = Builder(Set(), assets => new MockTransition {
     override implicit def assetManager = assets
 
     manager.start(title, Map(), push)
+
   })
 }
 
 trait AnimatedRunner extends ConfiguredScreen {
   def graph: AnimatedGraph
+
   //beware of second asset manager!
   implicit def assetManager: AssetManager
+
   implicit val holder = new StackedAnimatedActorHolder with Tasking {} <| (root.add(_).fill.expand)
-  implicit val builderExtractor = new BuilderExtractor2
-  implicit val functionExtractor = ExtractableFunctionFuture
+  implicit val extractableBuilder = new BuilderExtractor2
+  implicit val extractableFF = ExtractableFunctionFuture
   lazy val manager = new AnimatedManager(graph)
 }
 
@@ -66,39 +72,31 @@ trait AnimatedMock extends MockTransition {
   override implicit def assetManager: AssetManager = new AssetManager
 }
 
-trait AnimatedConstructors {
-  type FF[A] = () => Future[A]
-
-  implicit def builderExtractor: Extractable[Builder]
-
-  implicit def functionExtractor: Extractable[FF]
-
-  implicit def assetManager: AssetManager
-
-  import Builders._
-  import BuilderOps._
-  import MonadicAnimated._
-
-  val splashAnimation = swordTexture.map {
-    tex => new AnimatedTable {
-      add(new SpriteActor(tex)).fill.expand
-      override def in(cb: () => Unit): Unit = {
-        log("splash screen in")
-        super.in(cb)
+trait AnimatedConstructors extends DefaultExtractors with Logging{
+  import AnimatedConstructorOps._
+  val menu = (flat map (skin => Menu.Style(skin = skin)) map Menu.constructor).extract
+  val title = GdxJSON("comboPuzzle/titleStyle.json").map {
+    json => for {
+      margin <- json.margin.as[Float]
+      space <- json.space.as[Float]
+    } yield {
+      (darkHolo & roundRectTexture).map {
+        case skin & rect => {
+          Title.third(TitleStyle(
+            titleFont = skin.getFont("default-font"),
+            space = space,
+            roundTex = rect,
+            skin = skin))
+        }
       }
-    }
-  } <| (_.load) |> (_.create)
-  val menu = extract(flat map(skin => Menu.Style(skin = skin)) map Menu.constructor)(splashAnimation) |> toAnimatedConstructor
-  val title = extract(darkHolo & roundRectTexture)(splashAnimation).map {
-    case skin & rect => val style = Title.TitleStyle(titleFont = skin.getFont("default-font"), roundTex = rect, skin = skin)
-      Title.third(style)
-  } |> toAnimatedConstructor
-  val result = flat.map(skin => GameResult.Style(skin = skin) |> GameResult.constructor) |> (extract(_)(splashAnimation)) |> toAnimatedConstructor
+    }//TODO これをなんとかする方法はないのか？
+  }.map(_.map(_.extract).extract).extract// you have to write three type-lambda to delete these....
+  val result = flat.map(skin => GameResult.Style(skin = skin) |> GameResult.constructor).extract
   val puzzle = (roundRectTexture & particleTexture & dummyTexture & flat).map {
     case a & b & c & d => () => {
+      // why the hell is this called twice!?
+      err("called puzzle constructor")
       GLFuture(ActionPuzzleTable.animated(new ComboPuzzle)(a, b, c, d))
     }
-  } |> (extract(_)(splashAnimation).flatMap(
-    extract[FF, AnimatedConstructor](_)(splashAnimation)
-  )) |> toAnimatedConstructor
+  }.map((_: FF[AnimatedConstructor]).extract).extract
 }

@@ -12,6 +12,10 @@ import com.glyph._scala.lib.util.extraction.Extractable
  */
 trait Builder[+T] {
   def requirements: Builder.Assets
+  def forceCreate(implicit assets:AssetManager):T = {
+    load
+    create
+  }
   def create(implicit assets: AssetManager): T
   def isReady(implicit assets:AssetManager):Boolean = requirements.forall(_._2.forall(assets.isLoaded))
   def map[R](f: T => R): Builder[R] = Builder(requirements,assets =>  f(create(assets)))

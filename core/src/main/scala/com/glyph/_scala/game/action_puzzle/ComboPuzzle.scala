@@ -15,7 +15,7 @@ class ComboPuzzle extends Logging with Reactor {
   import ComboPuzzle._
 
   val config = GdxFile("comboPuzzle/config.json").map(_.map(JSON(_)))
-  val timeConfig = config.map(_.map(_.time.asTry[Float]).flatten)
+  val timeConfig = config.map(_.map(_.time.as[Float]).flatten)
   /**
    * どのような面白さにするか・・・
    * プレイヤーの目的は、パネルを消すことなんですよ。\
