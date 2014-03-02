@@ -1,8 +1,10 @@
 package com.glyph._scala.lib.util.extraction
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 import scalaz.Functor
+import scala.annotation.target
+import scala.annotation
 
 /**
  * an extractor can extract T in E
@@ -10,29 +12,14 @@ import scalaz.Functor
  * @author glyph
  */
 trait Extractable[E[_]] extends Functor[E]{
-  def extract[T](target:E[T])(callback:T=>Unit)
+  def extract[T](target:E[T])(callback:Try[T]=>Unit)
   def isExtracted[T](target:E[T]):Boolean
 }
 object ExtractableFuture extends Extractable[Future]{
   import scala.concurrent.ExecutionContext.Implicits.global
-  override def extract[T](target: Future[T])(callback: (T) => Unit): Unit = target.onComplete{
-    case Success(s) => callback(s)
-    case Failure(f) => f.printStackTrace()
-  }
+  override def extract[T](target: Future[T])(callback: Try[T] => Unit): Unit = target.onComplete(callback)
   override def isExtracted[T](target: Future[T]): Boolean = target.isCompleted
-
   override def map[A, B](fa: Future[A])(f: (A) => B): Future[B] = fa.map(f)
-}
-
-object ExtractableFunction0 extends Extractable[Function0]{
-  import scala.concurrent.ExecutionContext.Implicits.global
-  override def extract[T](target: () => T)(callback: (T) => Unit): Unit = Future(target()).onComplete{
-    case Success(s) => callback(s)
-    case Failure(f) => f.printStackTrace()
-  }
-  override def isExtracted[T](target: () => T): Boolean = false
-
-  override def map[A, B](fa: () => A)(f: (A) => B): () => B = ()=>f(fa())
 }
 
 /**
@@ -40,10 +27,7 @@ object ExtractableFunction0 extends Extractable[Function0]{
  */
 object ExtractableFunctionFuture extends Extractable[({type l[A] = ()=>Future[A]})#l]{
   import scala.concurrent.ExecutionContext.Implicits.global
-  override def extract[T](target: () => Future[T])(callback: (T) => Unit): Unit = target().onComplete{
-    case Success(s) => callback(s)
-    case Failure(f) => f.printStackTrace()
-  }
+  override def extract[T](target: () => Future[T])(callback: Try[T] => Unit): Unit = target().onComplete(callback)
   override def isExtracted[T](target: () => Future[T]): Boolean = false
 
   override def map[A, B](fa: () => Future[A])(f: (A) => B): () => Future[B] = ()=>fa().map(f)

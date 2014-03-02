@@ -57,6 +57,7 @@ object Builder {
 
     def create(implicit assets: AssetManager): T = constructor(assets)
   }
+  def apply[T:Class](fileName:String):Builder[T] = Builder(Set(implicitly[Class[T]]->Seq(fileName)),_.get[T](fileName))
 }
 
 object BuilderTest {

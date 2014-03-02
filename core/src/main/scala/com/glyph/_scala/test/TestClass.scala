@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.game.builders.Builders
 import scalaz.Success
 import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder2
-import com.glyph._scala.game.action_puzzle.view.animated.GameResultTest
+import com.glyph._scala.game.action_puzzle.view.animated.{GameResultMockTest, GameResultTest}
 
 /**
  * @author glyph
@@ -27,6 +27,7 @@ object TestClass {
       classOf[WordParticle] :: Nil
   val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
   val screenClasses: List[Class[_ <: Screen]] =
+    classOf[GameResultMockTest]::
     classOf[GameResultTest] ::
       classOf[ShaderRotationTest] ::
       classOf[ExplosionTest] ::

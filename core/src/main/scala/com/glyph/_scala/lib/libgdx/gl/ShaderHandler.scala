@@ -84,15 +84,7 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
 }
 
 object ShaderHandler {
-
-  /**
-   * use this when you have something to be done on the opengl thread
-   */
-  private implicit object context extends ExecutionContext {
-    def reportFailure(t: Throwable): Unit = t.printStackTrace()
-
-    def execute(runnable: Runnable): Unit = Gdx.app.postRunnable(runnable)
-  }
+  implicit val context = com.glyph._scala.lib.injection.GLExecutionContext.context
 
   /**
    * creates a varying option vnel ShaderProgram

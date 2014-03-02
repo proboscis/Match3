@@ -1,13 +1,16 @@
 package com.glyph._scala.lib.libgdx.skin
 
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable
+import com.badlogic.gdx.graphics.{Texture, Color}
+import com.badlogic.gdx.scenes.scene2d.utils.{SpriteDrawable, Drawable}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
-import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.{Sprite, BitmapFont}
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.glyph._scala.lib.util.Logging
+import com.glyph._scala.game.action_puzzle.ColorTheme
+import com.glyph._scala.game.builders.Builders
+import com.glyph._scala.lib.libgdx.Builder
 
 /**
  * @author glyph
@@ -46,11 +49,21 @@ class FlatSkin(val colors: Map[String, Color], tint: Color => Drawable, font: Bi
   val defaultStyles = defaults map {
     style => "default"->style
   }
-  val res = labelStyles.toSeq ++ buttonStyles.toSeq ++ textButtonStyles.toSeq ++ defaultStyles
+  val res = labelStyles.toSeq ++ buttonStyles.toSeq ++ textButtonStyles.toSeq ++ defaultStyles :+ ("default-font"->font)
   res foreach {
     case (name, style) => add(name, style)
   }
   drawables foreach{
     case (name,style)=>add(name,style,classOf[Drawable])
   }
+}
+
+object FlatSkin{
+  import scalaz._
+  import Scalaz._
+  def default(font:BitmapFont,tex:Texture):FlatSkin= new FlatSkin(
+    ColorTheme.varyingColorMap(),
+    c => new SpriteDrawable(new Sprite(tex) <| (_.setColor(c))),
+      font
+  )
 }

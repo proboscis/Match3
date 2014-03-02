@@ -12,6 +12,9 @@ import scala.collection.mutable.ArrayBuffer
 import scalaz._
 import Scalaz._
 import scala.language.higherKinds
+import com.glyph._scala.lib.libgdx.actor.AnimatedTable
+import scala.util.Try
+
 class AnimatedManager
 (builderMap: AnimatedGraph)
 (implicit assets: AssetManager) {
@@ -34,6 +37,10 @@ object AnimatedManager {
   type AnimatedConstructor = Info => Callbacks => Actor with Animated
   type AnimatedGraph = Map[AnimatedConstructor, Map[String, (AnimatedActor => Unit, AnimatedConstructor)]]
   type TransitionMethod = AnimatedActor => Unit
+}
+
+object AnimatedConstructor {
+  def apply(actor: Actor): AnimatedConstructor = info => callbacks => new AnimatedTable <| (_.add(actor).fill.expand)
 }
 
 trait LoadingAnimation[E[_], T] extends AnimatedExtractor[E, T] {
@@ -76,20 +83,20 @@ trait LoadingAnimation[E[_], T] extends AnimatedExtractor[E, T] {
 }
 
 
-trait MonadicAnimated[T] extends AnimatedActorHolder with Animated {
+trait MAnimated[+T] extends AnimatedActorHolder with Animated {
   val animation: Actor with Animated
 
-  def map[R](f: T => R): MonadicAnimated[R]
+  def map[R](f: T => R): MAnimated[R]
 
-  def flatMap[R](f: T => MonadicAnimated[R]): MonadicAnimated[R]
+  def flatMap[R](f: T => MAnimated[R]): MAnimated[R]
 
-  def addOnComplete(onComplete: T => Unit)
+  def addOnComplete(onComplete: Try[T] => Unit)
 }
 
-object MonadicAnimated extends Logging {
+object MAnimated extends Logging {
   def extract[E[_] : Extractable, T]
   (target: E[T])
-  (animation: Actor with Animated): MonadicAnimated[T] = {
+  (animation: Actor with Animated): MAnimated[T] = {
     val empty = new EmptyOne[E, T](animation)
     empty.target = target
     empty
@@ -100,38 +107,67 @@ object MonadicAnimated extends Logging {
    * @param extractor
    * @return
    */
-  def toAnimatedConstructor(extractor: MonadicAnimated[AnimatedConstructor]): AnimatedConstructor = info => callbacks => {
+  def toAnimatedConstructor(extractor: MAnimated[AnimatedConstructor])(implicit errorHandler:Throwable=>AnimatedConstructor): AnimatedConstructor = info => callbacks => {
     new AnimatedActorHolder with Animated {
       var constructed: Actor with Animated = null
       override def in(cb: () => Unit): Unit = {
         extractor.addOnComplete(
           constructor => {
             log("summed extractable is extracted.")
-            constructed = constructor(info)(callbacks)
+            constructed = constructor.recover{case e => errorHandler(e)}.get(info)(callbacks)
             in(constructed)(cb)
           }
         )
         in(extractor)(() => {})
       }
+
       //TODO the code below won't work properly in certain conditions.
-      def currentAnimated = if(constructed != null) constructed else extractor
+      def currentAnimated = if (constructed != null) constructed else extractor
+
       override def out(cb: () => Unit): Unit = currentAnimated |> (out(_)(cb))
-      override def pause(cb: () => Unit): Unit = currentAnimated|> (pause(_)(cb))
+
+      override def pause(cb: () => Unit): Unit = currentAnimated |> (pause(_)(cb))
+
       override def resume(cb: () => Unit): Unit = currentAnimated |> (resume(_)(cb))
     }
   }
+
+  def toAnimatedActor(extractor: MAnimated[AnimatedActor])(implicit errorHandler:Throwable=>AnimatedActor): AnimatedActor =
+    new AnimatedActorHolder with Animated {
+      var constructed: Actor with Animated = null
+
+      override def in(cb: () => Unit): Unit = {
+        extractor.addOnComplete(
+          animated => {
+            log("MAnimated is done.")
+            constructed = animated.recover{case e => errorHandler(e)}.get
+            in(constructed)(cb)
+          }
+        )
+        in(extractor)(() => {})
+      }
+
+      //TODO the code below won't work properly in certain conditions.
+      def currentAnimated = if (constructed != null) constructed else extractor
+
+      override def out(cb: () => Unit): Unit = currentAnimated |> (out(_)(cb))
+
+      override def pause(cb: () => Unit): Unit = currentAnimated |> (pause(_)(cb))
+
+      override def resume(cb: () => Unit): Unit = currentAnimated |> (resume(_)(cb))
+    }
 }
 
 class EmptyOne[E[_] : Extractable, T]
 (override val animation: Actor with Animated)
-  extends MonadicAnimated[T] with Logging {
+  extends MAnimated[T] with Logging {
   self =>
   val extractor = implicitly[Extractable[E]]
   var target: E[T] = null.asInstanceOf[E[T]]
-  val callbacks = new ArrayBuffer[T => Unit]()
+  val callbacks = new ArrayBuffer[Try[T] => Unit]()
   var extracting = false
 
-  def extract[F[_] : Extractable, R](target: F[R])(callback: R => Unit) {
+  def extract[F[_] : Extractable, R](target: F[R])(callback: Try[R] => Unit) {
     log("extract!")
     val extractor = implicitly[Extractable[F]]
     assert(target != null)
@@ -143,7 +179,7 @@ class EmptyOne[E[_] : Extractable, T]
         extractor.extract(target)(result => {
           log("finished extraction")
           callback(result)
-          extracting= false
+          extracting = false
           out(() => {})
         })
       })
@@ -188,22 +224,22 @@ class EmptyOne[E[_] : Extractable, T]
     resume(animation)(() => {})
   }
 
-  def onComplete(result: T) {
+  def onComplete(result: Try[T]) {
     callbacks foreach (_(result))
     callbacks.clear()
   }
 
 
-  def addOnComplete(onComplete: (T) => Unit): Unit = callbacks += onComplete
+  def addOnComplete(onComplete: Try[T] => Unit): Unit = callbacks += onComplete
 
-  override def map[R](f: (T) => R): MonadicAnimated[R] = {
+  override def map[R](f: (T) => R): MAnimated[R] = {
     log("map")
     val empty = new EmptyOne[E, R](animation)
     empty.target = target.map(f)
     empty
   }
 
-  override def flatMap[R](f: (T) => MonadicAnimated[R]): MonadicAnimated[R] = {
+  override def flatMap[R](f: (T) => MAnimated[R]): MAnimated[R] = {
     log("flatMap")
     //problem is that you cannot combine two animation
     //i think i should split the visual effect and its effect as a monad.
@@ -212,28 +248,30 @@ class EmptyOne[E[_] : Extractable, T]
       second =>
       override def in(cb: () => Unit): Unit = {
         log("flat mapped in")
-        second.extract(self.target)(res1 => {
-          log("second extracted")
-          val animated = f(res1)
-          log("flattening target is : " + animated.getClass.getCanonicalName)
-          animated.addOnComplete(res2 => {
-            log("second monadic animated is completed.")
-            second.onComplete(res2)
-          })
-          log("start second animation")
-          second.in(animated)(() => {
-            log("second animation done")
-            cb
-          })
-        })
+        second.extract(self.target){
+            case scala.util.Success(r) =>log("second extracted")
+              val animated = f(r)
+              log("flattening target is : " + animated.getClass.getCanonicalName)
+              animated.addOnComplete(res2 =>{
+                log("second monadic animated is completed.")
+                second.onComplete(res2)
+              }
+              )
+              log("start second animation")
+              second.in(animated)(() => {
+                log("second animation done")
+                cb
+              })
+            case scala.util.Failure(e) => errE("error while flatMapping:")(e)
+          }
+        }
       }
-    }
     empty
   }
 }
 
 class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E[T], mapper: T => AnimatedConstructor)
-                                (implicit val assets: AssetManager, val extractable: Extractable[E])
+                                (implicit val assets: AssetManager, val extractable: Extractable[E],val errorHandler:Throwable=>AnimatedConstructor)
   extends Layers
   with Animated
   with AnimatedActorHolder {
@@ -247,7 +285,7 @@ class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E
     extractable.extract(target)(constructor => {
       if (extracting) {
         onExtractionComplete()
-        constructed = mapper(constructor)(info)(callbacks)
+        constructed = constructor.map(mapper).recover{case e => errorHandler(e)}.get(info)(callbacks)
         System.gc()
         in(constructed)(cb)
       }
@@ -279,14 +317,14 @@ class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E
     extractable.extract(target)(constructor => {
       if (extracting) {
         onExtractionComplete()
-        constructed = mapper(constructor)(info)(callbacks)
+        constructed = constructor.map(mapper).recover{case e => errorHandler(e)}.get(info)(callbacks)
         in(constructed)(cb)
       }
     })
   }
 }
 
-trait AnimatedActorHolder extends Layers with Logging{
+trait AnimatedActorHolder extends Layers with Logging {
   def checkExistence(actor: Actor) = if (!this.getChildren.contains(actor, true)) addActor(actor)
 
   def in(animated: AnimatedActor)(cb: () => Unit) {

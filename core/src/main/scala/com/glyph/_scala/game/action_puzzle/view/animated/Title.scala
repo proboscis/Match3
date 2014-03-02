@@ -48,7 +48,3 @@ class WaitCallback(onComplete: () => Unit) {
     f(param)
   }
 }
-
-object NinePatch {
-  val p = new com.badlogic.gdx.graphics.g2d.NinePatch()
-}

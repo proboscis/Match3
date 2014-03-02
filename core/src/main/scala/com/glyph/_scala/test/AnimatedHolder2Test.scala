@@ -1,11 +1,11 @@
 package com.glyph._scala.test
 
-import com.glyph._scala.lib.libgdx.{GLFuture, BuilderExtractor2, Builder}
+import com.glyph._scala.lib.libgdx.{BuilderOps, GLFuture, BuilderExtractor2, Builder}
 import com.glyph._scala.lib.libgdx.screen.ConfiguredScreen
 import com.glyph._scala.lib.libgdx.actor.transition._
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.{AnimatedConstructor, AnimatedGraph}
-import com.glyph._scala.lib.libgdx.actor.Tasking
-import com.glyph._scala.lib.util.extraction.ExtractableFunctionFuture
+import com.glyph._scala.lib.libgdx.actor.{SpriteActor, Tasking}
+import com.glyph._scala.lib.util.extraction.{ExtractableFuture, ExtractableFunctionFuture}
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
@@ -18,6 +18,9 @@ import com.glyph._scala.lib.libgdx.BuilderOps.&
 import com.glyph._scala.game.action_puzzle.view.ActionPuzzleTable
 import com.glyph._scala.game.action_puzzle.ComboPuzzle
 import com.glyph._scala.lib.util.Logging
+import com.glyph._scala.lib.util.reactive.{VClass, VClassGenerator}
+import com.glyph._scala.game.Glyphs
+import com.badlogic.gdx.graphics.Texture
 
 object AnimatedHolder2Test {
   val builder = Builder(Set(), assets => new MockTransition {
@@ -37,6 +40,7 @@ trait AnimatedRunner extends ConfiguredScreen {
   implicit val holder = new StackedAnimatedActorHolder with Tasking {} <| (root.add(_).fill.expand)
   implicit val extractableBuilder = new BuilderExtractor2
   implicit val extractableFF = ExtractableFunctionFuture
+  implicit val extractableFuture = ExtractableFuture
   lazy val manager = new AnimatedManager(graph)
 }
 
@@ -74,24 +78,28 @@ trait AnimatedMock extends MockTransition {
 
 trait AnimatedConstructors extends DefaultExtractors with Logging{
   import AnimatedConstructorOps._
-  val menu = (flat map (skin => Menu.Style(skin = skin)) map Menu.constructor).extract
-  val title = GdxJSON("comboPuzzle/titleStyle.json").map {
-    json => for {
-      margin <- json.margin.as[Float]
+  val styleJson = GdxJSON("comboPuzzle/style.json")
+  val menuStyle = styleJson.map{
+    json => for{
+      padding <- json.padding.as[Float]
       space <- json.space.as[Float]
-    } yield {
-      (darkHolo & roundRectTexture).map {
-        case skin & rect => {
-          Title.third(TitleStyle(
-            titleFont = skin.getFont("default-font"),
-            space = space,
-            roundTex = rect,
-            skin = skin))
-        }
-      }
-    }//TODO これをなんとかする方法はないのか？
-  }.map(_.map(_.extract).extract).extract// you have to write three type-lambda to delete these....
-  val result = flat.map(skin => GameResult.Style(skin = skin) |> GameResult.constructor).extract
+    } yield flat map (skin => Menu.Style(padding = padding,space = space,skin = skin))
+  }
+  val resultStyle = for(json <- styleJson) yield for{
+    padding <- json.padding.as[Float]
+    space <- json.space.as[Float]
+  } yield for (skin <- flat) yield GameResult.Style(padding,space,skin)
+  val titleStyle = for(json <- styleJson) yield for{
+    padding <- json.padding.as[Float]
+    space <- json.space.as[Float]
+  } yield (flat&roundRectTexture) map {
+      case skin&roundTex => TitleStyle(margin = padding,space = space,titleFont = skin.getFont("default-font"),roundTex,skin)
+    }
+  val menu = menuStyle.map(_.map(_.map(Menu.constructor))).map(_.map(_.extract).extract).extract
+  val title = titleStyle.map(_.map(_.map(Title.third).extract).extract).extract
+  import VClass._
+  import Glyphs.getClassMacro
+  val result = resultStyle.map(_.map(_.map(style => VClass[AnimatedConstructor,GameResult].newInstance(Typed(style)).map(_.extract).extract).extract).extract).extract
   val puzzle = (roundRectTexture & particleTexture & dummyTexture & flat).map {
     case a & b & c & d => () => {
       // why the hell is this called twice!?
@@ -99,4 +107,7 @@ trait AnimatedConstructors extends DefaultExtractors with Logging{
       GLFuture(ActionPuzzleTable.animated(new ComboPuzzle)(a, b, c, d))
     }
   }.map((_: FF[AnimatedConstructor]).extract).extract
+  lazy val resultMock:AnimatedConstructor = Builder[Texture]("data/mock/gameResult.png").map{
+    mockTex => new SpriteActor(mockTex) |> AnimatedConstructor.apply
+  }.extract
 }

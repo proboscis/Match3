@@ -58,6 +58,25 @@ trait Reactor {
     observer
   }
 
+  import scalaz._
+  import Scalaz._
+
+  /**
+   * beware of the performace since this invokes "foreach" of the given Each
+   * @param v
+   * @param cb
+   * @tparam F
+   * @tparam T
+   * @return
+   */
+  def reactEach[F[_] : Each, T](v: Varying[F[T]])(cb: T => Unit): Observer[F[T]] = {
+    val observer = obtainObserver[F[T]]
+    observer.init(this, v, functor => {
+      functor foreach cb
+    })
+    observer
+  }
+
   /**
    * this creates an annonfun
    * @param v
@@ -183,13 +202,15 @@ class Observer[T] extends Poolable with Logging {
 
 object Reactor {
 
-  //TODO you can't pool the observers since they are
+  //TODO you can't pool the observers since they are...? what?
   implicit object PoolingObserver extends Pooling[Observer[_]] {
     def newInstance: Observer[_] = new Observer[Any]
 
     def reset(tgt: Observer[_]): Unit = tgt.reset()
   }
+
   import Glyphs._
+
   val observerPool = Pool[Observer[_]](10000)
 
   def obtainObserver[T]: Observer[T] = new Observer[T] //observerPool.auto.asInstanceOf[Observer[T]]

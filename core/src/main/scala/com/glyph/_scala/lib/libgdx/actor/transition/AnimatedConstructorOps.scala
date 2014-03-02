@@ -3,7 +3,7 @@ package com.glyph._scala.lib.libgdx.actor.transition
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
 import scala.util.Try
 import scala.concurrent.Future
-import com.glyph._scala.lib.libgdx.Builder
+import com.glyph._scala.lib.libgdx.{GLFuture, Builder}
 import com.glyph._scala.lib.util.extraction.Extractable
 import com.glyph._scala.lib.util.Logging
 import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder.AnimatedActor
@@ -15,8 +15,10 @@ import com.glyph._scala.lib.libgdx.actor.{SpriteActor, AnimatedTable}
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.scenes.scene2d.ui.{ScrollPane, Label}
-import scala.annotation.target
-import scala.annotation
+import com.glyph._scala.lib.libgdx.font.FontUtil
+import com.glyph._scala.lib.libgdx.skin.FlatSkin
+import com.glyph._scala.game.builders.Builders
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController
 
 /**
  * @author glyph
@@ -40,26 +42,31 @@ object AnimatedConstructorOps extends AnimatedConstructorOps {
   implicit class ACOps[M[_] : Extractable2](self: M[AnimatedConstructor]) {
     def extract = implicitly[Extractable2[M]].extract(self)
   }
-  implicit class ACOps2[M[_]:Functor,T[_]:Extractable2](self:M[T[AnimatedConstructor]]){
-    def unwrap = self.map(_.extract)
-  }
+
 }
 
 trait Extractors {
   type FF[A] = () => Future[A]
   implicit val extractableBuilder: Extractable[Builder]
   implicit val extractableFF: Extractable[FF]
-
+  implicit val extractableFuture: Extractable[Future]
+  implicit val errorHandlerConstructor:Throwable => AnimatedConstructor
+  implicit val errorHandler:Throwable=>AnimatedActor
   implicit def assetManager: AssetManager
+
+  def genExtractable2Future(animation: AnimatedActor): Extractable2[Future] = new Extractable2[Future] {
+    override def extract(target: Future[AnimatedConstructor]): AnimatedConstructor =
+      MAnimated.extract(target)(animation) |> MAnimated.toAnimatedConstructor
+  }
 
   def genExtractable2FF(animation: AnimatedActor): Extractable2[FF] = new Extractable2[FF] {
     override def extract(target: () => Future[AnimatedConstructor]): AnimatedConstructor =
-      MonadicAnimated.extract[FF, AnimatedConstructor](target)(animation) |> MonadicAnimated.toAnimatedConstructor
+      MAnimated.extract[FF, AnimatedConstructor](target)(animation) |> MAnimated.toAnimatedConstructor
   }
 
   def genExtractable2Builder(animation: AnimatedActor): Extractable2[Builder] = new Extractable2[Builder] {
     override def extract(target: Builder[AnimatedConstructor]): AnimatedConstructor =
-      MonadicAnimated.extract(target)(animation) |> MonadicAnimated.toAnimatedConstructor
+      MAnimated.extract(target)(animation) |> MAnimated.toAnimatedConstructor
   }
 
   def genExtractable2Varying: Extractable2[Varying] = new Extractable2[Varying] {
@@ -74,34 +81,46 @@ trait Extractors {
   }
 }
 
-trait ImplicitExtractors extends Extractors {
-  val ffExtraction: AnimatedActor
-  val builderExtraction: AnimatedActor
-  val errorHandler: Throwable => AnimatedConstructor
-
+/**
+ * this is becoming insane...
+ */
+trait DefaultExtractors extends Extractors with Logging {
+  import scala.concurrent.ExecutionContext.Implicits.global
+  import AnimatedConstructorOps._
+  /*
+  extractors with specified animation, or error handling method
+   */
+  implicit def extractable2Future: Extractable2[Future] = genExtractable2Future(futureExtraction)
   implicit def extractable2FF: Extractable2[FF] = genExtractable2FF(ffExtraction)
-
   implicit def extractable2Builder: Extractable2[Builder] = genExtractable2Builder(builderExtraction)
-
   implicit def extractable2Varying: Extractable2[Varying] = genExtractable2Varying
-
-  implicit def extractable2Try: Extractable2[Try] = genExtractable2Try(errorHandler)
-}
-
-trait DefaultExtractors extends ImplicitExtractors with Logging {
+  implicit def extractable2Try: Extractable2[Try] = genExtractable2Try(errorHandlerConstructor)
+  lazy val debugFont = GLFuture(FontUtil.internalFont("font/corbert.ttf", 25))
+  lazy val debugSkin = debugFont.map(font => Builders.dummyTexture.map(tex => FlatSkin.default(font, tex)))
   lazy val splashAnimation = swordTexture.map {
     tex => new AnimatedTable <| (_.add(new SpriteActor(tex)).fill.expand)
   }.forceCreate
-  override val ffExtraction: AnimatedActor = splashAnimation
-  override val builderExtraction: AnimatedActor = splashAnimation
-  override val errorHandler: (Throwable) => AnimatedConstructor = e => info => callbacks => darkHolo.map {
-    skin =>
+  lazy val debugFFExtraction = genExtractable2FF(splashAnimation)
+  lazy val debugBuilderExtraction = genExtractable2Builder(splashAnimation)
+  lazy val debugFutureExtraction = genExtractable2Future(splashAnimation)
+  val stringToExtraction = (str: String) => debugSkin.map(_.map(skin => AnimatedTable(_.fill.expand, new Label(str, skin)))) |> {
+    f =>
+      MAnimated.extract(f)(splashAnimation).flatMap(b => MAnimated.extract(b)(splashAnimation))
+  } |> MAnimated.toAnimatedActor
+  val ffExtraction: AnimatedActor = stringToExtraction("Extracting ()=>Future")
+  val builderExtraction: AnimatedActor = stringToExtraction("Extracting Builder")
+  val futureExtraction:AnimatedActor = stringToExtraction("Extracting Future")
+  implicit val errorHandler: (Throwable) => AnimatedActor= e => {
+    val abc = debugSkin.map(b => b.map(skin => {
       errE("handled an error while creating an AnimatedConstructor:")(e)
       val errLabel = new Label(e.getStackTrace.mkString("\n"), skin)
       errLabel.setEllipse(true)
-      val pane = new ScrollPane(errLabel,skin)
-      pane.setScrollingDisabled(false,false)
-      new AnimatedTable <| (
+      val pane = new ScrollPane(errLabel, skin)
+      pane.setScrollingDisabled(false, false)
+       new AnimatedTable <| (
         _.add(pane).fill.expand)
-  }.forceCreate
+    }))
+    MAnimated.extract(abc)(splashAnimation).flatMap(b => MAnimated.extract(b)(splashAnimation)) |> MAnimated.toAnimatedActor
+  }
+  implicit val errorHandlerConstructor :Throwable=>AnimatedConstructor = errorHandler andThen (a => info=>callbacks=>a)
 }

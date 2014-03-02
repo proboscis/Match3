@@ -10,6 +10,7 @@ class VaryingAnimatedConstructorHolder(target:Varying[AnimatedConstructor]) exte
     with Animated
     with Reactor {
     var current: Option[Actor with Animated] = None
+    var first = false
     import scalaz._
     import Scalaz._
     reactVar(target) {
@@ -17,13 +18,19 @@ class VaryingAnimatedConstructorHolder(target:Varying[AnimatedConstructor]) exte
         current match {
           case Some(prev)=>
             out(prev)(() => {})
-            current = Some(animated(info)(callbacks) <| (in(_)(()=>{})) )
+            current = Some(animated(info)(callbacks) <| (anim =>{
+              err("the varying's value is changed.")
+              in(anim)(()=>{
+                err("varied one is now in")
+              })})
+            )
           case None=>
             current = Some(animated(info)(callbacks))
         }
     }
 
     override def in(cb: () => Unit): Unit = {
+      err("in!")
       current foreach (in(_)(cb))
     }
 

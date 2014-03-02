@@ -73,6 +73,13 @@ class Mapped[T,R](val self: Varying[T], val mapping: T => R) extends Varying[R] 
     s => variable = mapping(s); this.notifyObservers(variable)
   }
 }
+class Copied[T](val self:Varying[T]) extends Varying[T] with Reactor{
+  var variable: T = self()
+  def current: T = variable
+  reactVar(self) {
+    s => variable = s; this.notifyObservers(variable)
+  }
+}
 
 class Paired[A,B](a:Varying[A],b:Varying[B]) extends Varying[(A,B)] with Reactor{
   var variable = (a(),b())

@@ -2,6 +2,7 @@ package com.glyph._scala.lib.util.reactive
 
 import scala.concurrent.{Future, ExecutionContext}
 import scala.util.Try
+import scalaz.Functor
 
 /**
  * @author glyph
@@ -33,5 +34,8 @@ trait VaryingOps{
         def apply(v1: Try[U]): Unit = if(!cancelled)f(v1)
       }
     }
+  }
+  implicit object VaryingFunctor extends Functor[Varying]{
+    override def map[A, B](fa: Varying[A])(f: (A) => B): Varying[B] = fa.map(f)
   }
 }

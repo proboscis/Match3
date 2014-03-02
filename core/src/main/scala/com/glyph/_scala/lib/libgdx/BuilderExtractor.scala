@@ -6,14 +6,14 @@ import com.badlogic.gdx.assets.AssetManager
 import com.glyph._scala.lib.util.extraction.Extractable
 import com.glyph._scala.game.Glyphs
 import Glyphs._
+import scala.util.{Success, Try}
+
 /**
  * @author glyph
  */
 trait BuilderExtractor extends ParallelProcessor {
-
   import scalaz._
   import Scalaz._
-
   def extract[T](builder: Builder[T])(onComplete: T => Unit)(progress: Float => Unit)(implicit assets: AssetManager): Task = Sequence(
     new AssetTask(builder.requirements)(progress),
     Block {
@@ -23,13 +23,14 @@ trait BuilderExtractor extends ParallelProcessor {
 }
 
 class BuilderExtractor2(implicit processor: TaskProcessor, am: AssetManager) extends Extractable[Builder] {
-  override def extract[T](target: Builder[T])(callback: (T) => Unit): Unit =
+  override def extract[T](target: Builder[T])(callback: Try[T] => Unit): Unit =
     processor.add(
       Sequence(
         new AssetTask(
           target.requirements)(_ => {}),
         Block {
-          callback(target.create)
+          callback(Success(target.create))
+          //TODO This never returns Failure even if the  animation is canceled...
         }
       )
     )

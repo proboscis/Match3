@@ -13,7 +13,7 @@ import com.glyph._scala.lib.libgdx.{Builder, DrawFPS}
 import com.badlogic.gdx.Input.Keys
 import scala.collection.mutable
 import com.glyph._scala.lib.util.{Animated, Logging}
-import com.glyph._scala.lib.util.reactive.{Varying, VClass, Reactor}
+import com.glyph._scala.lib.util.reactive.{VClass, Varying, VClassGenerator, Reactor}
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder2
 import com.glyph._scala.game.builders.Builders
@@ -36,7 +36,7 @@ class TestRunner(className: String)
 
   //typeOf[Int] <:< typeOf[String]
   //TODO this function cannot be done without a class tag.
-  def classToVSB(cls: Class[_]): Varying[Option[ScreenBuilder]] = cls match {
+  def classToVSB(cls: Class[_]): Varying[Try[ScreenBuilder]] = cls match {
     case c if classOf[ScreenBuilder].isAssignableFrom(c) =>
       VClass[ScreenBuilder](c.getCanonicalName).map(_.map(_.newInstance()))
     case c if classOf[Screen].isAssignableFrom(c) => VClass[Screen](c.getCanonicalName).map(_.map(
@@ -92,7 +92,7 @@ class TestRunner(className: String)
       case c =>
         TestClass.builders.find(_._1 == c) match {
           case Some((name,b)) => setBuilder(b)
-          case None => reactSome(classToVSB(Class.forName(c))) {
+          case None => reactSuccess(classToVSB(Class.forName(c))) {
             b =>
               popScreen(exit = false)
               setBuilder(b)

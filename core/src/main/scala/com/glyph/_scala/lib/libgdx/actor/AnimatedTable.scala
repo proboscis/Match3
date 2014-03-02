@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Interpolation
  * actors added through "add" method will be animated when this Table's animation is invoked.
  */
 class AnimatedTable extends Table with Animated with Logging with Tasking {
-
+  debug()
   import com.glyph._scala.game.Glyphs
   import Glyphs._
 
@@ -94,4 +94,10 @@ class AnimatedTable extends Table with Animated with Logging with Tasking {
     moveToCellPositions(cb)
   }
 }
-
+object AnimatedTable{
+  import scalaz._
+  import Scalaz._
+  def apply(layout:Cell[_]=>Unit,actors:Actor*):AnimatedTable = (new AnimatedTable /: actors){
+    case (table,actor) => table <| (_.add(actor) |> layout)
+  }
+}

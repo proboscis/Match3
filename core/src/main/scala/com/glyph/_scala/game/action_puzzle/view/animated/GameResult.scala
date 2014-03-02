@@ -5,8 +5,8 @@ import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedCons
 import com.glyph._scala.lib.libgdx.actor.AnimatedTable
 import com.glyph._scala.lib.util.updatable.reactive.Eased
 import com.glyph._scala.lib.util.updatable.Updatables
-import com.glyph._scala.lib.util.reactive.{Reactor, Var}
-import com.badlogic.gdx.math.Interpolation
+import com.glyph._scala.lib.util.reactive.{VClass, Reactor, Var}
+import com.badlogic.gdx.math.{MathUtils, Interpolation}
 import com.glyph._scala.lib.libgdx.actor.ui.RLabel
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
@@ -17,20 +17,21 @@ import com.esotericsoftware.tablelayout.{Value, BaseTableLayout}
 import com.glyph._scala.lib.libgdx.actor.widgets.Center
 import com.glyph._scala.social.SocialManager
 import com.glyph._scala.game.action_puzzle.{ComboPuzzle, LocalLeaderBoard}
-
+import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager
+import com.glyph._scala.lib.util.Animated
+import GameResult._
 /**
  * @author glyph
  */
-object GameResult {
-  case class Style(pad:Float = 20, space:Float = 20,skin:Skin)
-  val constructor: Style => AnimatedConstructor = style => info => callbacks => new AnimatedTable
+class GameResult(style:Style) extends AnimatedConstructor{
+  override def apply(info: AnimatedManager.Info): (AnimatedManager.Callbacks) => Actor with Animated = callbacks =>  new AnimatedTable
     with Updatables
     with Reactor {
     import style._
     debug(BaseTableLayout.Debug.all)
     log("creating game result view")
     val score = info("score").asInstanceOf[Int]
-    val shownScore = Var(0f)
+    val shownScore = Var(MathUtils.random(0f))
     val ease = Eased(shownScore, Interpolation.exp10Out.apply, t => 2f)
     //if you wanna center the elements, use inner table!
     val scoreLabel = Center(new RLabel(skin, ease.map(s => "%.0f".format(s)))).left()
@@ -44,6 +45,7 @@ object GameResult {
     shownScore() = score
     defaults().space(space).padLeft(style.pad).padRight(style.pad).fill.expand
     setSkin(skin)
+
     val scoreTable = new Table()
     scoreTable.add(Center(new Label("Score: ",skin)).right()).width(Value.percentWidth(0.5f))
     scoreTable.add(scoreLabel).fill.expand
@@ -51,12 +53,15 @@ object GameResult {
     add(replayButton).row()
     add(dashBoardButton).row()
     add(titleButton).row()
-    log("highscore:=>")
+    log("highscore:==============>")
     LocalLeaderBoard.load(ComboPuzzle.LOCAL_LEADERBOARD).foreach(log)
-    log("highscore:<=")
+    log("highscore:<==============")
   }
-}
 
+}
+object GameResult {
+  case class Style(pad:Float = 20, space:Float = 20,skin:Skin)
+}
 trait Change {
   self: Actor =>
   var onChange = (event: ChangeEvent, actor: Actor) => {}
@@ -67,7 +72,18 @@ trait Change {
   })
 }
 
+
 class GameResultTest extends MockTransition {
   override implicit def assetManager: AssetManager = new AssetManager()
   manager.start(result, Map("score" -> 1000), holder.push)
+}
+class GameResultMockTest extends MockTransition with LazyAssets with Reactor{
+  manager.start(resultMock,Map(),holder.push)
+  log("created GameResultMockTest")
+  reactVar(VClass[AnimatedConstructor,GameResult]){
+    t =>
+      //ok, some how this is called twice.. regardless of animations
+      log("changed")
+      err(t)
+  }
 }
