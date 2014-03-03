@@ -19,6 +19,8 @@
  -keep class com.glyph._scala.lib.libgdx.actor.SpriteActor
  -keep class com.badlogic.gdx.physics.box2d.** {*;}
  -keepnames class com.glyph_scala.test.** 
+ -keepclassmembers　class com.glyph._scala.test.** {*;}
+ -keep class com.glyph._scala.game.action_puzzle.** {*;}
  -keep class scala.Function0 
  -keep class scala.Function1
  -keep class scala.Function2

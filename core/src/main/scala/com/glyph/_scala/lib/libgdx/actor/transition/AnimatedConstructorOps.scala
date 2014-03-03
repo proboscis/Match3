@@ -113,9 +113,9 @@ trait DefaultExtractors extends Extractors with Logging {
   implicit val errorHandler: (Throwable) => AnimatedActor= e => {
     val abc = debugSkin.map(b => b.map(skin => {
       errE("handled an error while creating an AnimatedConstructor:")(e)
-      val errLabel = new Label(e.getStackTrace.mkString("\n"), skin)
+      val errLabel = new Label(e.toString + "\n" + e.getMessage+"\n"+e.getStackTrace.mkString("\n"), skin)
       errLabel.setEllipse(true)
-      val pane = new ScrollPane(errLabel, skin)
+      val pane = new ScrollPane(errLabel)
       pane.setScrollingDisabled(false, false)
        new AnimatedTable <| (
         _.add(pane).fill.expand)
