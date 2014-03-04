@@ -11,6 +11,7 @@ import com.glyph._scala.lib.util.Logging
 import com.glyph._scala.game.action_puzzle.ColorTheme
 import com.glyph._scala.game.builders.Builders
 import com.glyph._scala.lib.libgdx.Builder
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle
 
 /**
  * @author glyph
@@ -26,6 +27,7 @@ class FlatSkin(val colors: Map[String, Color], tint: Color => Drawable, font: Bi
   val buttonStyles = colors.mapValues(buttonStyle)
   val textButtonStyles = colors.mapValues(textButtonStyle)
   val labelStyles = colors mapValues labelStyle
+  val scrollPaneStyles = colors mapValues scrollPaneStyle
   def textButtonStyle(c: Color): TextButtonStyle = {
     val ts = new TextButtonStyle()
     ts.font = font
@@ -44,8 +46,8 @@ class FlatSkin(val colors: Map[String, Color], tint: Color => Drawable, font: Bi
   }
 
   def labelStyle(c: Color) = new LabelStyle(font, c)
-
-  val defaults = labelStyle(Color.WHITE)::buttonStyles("carrot") :: textButtonStyles("carrot") :: Nil
+  def scrollPaneStyle(c:Color) = new ScrollPaneStyle(c,up(c),down(c),up(c),down(c))
+  val defaults = labelStyle(Color.WHITE)::buttonStyles("carrot") :: textButtonStyles("carrot") ::scrollPaneStyles("carrot") :: Nil
   val defaultStyles = defaults map {
     style => "default"->style
   }

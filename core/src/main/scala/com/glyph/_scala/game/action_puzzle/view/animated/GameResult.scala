@@ -73,17 +73,5 @@ trait Change {
 }
 
 
-class GameResultTest extends MockTransition {
-  override implicit def assetManager: AssetManager = new AssetManager()
-  manager.start(result, Map("score" -> 1000), holder.push)
-}
-class GameResultMockTest extends MockTransition with LazyAssets with Reactor{
-  manager.start(resultMock,Map(),holder.push)
-  log("created GameResultMockTest")
-  reactVar(VClass[AnimatedConstructor,GameResult]){
-    t =>
-      //ok, some how this is called twice.. regardless of animations
-      log("changed")
-      err(t)
-  }
-}
+
+

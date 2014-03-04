@@ -10,6 +10,8 @@
  public static **[] values();
  public static ** valueOf(java.lang.String);
  }
+ #keep test classes
+ -keep class com.glyph._scala.test.** {*;}
 
  #two lines below are required to load the skin fron json
  -keep class com.badlogic.gdx.scenes.scene2d.ui.**

@@ -85,7 +85,7 @@ trait Extractors {
  * this is becoming insane...
  */
 trait DefaultExtractors extends Extractors with Logging {
-  import scala.concurrent.ExecutionContext.Implicits.global
+  implicit val context = com.glyph._scala.lib.injection.GLExecutionContext.context
   import AnimatedConstructorOps._
   /*
   extractors with specified animation, or error handling method
