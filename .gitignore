@@ -238,3 +238,7 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+android/gen/com/glyph/make3/TR.scala
+android/gen/com/glyph/make3/BuildConfig.java
+android/gen/com/google/android/gms/R.java
+android/assets/com.glyph._scala.game.action_puzzle.ComboPuzzle$local_leaderboard.json
