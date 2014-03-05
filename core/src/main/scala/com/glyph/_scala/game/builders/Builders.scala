@@ -48,10 +48,10 @@ object Builders {
   val particleTexture: Builder[Texture] = "data/particle.png".builder[Texture]
   val dummyTexture: Builder[Texture] = "data/dummy.png".builder[Texture]
   val swordTexture: Builder[Texture] = "data/sword.png".builder[Texture]
-  val roundRectTexture: Builder[Texture] = "data/round_rect.png".builder[Texture]
+  val roundRectTexture: Builder[Texture] = "data/round_rect_160.png".builder[Texture]
   val roundRectNP = roundRectTexture.map {
-    tex => val w = tex.getWidth / 3
-      new NinePatch(tex, w, w, w, w)
+    tex => val w = tex.getWidth / 5
+      new NinePatch(tex,w,w,w,w)
   }
   val flat = (corbert & roundRectNP).map {
     case font & np =>
