@@ -95,7 +95,7 @@ trait DefaultExtractors extends Extractors with Logging {
   implicit def extractable2Builder: Extractable2[Builder] = genExtractable2Builder(builderExtraction)
   implicit def extractable2Varying: Extractable2[Varying] = genExtractable2Varying
   implicit def extractable2Try: Extractable2[Try] = genExtractable2Try(errorHandlerConstructor)
-  lazy val debugFont = GLFuture(FontUtil.internalFont("font/corbert.ttf", 25))
+  lazy val debugFont = GLFuture(FontUtil.internalFont("font/corbert.ttf", 140))
   lazy val debugSkin = debugFont.map(font => Builders.dummyTexture.map(tex => FlatSkin.default(font, tex)))
   lazy val splashAnimation = swordTexture.map {
     tex => new AnimatedTable <| (_.add(new SpriteActor(tex)).fill.expand)
