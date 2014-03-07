@@ -40,7 +40,7 @@ class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Textu
 
   val renderer = new ParticleRenderer[MyTrail](particleTex)(ShaderHandler("shader/rotate2.vert", "shader/default.frag"), new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES))
   // you must regenerate this after context loss...
-  val corbert = FontUtil.internalFont("font/corbert.ttf", 50)
+  val corbert = FontUtil.internalFont("font/corbert.ttf", 100)
 
   val apView = new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor] {
     override def newInstance: SpriteActor = new SpriteActor()

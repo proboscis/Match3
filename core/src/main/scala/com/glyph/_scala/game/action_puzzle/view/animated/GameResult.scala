@@ -43,7 +43,7 @@ class GameResult(style:Style) extends AnimatedConstructor{
     dashBoardButton.onChange = (e,a) => SocialManager.manager.showGlobalHighScore()
     add(ease)
     shownScore() = score
-    defaults().space(space).padLeft(style.pad).padRight(style.pad).fill.expand
+    defaults().space(space).padLeft(style.pad).padRight(style.pad).fill.expandX.height(160)
     setSkin(skin)
 
     val scoreTable = new Table()
