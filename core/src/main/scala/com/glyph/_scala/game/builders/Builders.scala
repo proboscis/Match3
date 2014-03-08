@@ -44,34 +44,7 @@ import scala.concurrent.duration.Duration
         def create(implicit assets: AssetManager): T = assets.get[T](name)
       }
     }
-<<<<<<< HEAD
-  }
 
-  val corbert: Builder[BitmapFont] = "font/corbert.fnt".builder[BitmapFont]
-  val darkHolo: Builder[Skin] = "skin/holo/Holo-dark-xhdpi.json".builder[Skin]
-  val lightHolo: Builder[Skin] = "skin/holo/Holo-light-xhdpi.json".builder[Skin]
-  val particleTexture: Builder[Texture] = "data/particle.png".builder[Texture]
-  val dummyTexture: Builder[Texture] = "data/dummy.png".builder[Texture]
-  val swordTexture: Builder[Texture] = "data/sword.png".builder[Texture]
-  val roundRectTexture: Builder[Texture] = "data/round_rect_160.png".builder[Texture]
-  val roundRectNP = roundRectTexture.map {
-    tex => val w = tex.getWidth / 5
-      new NinePatch(tex,w,w,w,w)
-  }
-  val flat = (corbert & roundRectNP).map {
-    case font & np =>
-      new FlatSkin(
-        ColorTheme.varyingColorMap(),
-        c => new NinePatchDrawable(new NinePatch(np) <| (_.setColor(c))),
-        font
-      )
-  }
-  val label: Skin => String => Label = skin => new Label(_: String, skin)
-
-  def menuScreenBuilder[E]: (Seq[(String, E)], E => Unit) => Builder[Screen] = (elements, cb) => {
-    lightHolo map (skin => new MenuScreen[E](skin, elements, cb))
-  }
-=======
     lazy val corbert2 =FontUtil.internalFont("font/corbert.ttf",100)
     val corbert: Builder[BitmapFont] = "font/corbert.fnt".builder[BitmapFont]
     val darkHolo: Builder[Skin] = "skin/holo/Holo-dark-xhdpi.json".builder[Skin]
@@ -94,7 +67,6 @@ import scala.concurrent.duration.Duration
         )
     }
     val label: Skin => String => Label = skin => new Label(_: String, skin)
->>>>>>> bd18e4fe700eb07a7f43347d388b53af3ba4b61c
 
     def menuScreenBuilder[E]: (Seq[(String, E)], E => Unit) => Builder[Screen] = (elements, cb) => {
       lightHolo map (skin => new MenuScreen[E](skin, elements, cb))

@@ -23,8 +23,8 @@ object Main {
                      packTexture: Boolean = false,
                      testScreen: String = "",
                      gameClass: String = "",
-                     height: Int = 1920,
-                     width: Int = (1920 * 9d / 16d).toInt)
+                     height: Int = 1920/3,
+                     width: Int = (1920 * 9d / 16d/3).toInt)
 
   implicit object ScoptClass extends scopt.Read[Class[_ <: ScreenBuilder]] {
     def arity: Int = 1
