@@ -8,6 +8,7 @@ trait ClassMacro{
 	**/
 	implicit def getClassMacro[T]:Class[T] = macro ClassMacroImpl.getClassMacroImpl[T]
 }
+object ClassMacro extends ClassMacro
 object ClassMacroImpl{
 	def getClassMacroImpl[T:c.WeakTypeTag](c:Context):c.Expr[Class[T]] ={
 		import c.universe._
