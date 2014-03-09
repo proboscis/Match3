@@ -8,7 +8,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.glyph._scala.lib.libgdx.actor.{SpriteActor, Scissor}
 import com.badlogic.gdx.graphics.glutils._
 import com.badlogic.gdx.graphics._
-import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.{Touchable, Actor}
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.{Rectangle, Matrix4}
 import com.badlogic.gdx.Gdx
@@ -17,12 +17,12 @@ import com.glyph._scala.lib.libgdx.gl.ShaderHandler
 import com.badlogic.gdx.graphics.VertexAttributes.Usage
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph._scala.lib.libgdx.actor.widgets.Layered
+import com.glyph._scala.lib.libgdx.actor.blend.AdditiveBlend
 
 /**
  * @author glyph
  */
 class BlurTest extends ConfiguredScreen {
-  override def STAGE_WIDTH: Int = 2500
   import Builders._
 
   implicit val assetManager = new AssetManager
@@ -38,6 +38,8 @@ class BlurTest extends ConfiguredScreen {
     override def bufferWidth: Int = 256
 
     override def bufferHeight: Int = 256
+
+    override def shouldRenderer: Boolean = true
   }
   val sword = swordTexture.forceCreate
   ShaderProgram.pedantic = true
@@ -70,10 +72,13 @@ class BlurTest extends ConfiguredScreen {
         s.end()
     }
   }
+  val layers = new Layered with AdditiveBlend
   val pingpongActors = pingpong map (buf => new SpriteActor(buf.getColorBufferTexture))
-  table.setSize(1080,1800)
-  root.add(table).width(960).fill.expandY
-  root.add(pingpongActors(1)).fill.expand
+  layers.addActor(table)
+  layers.addActor(pingpongActors(1))
+  root.add(layers).fill().expand()
+
+  pingpongActors(1).setTouchable(Touchable.disabled)
   val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
   val a_texCoord = VertexAttribute.TexCoords(0)
   val rect = new Mesh(true, 4, 0, a_position, a_texCoord)
@@ -95,6 +100,7 @@ trait FrameCapture extends Actor with Disposable {
   def bufferWidth: Int
 
   def bufferHeight: Int
+  def shouldRenderer: Boolean
 
   val buffer = new FrameBuffer(Pixmap.Format.RGBA8888, bufferWidth, bufferHeight, false)
   val camera = new OrthographicCamera()
@@ -126,6 +132,9 @@ trait FrameCapture extends Actor with Disposable {
     batch.setTransformMatrix(transform)
     batch.setProjectionMatrix(projection)
     Scissor.pop()
+    if (shouldRenderer){
+      super.draw(batch,parentAlpha)
+    }
   }
 
   override def dispose(): Unit = {

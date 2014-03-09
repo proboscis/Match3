@@ -24,6 +24,18 @@ trait Layered extends Group {
     children.end()
   }
 
+
+  override def addActor(actor: Actor): Unit = {
+    super.addActor(actor)
+    updateChildren()
+  }
+
+
+  override def sizeChanged(): Unit = {
+    super.sizeChanged()
+    updateChildren()
+  }
+
   override def setSize(width: Float, height: Float) {
     super.setSize(width, height)
     updateChildren()
