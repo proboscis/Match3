@@ -97,7 +97,7 @@ object ShaderHandler {
     (GdxFile(vFile) ~ GdxFile(fFile)).mapFuture[ValidationNel[Throwable, ShaderProgram]] {
       case v ~ f => Try((v.toVnel |@| f.toVnel)((ve: String, fr: String) => {
         val result = new ShaderProgram(ve, fr)
-        if (result.getLog.contains("error")) throw new RuntimeException("shader compilation failed\n" + result.getLog)
+        if (result.getLog.contains("error")) throw new RuntimeException("shader compilation failed\n" + result.getLog + "\n" + ve+"\n" + fr)
         result
       })).toVnel.flatten
     }.map(_.map(_.toVnel.flatten))
@@ -105,7 +105,8 @@ object ShaderHandler {
 
   def loadShaderBlocking(vertexShaderPath:String,fragmentShaderPath:String) = {
     (GdxFile(vertexShaderPath)~ GdxFile(fragmentShaderPath)).map{
-      case vTry ~ fTry =>for{
+      case vTry ~ fTry =>
+        for{
         vs <- vTry
         fs <- fTry
       } yield new ShaderProgram(vs,fs)

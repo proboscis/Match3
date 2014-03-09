@@ -15,7 +15,7 @@ object LibgdxBuild extends Build {
 
   lazy val commonSettings = (watchSources ~= { _.filterNot(_.isDirectory) }) ++ Seq (
     scalaVersion := sVersion,
-    scalacOptions ++=Seq("-feature"),
+    scalacOptions ++=Seq("-feature","-encoding","utf8"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),//this is required to avoid "bad file magic" problems
     javacOptions ++= Seq("-encoding","utf8")//this is required to avoid encoding issues with japanese comments in Windows
     )
@@ -33,7 +33,7 @@ object LibgdxBuild extends Build {
       )
   */
     proguardCache in Android := Seq(),
-    proguardOptions in Android ++= Source.fromFile("./proguardOptions.txt").getLines.toSeq,
+    proguardOptions in Android ++= Source.fromFile("./proguardOptions.txt")("UTF-8").getLines.toSeq,
       localProjects in Android <+= (baseDirectory) {
         b => AutoLibraryProject(b/".."/"play")
       }

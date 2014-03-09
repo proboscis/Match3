@@ -88,8 +88,6 @@
 
  -keep class com.glyph._scala.lib.libgdx.screen.**
 
- -keep class com.glyph._scala.lib.libgdx.GLFuture
- -keep class com.glyph.LoaderContext
  -keepattributes Signature
 
  # https://ofdev.zendesk.com/entries/20461397-android-pointless-proguard-cfg
