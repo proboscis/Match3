@@ -16,7 +16,7 @@ import com.glyph._scala.lib.util.Logging
 /**
  * @author glyph
  */
-class LoadingScreen(onFinish: () => Unit, targetAM: AssetManager) extends StagedScreen with Logging{
+class LoadingScreen(onFinish: () => Unit, targetAM: AssetManager) extends JSONStagedScreen with Logging{
   def configSrc: RVJSON = RVJSON(GdxFile("json/gameConfig.json"))
   override def show(): Unit = {
     super.show()

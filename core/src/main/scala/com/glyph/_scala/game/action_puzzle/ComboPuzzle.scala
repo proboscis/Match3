@@ -16,12 +16,6 @@ class ComboPuzzle extends Logging with Reactor {
 
   val config = GdxFile("comboPuzzle/config.json").map(_.map(JSON(_)))
   val timeConfig = config.map(_.map(_.time.as[Float]).flatten)
-  /**
-   * どのような面白さにするか・・・
-   * プレイヤーの目的は、パネルを消すことなんですよ。\
-   * そこで、スコアは副次的なものなんですね
-   * パネルを”うまく”消すのが、楽しいアクションパズルになるわけｓで
-   */
 
   val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 5), (a: Int, b: Int) => {
     a == b

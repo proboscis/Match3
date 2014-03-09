@@ -7,16 +7,16 @@ import Scalaz._
 /**
  * @author glyph
  */
-trait TabledScreen extends StagedScreen with Reactor{
+trait TabledScreen extends StagedScreenBase with Reactor{
+  def drawDebugTable:Boolean
   val debug = Var(false)
-  reactVar(config.debug.as[Boolean])(_ | false |> debug.update)
   val root = new Table
   root.setSize(STAGE_WIDTH,STAGE_HEIGHT)
-  def DEBUG: Boolean =debug()
-  if(DEBUG)root.debug()
+  log("root size:",STAGE_WIDTH,STAGE_HEIGHT)
+  if(drawDebugTable)root.debug()
   stage.addActor(root)
   override def render(delta: Float) {
     super.render(delta)
-    if (DEBUG)Table.drawDebug(stage)
+    if (drawDebugTable)Table.drawDebug(stage)
   }
 }

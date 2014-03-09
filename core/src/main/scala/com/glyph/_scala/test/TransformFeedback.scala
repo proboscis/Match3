@@ -32,7 +32,8 @@ class TransformFeedback extends ScreenBuilder with Logging {
     ShaderProgram.pedantic = false
     println(Gdx.gl.glGetString(GL10.GL_EXTENSIONS))
 
-    override def DEBUG: Boolean = false
+
+    override def drawDebugTable: Boolean = false
 
     override def STAGE_WIDTH: Int = 960
 

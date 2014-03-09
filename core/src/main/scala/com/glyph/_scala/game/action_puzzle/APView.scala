@@ -25,8 +25,8 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   with Reactor
   with Logging
   with Tasking
-  with Scissor
   with Layered
+  with Scissor
   with Paneled2 {
 
   //TODO i want to remove all those drawing specific codes such as sprite,token,anything..

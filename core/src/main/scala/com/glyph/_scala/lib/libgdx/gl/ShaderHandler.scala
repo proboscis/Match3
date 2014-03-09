@@ -10,6 +10,7 @@ import Glyphs._
 import scalaz._
 import Scalaz._
 import com.glyph._scala.lib.util.reactive.Reactor
+import com.glyph._scala.lib.libgdx.GLFuture
 
 /**
  * automatically reloads the specified shaders when changed.
@@ -102,6 +103,14 @@ object ShaderHandler {
     }.map(_.map(_.toVnel.flatten))
   }
 
-  def apply(vFile: String, fFile: String) = new ShaderHandler(vFile, fFile)
+  def loadShaderBlocking(vertexShaderPath:String,fragmentShaderPath:String) = {
+    (GdxFile(vertexShaderPath)~ GdxFile(fragmentShaderPath)).map{
+      case vTry ~ fTry =>for{
+        vs <- vTry
+        fs <- fTry
+      } yield new ShaderProgram(vs,fs)
+    }
+  }
 
+  def apply(vFile: String, fFile: String) = new ShaderHandler(vFile, fFile)
 }
