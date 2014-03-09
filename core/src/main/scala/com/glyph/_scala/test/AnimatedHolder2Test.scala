@@ -3,13 +3,13 @@ package com.glyph._scala.test
 import com.glyph._scala.lib.libgdx.{BuilderOps, GLFuture, BuilderExtractor2, Builder}
 import com.glyph._scala.lib.libgdx.screen.ConfiguredScreen
 import com.glyph._scala.lib.libgdx.actor.transition._
-import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.{AnimatedConstructor, AnimatedGraph}
-import com.glyph._scala.lib.libgdx.actor.{SpriteActor, Tasking}
+import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.{Info, Callbacks, AnimatedConstructor, AnimatedGraph}
+import com.glyph._scala.lib.libgdx.actor.{AnimatedTable, SpriteActor, Tasking}
 import com.glyph._scala.lib.util.extraction.{ExtractableFuture, ExtractableFunctionFuture}
 import scalaz._
 import Scalaz._
 import com.badlogic.gdx.assets.AssetManager
-import com.glyph._scala.game.action_puzzle.view.animated.{GameResult, Menu, Title}
+import com.glyph._scala.game.action_puzzle.view.animated.{LazyAssets, GameResult, Menu, Title}
 import com.glyph._scala.lib.libgdx.game.LimitDelta
 import com.glyph._scala.lib.util.json.GdxJSON
 import com.glyph._scala.game.builders.Builders._
@@ -17,7 +17,7 @@ import com.glyph._scala.game.action_puzzle.view.animated.Title.TitleStyle
 import com.glyph._scala.lib.libgdx.BuilderOps.&
 import com.glyph._scala.game.action_puzzle.view.ActionPuzzleTable
 import com.glyph._scala.game.action_puzzle.ComboPuzzle
-import com.glyph._scala.lib.util.Logging
+import com.glyph._scala.lib.util.{Graph, Logging}
 import com.glyph._scala.lib.util.reactive.{VClass, VClassGenerator}
 import com.glyph._scala.game.Glyphs
 import com.badlogic.gdx.graphics.Texture
@@ -33,7 +33,6 @@ object AnimatedHolder2Test {
 
 trait AnimatedRunner extends ConfiguredScreen {
   def graph: AnimatedGraph
-
   //beware of second asset manager!
   implicit def assetManager: AssetManager
 
@@ -44,13 +43,13 @@ trait AnimatedRunner extends ConfiguredScreen {
   lazy val manager = new AnimatedManager(graph)
 }
 
-
 trait MockTransition
   extends AnimatedRunner
   with AnimatedConstructors
   with LimitDelta {
   val push = holder.push _
   val switch = holder.switch _
+  import AnimatedConstructorOps._
 
   override def graph: AnimatedGraph = Map(
     title -> Map(
@@ -68,12 +67,18 @@ trait MockTransition
       "replay" ->(switch, puzzle),
       "title" ->(switch, title)
     )
-  )
-}
+  ) ++ Map(
+    constructorSelector->constructors.mapValues(ac => (push,ac))
+    )
+  lazy val constructorSelector:AnimatedConstructor =flat.map(
+    skin =>((info:Info)=>(callbacks:Callbacks)=> {
+      val selector = new StringSelector(skin,constructors.keys,str => callbacks(str)(Map()))
+      AnimatedTable.apply(_.fill.expand)(selector)
+    }):AnimatedConstructor).extract
 
-trait AnimatedMock extends MockTransition {
-  //beware of second asset manager!
-  override implicit def assetManager: AssetManager = new AssetManager
+}
+class MockSelector extends MockTransition with LazyAssets{
+  manager.start(constructorSelector,Map(),holder.push)
 }
 
 trait AnimatedConstructors extends DefaultExtractors with Logging{
@@ -107,7 +112,19 @@ trait AnimatedConstructors extends DefaultExtractors with Logging{
       GLFuture(ActionPuzzleTable.animated(new ComboPuzzle)(a, b, c, d))
     }
   }.map((_: FF[AnimatedConstructor]).extract).extract
-  lazy val resultMock:AnimatedConstructor = Builder[Texture]("data/mock/gameResult.png").map{
+  def textureBuilderToMock(builder:Builder[Texture]):AnimatedConstructor = builder.map{
     mockTex => new SpriteActor(mockTex) |> AnimatedConstructor.apply
   }.extract
+  def fileToMock(fileName:String):AnimatedConstructor = Builder[Texture](fileName) |> textureBuilderToMock
+  lazy val resultMock:AnimatedConstructor = "data/mock/gameResult.png" |> fileToMock
+  lazy val resultMock2:AnimatedConstructor = "data/mock/gameResult2.png" |> fileToMock
+
+  lazy val constructors: String Map AnimatedConstructor = Map(
+    "menu"->menu,
+    "title"->title,
+    "result"->result,
+    "puzzle"->puzzle,
+    "resultMock1"->resultMock,
+    "resultMock2"->resultMock2
+  )
 }

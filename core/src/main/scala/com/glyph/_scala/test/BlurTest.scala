@@ -27,7 +27,7 @@ class BlurTest extends ConfiguredScreen {
 
   implicit val assetManager = new AssetManager
   val puzzle = new ComboPuzzle
-  puzzle.time() = 1000000
+  puzzle.time() = 10
   val root2 = new Layered{}
   val table = new ActionPuzzleTable(puzzle)(
     roundRectTexture.forceCreate,

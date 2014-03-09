@@ -30,7 +30,7 @@ class GameResult(style:Style) extends AnimatedConstructor{
     import style._
     debug(BaseTableLayout.Debug.all)
     log("creating game result view")
-    val score = info("score").asInstanceOf[Int]
+    val score = info.lift("score").getOrElse(0).asInstanceOf[Int]
     val shownScore = Var(MathUtils.random(0f))
     val ease = Eased(shownScore, Interpolation.exp10Out.apply, t => 2f)
     //if you wanna center the elements, use inner table!

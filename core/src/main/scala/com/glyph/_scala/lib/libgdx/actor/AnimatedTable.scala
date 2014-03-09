@@ -97,7 +97,7 @@ class AnimatedTable extends Table with Animated with Logging with Tasking {
 object AnimatedTable{
   import scalaz._
   import Scalaz._
-  def apply(layout:Cell[_]=>Unit,actors:Actor*):AnimatedTable = (new AnimatedTable /: actors){
+  def apply(layout:Cell[_]=>Unit)(actors:Actor*):AnimatedTable = (new AnimatedTable /: actors){
     case (table,actor) => table <| (_.add(actor) |> layout)
   }
 }

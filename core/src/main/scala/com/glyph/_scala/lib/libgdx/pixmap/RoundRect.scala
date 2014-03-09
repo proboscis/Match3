@@ -25,6 +25,6 @@ object RoundRect {
 class RoundRectTest extends MockTransition with LazyAssets{
   import scalaz._
   import Scalaz._
-  val roundTest = AnimatedTable(_.fill.expand.space(20f).pad(20f),new Image(RoundRect(20))) |> AnimatedConstructor.apply
+  val roundTest = AnimatedTable(_.fill.expand.space(20f).pad(20f))(new Image(RoundRect(20))) |> AnimatedConstructor.apply
   manager.start(roundTest,Map(),holder.push)
 }

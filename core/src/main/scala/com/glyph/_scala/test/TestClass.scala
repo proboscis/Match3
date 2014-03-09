@@ -19,7 +19,6 @@ import com.glyph._scala.test.GameResultMockTest
 object TestClass {
   type ->[A, B] = (A, B)
   val builderClasses: List[Class[_ <: ScreenBuilder]] =
-    classOf[VaryingScreen] ::
       classOf[TrailedParticleTest] ::
       classOf[ParticleTest] ::
       classOf[UVTrailTest] ::
@@ -27,6 +26,7 @@ object TestClass {
       classOf[WordParticle] :: Nil
   val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
   val screenClasses: List[Class[_ <: Screen]] =
+    classOf[MockSelector]::
     classOf[BlurTest]::
     classOf[GameResultMockTest]::
     classOf[GameResultTest] ::
