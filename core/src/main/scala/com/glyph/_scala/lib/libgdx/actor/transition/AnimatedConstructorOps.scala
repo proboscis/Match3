@@ -103,7 +103,7 @@ trait DefaultExtractors extends Extractors with Logging {
   lazy val debugFFExtraction = genExtractable2FF(splashAnimation)
   lazy val debugBuilderExtraction = genExtractable2Builder(splashAnimation)
   lazy val debugFutureExtraction = genExtractable2Future(splashAnimation)
-  val stringToExtraction = (str: String) => debugSkin.map(_.map(skin => AnimatedTable(_.fill.expand, new Label(str, skin)))) |> {
+  val stringToExtraction = (str: String) => debugSkin.map(_.map(skin => AnimatedTable(_.fill.expand)(new Label(str, skin)))) |> {
     f =>
       MAnimated.extract(f)(splashAnimation).flatMap(b => MAnimated.extract(b)(splashAnimation))
   } |> MAnimated.toAnimatedActor
