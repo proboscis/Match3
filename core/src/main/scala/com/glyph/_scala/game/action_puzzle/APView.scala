@@ -15,6 +15,7 @@ import com.glyph._scala.lib.libgdx.gl._
 import scala.reflect.ClassTag
 import com.glyph._scala.lib.libgdx.actor.table.Layers
 import com.glyph._scala.lib.libgdx.actor.widgets.Layered
+import com.badlogic.gdx.graphics.g2d.Batch
 
 class MyTrail() extends UVTrail(5)
 /**
@@ -137,5 +138,9 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   override def act(delta: Float) {
     super.act(delta) //this call causes Some allocation!
     updateTokenPosition(delta)
+  }
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit = {
+    super.draw(batch, parentAlpha)
   }
 }

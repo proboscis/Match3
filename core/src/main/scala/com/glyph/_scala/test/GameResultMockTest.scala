@@ -8,6 +8,7 @@ import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager._
  * @author glyph
  */
 class GameResultMockTest extends MockTransition with LazyAssets with Reactor{
+  import com.glyph.ClassMacro._
   manager.start(resultMock,Map(),holder.push)
   log("created GameResultMockTest")
   reactVar(VClass[AnimatedConstructor,GameResult]){

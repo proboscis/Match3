@@ -1,6 +1,6 @@
 package com.glyph._scala.lib.libgdx.gl
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 import com.badlogic.gdx.Gdx
 import com.glyph._scala.lib.libgdx.reactive.GdxFile
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
@@ -9,7 +9,7 @@ import com.glyph._scala.game.Glyphs
 import Glyphs._
 import scalaz._
 import Scalaz._
-import com.glyph._scala.lib.util.reactive.Reactor
+import com.glyph._scala.lib.util.reactive.{Varying, Reactor}
 import com.glyph._scala.lib.libgdx.GLFuture
 
 /**
@@ -83,7 +83,22 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
     }
   }
 }
+object ShaderUtil{
+  implicit val context = com.glyph._scala.lib.injection.GLExecutionContext.context
 
+  def load(vShaderFile:String,fShaderFile:String) = {
+    (GdxFile(vShaderFile) ~ GdxFile(fShaderFile)).mapFuture{
+      case vt~ft => for {
+        vs <- vt
+        fs <- ft
+      } yield Try {
+          val result = new ShaderProgram(vs, fs)
+          if (!result.isCompiled) throw new RuntimeException("shader compilation failed\n" + result.getLog + "\n" + vs + "\n" + fs)
+          result
+        }
+    }.map(_.map(_.flatten.flatten))
+  }
+}
 object ShaderHandler {
   implicit val context = com.glyph._scala.lib.injection.GLExecutionContext.context
 
@@ -97,12 +112,18 @@ object ShaderHandler {
     (GdxFile(vFile) ~ GdxFile(fFile)).mapFuture[ValidationNel[Throwable, ShaderProgram]] {
       case v ~ f => Try((v.toVnel |@| f.toVnel)((ve: String, fr: String) => {
         val result = new ShaderProgram(ve, fr)
-        if (result.getLog.contains("error")) throw new RuntimeException("shader compilation failed\n" + result.getLog + "\n" + ve+"\n" + fr)
+        if (!result.isCompiled) throw new RuntimeException("shader compilation failed\n" + result.getLog + "\n" + ve+"\n" + fr)
         result
       })).toVnel.flatten
     }.map(_.map(_.toVnel.flatten))
   }
 
+  /**
+   * you must call this on glThread
+   * @param vertexShaderPath
+   * @param fragmentShaderPath
+   * @return
+   */
   def loadShaderBlocking(vertexShaderPath:String,fragmentShaderPath:String) = {
     (GdxFile(vertexShaderPath)~ GdxFile(fragmentShaderPath)).map{
       case vTry ~ fTry =>

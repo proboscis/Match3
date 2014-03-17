@@ -4,15 +4,17 @@ import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedCons
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.lib.util.Animated
 import com.glyph._scala.lib.util.reactive.{Reactor, Varying}
+import com.glyph._scala.lib.libgdx.actor.transition.AnimatedConstructorOps.ACG
+import scalaz._
+import Scalaz._
 
-class VaryingAnimatedConstructorHolder(target:Varying[AnimatedConstructor]) extends AnimatedConstructor {
+class VaryingAnimatedConstructorHolder[A<:AnimatedConstructor](target:Varying[A]) extends AnimatedConstructor {
   override def apply(info: AnimatedManager.Info): (AnimatedManager.Callbacks) => Actor with Animated = callbacks =>  new AnimatedActorHolder
     with Animated
     with Reactor {
     var current: Option[Actor with Animated] = None
     var first = false
-    import scalaz._
-    import Scalaz._
+
     reactVar(target) {
       animated =>
         current match {
@@ -52,6 +54,6 @@ class VaryingAnimatedConstructorHolder(target:Varying[AnimatedConstructor]) exte
  * @author glyph
  */
 object VaryingAnimatedConstructorHolder {
-  def apply(target: Varying[AnimatedConstructor]): AnimatedConstructor = new VaryingAnimatedConstructorHolder(target)
+  def apply[A<:AnimatedConstructor](target: Varying[A]): AnimatedConstructor = new VaryingAnimatedConstructorHolder(target)
 }
 

@@ -12,7 +12,7 @@ object LibgdxBuild extends Build {
   lazy val core = Project(id="core",base=file("core")) settings(coreSettings:_*) dependsOn(macro)
   lazy val macro = Project(id="macro",base=file("macro")) settings(macroSettings:_*)
   lazy val root = Project(id="root",base=file(".")) settings(rootSettings:_*) aggregate(macro,core,desktop,droid)
-
+  lazy val tools = Project(id="tools",base=file("tools")) settings (toolsSettings :_*)
   lazy val commonSettings = (watchSources ~= { _.filterNot(_.isDirectory) }) ++ Seq (
     scalaVersion := sVersion,
     scalacOptions ++=Seq("-feature","-encoding","utf8"),
@@ -66,4 +66,12 @@ object LibgdxBuild extends Build {
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
     )
   lazy val rootSettings = commonSettings ++ android.Plugin.androidCommands
-} 
+  lazy val toolsSettings = commonSettings ++ Seq(
+      fork in run := true,
+      ToolTasks.hieroTask
+    )
+}
+object ToolTasks{
+    lazy val hieroKey = TaskKey[Unit]("hiero")
+    lazy val hieroTask = fullRunTask(hieroKey,Test,"com.badlogic.gdx.tools.hiero.Hiero","")
+}

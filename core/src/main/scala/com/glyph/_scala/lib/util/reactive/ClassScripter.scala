@@ -41,7 +41,7 @@ object VClass{
     case _ => throw new RuntimeException("VClass is not supported on this device")
   }
 
-  def apply[Interface, T <: Interface : ClassTag] = apply[Interface](implicitly[ClassTag[T]].runtimeClass.getCanonicalName)
+  def apply[Interface, T <: Interface : Class] = apply[Interface](implicitly[Class[T]].getCanonicalName)
 
   def apply[Interface](className: String) = new VClass({
     def desktop = new Varying[Try[Class[Interface]]] with Reactor {

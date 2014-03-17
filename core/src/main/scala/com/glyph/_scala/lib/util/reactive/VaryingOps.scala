@@ -33,6 +33,7 @@ trait VaryingOps{
         var cancelled = false
         def apply(v1: Try[U]): Unit = if(!cancelled)f(v1)
       }
+
     }
   }
   implicit object VaryingFunctor extends Functor[Varying]{

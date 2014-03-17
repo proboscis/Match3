@@ -14,6 +14,7 @@ import Scalaz._
 import scala.language.higherKinds
 import com.glyph._scala.lib.libgdx.actor.AnimatedTable
 import scala.util.Try
+import com.glyph._scala.lib.libgdx.actor.transition.AnimatedConstructorOps.ACG
 
 class AnimatedManager
 (builderMap: AnimatedGraph)
@@ -92,6 +93,8 @@ trait MAnimated[+T] extends AnimatedActorHolder with Animated {
 
   def addOnComplete(onComplete: Try[T] => Unit)
 }
+trait MAnimatedOps{
+}
 
 object MAnimated extends Logging {
   def extract[E[_] : Extractable, T]
@@ -102,6 +105,30 @@ object MAnimated extends Logging {
     empty
   }
 
+  def toAC[A](extractor:MAnimated[A])(implicit errorHandler:Throwable=>AnimatedConstructor,acg:ACG[A]): AnimatedConstructor = info => callbacks => {
+    new AnimatedActorHolder with Animated {
+      var constructed: Actor with Animated = null
+      override def in(cb: () => Unit): Unit = {
+        extractor.addOnComplete(
+          constructor => {
+            log("summed extractable is extracted.")
+            constructed = constructor.map(acg.apply).recover{case e => errorHandler(e)}.get(info)(callbacks)
+            in(constructed)(cb)
+          }
+        )
+        in(extractor)(() => {})
+      }
+
+      //TODO the code below won't work properly in certain conditions.
+      def currentAnimated = if (constructed != null) constructed else extractor
+
+      override def out(cb: () => Unit): Unit = currentAnimated |> (out(_)(cb))
+
+      override def pause(cb: () => Unit): Unit = currentAnimated |> (pause(_)(cb))
+
+      override def resume(cb: () => Unit): Unit = currentAnimated |> (resume(_)(cb))
+    }
+  }
   /**
    * this works, at least for now...
    * @param extractor
