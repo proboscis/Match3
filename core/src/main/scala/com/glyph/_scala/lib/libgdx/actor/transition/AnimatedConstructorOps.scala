@@ -19,6 +19,7 @@ import com.glyph._scala.lib.libgdx.font.FontUtil
 import com.glyph._scala.lib.libgdx.skin.FlatSkin
 import com.glyph._scala.game.builders.Builders
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 
 /**
  * @author glyph
@@ -30,7 +31,7 @@ trait AnimatedConstructorOps {
   implicit def AnimatedActorIsACG[A<:AnimatedActor]=new ACG[A] {
     override def apply(self: A): AnimatedConstructor = info=>callbacks=>self
   }
-  implicit def ActorIsACG[A<:Actor] = new ACG[A]{
+  implicit def ActorIsACG[A<:Actor](implicit processor:ParallelProcessor) = new ACG[A]{
     //T is Animation Constructor Generator
     override def apply(self: A): AnimatedConstructor = AnimatedTable(_.fill.expand)(self)
   }
@@ -54,7 +55,7 @@ object AnimatedConstructorOps extends AnimatedConstructorOps {
   }
 }
 
-trait Extractors {
+trait Extractors extends Logging{
   type FF[A] = () => Future[A]
   implicit val extractableBuilder: Extractable[Builder]
   implicit val extractableFF: Extractable[FF]
@@ -65,17 +66,23 @@ trait Extractors {
   implicit def assetManager: AssetManager
 
   def genE3Future(animation: AnimatedActor): Extractable3[Future] = new Extractable3[Future] {
-    override def extract[A: ACG](target: Future[A]): AnimatedConstructor = MAnimated.extract(target)(animation) |> MAnimated.toAC[A]
+    override def extract[A: ACG](target: Future[A]): AnimatedConstructor = MAnimated.extract(target)(animation) |>{
+     animated =>  MAnimated.toAC[A](animated,"future")
+    }
   }
 
   def genE3FF(animation: AnimatedActor): Extractable3[FF] = new Extractable3[FF] {
     override def extract[A: ACG](target: () => Future[A]): AnimatedConstructor =
-      MAnimated.extract[FF, A](target)(animation) |> MAnimated.toAC[A]
+      MAnimated.extract[FF, A](target)(animation) |> {
+        animated =>  MAnimated.toAC[A](animated,"()=>Future")
+      }
   }
 
   def genE3Builder(animation: AnimatedActor): Extractable3[Builder] = new Extractable3[Builder] {
     override def extract[A: ACG](target: Builder[A]): AnimatedConstructor =
-      MAnimated.extract(target)(animation) |> MAnimated.toAC[A]
+      MAnimated.extract(target)(animation) |> {
+        animated =>  MAnimated.toAC[A](animated,"builder")
+      }
   }
 
   def genE3Varying: Extractable3[Varying] = new Extractable3[Varying] {
@@ -87,12 +94,19 @@ trait Extractors {
       case e => handler(e)
     }.get
   }
+  def genE3Option(default:AnimatedConstructor):Extractable3[Option] = new Extractable3[Option]{
+    override def extract[A: ACG](target: Option[A]): AnimatedConstructor ={
+      err("mapping option to constructor:"+target)
+      target.map(implicitly[ACG[A]].apply).getOrElse(default)
+    }
+  }
 }
 
 /**
  * this is becoming insane...
  */
 trait DefaultExtractors extends Extractors with Logging {
+  implicit val processor:ParallelProcessor
   implicit val context = com.glyph._scala.lib.injection.GLExecutionContext.context
 
   import AnimatedConstructorOps._
@@ -106,6 +120,8 @@ trait DefaultExtractors extends Extractors with Logging {
   implicit def extractable3Varying: Extractable3[Varying] = genE3Varying
 
   implicit def extractable3Try: Extractable3[Try] = genE3Try(errorHandlerConstructor)
+
+  implicit def extractable3Option = genE3Option(stringToExtraction("None?"))
 
   lazy val debugFont = GLFuture(FontUtil.internalFont("font/corbert.ttf", 140))
   lazy val debugSkin = debugFont.map(font => Builders.dummyTexture.map(tex => FlatSkin.default(font, tex)))
@@ -129,7 +145,7 @@ trait DefaultExtractors extends Extractors with Logging {
       new AnimatedTable <| (
         _.add(pane).fill.expand)
     }))
-    MAnimated.extract(abc)(splashAnimation).flatMap(b => MAnimated.extract(b)(splashAnimation)) |> MAnimated.toAnimatedActor
+    MAnimated.extract(abc)(stringToExtraction("ErrorHandler:Future")).flatMap(b => MAnimated.extract(b)(stringToExtraction("ErrorHandler:Builder"))) |> MAnimated.toAnimatedActor
   }
   implicit val errorHandlerConstructor: Throwable => AnimatedConstructor = e => info=> callbacks => errorHandler(e)
 }

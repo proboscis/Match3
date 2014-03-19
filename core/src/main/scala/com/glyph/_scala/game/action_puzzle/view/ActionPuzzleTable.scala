@@ -28,6 +28,7 @@ import com.glyph._scala.lib.libgdx.gl.{UVTrail, BaseStripBatch, ShaderHandler}
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
 import com.glyph._scala.lib.libgdx.actor.widgets.Center
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 
 class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin)
   extends Table
@@ -163,7 +164,7 @@ object ActionPuzzleTable extends Logging with Threading {
     root.debug()
   }
 
-  def animated(game: ComboPuzzle)(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin): AnimatedConstructor = {
+  def animated(game: ComboPuzzle)(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin)(implicit processor:ParallelProcessor): AnimatedConstructor = {
     val view = new ActionPuzzleTable(game)(roundTex, particleTex, dummyTex, skin)
     info => callbacks =>
       val t = new AnimatedTable()

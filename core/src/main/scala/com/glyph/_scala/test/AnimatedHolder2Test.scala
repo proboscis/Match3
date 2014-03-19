@@ -21,6 +21,7 @@ import com.glyph._scala.lib.util.reactive.VClass
 import com.glyph._scala.game.Glyphs
 import com.badlogic.gdx.graphics.Texture
 import Glyphs._
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 
 object AnimatedHolder2Test {
   val builder = Builder(Set(), assets => new MockTransition {
@@ -37,10 +38,12 @@ trait AnimatedRunner extends ConfiguredScreen {
   //beware of second asset manager!
   implicit def assetManager: AssetManager
 
-  implicit val holder = new StackedAnimatedActorHolder with Tasking {} <| (root.add(_).fill.expand)
+  val holder = new StackedAnimatedActorHolder with Tasking {} <| (root.add(_).fill.expand)
+  implicit val processor:ParallelProcessor = holder
   implicit val extractableBuilder = new BuilderExtractor2
   implicit val extractableFF = ExtractableFunctionFuture
   implicit val extractableFuture = ExtractableFuture
+
   lazy val manager = new AnimatedManager(graph)
 }
 

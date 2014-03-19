@@ -72,7 +72,7 @@ trait StagedScreenBase extends GlyphScreen with Logging{
   val stage = new Stage(STAGE_WIDTH, STAGE_HEIGHT, true)
   log("created stage:",STAGE_WIDTH,STAGE_HEIGHT)
   override def show() {
-    println("show StagedScreen")
+    log("show StagedScreen")
     Gdx.input.setInputProcessor(stage)
     super.show()
   }

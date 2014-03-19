@@ -2,18 +2,22 @@ package com.glyph._scala.lib.libgdx.actor
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph._scala.lib.util.{Logging, Animated}
-import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.{Group, Actor}
 import com.esotericsoftware.tablelayout.Cell
 import com.glyph._scala.lib.util.updatable.task._
 import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.graphics.g2d.Batch
 
 /**
  * actors added through "add" method will be animated when this Table's animation is invoked.
  */
-class AnimatedTable extends Table with Animated with Logging with Tasking {
+class AnimatedTable(implicit processor: ParallelProcessor) extends Table with Animated with Logging {
   debug()
+
   import com.glyph._scala.game.Glyphs
   import Glyphs._
+
+  private var callback: Option[() => Unit] = None
 
   case class Holder(actor: Actor) extends SameSize {
     addActor(actor)
@@ -64,15 +68,34 @@ class AnimatedTable extends Table with Animated with Logging with Tasking {
       par.add(Sequence(Delay(offset), Interpolate(actor) of ActorAccessor.XY to(x, y) in (duration - offset) using exp10Out))
       i += 1
     }
-    add(Sequence(par, Do(cb)))
+    //somehow, out is called first...!!?
+    var task: Task = null
+    task = Sequence(
+      Block {
+        log("task:" + task.hashString)
+        log("started moveToPositions:" + cb.hashString)
+      },
+      par,
+      Do(() => {
+        log("moveToPositions:Done:" + task.hashString)
+        log("calling back:" + cb.hashString)
+        cb()
+        log("called back:" + cb.hashString)
+      }))
+    processor.add(task)
+    log("moveToPositions:Task:" + task.hashString)
+    log("moveToPositions:" + cb.hashString)
   }
 
   def moveToCellPositions(cb: () => Unit) = moveToPositions {
     case holder@Holder(actor) => (0, 0)
   }(cb)
 
+  // you have to take care of the exception that out is called before in finishes
 
   def in(cb: () => Unit) {
+    log("in:" + cb.hashString)
+    log("self:"+this.hashString)
     setPositions {
       case holder@Holder(actor) => (getWidth, 0)
     }
@@ -80,24 +103,42 @@ class AnimatedTable extends Table with Animated with Logging with Tasking {
   }
 
   def out(cb: () => Unit) {
+    log("out:" + cb.hashString)
     moveToPositions({
-      case holder@Holder(actor) => (-getWidth,0)
+      case holder@Holder(actor) => (-getWidth, 0)
     }, 0.2f)(cb)
   }
 
-  def pause(cb: () => Unit): Unit = out(cb)
+  def pause(cb: () => Unit): Unit = {
+    log("pause")
+    out(cb)
+  }
 
   def resume(cb: () => Unit) {
+    log("resume")
     setPositions {
-      case holder@Holder(actor) => (-getWidth,0)
+      case holder@Holder(actor) => (-getWidth, 0)
     }
     moveToCellPositions(cb)
   }
+
+
+  override def setParent(parent: Group): Unit = {
+    log(if (parent == null) "removed" else "added")
+    super.setParent(parent)
+  }
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit = {
+    super.draw(batch, parentAlpha)
+  }
 }
-object AnimatedTable{
+
+object AnimatedTable {
+
   import scalaz._
   import Scalaz._
-  def apply(layout:Cell[_]=>Unit)(actors:Actor*):AnimatedTable = (new AnimatedTable /: actors){
-    case (table,actor) => table <| (_.add(actor) |> layout)
+
+  def apply(layout: Cell[_] => Unit)(actors: Actor*)(implicit processor:ParallelProcessor): AnimatedTable = (new AnimatedTable /: actors) {
+    case (table, actor) => table <| (_.add(actor) |> layout)
   }
 }

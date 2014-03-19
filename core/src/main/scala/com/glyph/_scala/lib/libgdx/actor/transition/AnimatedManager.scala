@@ -15,12 +15,13 @@ import scala.language.higherKinds
 import com.glyph._scala.lib.libgdx.actor.AnimatedTable
 import scala.util.Try
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedConstructorOps.ACG
+import com.glyph._scala.game.Glyphs
+import Glyphs._
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 
 class AnimatedManager
-(builderMap: AnimatedGraph)
-(implicit assets: AssetManager) {
+(builderMap: AnimatedGraph){
   val builders = builderMap withDefaultValue Map()
-
   def start(builder: AnimatedConstructor, info: Info, transit: AnimatedActor => Unit) {
     val callbacks: Map[String, Info => Unit] = builders(builder).mapValues {
       case (transitioner, constructorBuilder) =>
@@ -31,56 +32,31 @@ class AnimatedManager
   }
 }
 
+class TransitionManager[T]
+(graph: TransitionGraph[T]){
+  val constructorGraph = graph withDefaultValue Map()
+  def start(constructor: Constructor[T], info: Info, transit: T => Unit) {
+    val callbacks: Map[String, Info => Unit] = constructorGraph(constructor).mapValues {
+      case (transitioner, constructorBuilder) =>
+        (info: Info) => start(constructorBuilder, info, transitioner)
+    }.withDefault(_ => (info: Info) => Unit)
+    val animated = constructor(info)(callbacks)
+    transit(animated)
+  }
+}
 object AnimatedManager {
   type Info = String Map Any
   type Callback = Info => Unit
   type Callbacks = String Map Callback
-  type AnimatedConstructor = Info => Callbacks => Actor with Animated
-  type AnimatedGraph = Map[AnimatedConstructor, Map[String, (AnimatedActor => Unit, AnimatedConstructor)]]
+  type Constructor[T] = Info=>Callbacks=>T
+  type AnimatedConstructor = Constructor[Actor with Animated]
+  type TransitionGraph[T] = Map[Constructor[T], Map[String, (T => Unit, Constructor[T])]]
+  type AnimatedGraph = TransitionGraph[AnimatedActor]
   type TransitionMethod = AnimatedActor => Unit
 }
 
 object AnimatedConstructor {
-  def apply(actor: Actor): AnimatedConstructor = info => callbacks => new AnimatedTable <| (_.add(actor).fill.expand)
-}
-
-trait LoadingAnimation[E[_], T] extends AnimatedExtractor[E, T] {
-  val loadingAnimation: AnimatedActor
-
-  override def onExtractionComplete(): Unit = {
-    super.onExtractionComplete()
-    if (getChildren.contains(loadingAnimation, true)) {
-      out(loadingAnimation)(() => {})
-    }
-  }
-
-  override def in(cb: () => Unit): Unit = {
-    if (!extractable.isExtracted(target)) {
-      in(loadingAnimation)(() => {
-        //start loading after animation
-        super.in(cb)
-      })
-    } else {
-      super.in(cb)
-    }
-  }
-
-  override def resume(cb: () => Unit): Unit = {
-    if (!extractable.isExtracted(target)) {
-      resume(loadingAnimation)(() => {
-        super.resume(cb)
-      })
-    } else {
-      super.resume(cb)
-    }
-  }
-
-  override def out(cb: () => Unit): Unit = {
-    if (getChildren.contains(loadingAnimation, true)) {
-      out(loadingAnimation)(() => {})
-    }
-    super.out(cb)
-  }
+  def apply(actor: Actor)(implicit processor:ParallelProcessor): AnimatedConstructor = info => callbacks => new AnimatedTable <| (_.add(actor).fill.expand)
 }
 
 
@@ -105,13 +81,14 @@ object MAnimated extends Logging {
     empty
   }
 
-  def toAC[A](extractor:MAnimated[A])(implicit errorHandler:Throwable=>AnimatedConstructor,acg:ACG[A]): AnimatedConstructor = info => callbacks => {
+  def toAC[A](extractor:MAnimated[A],debugMsg:String="")(implicit errorHandler:Throwable=>AnimatedConstructor,acg:ACG[A]): AnimatedConstructor = info => callbacks => {
     new AnimatedActorHolder with Animated {
       var constructed: Actor with Animated = null
       override def in(cb: () => Unit): Unit = {
+        log("trying to extract:"+debugMsg)
         extractor.addOnComplete(
           constructor => {
-            log("summed extractable is extracted.")
+            log("summed extractable is extracted:"+debugMsg)
             constructed = constructor.map(acg.apply).recover{case e => errorHandler(e)}.get(info)(callbacks)
             in(constructed)(cb)
           }
@@ -201,15 +178,18 @@ class EmptyOne[E[_] : Extractable, T]
     if (!extractor.isExtracted(target) && !extracting) {
       extracting = true
       log("started animation because not extracted and extracting.")
-      in(animation)(() => {
-        log("start extraction")
+      val cb = () => {
+        log("start extraction")//なぜかこれが呼ばれないぞ!!!つまりanimationがコールバックを呼んでいないということ
         extractor.extract(target)(result => {
           log("finished extraction")
           callback(result)
           extracting = false
           out(() => {})
         })
-      })
+      }
+      log("register callback:"+cb.hashString)
+      in(animation)(cb)
+      log("waiting in animation to finish")
     } else if (extractor.isExtracted(target)) {
       log("already extracted, trying to extract without animation")
       extractor.extract(target)(result => {
@@ -270,7 +250,6 @@ class EmptyOne[E[_] : Extractable, T]
     log("flatMap")
     //problem is that you cannot combine two animation
     //i think i should split the visual effect and its effect as a monad.
-    // i cant under staaaaand!
     val empty = new EmptyOne[E, R](animation) {
       second =>
       override def in(cb: () => Unit): Unit = {
@@ -287,67 +266,13 @@ class EmptyOne[E[_] : Extractable, T]
               log("start second animation")
               second.in(animated)(() => {
                 log("second animation done")
-                cb
+                cb()//これかああああ？
               })
             case scala.util.Failure(e) => errE("error while flatMapping:")(e)
           }
         }
       }
     empty
-  }
-}
-
-class AnimatedExtractor[E[_], T](info: Info, callbacks: Callbacks, val target: E[T], mapper: T => AnimatedConstructor)
-                                (implicit val assets: AssetManager, val extractable: Extractable[E],val errorHandler:Throwable=>AnimatedConstructor)
-  extends Layers
-  with Animated
-  with AnimatedActorHolder {
-  var extracting = false
-  var constructed: AnimatedActor = null
-
-  def onExtractionComplete() {}
-
-  override def in(cb: () => Unit): Unit = {
-    extracting = true
-    extractable.extract(target)(constructor => {
-      if (extracting) {
-        onExtractionComplete()
-        constructed = constructor.map(mapper).recover{case e => errorHandler(e)}.get(info)(callbacks)
-        System.gc()
-        in(constructed)(cb)
-      }
-      extracting = false
-    })
-  }
-
-  override def out(cb: () => Unit): Unit = {
-    extracting = false
-    if (constructed != null) {
-      out(constructed)(cb)
-    } else {
-      cb()
-    }
-  }
-
-  override def pause(cb: () => Unit): Unit = {
-    extracting = false
-    if (constructed != null) {
-      pause(constructed)(cb)
-    } else {
-      cb()
-
-    }
-  }
-
-  override def resume(cb: () => Unit): Unit = {
-    extracting = true
-    extractable.extract(target)(constructor => {
-      if (extracting) {
-        onExtractionComplete()
-        constructed = constructor.map(mapper).recover{case e => errorHandler(e)}.get(info)(callbacks)
-        in(constructed)(cb)
-      }
-    })
   }
 }
 
@@ -393,12 +318,14 @@ trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging {
   var currentAnimated: Actor with Animated = null
 
   def push(animated: AnimatedActor) {
+    log("push")
     pauseCurrent()
     inBuilder(animated)
     builderStack.push(animated)
   }
 
   def pop() {
+    log("pop")
     outCurrent()
     if (!builderStack.isEmpty) {
       builderStack.pop()
@@ -409,6 +336,7 @@ trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging {
   }
 
   def switch(animated: AnimatedActor) {
+    log("switch")
     if (!builderStack.isEmpty) {
       outCurrent()
       inBuilder(animated)
@@ -432,6 +360,7 @@ trait StackedAnimatedActorHolder extends AnimatedActorHolder with Logging {
   }
 
   protected def outCurrent() {
+    log("outCurrent")
     if (currentAnimated != null) {
       val view = currentAnimated
       view.out(() => {

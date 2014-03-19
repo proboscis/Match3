@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui._
 import scala.language.existentials
 import scala.collection.mutable
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
-import com.glyph._scala.lib.util.updatable.task.{Block, Sequence, Delay}
+import com.glyph._scala.lib.util.updatable.task.{ParallelProcessor, Block, Sequence, Delay}
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.glyph._scala.lib.libgdx.actor.{Tasking, AnimatedTable}
 import com.badlogic.gdx.graphics.Texture
@@ -19,7 +19,7 @@ object Title {
                          roundTex: Texture,
                          skin: Skin
                          )
-  def third(style: TitleStyle): AnimatedConstructor = info => callbacks => new AnimatedTable with Tasking {
+  def third(style: TitleStyle)(implicit processor:ParallelProcessor): AnimatedConstructor = info => callbacks => new AnimatedTable with Tasking {
     setSkin(style.skin)
     add(new Label("this is title", style.skin)).fill.expand
     add(Sequence(Delay(1f), Block {

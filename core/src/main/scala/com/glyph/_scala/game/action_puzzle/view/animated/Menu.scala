@@ -6,6 +6,8 @@ import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedCons
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.glyph._scala.lib.libgdx.actor.AnimatedTable
+import com.glyph._scala.lib.libgdx.actor.transition.AnimatedConstructor
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 
 object Menu {
 
@@ -14,7 +16,7 @@ object Menu {
 
   case class Style(space:Float = 20,padding:Float = 20,skin:Skin)
 
-  val constructor: Style => AnimatedConstructor = style => info => callbacks => new AnimatedTable {
+  def constructor(implicit processor:ParallelProcessor): Style => AnimatedConstructor = style => info => callbacks => new AnimatedTable {
     import style._
     def label(any: Any) = new TextButton(any.toString, skin) <| (_.addListener(new ChangeListener {
       def changed(p1: ChangeEvent, p2: Actor) {

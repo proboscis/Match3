@@ -59,7 +59,7 @@ object VClass{
     else {
       Gdx.app.getType match {
         case ApplicationType.Android => nop
-        case ApplicationType.Desktop => desktop
+        case ApplicationType.Desktop =>  desktop
         case ApplicationType.iOS => nop
         case ApplicationType.WebGL => nop
       }

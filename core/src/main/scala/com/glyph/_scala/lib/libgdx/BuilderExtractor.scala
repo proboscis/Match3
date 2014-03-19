@@ -7,6 +7,9 @@ import com.glyph._scala.lib.util.extraction.Extractable
 import com.glyph._scala.game.Glyphs
 import Glyphs._
 import scala.util.{Success, Try}
+import scala.annotation.target
+import scala.annotation
+import com.glyph._scala.lib.util.Logging
 
 /**
  * @author glyph
@@ -22,18 +25,21 @@ trait BuilderExtractor extends ParallelProcessor {
   ) <| add
 }
 
-class BuilderExtractor2(implicit processor: TaskProcessor, am: AssetManager) extends Extractable[Builder] {
-  override def extract[T](target: Builder[T])(callback: Try[T] => Unit): Unit =
+class BuilderExtractor2(implicit processor: TaskProcessor, am: AssetManager) extends Extractable[Builder] with Logging{
+  override def extract[T](target: Builder[T])(callback: Try[T] => Unit){
+    log("start extraction")
     processor.add(
       Sequence(
         new AssetTask(
           target.requirements)(_ => {}),
         Block {
+          log("finished extraction")
           callback(Success(target.create))
           //TODO This never returns Failure even if the  animation is canceled...
         }
       )
     )
+  }
 
   override def isExtracted[T](target: Builder[T]): Boolean = {
     assert(am != null)

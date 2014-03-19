@@ -20,10 +20,12 @@ import com.glyph._scala.game.action_puzzle.{ComboPuzzle, LocalLeaderBoard}
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager
 import com.glyph._scala.lib.util.Animated
 import GameResult._
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
+
 /**
  * @author glyph
  */
-class GameResult(style:Style) extends AnimatedConstructor{
+class GameResult(style:Style)(implicit processor:ParallelProcessor) extends AnimatedConstructor{
   override def apply(info: AnimatedManager.Info): (AnimatedManager.Callbacks) => Actor with Animated = callbacks =>  new AnimatedTable
     with Updatables
     with Reactor {

@@ -7,6 +7,7 @@ import com.glyph._scala.lib.libgdx.actor.action.ActionOps
 import com.glyph._scala.lib.libgdx.tween.GdxTweenOps
 import com.glyph._scala.lib.libgdx.actor.table.AssetManagerOps
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedConstructorOps
+import com.glyph._scala.lib.libgdx.gl.GdxGlOps
 
 /**
  * @author glyph
@@ -22,3 +23,4 @@ trait GdxOps
   with AssetManagerOps
   with BuilderOps
   with AnimatedConstructorOps
+  with GdxGlOps

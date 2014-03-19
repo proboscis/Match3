@@ -13,4 +13,11 @@ object GdxUtil {
       }
     })
   }
+  def postFunction(f:()=>Unit){
+    Gdx.app.postRunnable(new Runnable {
+      def run() {
+        f()
+      }
+    })
+  }
 }

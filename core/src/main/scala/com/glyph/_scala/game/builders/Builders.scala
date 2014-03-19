@@ -10,13 +10,9 @@ import com.badlogic.gdx.Screen
 import scala.language.implicitConversions
 import com.glyph._scala.test.MenuScreen
 import com.glyph._scala.test.AnimatedHolder2Test
-import com.glyph._scala.game.action_puzzle.view.animated.Title
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import com.glyph._scala.game.action_puzzle.{ColorTheme, ComboPuzzle}
-import com.glyph._scala.lib.util.extraction.Extractable
-import com.glyph._scala.lib.libgdx.actor.transition.AnimatedExtractor
-import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder._
 
 import scalaz._
 import Scalaz._
@@ -24,11 +20,10 @@ import com.glyph._scala.game.Glyphs
 import Glyphs._
 import com.glyph._scala.lib.libgdx.skin.FlatSkin
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable
-import com.badlogic.gdx.graphics.g2d.{NinePatch, BitmapFont, Sprite}
-import com.glyph._scala.game.builders.Builders._
+import com.badlogic.gdx.graphics.g2d.{NinePatch, BitmapFont}
 import scala.language.higherKinds
 import com.glyph._scala.lib.libgdx.font.FontUtil
-import scala.concurrent.duration.Duration
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 
 /**
 "Mock" -> AnimatedHolder2Test.builder
@@ -58,7 +53,6 @@ object Builders {
   }
   val flat = (roundRectNP).map {
     case np =>
-      import scala.concurrent.duration._
       new FlatSkin(
         ColorTheme.varyingColorMap(),
         c => new NinePatchDrawable(new NinePatch(np) <| (_.setColor(c))),
@@ -71,7 +65,7 @@ object Builders {
     lightHolo map (skin => new MenuScreen[E](skin, elements, cb))
   }
 
-  def actionPuzzleFunctionBuilder(game: () => ComboPuzzle): Builder[() => Future[AnimatedConstructor]] =
+  def actionPuzzleFunctionBuilder(game: () => ComboPuzzle)(implicit processor:ParallelProcessor): Builder[() => Future[AnimatedConstructor]] =
     (roundRectTexture & particleTexture & dummyTexture & flat) map {
       case a & b & c & d => () => GLFuture(ActionPuzzleTable.animated(game())(a, b, c, d))
     }

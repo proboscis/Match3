@@ -7,6 +7,8 @@ import com.glyph._scala.lib.libgdx.actor.transition.{AnimatedConstructor, Defaul
 import com.glyph._scala.game.action_puzzle.view.animated.LazyAssets
 import com.glyph._scala.lib.libgdx.actor.AnimatedTable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
+import com.badlogic.gdx.scenes.scene2d.Actor
 
 /**
  * @author glyph
@@ -25,6 +27,7 @@ object RoundRect {
 class RoundRectTest extends MockTransition with LazyAssets{
   import scalaz._
   import Scalaz._
-  val roundTest = AnimatedTable(_.fill.expand.space(20f).pad(20f))(new Image(RoundRect(20))) |> AnimatedConstructor.apply
+  implicit val _:ParallelProcessor = holder
+  val roundTest = AnimatedTable(_.fill.expand.space(20f).pad(20f))(new Image(RoundRect(20)))(holder) |> (AnimatedConstructor.apply(_:Actor)(holder))
   manager.start(roundTest,Map(),holder.push)
 }

@@ -26,6 +26,7 @@ object TestClass {
       classOf[WordParticle] :: Nil
   val files = "screens/action.js" :: "screens/puzzle.js" :: Nil
   val screenClasses: List[Class[_ <: Screen]] =
+    classOf[DistanceFieldTest]::
     classOf[MockSelector]::
     classOf[BlurTest]::
     classOf[GameResultMockTest]::

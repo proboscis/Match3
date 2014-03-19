@@ -85,7 +85,6 @@ class ShaderHandler(vFile: String, fFile: String) extends Reactor {
 }
 object ShaderUtil{
   implicit val context = com.glyph._scala.lib.injection.GLExecutionContext.context
-
   def load(vShaderFile:String,fShaderFile:String) = {
     (GdxFile(vShaderFile) ~ GdxFile(fShaderFile)).mapFuture{
       case vt~ft => for {
