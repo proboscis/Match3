@@ -13,7 +13,9 @@ import scala.concurrent.Future
 object Glyphs
   extends GdxOps
   with GlyphLibOps {
-
+  implicit class HashOps(val self:Object) extends AnyVal{
+    def hashString:String = "%x".format(self.hashCode())
+  }
   implicit class TryOps[T](val t: Try[T]) extends AnyVal {
     def toVnel: ValidationNel[Throwable, T] = {
       t match {

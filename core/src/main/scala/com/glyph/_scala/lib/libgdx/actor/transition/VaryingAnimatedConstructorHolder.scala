@@ -8,6 +8,8 @@ import com.glyph._scala.lib.libgdx.actor.transition.AnimatedConstructorOps.ACG
 import scalaz._
 import Scalaz._
 
+import com.glyph._scala.game.Glyphs
+import Glyphs._
 class VaryingAnimatedConstructorHolder[A<:AnimatedConstructor](target:Varying[A]) extends AnimatedConstructor {
   override def apply(info: AnimatedManager.Info): (AnimatedManager.Callbacks) => Actor with Animated = callbacks =>  new AnimatedActorHolder
     with Animated
@@ -21,13 +23,14 @@ class VaryingAnimatedConstructorHolder[A<:AnimatedConstructor](target:Varying[A]
           case Some(prev)=>
             out(prev)(() => {})
             current = Some(animated(info)(callbacks) <| (anim =>{
-              err("the varying's value is changed.")
+              err("the varying's value is changed.:"+animated)
               in(anim)(()=>{
-                err("varied one is now in")
+                err("varied one is now in:"+anim.hashString)
               })})
             )
           case None=>
             current = Some(animated(info)(callbacks))
+            //you do not have call in since it will be called by the animated holder
         }
     }
 
