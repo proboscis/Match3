@@ -5,16 +5,13 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.lib.util.animation.Animation.AnimationConstructor
 import com.badlogic.gdx.math.Rectangle
 import org.omg.CORBA.Any
-import com.glyph._scala.lib.util.animation.Adapter.LayoutAnimationConstructor
+import com.glyph._scala.lib.util.animation.Adapter.{Info, LayoutAnimationConstructor}
 
-trait Adapter {
-  def startAnimation[P, R](animationConstructor:LayoutAnimationConstructor): Unit
-}
+case class LayoutInfo(bounds:Rectangle,option:Info,target:Actor)
 object Adapter{
   type Info = String Map Any
-  type Layout = (Rectangle,Info,Actor)
-  type Layouts = Seq[Layout]
-  type LayoutAnimationConstructor = AnimationConstructor[Layouts]
+  type Layout = Seq[LayoutInfo]
+  type LayoutAnimationConstructor = Rectangle => Layout => Animation
 }
 
 /**
