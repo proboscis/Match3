@@ -67,9 +67,8 @@ trait MAnimated[+T] extends AnimatedActorHolder with Animated {
 
   def flatMap[R](f: T => MAnimated[R]): MAnimated[R]
 
+  //you must at least be able to cancel the extraction.
   def addOnComplete(onComplete: Try[T] => Unit)
-}
-trait MAnimatedOps{
 }
 
 object MAnimated extends Logging {
@@ -146,15 +145,17 @@ object MAnimated extends Logging {
             log("MAnimated is done.")
             constructed = animated.recover{case e => errorHandler(e)}.get
             in(constructed)(cb)
+            out(extractor)(()=>{})
           }
         )
         in(extractor)(() => {})
+
       }
 
       //TODO the code below won't work properly in certain conditions.
       def currentAnimated = if (constructed != null) constructed else extractor
 
-      override def out(cb: () => Unit): Unit = currentAnimated |> (out(_)(cb))
+      override def out(cb: () => Unit): Unit = currentAnimated |> (out(_)(cb))//this calls out of the extractor even if while loading
 
       override def pause(cb: () => Unit): Unit = currentAnimated |> (pause(_)(cb))
 
@@ -170,6 +171,7 @@ class EmptyOne[E[_] : Extractable, T]
   var target: E[T] = null.asInstanceOf[E[T]]
   val callbacks = new ArrayBuffer[Try[T] => Unit]()
   var extracting = false
+  var extracted = false
 
   def extract[F[_] : Extractable, R](target: F[R])(callback: Try[R] => Unit) {
     log("extract!")
@@ -179,12 +181,15 @@ class EmptyOne[E[_] : Extractable, T]
       extracting = true
       log("started animation because not extracted and extracting.")
       val cb = () => {
-        log("start extraction")//なぜかこれが呼ばれないぞ!!!つまりanimationがコールバックを呼んでいないということ
+        log("start extraction")
         extractor.extract(target)(result => {
-          log("finished extraction")
-          callback(result)
-          extracting = false
-          out(() => {})
+          if(extracting){
+            log("finished extraction")
+            callback(result)
+            extracting = false
+            extracted = true
+            out(() => {})
+          }
         })
       }
       log("register callback:"+cb.hashString)
@@ -192,8 +197,12 @@ class EmptyOne[E[_] : Extractable, T]
       log("waiting in animation to finish")
     } else if (extractor.isExtracted(target)) {
       log("already extracted, trying to extract without animation")
+      extracting = true
       extractor.extract(target)(result => {
-        callback(result)
+        if(extracting){
+          callback(result)
+          extracting = false
+        }
         //no in , no out
       })
     } else {
@@ -214,6 +223,10 @@ class EmptyOne[E[_] : Extractable, T]
   }
 
   def out(cb: () => Unit): Unit = {
+    if(extracting){
+      err ("canceling extraction!")
+      extracting = false
+    }
     if (getChildren.contains(animation, true)) {
       out(animation)(() => {})
     }
@@ -221,6 +234,7 @@ class EmptyOne[E[_] : Extractable, T]
 
 
   def pause(cb: () => Unit): Unit = {
+    throw new RuntimeException("you cannot pause extraction!")
     if (getChildren.contains(animation, true)) {
       pause(animation)(() => {})
     }
@@ -228,6 +242,8 @@ class EmptyOne[E[_] : Extractable, T]
 
 
   def resume(cb: () => Unit): Unit = {
+    throw new RuntimeException("you cannot resume extraction!")
+
     resume(animation)(() => {})
   }
 

@@ -21,7 +21,10 @@ class VaryingAnimatedConstructorHolder[A<:AnimatedConstructor](target:Varying[A]
       animated =>
         current match {
           case Some(prev)=>
-            out(prev)(() => {})
+            out(prev)(() => {
+              err("previous one is out")
+
+            })
             current = Some(animated(info)(callbacks) <| (anim =>{
               err("the varying's value is changed.:"+animated)
               in(anim)(()=>{

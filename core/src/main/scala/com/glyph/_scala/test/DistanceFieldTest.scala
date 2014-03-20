@@ -18,11 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
  */
 class DistanceFieldTest extends MockTransition with LazyAssets {
   val shader = ShaderUtil.load("shader/dist.vert", "shader/dist.frag")
-  val test = shader.map(_.map(_.map(sp=>Builder[Texture]("data/sword.png").map(tex=>new Actor{
-    override def draw(batch: Batch, parentAlpha: Float): Unit = {
-      super.draw(batch, parentAlpha)
-      log("hi")
-    }
+  val test = shader.map(_.map(_.map(sp=>Builder[Texture]("data/dummy.png").map(tex=>new Actor{
   }))))
   val screen =
       Builder[Texture]("font/quicksand.png").map{

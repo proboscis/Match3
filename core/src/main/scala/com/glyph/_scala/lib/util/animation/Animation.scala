@@ -12,6 +12,11 @@ object Adapter{
   type Info = String Map Any
   type Layout = Seq[LayoutInfo]
   type LayoutAnimationConstructor = Rectangle => Layout => Animation
+  implicit class LayoutOps(val layout:Layout) extends AnyVal{
+    def actors = layout.map{
+      case LayoutInfo(_,_,actor)=>actor
+    }
+  }
 }
 
 /**
