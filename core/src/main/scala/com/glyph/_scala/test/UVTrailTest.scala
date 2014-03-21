@@ -12,7 +12,8 @@ import Glyphs._
  * @author glyph
  */
 class UVTrailTest extends ScreenBuilder {
-  def requirements: Set[(Class[_], Seq[String])] = Set(classOf[Texture] -> ("data/particle.png" :: Nil))
+  import com.glyph._scala.lib.libgdx.BuilderOps._
+  def requirements = assetIsDescriptors(Seq(classOf[Texture] -> ("data/particle.png" :: Nil)))
 
   def create(implicit assetManager: AssetManager): Screen = {
     val texture: Texture = "data/particle.png".fromAssets

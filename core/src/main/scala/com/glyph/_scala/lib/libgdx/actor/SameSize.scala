@@ -7,30 +7,19 @@ import com.badlogic.gdx.graphics.g2d.Batch
  * @author glyph
  */
 trait SameSize extends Group{
-  override def setWidth(width: Float): Unit = {
-    super.setWidth(width)
-    val it = getChildren.iterator()
-    while(it.hasNext){
-      it.next().setWidth(width)
-    }
-  }
 
-  override def setHeight(height: Float): Unit = {
-    super.setHeight(height)
-    val it = getChildren.iterator()
-    while(it.hasNext){
-      it.next().setHeight(height)
+  override def sizeChanged(): Unit = {
+    super.sizeChanged()
+    val children = getChildren.begin()
+    var i = 0
+    val length = getChildren.size
+    while(i < length){
+      val child = children(i)
+      child.setWidth(getWidth)
+      child.setHeight(getHeight)
+      i += 1
     }
-  }
-
-  override def setBounds(x: Float, y: Float, width: Float, height: Float): Unit = {
-    super.setBounds(x, y, width, height)
-    val it = getChildren.iterator()
-    while(it.hasNext){
-      val next = it.next()
-      next.setWidth(width)
-      next.setHeight(height)
-    }
+    getChildren.end()
   }
 }
 

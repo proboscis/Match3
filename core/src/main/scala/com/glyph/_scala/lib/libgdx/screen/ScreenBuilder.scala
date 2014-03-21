@@ -1,6 +1,6 @@
 package com.glyph._scala.lib.libgdx.screen
 
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import scalaz.Scalaz._
 import scalaz._
 import scala.util.control.Exception._
@@ -16,10 +16,7 @@ import scala.language.implicitConversions
 /**
  * @author glyph
  */
-trait ScreenBuilder extends Builder[Screen]{
-  def requirements: Set[(Class[_], Seq[String])]
-  def create(implicit assetManager: AssetManager): Screen
-}
+trait ScreenBuilder extends Builder[Screen]
 case class ScreenConfig(screenClass: Class[_], assets: Set[(Class[_],Seq[String])])
 object ScreenBuilder {
   type Vnelt[T] = ValidationNel[Throwable, T]
@@ -40,7 +37,10 @@ object ScreenBuilder {
     case scala.util.Failure(f) => f.failNel
   }
   def apply(assets:Assets)(constructor:AssetManager => Screen):ScreenBuilder =new ScreenBuilder{
-    def requirements: Assets = assets
+    override def requirements: Seq[AssetDescriptor[_]] = for {
+      (cls,files)<-assets.toSeq
+      file <- files
+    } yield new AssetDescriptor(file,cls)
     def create(implicit assetManager: AssetManager): Screen = constructor(assetManager)
   }
   def configToBuilder(config:ScreenConfig)= config.screenClass |> classToConstructor map ScreenBuilder(config.assets)

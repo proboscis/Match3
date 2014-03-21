@@ -24,7 +24,7 @@ import Glyphs._
 import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 
 object AnimatedHolder2Test {
-  val builder = Builder(Set(), assets => new MockTransition {
+  val builder = Builder(Nil, assets => new MockTransition {
     override implicit def assetManager = assets
 
     manager.start(title, Map(), push)

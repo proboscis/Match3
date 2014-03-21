@@ -3,38 +3,77 @@ package com.glyph._scala.test
 import com.glyph._scala.game.action_puzzle.view.animated.LazyAssets
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager
 import com.glyph._scala.lib.libgdx.gl.ShaderUtil
-import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
 import com.glyph._scala.game.Glyphs._
-import com.glyph._scala.game.builders.Builders
 import com.glyph._scala.lib.libgdx.Builder
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture.TextureFilter
-import com.badlogic.gdx.graphics.g2d.{Batch, BitmapFont, TextureRegion}
+import com.badlogic.gdx.graphics.g2d.{Batch, BitmapFont}
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.ui.{Table, Label}
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
+import scalaz._
+import Scalaz._
+import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter
+import com.badlogic.gdx.assets.loaders.BitmapFontLoader.BitmapFontParameter
+import com.badlogic.gdx.scenes.scene2d.{Event, Touchable, InputEvent, Actor}
+import com.badlogic.gdx.input.GestureDetector.{GestureAdapter, GestureListener}
+import com.badlogic.gdx.input.GestureDetector
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
+import com.badlogic.gdx.math.MathUtils
 
 /**
  * @author glyph
  */
 class DistanceFieldTest extends MockTransition with LazyAssets {
   val shader = ShaderUtil.load("shader/dist.vert", "shader/dist.frag")
-  val test = shader.map(_.map(_.map(sp=>Builder[Texture]("data/dummy.png").map(tex=>new Actor{
-  }))))
-  val screen =
-      Builder[Texture]("font/quicksand.png").map{
-      tex =>
-        tex.setFilter(TextureFilter.Linear,TextureFilter.Linear)
-        val font = new BitmapFont(Gdx.files.internal("font/quicksand.fnt"),tex,false)
-        println("created font!")
-        new Actor{
-          override def draw(batch: Batch, parentAlpha: Float): Unit = {
-            super.draw(batch, parentAlpha)
-            font.draw(batch,"hello",10,20)
-
-            println("hello?")
-          }
+  val fontParams = new BitmapFontParameter <|{
+    p =>
+      p.minFilter = TextureFilter.Linear
+      p.magFilter = TextureFilter.Linear
+  }
+  val screen = shader.map(_.map(_.map(sp => (Builder("font/quicksand.fnt",fontParams)&Builder("font/quicksand_dist.fnt",fontParams)).map {
+    case font&dist =>
+      val label1 = new Label("HELL", new LabelStyle(dist, Color.WHITE)) {
+        override def draw(batch: Batch, parentAlpha: Float): Unit = {
+          batch.setShader(sp)
+          super.draw(batch, parentAlpha)
+          batch.setShader(null)
         }
+      }
+      val label2 = new Label("HELL",new LabelStyle(font,Color.WHITE))
+      label1::label2::Nil foreach{
+        l => l.setTouchable(Touchable.disabled)
+          l.setFontScale(3.0f)
+      }
+    new Table{
+      override def sizeChanged(): Unit = {
+        super.sizeChanged()
+        setBounds(getX,getY,getWidth,getHeight)
+      }
+    } <| {
+      t =>
+        label1::label2::Nil foreach (t.add(_).fill.expand.row())
+        t.addListener(new ActorGestureListener{
+
+          override def handle(e: Event): Boolean = super.handle(e);true
+
+          override def zoom(event: InputEvent, initialDistance: Float, distance: Float): Unit = {
+            super.zoom(event, initialDistance, distance)
+            label1::label2::Nil foreach{
+              label => val scale = label.getFontScaleX*distance/initialDistance
+                log("zooming %.2f %.2f".format(initialDistance,distance))
+                log("scale: %.2f".format(scale))
+                label.setFontScale(MathUtils.clamp(scale,0.1f,50f))
+            }
+          }
+        })
+        t.setTouchable(Touchable.enabled)
+        t.setFillParent(true)
     }
+  }
+  )))
+
   override def graph: AnimatedManager.AnimatedGraph = super.graph
-  manager.start(test,Map(),holder.push)
+
+  manager.start(screen, Map(), holder.push)
 }

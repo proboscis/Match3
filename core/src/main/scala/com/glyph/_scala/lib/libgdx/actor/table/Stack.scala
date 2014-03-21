@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import scala.collection.mutable
 import scala.util.Try
 import com.glyph._scala.lib.util.updatable.task.{Block, Do, Sequence, Task}
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import com.glyph._scala.lib.libgdx.actor.Tasking
 import com.glyph._scala.lib.libgdx.screen.ScreenBuilder.Assets
 import com.badlogic.gdx.scenes.scene2d.utils.Layout
@@ -83,7 +83,7 @@ trait Progressing {
  * @param progress
  * @param am
  */
-class AssetTask(assets:Assets)(progress:Float=>Unit)(implicit am:AssetManager)extends Task with AssetManagerOps{
+class AssetTask(assets:Seq[AssetDescriptor[_]])(progress:Float=>Unit)(implicit am:AssetManager)extends Task with AssetManagerOps{
   am.load(assets)
   protected var completed = am.isLoaded(assets)
   def isCompleted: Boolean = completed
@@ -131,8 +131,11 @@ trait AssetManagerOps{
 }
 object BuilderOpsModule{
   class AssetManagerOpsImpl(val am:AssetManager) extends AnyVal{
+    def load(assets:Seq[AssetDescriptor[_]]) = assets foreach am.load
     def load(assets:Assets) = for ((c, files) <- assets; file <- files) am.load(file, c)
     def isLoaded(assets:Assets) = assets.forall(_._2.forall(am.isLoaded))
+    def isLoaded(assets:Seq[AssetDescriptor[_]]) = assets forall(desc => am.isLoaded(desc.fileName,desc.`type`))
+    def unload(assets:Seq[AssetDescriptor[_]]) = assets.foreach(desc => am.unload(desc.fileName))
     def unload(assets:Assets){
       for{
         (cls,files)<-assets

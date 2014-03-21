@@ -1,7 +1,7 @@
 package com.glyph._scala.test
 
 import com.glyph._scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import com.glyph._scala.lib.util.screen.{GlyphScreen => GScreen}
 import com.badlogic.gdx.graphics.glutils.{ShapeRenderer, ImmediateModeRenderer20}
 import com.badlogic.gdx.graphics.{GL10, Texture, Color, GL20}
@@ -18,7 +18,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
  * @author glyph
  */
 class ImmediateTest extends ScreenBuilder {
-  def requirements: Set[(Class[_], Seq[String])] = Set(classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png"))
+  import com.glyph._scala.lib.libgdx.BuilderOps._
+  def requirements:Seq[AssetDescriptor[_]] = assetIsDescriptors(Seq(classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png")))
   def create(implicit assetManager: AssetManager): GScreen = new ConfiguredScreen with Logging with Threading {
     val renderer = new ImmediateModeRenderer20(false, true, 1)
     val pRenderer = new ShapeRenderer(30000)

@@ -18,14 +18,16 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.{Interpolation, MathUtils, Vector2}
 import scalaz._
 import Scalaz._
+import com.glyph._scala.lib.libgdx.BuilderOps
 
 /**
  * @author glyph
  */
 class TransformFeedback extends ScreenBuilder with Logging {
-  def requirements: Set[(Class[_], Seq[String])] = Set(
+  import BuilderOps._
+  def requirements =  assetIsDescriptors(Seq(
     classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png","data/penmark.jpg")
-  )
+  ))
 
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
     autoClearScreen = false

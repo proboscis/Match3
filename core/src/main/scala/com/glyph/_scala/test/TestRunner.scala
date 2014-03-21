@@ -2,7 +2,7 @@ package com.glyph._scala.test
 
 import com.glyph._scala.lib.libgdx.game.ScreenBuilderSupport
 import com.glyph._scala.lib.libgdx.screen.{ConfiguredScreen, LoadingScreen, ScreenBuilder}
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx._
 import scala.util.Try
@@ -41,7 +41,7 @@ class TestRunner(className: String)
       VClass[ScreenBuilder](c.getCanonicalName).map(_.map(_.newInstance()))
     case c if classOf[Screen].isAssignableFrom(c) => VClass[Screen](c.getCanonicalName).map(_.map(
       scls => new ScreenBuilder {
-        def requirements: Set[(Class[_], Seq[String])] = Set()
+        def requirements = Nil
 
         def create(implicit assetManager: AssetManager): Screen = scls.newInstance()
       }
@@ -50,8 +50,7 @@ class TestRunner(className: String)
       _.map {
         c => new ScreenBuilder {
           val builder = c.newInstance()
-
-          def requirements: Set[(Class[_], Seq[String])] = builder.requirements
+          override def requirements: Seq[AssetDescriptor[_]] = builder.requirements
 
           def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
             val holder = new AnimatedBuilderHolder2 {}

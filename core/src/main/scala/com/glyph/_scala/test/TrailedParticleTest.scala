@@ -20,7 +20,8 @@ import com.glyph._scala.lib.libgdx.actor.SBDrawable
  * @author glyph
  */
 class TrailedParticleTest extends ScreenBuilder {
-  def requirements: Set[(Class[_], Seq[String])] = Set(classOf[Texture] -> Seq("data/particle.png"))
+  import com.glyph._scala.lib.libgdx.BuilderOps._
+  def requirements  = assetIsDescriptors(Seq(classOf[Texture] -> Seq("data/particle.png")))
   def create(implicit assetManager: AssetManager): Screen = new TrailTestEnvironment(
     ShaderHandler("shader/rotate2.vert", "shader/default.frag"),
     new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES)) {

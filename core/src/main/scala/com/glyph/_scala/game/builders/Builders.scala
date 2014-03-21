@@ -1,7 +1,7 @@
 package com.glyph._scala.game.builders
 
 import com.glyph._scala.lib.libgdx.{Builder, GLFuture}
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import scala.reflect.ClassTag
 import com.badlogic.gdx.scenes.scene2d.ui.{Label, Skin}
 import com.badlogic.gdx.graphics.Texture
@@ -32,8 +32,8 @@ import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 object Builders {
 
   private implicit class ResourceBuilder(name: String) {
-    def builder[T: ClassTag]: Builder[T] = new Builder[T] {
-      def requirements: Builder.Assets = Set(implicitly[ClassTag[T]].runtimeClass -> Seq(name))
+    def builder[T: Class]: Builder[T] = new Builder[T] {
+      override def requirements: Seq[AssetDescriptor[_]] = new AssetDescriptor(name,implicitly[Class[T]])::Nil
 
       def create(implicit assets: AssetManager): T = assets.get[T](name)
     }

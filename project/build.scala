@@ -66,12 +66,16 @@ object LibgdxBuild extends Build {
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
     )
   lazy val rootSettings = commonSettings ++ android.Plugin.androidCommands
+  import ToolTasks._
   lazy val toolsSettings = commonSettings ++ Seq(
       fork in run := true,
-      ToolTasks.hieroTask
+      hieroTask,
+      distanceFieldTask
     )
 }
 object ToolTasks{
     lazy val hieroKey = TaskKey[Unit]("hiero")
     lazy val hieroTask = fullRunTask(hieroKey,Test,"com.badlogic.gdx.tools.hiero.Hiero","")
+    lazy val distanceFieldKey = InputKey[Unit]("distanceField")
+    lazy val distanceFieldTask = fullRunInputTask(distanceFieldKey,Test,"com.badlogic.gdx.tools.distancefield.DistanceFieldGenerator")
 }

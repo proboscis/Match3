@@ -2,21 +2,22 @@ package com.glyph._scala.lib.util.animation
 
 import scala.concurrent.ExecutionContext
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.glyph._scala.lib.util.animation.Animation.AnimationConstructor
 import com.badlogic.gdx.math.Rectangle
-import org.omg.CORBA.Any
-import com.glyph._scala.lib.util.animation.Adapter.{Info, LayoutAnimationConstructor}
+import com.glyph._scala.lib.util.animation.Adapter.Info
 
-case class LayoutInfo(bounds:Rectangle,option:Info,target:Actor)
-object Adapter{
+case class LayoutInfo(bounds: Rectangle, option: Info, target: Actor)
+
+object Adapter {
   type Info = String Map Any
   type Layout = Seq[LayoutInfo]
   type LayoutAnimationConstructor = Rectangle => Layout => Animation
-  implicit class LayoutOps(val layout:Layout) extends AnyVal{
-    def actors = layout.map{
-      case LayoutInfo(_,_,actor)=>actor
+
+  implicit class LayoutOps(val layout: Layout) extends AnyVal {
+    def actors = layout.map {
+      case LayoutInfo(_, _, actor) => actor
     }
   }
+
 }
 
 /**
@@ -24,7 +25,7 @@ object Adapter{
  * but animation constructor is.
  * should animation have input and output?
  */
-trait Animation{
+trait Animation {
   /**
    * @return true while animating
    */
@@ -44,7 +45,7 @@ trait Animation{
 }
 
 object Animation {
-  type AnimationConstructor[P] = P=>Animation
+  type AnimationConstructor[P] = P => Animation
 }
 
 class Sequence(animations: Seq[Animation]) extends (Animation) {

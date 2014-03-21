@@ -1,7 +1,7 @@
 package com.glyph._scala.test
 
 import com.glyph._scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import com.badlogic.gdx.Screen
 import com.glyph._scala.lib.libgdx.font.FontUtil
 import scalaz._
@@ -20,7 +20,8 @@ import com.glyph._scala.lib.libgdx.WordParticle
  * @author glyph
  */
 class WordParticle extends ScreenBuilder {
-  def requirements: Set[(Class[_], Seq[String])] = Set()
+
+  override def requirements: Seq[AssetDescriptor[_]] = Nil
 
   def create(implicit assetManager: AssetManager): Screen = new WordParticleScreen
 

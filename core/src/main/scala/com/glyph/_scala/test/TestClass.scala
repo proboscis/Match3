@@ -2,7 +2,7 @@ package com.glyph._scala.test
 
 import com.glyph._scala.lib.libgdx.screen.ScreenBuilder._
 import com.glyph._scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.glyph._scala.lib.libgdx.Builder
@@ -47,7 +47,8 @@ object TestClass {
   }
   val pkgBuilders = screenClasses map {
     clazz => clazz.getSimpleName -> new ScreenBuilder {
-      def requirements: Set[(Class[_], Seq[String])] = Set()
+
+      override def requirements: Seq[AssetDescriptor[_]] = Nil
 
       def create(implicit assetManager: AssetManager): Screen = clazz.newInstance()
     }

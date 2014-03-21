@@ -1,7 +1,7 @@
 package com.glyph._scala.test
 
 import com.glyph._scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import com.badlogic.gdx.Screen
 import com.glyph._scala.lib.libgdx.gl.ShaderHandler
 import com.badlogic.gdx.graphics.glutils.{ImmediateModeRenderer, FrameBuffer, ImmediateModeRenderer20}
@@ -12,7 +12,8 @@ import com.badlogic.gdx.graphics.{Color, GL10}
  * @author glyph
  */
 class VaryingScreen extends ScreenBuilder{
-  def requirements: Set[(Class[_], Seq[String])] = Set()
+
+  override def requirements: Seq[AssetDescriptor[_]] = Nil
 
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen{
     val shaderHandler = new ShaderHandler("shader/point.vert","shader/point.frag")

@@ -1,23 +1,25 @@
 package com.glyph._scala.lib.libgdx
 
-import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.{AssetLoaderParameters, AssetDescriptor, AssetManager}
 import scalaz.Applicative
 import com.glyph._scala.lib.libgdx.Builder.Assets
 import com.glyph._scala.lib.libgdx.screen.ScreenBuilder.Assets
 import com.glyph._scala.lib.util.extraction.Extractable
+import com.badlogic.gdx.graphics.Texture
+import com.glyph._scala.lib.util.Logging
 
 /**
  * thing that require assets to be loaded should use this target.
  * @tparam T
  */
 trait Builder[+T] {
-  def requirements: Builder.Assets
+  def requirements:Seq[AssetDescriptor[_]]
   def forceCreate(implicit assets:AssetManager):T = {
     load
     create
   }
   def create(implicit assets: AssetManager): T
-  def isReady(implicit assets:AssetManager):Boolean = requirements.forall(_._2.forall(assets.isLoaded))
+  def isReady(implicit assets:AssetManager):Boolean = requirements.forall(desc => assets.isLoaded(desc.fileName,desc.`type`))
   def map[R](f: T => R): Builder[R] = Builder(requirements,assets =>  f(create(assets)))
   def &[R](tgt:Builder[R]):Builder[(T,R)] = Builder(requirements ++ tgt.requirements,am => create(am)->tgt.create(am))
 
@@ -26,19 +28,58 @@ trait Builder[+T] {
    * @param assets
    */
   def load(implicit assets:AssetManager){
-    for{
-      (cls,files)<-requirements
-      file <- files
-    }{
-      assets.load(file,cls)
-    }
+    requirements.foreach(assets.load)
     assets.finishLoading()
   }
-  //flatMap cannot be created
+}
+
+object BuilderOps extends BuilderOps
+object Builder extends Logging{
+  import BuilderOps._
+  type TypedAssets[T] = Seq[(Class[T], Seq[String])]
+  type Assets = TypedAssets[_]
+  def apply[T:Class](fileName:String,params:AssetLoaderParameters[T]) = new Builder[T] {
+    assert(implicitly[Class[T]] != classOf[Object])
+    val asset = AssetDescriptor(fileName,params)::Nil
+    override def requirements: Seq[AssetDescriptor[_]] = asset
+    override def create(implicit assets: AssetManager): T = assets.get(asset.head)
+  }
+  def apply[T](asset:AssetDescriptor[T]):Builder[T] = new Builder[T] {
+    override def create(implicit assets: AssetManager): T = assets.get[T](asset)
+    override def requirements: Seq[AssetDescriptor[_]] = asset::Nil
+  }
+  def apply[T](assets:Seq[AssetDescriptor[_]],constructor:AssetManager=>T):Builder[T] = new Builder[T] {
+    override def requirements: Seq[AssetDescriptor[_]] = assets
+    override def create(implicit assets: AssetManager): T = constructor(assets)
+  }
+  def fromAssets[T](assets: Assets, constructor: AssetManager => T): Builder[T] = new Builder[T] {
+    override def requirements: Seq[AssetDescriptor[_]] = assets
+
+    def create(implicit assets: AssetManager): T = constructor(assets)
+  }
+  def apply[T:Class](fileName:String):Builder[T] = {
+    assert(implicitly[Class[T]] != classOf[Object])
+    Builder(new AssetDescriptor(fileName,implicitly[Class[T]])::Nil,_.get[T](fileName))
+  }
+}
+object AssetDescriptor{
+  def apply[T:Class](fileName:String):AssetDescriptor[T] = {
+    assert(implicitly[Class[T]] != classOf[Object])
+    new AssetDescriptor(fileName,implicitly[Class[T]])
+  }
+  def apply[T:Class](fileName:String,params:AssetLoaderParameters[T]) ={
+    assert(implicitly[Class[T]] != classOf[Object])
+    new AssetDescriptor(fileName,implicitly[Class[T]],params)
+  }
 }
 trait BuilderOps {
+  import Builder._
+  implicit def assetIsDescriptors[T](assets:Builder.TypedAssets[T]):Seq[AssetDescriptor[_]] =  for {
+    (cls,fileNames)<-assets.toSeq
+    fileName<-fileNames
+  } yield new AssetDescriptor(fileName,cls)
   implicit def applicativeBuilder = new Applicative[Builder] {
-    def point[A](a: => A): Builder[A] = Builder(Set(), _ => a)
+    def point[A](a: => A): Builder[A] = Builder(Nil, _ => a)
     def ap[A, B](fa: => Builder[A])(f: => Builder[(A) => B]): Builder[B] = Builder(fa.requirements ++ f.requirements,assets =>  f.create(assets)(fa.create(assets)))
   }
   object &{
@@ -47,38 +88,3 @@ trait BuilderOps {
     }
   }
 }
-object BuilderOps extends BuilderOps
-
-object Builder {
-  type Assets = Set[(Class[_], Seq[String])]
-
-  def apply[T](assets: Assets, constructor: AssetManager => T): Builder[T] = new Builder[T] {
-    def requirements: Assets = assets
-
-    def create(implicit assets: AssetManager): T = constructor(assets)
-  }
-  def apply[T:Class](fileName:String):Builder[T] = Builder(Set(implicitly[Class[T]]->Seq(fileName)),_.get[T](fileName))
-}
-
-object BuilderTest {
-  def main(args: Array[String]) {
-    import scalaz._
-    import Scalaz._
-    import BuilderOps._
-    val ma = new Builder[Int] {
-      def requirements: Assets = Set(classOf[Int] -> Seq("a"))
-
-      def create(implicit assets: AssetManager): Int = 10
-    }
-    val mb = new Builder[Int] {
-      def requirements: Assets = Set(classOf[Int] -> Seq("b"))
-
-      def create(implicit assets: AssetManager): Int = 10
-    }
-    val b = (ma |@| mb) {
-      _ + _
-    }
-    println(b.requirements)
-  }
-}
-
