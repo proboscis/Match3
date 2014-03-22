@@ -110,7 +110,7 @@ trait AnimatedConstructors extends DefaultExtractors with Logging {
     }
   val menu: AnimatedConstructor = menuStyle.map(_.map(_.map(Menu.constructor)))
   val title: AnimatedConstructor = titleStyle.map(_.map(_.map(Title.third)))
-  val result: AnimatedConstructor = resultStyle.map(_.map(_.map(style => VClass[AnimatedConstructor, GameResult].newInstance(Typed(style)))))
+  val result: AnimatedConstructor = resultStyle.map(_.map(_.map(style => VClass[AnimatedConstructor, GameResult].newInstance(Typed(style),Typed(processor)))))
   val puzzle: AnimatedConstructor = (roundRectTexture & particleTexture & dummyTexture & flat).map {
     case a & b & c & d => (() => {
       // why the hell is this called twice!?

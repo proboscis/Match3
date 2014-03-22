@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.{Texture, Color}
 import com.badlogic.gdx.scenes.scene2d.utils.{SpriteDrawable, Drawable}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
-import com.badlogic.gdx.graphics.g2d.{Sprite, BitmapFont}
+import com.badlogic.gdx.graphics.g2d.{Batch, Sprite, BitmapFont}
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.glyph._scala.lib.util.Logging
@@ -13,18 +13,21 @@ import com.glyph._scala.game.builders.Builders
 import com.glyph._scala.lib.libgdx.Builder
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle
 import com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle
-
+import com.glyph._scala.lib.libgdx.drawable.{Tint, DrawableCopy}
+import scalaz._
+import Scalaz._
 /**
  * @author glyph
  */
-class FlatSkin(val colors: Map[String, Color], tint: Color => Drawable, font: BitmapFont) extends Skin with Logging{
-  private implicit def colorToDrawable(c: Color): Drawable = tint(c)
+class FlatSkin(val colors: Map[String, Color], tint: Drawable, font: BitmapFont) extends Skin with Logging{
+
+  private implicit def colorToDrawable(c: Color): Drawable = new DrawableCopy(tint) with Tint <| (_.color.set(c))
 
   def up(c: Color): Color = c.cpy.add(0.1f, 0.1f, 0.1f, 0.1f)
 
   def down(c: Color): Color = c.cpy.sub(0.1f, 0.1f, 0.1f, 0.1f)
 
-  val drawables = colors mapValues tint
+  val drawables = colors mapValues colorToDrawable
   val buttonStyles = colors.mapValues(buttonStyle)
   val textButtonStyles = colors.mapValues(textButtonStyle)
   val labelStyles = colors mapValues labelStyle
@@ -66,14 +69,4 @@ class FlatSkin(val colors: Map[String, Color], tint: Color => Drawable, font: Bi
   drawables foreach{
     case (name,style)=>add(name,style,classOf[Drawable])
   }
-}
-
-object FlatSkin{
-  import scalaz._
-  import Scalaz._
-  def default(font:BitmapFont,tex:Texture):FlatSkin= new FlatSkin(
-    ColorTheme.varyingColorMap(),
-    c => new SpriteDrawable(new Sprite(tex) <| (_.setColor(c))),
-      font
-  )
 }

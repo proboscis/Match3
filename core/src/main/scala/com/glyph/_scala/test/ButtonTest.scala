@@ -22,7 +22,7 @@ class ButtonTest extends ConfiguredScreen {
   val texture = new Texture(Gdx.files.internal("data/dummy.png"))
   val flat = new FlatSkin(
     ColorTheme.varyingColorMap(),
-    c => new SpriteDrawable(new Sprite(texture) <| (_.setColor(c))),
+    new SpriteDrawable(new Sprite(texture)),
     font
   )
   flat.textButtonStyles.toSeq.sortBy(_._1).map{

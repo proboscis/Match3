@@ -4,7 +4,7 @@ import com.glyph._scala.lib.libgdx.{Builder, GLFuture}
 import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import scala.reflect.ClassTag
 import com.badlogic.gdx.scenes.scene2d.ui.{Label, Skin}
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.{Color, Texture}
 import com.glyph._scala.game.action_puzzle.view.ActionPuzzleTable
 import com.badlogic.gdx.Screen
 import scala.language.implicitConversions
@@ -19,11 +19,12 @@ import Scalaz._
 import com.glyph._scala.game.Glyphs
 import Glyphs._
 import com.glyph._scala.lib.libgdx.skin.FlatSkin
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable
+import com.badlogic.gdx.scenes.scene2d.utils.{TextureRegionDrawable, Drawable, NinePatchDrawable}
 import com.badlogic.gdx.graphics.g2d.{NinePatch, BitmapFont}
 import scala.language.higherKinds
 import com.glyph._scala.lib.libgdx.font.FontUtil
 import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
+import com.badlogic.gdx.scenes.scene2d.ui.Skin.TintedDrawable
 
 /**
 "Mock" -> AnimatedHolder2Test.builder
@@ -51,14 +52,16 @@ object Builders {
     tex => val w = tex.getWidth / 3
       new NinePatch(tex, w, w, w, w)
   }
-  val flat = (roundRectNP).map {
-    case np =>
-      new FlatSkin(
-        ColorTheme.varyingColorMap(),
-        c => new NinePatchDrawable(new NinePatch(np) <| (_.setColor(c))),
-        corbert2
-      )
-  }
+  val flat = (new FlatSkin(
+    ColorTheme.varyingColorMap(),
+    _:Drawable,
+    corbert2
+  )) |> dummyTexture.map(tex => tex.drawable).map
+  /*
+    roundRectNP.map {
+    np =>(c:Color)=>new NinePatchDrawable(new NinePatch(np) <| (_.setColor(c)))
+  }.map
+  */
   val label: Skin => String => Label = skin => new Label(_: String, skin)
 
   def menuScreenBuilder[E]: (Seq[(String, E)], E => Unit) => Builder[Screen] = (elements, cb) => {
@@ -71,4 +74,7 @@ object Builders {
     }
 
   val screenBuilders = Map("Mock" -> AnimatedHolder2Test.builder)
+}
+object FlatSkin{
+  def default(font:BitmapFont,drawable:Drawable)=new FlatSkin(ColorTheme.varyingColorMap(),drawable,font)
 }

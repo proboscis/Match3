@@ -17,9 +17,10 @@ import Scalaz._
 import com.badlogic.gdx.scenes.scene2d.ui.{ScrollPane, Label}
 import com.glyph._scala.lib.libgdx.font.FontUtil
 import com.glyph._scala.lib.libgdx.skin.FlatSkin
-import com.glyph._scala.game.builders.Builders
+import com.glyph._scala.game.builders.{FlatSkin, Builders}
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
+import com.glyph._scala.lib.libgdx.gl.TextureOps
 
 /**
  * @author glyph
@@ -124,7 +125,9 @@ trait DefaultExtractors extends Extractors with Logging {
   implicit def extractable3Option = genE3Option(stringToExtraction("None?"))
 
   lazy val debugFont = GLFuture(FontUtil.internalFont("font/corbert.ttf", 140))
-  lazy val debugSkin = debugFont.map(font => Builders.dummyTexture.map(tex => FlatSkin.default(font, tex)))
+  import TextureOps._
+
+  lazy val debugSkin = debugFont.map(font => Builders.dummyTexture.map(tex => FlatSkin.default(font, tex.drawable)))
   lazy val splashAnimation = swordTexture.map {
     tex => new AnimatedTable <| (_.add(new SpriteActor(tex)).fill.expand)
   }.forceCreate
