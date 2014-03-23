@@ -10,25 +10,26 @@ import com.badlogic.gdx.graphics.glutils._
 import com.badlogic.gdx.graphics._
 import com.badlogic.gdx.scenes.scene2d.{Touchable, Actor}
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.math.{Rectangle, Matrix4}
+import com.badlogic.gdx.math.{MathUtils, Rectangle, Matrix4}
 import com.badlogic.gdx.Gdx
 import com.glyph._scala.lib.util.Disposable
 import com.glyph._scala.lib.libgdx.gl.ShaderHandler
 import com.badlogic.gdx.graphics.VertexAttributes.Usage
-import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.glyph._scala.lib.libgdx.actor.widgets.Layered
 import com.glyph._scala.lib.libgdx.actor.blend.AdditiveBlend
+import scala.util.Try
+import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 
 /**
  * @author glyph
  */
 class BlurTest extends ConfiguredScreen {
   import Builders._
-
   implicit val assetManager = new AssetManager
+  var blurStep = 5f
+  val PINGPONG_STEP = 0
   val puzzle = new ComboPuzzle
-  puzzle.time() = 10
-  val root2 = new Layered{}
+  val root2 = new Layered {}
   val table = new ActionPuzzleTable(puzzle)(
     roundRectTexture.forceCreate,
     particleTexture.forceCreate,
@@ -43,34 +44,45 @@ class BlurTest extends ConfiguredScreen {
   }
   val sword = swordTexture.forceCreate
   ShaderProgram.pedantic = true
-  import scalaz._
-  import Scalaz._
-  val pingpong = Array(0,0).map(_=> new FrameBuffer(Pixmap.Format.RGB565,64,64,false))
 
-  val shader = ShaderHandler("shader/blur.vert", "shader/blur.frag").applier2{
+  //the blurring of this resolution ends within 50ms, and this can be done at back ground.
+  val pingpong = Array(0, 0).map(_ => new FrameBuffer(Pixmap.Format.RGB565, 256, 256, false))
+  val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
+  val a_texCoord = VertexAttribute.TexCoords(0)
+  val rect = new Mesh(true, 4, 0, a_position, a_texCoord)
+  rect.setVertices(rectangle(-0.5f, -0.5f, 1f, 1f))
+  val shader = ShaderHandler("shader/blur.vert", "shader/blur.frag").applier2 {
     s =>
       val camera = new OrthographicCamera(1, 1)
-      ()=>{
+      () => {
         camera.update()
         table.buffer.getColorBufferTexture.bind(0)
         //sword.bind(0)
         s.begin()
         s.setUniformMatrix("u_projModelView", camera.combined)
         s.setUniformi("u_sampler0", 0)
-        s.setUniformf("u_delta",1f/pingpong(0).getWidth)
-        s.setUniformi("u_horizontal",1)
-        pingpong(0).begin()
-        Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
-        rect.render(s, GL10.GL_TRIANGLE_STRIP)
-        pingpong(0).end()
-        pingpong(0).bind()
-        s.setUniformi("u_horizontal",0)
-        pingpong(1).begin()
-        Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
-        rect.render(s, GL10.GL_TRIANGLE_STRIP)
-        pingpong(1).end()
+        s.setUniformf("u_delta", 1f / pingpong(0).getWidth)
+        s.setUniformf("u_step",blurStep.toInt.toFloat)
+        var i = 0
+        while ( i < PINGPONG_STEP){
+          s.setUniformi("u_horizontal", 1)
+          pingpong(0).begin()
+          Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
+          rect.render(s, GL10.GL_TRIANGLE_STRIP)
+          pingpong(0).end()
+          pingpong(0).getColorBufferTexture.bind(0)
+
+          s.setUniformi("u_horizontal", 0)
+          pingpong(1).begin()
+          Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
+          rect.render(s, GL10.GL_TRIANGLE_STRIP)
+          pingpong(1).end()
+          pingpong(1).getColorBufferTexture.bind(0)
+          i += 1
+        }
+
         s.end()
-    }
+      }
   }
   val layers = new Layered with AdditiveBlend
   val pingpongActors = pingpong map (buf => new SpriteActor(buf.getColorBufferTexture))
@@ -79,15 +91,67 @@ class BlurTest extends ConfiguredScreen {
   root.add(layers).fill().expand()
 
   pingpongActors(1).setTouchable(Touchable.disabled)
-  val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
-  val a_texCoord = VertexAttribute.TexCoords(0)
-  val rect = new Mesh(true, 4, 0, a_position, a_texCoord)
-  rect.setVertices(rectangle(-0.5f, -0.5f, 1f, 1f))
 
+  var minus = 1f
   override def render(delta: Float): Unit = {
     super.render(delta)
+    if (3 <= blurStep && blurStep <= 10){
+      blurStep += minus * delta * 1f * 10
+    }else{
+      minus = -minus
+      blurStep = MathUtils.clamp(blurStep,3,10)
+    }
     shader()
   }
+
+  def rectangle(x: Float, y: Float, w: Float, h: Float): Array[Float] = Array[Float](
+    x, y, 0, 0,
+    x, y + h, 0, 1,
+    x + w, y, 1, 0,
+    x + w, y + h, 1, 1
+  )
+}
+
+import com.glyph._scala.game.Glyphs._
+
+object BlurUtil {
+  def createBlurredTexture(target: Texture)(width: Int, height: Int): Try[FrameBuffer] = Try {
+    val shader = new ShaderProgram("shader/blur.vert".internal, "shader/blur.frag".internal)
+    if (!shader.isCompiled) {
+      throw new RuntimeException("shader compilation failed!\n" + shader.getLog)
+    }
+    val pingpong = Array(0, 0).map(_ => new FrameBuffer(Pixmap.Format.RGB565, width, height, false))
+    val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
+    val a_texCoord = VertexAttribute.TexCoords(0)
+    val rect = new Mesh(true, 4, 0, a_position, a_texCoord)
+    rect.setVertices(rectangle(-0.5f, -0.5f, 1f, 1f))
+    val camera = new OrthographicCamera(1, 1)
+    camera.update()
+    target.bind(0)
+    val s = shader
+    s.begin()
+    s.setUniformMatrix("u_projModelView", camera.combined)
+    s.setUniformi("u_sampler0", 0)
+    s.setUniformf("u_delta", 1f / pingpong(0).getWidth)
+
+    s.setUniformi("u_horizontal", 1)
+    pingpong(0).begin()
+    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
+    rect.render(s, GL10.GL_TRIANGLE_STRIP)
+    pingpong(0).end()
+    pingpong(0).getColorBufferTexture.bind(0)
+
+    s.setUniformi("u_horizontal", 0)
+    pingpong(1).begin()
+    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
+    rect.render(s, GL10.GL_TRIANGLE_STRIP)
+    pingpong(1).end()
+    shader.dispose()
+    pingpong(0).dispose()
+    rect.dispose()
+    pingpong(1)
+  }
+
   def rectangle(x: Float, y: Float, w: Float, h: Float): Array[Float] = Array[Float](
     x, y, 0, 0,
     x, y + h, 0, 1,
@@ -100,6 +164,7 @@ trait FrameCapture extends Actor with Disposable {
   def bufferWidth: Int
 
   def bufferHeight: Int
+
   def shouldRenderer: Boolean
 
   val buffer = new FrameBuffer(Pixmap.Format.RGBA8888, bufferWidth, bufferHeight, false)
@@ -132,8 +197,9 @@ trait FrameCapture extends Actor with Disposable {
     batch.setTransformMatrix(transform)
     batch.setProjectionMatrix(projection)
     Scissor.pop()
-    if (shouldRenderer){
-      super.draw(batch,parentAlpha)
+    if (shouldRenderer) {
+      super.draw(batch, parentAlpha)
+      //batch.draw(buffer.getColorBufferTexture,getX,getY,getWidth,getHeight)
     }
   }
 

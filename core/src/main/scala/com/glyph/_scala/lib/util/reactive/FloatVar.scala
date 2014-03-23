@@ -1,9 +1,11 @@
 package com.glyph._scala.lib.util.reactive
 
+import com.glyph._scala.lib.util.Logging
+
 /**
  * @author glyph
  */
-class FloatVar {
+class FloatVar extends Logging{
   var variable:Float =0f
   val listeners = new com.badlogic.gdx.utils.Array[Float=>Unit]()
   def apply():Float = variable

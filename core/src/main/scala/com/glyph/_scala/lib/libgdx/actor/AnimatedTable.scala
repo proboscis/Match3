@@ -1,12 +1,13 @@
 package com.glyph._scala.lib.libgdx.actor
 
-import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.{Widget, Image, Table}
 import com.glyph._scala.lib.util.{Logging, Animated}
 import com.badlogic.gdx.scenes.scene2d.{Group, Actor}
 import com.esotericsoftware.tablelayout.Cell
 import com.glyph._scala.lib.util.updatable.task._
 import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable
+import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder.AnimatedActor
 
 /**
  * actors added through "add" method will be animated when this Table's animation is invoked.
@@ -17,18 +18,45 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
   import com.glyph._scala.game.Glyphs
   import Glyphs._
 
-  private var callback: Option[() => Unit] = None
 
-  case class Holder(actor: Actor) extends SameSize {
+  case class Holder(actor: Actor) extends SameSize{
     addActor(actor)
+
   }
 
   val actorLayouts = collection.mutable.ArrayBuffer[Holder]()
+  private var bgHolder = Holder(new Image(getBackground))
+  actorLayouts += bgHolder
+  val animatedActors = collection.mutable.ArrayBuffer[AnimatedActor]()
+
+  private def setupBGHolder() {
+    log("setupBGHolder", getX, getY, getWidth, getHeight)
+    bgHolder.setBounds(getX, getY, getWidth, getHeight)
+  }
+
+  override def setBackground(background: Drawable): Unit = {
+    //super.setBackground(background)
+    actorLayouts -= bgHolder
+    removeActor(bgHolder)
+    bgHolder = Holder(new Image(background))
+    addActor(bgHolder)
+    setupBGHolder()
+    actorLayouts += bgHolder
+  }
 
   override def add(actor: Actor): Cell[_] = {
-    val holder = Holder(actor)
-    actorLayouts += holder
-    super.add(holder)
+    actor match {
+
+    case aa:AnimatedActor =>{
+      animatedActors += aa
+      super.add(aa)
+    }
+    case actor => {
+        val holder = Holder(actor)
+        actorLayouts += holder
+        super.add(holder)
+      }
+    }
   }
 
   override def removeActor(actor: Actor): Boolean = {
@@ -45,6 +73,7 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
 
   override def layout(): Unit = {
     super.layout()
+    setupBGHolder()
     for (holder@Holder(actor) <- actorLayouts) {
       actor.setSize(holder.getWidth, holder.getHeight)
     }
@@ -94,8 +123,9 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
   // you have to take care of the exception that out is called before in finishes
 
   def in(cb: () => Unit) {
+    animatedActors.foreach(_.in(() => {}))
     log("in:" + cb.hashString)
-    log("self:"+this.hashString)
+    log("self:" + this.hashString)
     setPositions {
       case holder@Holder(actor) => (getWidth, 0)
     }
@@ -103,6 +133,7 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
   }
 
   def out(cb: () => Unit) {
+    animatedActors.foreach(_.out(() => {}))
     log("out:" + cb.hashString)
     moveToPositions({
       case holder@Holder(actor) => (-getWidth, 0)
@@ -115,6 +146,7 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
   }
 
   def resume(cb: () => Unit) {
+    animatedActors.foreach(_.resume(() => {}))
     log("resume")
     setPositions {
       case holder@Holder(actor) => (-getWidth, 0)
@@ -127,10 +159,6 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
     log(if (parent == null) "removed" else "added")
     super.setParent(parent)
   }
-
-  override def draw(batch: Batch, parentAlpha: Float): Unit = {
-    super.draw(batch, parentAlpha)
-  }
 }
 
 object AnimatedTable {
@@ -138,7 +166,7 @@ object AnimatedTable {
   import scalaz._
   import Scalaz._
 
-  def apply(layout: Cell[_] => Unit)(actors: Actor*)(implicit processor:ParallelProcessor): AnimatedTable = (new AnimatedTable /: actors) {
+  def apply(layout: Cell[_] => Unit)(actors: Actor*)(implicit processor: ParallelProcessor): AnimatedTable = (new AnimatedTable /: actors) {
     case (table, actor) => table <| (_.add(actor) |> layout)
   }
 }

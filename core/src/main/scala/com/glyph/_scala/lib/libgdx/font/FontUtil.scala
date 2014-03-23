@@ -3,6 +3,7 @@ package com.glyph._scala.lib.libgdx.font
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.{TextureRegion, BitmapFont}
+import com.badlogic.gdx.graphics.Texture.TextureFilter
 
 /**
  * @author glyph
@@ -15,6 +16,7 @@ object FontUtil {
     val generator = new FreeTypeFontGenerator(Gdx.files.internal(name))
     val font = generator.generateFont(size)
     generator.dispose()
+    font.getRegion.getTexture.setFilter(TextureFilter.Linear,TextureFilter.Linear)
     font
   }
 

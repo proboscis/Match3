@@ -29,8 +29,8 @@ abstract class TrailTestEnvironment(shader: ShaderHandler, batch: BaseStripBatch
 
   def onBatch(s: ShaderProgram, batch: BaseStripBatch){}
 
-  val trailRenderer = shader.applier {
-    s =>
+  val trailRenderer = shader.applier2 {
+    s =>()=>{
       Gdx.gl.glEnable(GL10.GL_TEXTURE_2D)
       Gdx.gl.glEnable(GL10.GL_BLEND)
       Gdx.gl.glBlendFunc(SRC_FUNC, DST_FUNC)
@@ -45,6 +45,7 @@ abstract class TrailTestEnvironment(shader: ShaderHandler, batch: BaseStripBatch
       onBatch(s, batch)
       batch.end(s)
       s.end()
+    }
   }
 
   override def render(delta: Float) {

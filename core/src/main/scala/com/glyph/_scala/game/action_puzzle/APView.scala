@@ -17,7 +17,7 @@ import com.glyph._scala.lib.libgdx.actor.table.Layers
 import com.glyph._scala.lib.libgdx.actor.widgets.Layered
 import com.badlogic.gdx.graphics.g2d.Batch
 
-class MyTrail() extends UVTrail(5)
+class MyTrail() extends UVTrail(10)
 /**
  * @author glyph
  */

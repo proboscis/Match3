@@ -1,24 +1,7 @@
 package com.glyph._scala.lib.util.animation
 
 import scala.concurrent.ExecutionContext
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.math.Rectangle
-import com.glyph._scala.lib.util.animation.Adapter.Info
 
-case class LayoutInfo(bounds: Rectangle, option: Info, target: Actor)
-
-object Adapter {
-  type Info = String Map Any
-  type Layout = Seq[LayoutInfo]
-  type LayoutAnimationConstructor = Rectangle => Layout => Animation
-
-  implicit class LayoutOps(val layout: Layout) extends AnyVal {
-    def actors = layout.map {
-      case LayoutInfo(_, _, actor) => actor
-    }
-  }
-
-}
 
 /**
  * is animation reusable? no,

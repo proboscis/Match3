@@ -27,8 +27,8 @@ class MeshTest extends ConfiguredScreen with Logging with Reactor {
   ShaderProgram.pedantic = false
   val shader = ShaderHandler("shader/default.vert", "shader/effect2.frag")
   var time = 0f
-  val updater = shader.applier{
-    s =>
+  val updater = shader.applier2{
+    s => ()=>{
       s.begin()
       s.setUniformMatrix("u_projTrans", matrix)
       //s.setUniformi("u_texture", 0)
@@ -37,6 +37,7 @@ class MeshTest extends ConfiguredScreen with Logging with Reactor {
       s.setUniformf("mouse",0,0)
       mesh.render(s, GL10.GL_TRIANGLES)
       s.end()
+    }
   }
   override def render(delta: Float) {
     super.render(delta)

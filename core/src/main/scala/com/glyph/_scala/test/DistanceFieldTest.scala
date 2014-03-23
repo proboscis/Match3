@@ -21,6 +21,7 @@ import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
 import com.badlogic.gdx.math.MathUtils
 import com.glyph._scala.lib.util.Logging
+import com.glyph._scala.lib.libgdx.actor.ui.FillX
 
 /**
  * @author glyph
@@ -32,23 +33,7 @@ class DistanceFieldTest extends MockTransition with LazyAssets {
       p.minFilter = TextureFilter.Linear
       p.magFilter = TextureFilter.Linear
   }
-  trait FillX extends Label with Logging{
-    def getTextWidth = getStyle.font.getMultiLineBounds(getText).width
-    def calcFontScale(){
-      val scale = getWidth/getTextWidth
-      setFontScale(scale)
-      err("setFontScale",scale)
-    }
-    override def setText(newText: CharSequence): Unit = {
-      super.setText(newText)
-      calcFontScale()
-    }
 
-    override def sizeChanged(): Unit = {
-      super.sizeChanged()
-      calcFontScale()
-    }
-  }
   val screen = shader.map(_.map(_.map(sp => (Builder("font/code_120.fnt",fontParams)&Builder("font/code_dist.fnt",fontParams)).map {
     case font&dist =>
       val label1 = new Label("RESULT\nA", new LabelStyle(dist, Color.WHITE)) with Logging with FillX{

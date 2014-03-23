@@ -1,4 +1,6 @@
 params = {
+   black_transparent:"000000aa",
+   white_transparent:"ffffffaa",
    background:"222222",
    fire:"ff8800",
    water:"88e02e",
@@ -25,5 +27,5 @@ params = {
    wet_asphalt:"34495e",
    midnight_blue:"2c3e50",
    concrete:"95a5a6",
-   asbestos:"7f8c8d"
+   asbestos:"7f8c8d",
 }

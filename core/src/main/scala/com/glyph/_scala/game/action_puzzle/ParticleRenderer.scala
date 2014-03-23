@@ -104,13 +104,13 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
             p.setTexture(texture)
             p.setRegion(0f, 0f, 1f, 1f)
             p.setOrigin(0f, 0f)
-            val s = random(3, 30)
+            val s = random(3, 30) * 2
             p.setSize(s, s)
             p.setPosition(x, y)
             p.setColor(givenColor)
             buf += p
         }
-        Explosion.init(() => random(PI2), () => random(2000), velBuf, buf.length)
+        Explosion.init(() => random(PI2), () => random(65,4000), velBuf, buf.length)
         addDrawable(buf)
         setBuf = buf map (sp => sp -> manual[GivenTrail])
         spriteTrailArray.add(setBuf)

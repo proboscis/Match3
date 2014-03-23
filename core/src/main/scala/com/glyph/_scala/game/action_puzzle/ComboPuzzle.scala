@@ -16,12 +16,11 @@ class ComboPuzzle extends Logging with Reactor {
 
   val config = GdxFile("comboPuzzle/config.json").map(_.map(JSON(_)))
   val timeConfig = config.map(_.map(_.time.as[Float]).flatten)
-
   val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 5), (a: Int, b: Int) => {
     a == b
   })
   val score = Var(0)
-  val time = FloatVar(10f)
+  val time = FloatVar(20f)
   reactSuccess(timeConfig)(time.update)
   // forget about the reactive programming!! the beauty of the implementation means nothing!!! the structure does matter, however.
   val combo = Var(0)

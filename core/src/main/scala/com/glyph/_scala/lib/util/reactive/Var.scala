@@ -23,6 +23,9 @@ class Var[T](protected var variable: T, name: String = "undefined") extends Vary
     variable = v
     notifyObservers(variable)
   }
+  def :=(v:T){
+    update(v)
+  }
 }
 
 object Var {

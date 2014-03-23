@@ -11,6 +11,7 @@ import scalaz._
 import Scalaz._
 import com.glyph._scala.lib.util.reactive.{Varying, Reactor}
 import com.glyph._scala.lib.libgdx.GLFuture
+import com.glyph._scala.lib.util.Logging
 
 /**
  * automatically reloads the specified shaders when changed.
@@ -18,63 +19,30 @@ import com.glyph._scala.lib.libgdx.GLFuture
  * you must specifically call begin() and end() of the shader.
  * @author glyph
  */
-class ShaderHandler(vFile: String, fFile: String) extends Reactor {
-
+class ShaderHandler(vFile: String, fFile: String) extends Logging{
   import ShaderHandler._
-
-  var failed = false
-
   val shader = loadShader(vFile, fFile).map {
     _.flatMap {
       case Success(s) => Some(s)
-      case Failure(f) => f foreach (_.printStackTrace()); failed = true; None
+      case Failure(f) => f foreach (_.printStackTrace());None
     }
   }
-  var prevShader:Option[ShaderProgram] = None
-  reactVar(shader) {
-    s => {
-      prevShader foreach(_.dispose())
-      failed = false
-      prevShader = s
+  def applier2(f: ShaderProgram => () => Unit) = new (()=>Unit) with Reactor{
+    var renderer: () => Unit = ()=>{}
+    var prevShader:Option[ShaderProgram] = None
+    var failed = false
+    reactVar(shader){
+      shaderOpt=>
+        prevShader foreach(_.dispose())
+        failed = false
+        if (shaderOpt.isDefined){
+          renderer = f(shaderOpt.get)
+        }
+        prevShader = shaderOpt
     }
-  }
-  /**
-   * calling this method on rendering thread may cause allocations
-   * @param block
-   */
-  def apply(block: ShaderProgram => Unit) {
-    if (!failed && shader().isDefined) {
-      try {
-        block(shader().get)
-      } catch {
-        case e: Throwable => e.printStackTrace(); failed = true
-      }
-    }
-  }
-
-  /**
-   * use this to avoid allocation on every frame.
-   * @param f
-   * @return
-   */
-  def applier(f: ShaderProgram => Unit): () => Unit = () => {
-    if (!failed && shader().isDefined) {
-      try {
-        f(shader().get)
-      } catch {
-        case e: Throwable => e.printStackTrace(); failed = true
-      }
-    }
-  }
-
-  def applier2(f: ShaderProgram => () => Unit): () => Unit = {
-    var renderer: () => Unit = null
-    () => {
+    override def apply(): Unit = {
       if (!failed && shader().isDefined) {
         try {
-          if (renderer == null) {
-            renderer = f(shader().get)
-          }
           renderer()
         } catch {
           case e: Throwable => e.printStackTrace(); failed = true
@@ -100,7 +68,6 @@ object ShaderUtil{
 }
 object ShaderHandler {
   implicit val context = com.glyph._scala.lib.injection.GLExecutionContext.context
-
   /**
    * creates a varying option vnel ShaderProgram
    * @param vFile
@@ -116,7 +83,6 @@ object ShaderHandler {
       })).toVnel.flatten
     }.map(_.map(_.toVnel.flatten))
   }
-
   /**
    * you must call this on glThread
    * @param vertexShaderPath

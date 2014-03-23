@@ -30,6 +30,7 @@ class FlatSkin(val colors: Map[String, Color], tint: Drawable, font: BitmapFont)
   val drawables = colors mapValues colorToDrawable
   val buttonStyles = colors.mapValues(buttonStyle)
   val textButtonStyles = colors.mapValues(textButtonStyle)
+  val inversedTextButtonStyles = colors.mapKeys("inversed_"+_).mapValues(textButtonInversed)
   val labelStyles = colors mapValues labelStyle
   val scrollPaneStyles = colors mapValues scrollPaneStyle
   val listStyles = colors mapValues listStyle
@@ -39,6 +40,16 @@ class FlatSkin(val colors: Map[String, Color], tint: Drawable, font: BitmapFont)
     ts.over = up(c)
     ts.down = down(c)
     ts.up = c
+    ts
+  }
+  def textButtonInversed(c:Color):TextButtonStyle = {
+    val ts =  new TextButtonStyle()
+    val whiteAlpha = new Color(1,1,1,0.9f)
+    ts.font = font
+    ts.fontColor = c
+    ts.over = up(whiteAlpha)
+    ts.down = down(whiteAlpha)
+    ts.up = whiteAlpha
     ts
   }
 
@@ -62,7 +73,7 @@ class FlatSkin(val colors: Map[String, Color], tint: Drawable, font: BitmapFont)
   val defaultStyles = defaults map {
     style => "default"->style
   }
-  val res = labelStyles.toSeq ++ buttonStyles.toSeq ++ textButtonStyles.toSeq ++ defaultStyles :+ ("default-font"->font)
+  val res = inversedTextButtonStyles.toSeq ++ labelStyles.toSeq ++ buttonStyles.toSeq ++ textButtonStyles.toSeq ++ defaultStyles :+ ("default-font"->font)
   res foreach {
     case (name, style) => add(name, style)
   }

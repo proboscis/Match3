@@ -10,11 +10,11 @@ varying vec4 v_color;
 varying vec2 v_texCoords;
 void main(){
     vec2 nor = normalize(a_normal);
-    v_color = a_color * vec4(nor,1,0.5);
+    v_color = a_color * vec4(1,1,1,0.5);
     //v_color = vec4(1,1,1,1);
     //v_color = vec4(1,1,0,1);
     float w = a_width;
-    nor *= w * 5.0;
+    nor *= w * 10.0;
     float tmp = nor.x;
     nor.x = -nor.y;
     nor.y = tmp;

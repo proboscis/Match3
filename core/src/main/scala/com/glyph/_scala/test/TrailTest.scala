@@ -32,8 +32,8 @@ class TrailTest extends ConfiguredScreen with Reactor {
   var time = 0f
   val trail = new TestTrail(50)
   val matrix = stage.getCamera.combined
-  val updater = shader.applier {
-    s =>
+  val updater = shader.applier2 {
+    s => ()=>{
       s.begin()
       s.setUniformMatrix("u_projTrans", matrix)
       //s.setUniformi("u_texture", 0)
@@ -42,6 +42,7 @@ class TrailTest extends ConfiguredScreen with Reactor {
       s.setUniformf("mouse", 0, 0)
       trail.mesh.render(s, GL10.GL_TRIANGLE_STRIP)
       s.end()
+    }
   }
 
   override def render(delta: Float) {

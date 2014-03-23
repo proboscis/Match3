@@ -1,69 +1,114 @@
 package com.glyph._scala.game.action_puzzle.view.animated
 
-import com.badlogic.gdx.scenes.scene2d.ui.{Label, Table, TextButton, Skin}
+import com.badlogic.gdx.scenes.scene2d.ui._
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
-import com.glyph._scala.lib.libgdx.actor.AnimatedTable
+import com.glyph._scala.lib.libgdx.actor.{Updating, AnimatedTable}
 import com.glyph._scala.lib.util.updatable.reactive.Eased
-import com.glyph._scala.lib.util.updatable.Updatables
-import com.glyph._scala.lib.util.reactive.{VClass, Reactor, Var}
-import com.badlogic.gdx.math.{MathUtils, Interpolation}
+import com.glyph._scala.lib.util.reactive.{Reactor, Var}
+import com.badlogic.gdx.math.Interpolation
 import com.glyph._scala.lib.libgdx.actor.ui.RLabel
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
-import com.glyph._scala.test.MockTransition
-import com.badlogic.gdx.assets.AssetManager
 import com.esotericsoftware.tablelayout.{Value, BaseTableLayout}
-import com.glyph._scala.lib.libgdx.actor.widgets.Center
 import com.glyph._scala.social.SocialManager
-import com.glyph._scala.game.action_puzzle.{ComboPuzzle, LocalLeaderBoard}
+import com.glyph._scala.game.action_puzzle.{ColorTheme, ComboPuzzle, LocalLeaderBoard}
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager
 import com.glyph._scala.lib.util.Animated
 import GameResult._
 import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
+import com.badlogic.gdx.graphics.{Texture, Color}
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
+import scalaz._
+import Scalaz._
+import com.glyph._scala.game.Glyphs
+import Glyphs._
+import com.glyph._scala.lib.libgdx.font.FontUtil
+import com.glyph._scala.game.action_puzzle.view.animated.GameResult.Style
+import com.glyph._scala.lib.libgdx.actor.widgets.Center
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
+import com.badlogic.gdx.Gdx
+import com.glyph._scala.lib.libgdx.drawable.{Tint, DrawableCopy}
 
 /**
  * @author glyph
  */
-class GameResult(style:Style)(implicit processor:ParallelProcessor) extends AnimatedConstructor{
-  override def apply(info: AnimatedManager.Info): (AnimatedManager.Callbacks) => Actor with Animated = callbacks =>  new AnimatedTable
-    with Updatables
+class GameResult(style: Style)(implicit processor: ParallelProcessor) extends AnimatedConstructor {
+  override def apply(info: AnimatedManager.Info): (AnimatedManager.Callbacks) => Actor with Animated = callbacks => new AnimatedTable
+    with Updating
     with Reactor {
+    val emphasisFont = FontUtil.internalFont("font/code_light.otf", 300)
+    val labelFont = FontUtil.internalFont("font/corbert.ttf", 100)
+    val tinted = (texture:String)=>new DrawableCopy(new Texture(Gdx.files.internal(texture))) with Tint {
+      color.set(Color.GRAY)
+    }
+    val sky = tinted("data/sky.jpg")
+    val capture = tinted("data/capture.png")
     import style._
+
+    setBackground(skin.getDrawable("peter_river"))
+    //setBackground(sky)
+    //capture |> setBackground
     debug(BaseTableLayout.Debug.all)
     log("creating game result view")
     val score = info.lift("score").getOrElse(0).asInstanceOf[Int]
-    val shownScore = Var(MathUtils.random(0f))
+    log("score", score)
+    val shownScore = Var(0f)
     val ease = Eased(shownScore, Interpolation.exp10Out.apply, t => 2f)
-    //if you wanna center the elements, use inner table!
-    val scoreLabel = Center(new RLabel(skin, ease.map(s => "%.0f".format(s)))).left()
-    val replayButton = new TextButton("Replay", skin) with Change
-    val titleButton = new TextButton("Back to Title", skin) with Change
-    val dashBoardButton = new TextButton("Dash Board",skin) with Change
+    shownScore := score
+    val scoreLabel = new Label("Score:", new LabelStyle(labelFont, Color.WHITE))
+    val scoreValueLabel = Center(new RLabel(skin, ease.map(s => "%.0f".format(s))) {
+      setStyle(new LabelStyle(skin.get(classOf[LabelStyle])) <| (_.font = labelFont))
+    }).right
+    val buttonStyle = new TextButtonStyle() <| (s => {
+      s.font = labelFont
+      s.fontColor = ColorTheme.varyingColorMap()("peter_river")
+      s.fontColor = Color.BLACK
+      s.up = skin.getDrawable("white_transparent")
+    })
+    val replayButton = new TextButton("Replay", buttonStyle) with Change
+    val titleButton = new TextButton("Back to Title", buttonStyle) with Change
+    val dashBoardButton = new TextButton("Dash Board", buttonStyle) with Change
     replayButton.onChange = (e, a) => callbacks("replay")(Map())
     titleButton.onChange = (e, a) => callbacks("title")(Map())
-    dashBoardButton.onChange = (e,a) => SocialManager.manager.showGlobalHighScore()
+    dashBoardButton.onChange = (e, a) => SocialManager.manager.showGlobalHighScore()
     add(ease)
     shownScore() = score
-    defaults().space(space).padLeft(style.pad).padRight(style.pad).fill.expandX.height(160)
+    defaults().fill.expandX.height(160)
     setSkin(skin)
-
-    val scoreTable = new Table()
-    scoreTable.add(Center(new Label("Score: ",skin)).right()).width(Value.percentWidth(0.5f))
+    val scoreTable = new AnimatedTable()
+    scoreTable.add(Center(new Label("RESULT", new LabelStyle(emphasisFont, Color.WHITE)))).height(300).colspan(2).row()
     scoreTable.add(scoreLabel).fill.expand
-    add(scoreTable).height(Value.percentHeight(0.7f)).row()
-    add(replayButton).row()
-    add(dashBoardButton).row()
-    add(titleButton).row()
+    scoreTable.add(scoreValueLabel).fill.expand
+    add(scoreTable).height((1f / 1.618f).height).pad(style.pad).row()
+
+    val menuTable = new AnimatedTable() {
+      //defaults().space(style.space).pad(0,style.space,0,style.space).fill().expand()
+      defaults().fill().expand()
+      //setBackground(skin.getDrawable("black_transparent"))
+      add(replayButton).row()
+      add(dashBoardButton).row()
+      add(titleButton).row()
+    }
+    add(menuTable).height((0.618f / 1.618f).height).fill.expand
     log("highscore:==============>")
     LocalLeaderBoard.load(ComboPuzzle.LOCAL_LEADERBOARD).foreach(log)
     log("highscore:<==============")
   }
+}
+
+object GameResult {
+
+  implicit class ValueOps(val percent: Float) extends AnyVal {
+    def height = Value.percentHeight(percent)
+
+    def width = Value.percentWidth(percent)
+  }
+
+  case class Style(pad: Float = 20, space: Float = 20, skin: Skin)
 
 }
-object GameResult {
-  case class Style(pad:Float = 20, space:Float = 20,skin:Skin)
-}
+
 trait Change {
   self: Actor =>
   var onChange = (event: ChangeEvent, actor: Actor) => {}

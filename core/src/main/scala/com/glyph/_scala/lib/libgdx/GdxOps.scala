@@ -28,3 +28,4 @@ trait GdxOps
   with ActorOps
   with TextureOps
   with DrawableOps
+  with FileOps
