@@ -2,7 +2,7 @@ package com.glyph._scala.lib.libgdx.graphics.util.decal
 
 import com.badlogic.gdx.graphics.g3d.decals.{Decal => GdxDecal, DecalBatch, DecalMaterial}
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.graphics.GL10
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.math.Vector3
 import com.glyph._scala.lib.libgdx.drawable.DecalDrawable
 
@@ -17,8 +17,8 @@ class Decal(width: Float, height: Float, textureRegion: TextureRegion, srcBlendF
   setColor(1, 1, 1, 1)
 
   def this(width: Float, height: Float, textureRegion: TextureRegion, hasTransparency: Boolean) {
-    this(width, height, textureRegion, if (hasTransparency) GL10.GL_SRC_ALPHA else DecalMaterial.NO_BLEND,
-      if (hasTransparency) GL10.GL_ONE_MINUS_SRC_ALPHA else DecalMaterial.NO_BLEND)
+    this(width, height, textureRegion, if (hasTransparency) GL20.GL_SRC_ALPHA else DecalMaterial.NO_BLEND,
+      if (hasTransparency) GL20.GL_ONE_MINUS_SRC_ALPHA else DecalMaterial.NO_BLEND)
   }
 
   def this(width: Float, height: Float, textureRegion: TextureRegion) {
@@ -27,7 +27,7 @@ class Decal(width: Float, height: Float, textureRegion: TextureRegion, srcBlendF
 
   def this(textureRegion: TextureRegion, hasTransparency: Boolean) {
     this(textureRegion.getRegionWidth, textureRegion.getRegionHeight, textureRegion,
-      if (hasTransparency) GL10.GL_SRC_ALPHA else DecalMaterial.NO_BLEND, if (hasTransparency) GL10.GL_ONE_MINUS_SRC_ALPHA
+      if (hasTransparency) GL20.GL_SRC_ALPHA else DecalMaterial.NO_BLEND, if (hasTransparency) GL20.GL_ONE_MINUS_SRC_ALPHA
       else DecalMaterial.NO_BLEND)
   }
 

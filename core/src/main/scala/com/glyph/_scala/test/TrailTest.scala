@@ -40,7 +40,7 @@ class TrailTest extends ConfiguredScreen with Reactor {
       s.setUniformf("time", time)
       s.setUniformf("resolution", 1080, 1920)
       s.setUniformf("mouse", 0, 0)
-      trail.mesh.render(s, GL10.GL_TRIANGLE_STRIP)
+      trail.mesh.render(s, GL20.GL_TRIANGLE_STRIP)
       s.end()
     }
   }
@@ -54,7 +54,7 @@ class TrailTest extends ConfiguredScreen with Reactor {
     WireRenderer.setColor(Color.BLUE)
     WireRenderer.drawLines(trail.records, trail.count)
     WireRenderer.setColor(Color.ORANGE)
-    WireRenderer.drawWire(trail.mesh, 5, GL10.GL_TRIANGLE_STRIP, matrix)
+    WireRenderer.drawWire(trail.mesh, 5, GL20.GL_TRIANGLE_STRIP, matrix)
     time += delta
   }
 
@@ -224,7 +224,7 @@ object WireRenderer {
   def drawWire(mesh: Mesh, stride: Int, primitive: Int, combined: Matrix4) {
     shapeRenderer.setProjectionMatrix(combined)
     primitive match {
-      case GL10.GL_TRIANGLE_STRIP => drawStrip(mesh, stride)
+      case GL20.GL_TRIANGLE_STRIP => drawStrip(mesh, stride)
       case _ =>
     }
   }

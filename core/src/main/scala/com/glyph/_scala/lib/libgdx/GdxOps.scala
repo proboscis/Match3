@@ -29,3 +29,4 @@ trait GdxOps
   with TextureOps
   with DrawableOps
   with FileOps
+  with ImageOps

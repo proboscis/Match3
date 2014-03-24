@@ -1,6 +1,6 @@
 package com.glyph._scala.test
 
-import com.badlogic.gdx.graphics.{GL10, Color, Texture, Mesh}
+import com.badlogic.gdx.graphics.{GL20, Color, Texture, Mesh}
 import com.glyph._scala.lib.util.{Logging, Timing}
 import com.glyph._scala.lib.libgdx.screen.ConfiguredScreen
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
@@ -17,11 +17,10 @@ import com.glyph._scala.lib.util.pool.Pool
 
 abstract class TrailTestEnvironment(shader: ShaderHandler, batch: BaseStripBatch) extends ConfiguredScreen with Logging with Timing {
   autoClearScreen = false
-  Mesh.forceVBO = true
   val renderer = new Group with SpriteBatchRenderer
   root.addActor(renderer)
-  val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
-  val DST_FUNC: Int = GL10.GL_ONE_MINUS_SRC_ALPHA
+  val SRC_FUNC: Int = GL20.GL_SRC_ALPHA
+  val DST_FUNC: Int = GL20.GL_ONE_MINUS_SRC_ALPHA
   var time = 0f
   ShaderProgram.pedantic = false
 
@@ -31,8 +30,8 @@ abstract class TrailTestEnvironment(shader: ShaderHandler, batch: BaseStripBatch
 
   val trailRenderer = shader.applier2 {
     s =>()=>{
-      Gdx.gl.glEnable(GL10.GL_TEXTURE_2D)
-      Gdx.gl.glEnable(GL10.GL_BLEND)
+      Gdx.gl.glEnable(GL20.GL_TEXTURE_2D)
+      Gdx.gl.glEnable(GL20.GL_BLEND)
       Gdx.gl.glBlendFunc(SRC_FUNC, DST_FUNC)
       s.begin()
       s.setUniformMatrix("u_projTrans", stage.getCamera.combined)

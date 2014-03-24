@@ -16,7 +16,7 @@ class UVTrailTest extends ScreenBuilder {
   def requirements = assetIsDescriptors(Seq(classOf[Texture] -> ("data/particle.png" :: Nil)))
 
   def create(implicit assetManager: AssetManager): Screen = {
-    val texture: Texture = "data/particle.png".fromAssets
+    val texture: Texture = "data/particle.png"
     new AppliedTrailTest(
       1000,
       new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES),

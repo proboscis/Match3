@@ -3,7 +3,7 @@ package com.glyph._scala.lib.libgdx.screen
 import com.glyph._scala.lib.util.screen.GlyphScreen
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.{Color, GL20, GL10}
+import com.badlogic.gdx.graphics.{Color, GL20}
 import com.glyph._scala.lib.util.json.RVJSON
 import scalaz._
 import Scalaz._
@@ -47,7 +47,7 @@ trait JSONStagedScreen extends GlyphScreen {
    */
   def clearScreen(){
     Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT)
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT)
     Gdx.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MIN_FILTER, GL20.GL_LINEAR)
   }
 
@@ -89,7 +89,7 @@ trait StagedScreenBase extends GlyphScreen with Logging{
    */
   def clearScreen(){
     Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT)
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT)
     Gdx.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MIN_FILTER, GL20.GL_LINEAR)
   }
 

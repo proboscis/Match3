@@ -8,7 +8,7 @@ import com.glyph._scala.lib.util.reactive.{Reactor, Var}
 import com.badlogic.gdx.math.Interpolation
 import com.glyph._scala.lib.libgdx.actor.ui.RLabel
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.badlogic.gdx.scenes.scene2d.utils.{TextureRegionDrawable, Drawable, ChangeListener}
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.esotericsoftware.tablelayout.{Value, BaseTableLayout}
 import com.glyph._scala.social.SocialManager
@@ -44,11 +44,15 @@ class GameResult(style: Style)(implicit processor: ParallelProcessor) extends An
     }
     val sky = tinted("data/sky.jpg")
     val capture = tinted("data/capture.png")
+    //underlying operation is
+    //new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("fileName"))))
+    val next : Drawable = "data/icons/next.png"
+    val prev : Drawable = "data/icons/previous.png"
     import style._
 
-    setBackground(skin.getDrawable("peter_river"))
+    //setBackground(skin.getDrawable("peter_river"))
     //setBackground(sky)
-    //capture |> setBackground
+    capture |> setBackground
     debug(BaseTableLayout.Debug.all)
     log("creating game result view")
     val score = info.lift("score").getOrElse(0).asInstanceOf[Int]
@@ -66,6 +70,8 @@ class GameResult(style: Style)(implicit processor: ParallelProcessor) extends An
       s.fontColor = Color.BLACK
       s.up = skin.getDrawable("white_transparent")
     })
+    val testButton = new ImageButton(next,prev)
+    testButton.setScale(2)
     val replayButton = new TextButton("Replay", buttonStyle) with Change
     val titleButton = new TextButton("Back to Title", buttonStyle) with Change
     val dashBoardButton = new TextButton("Dash Board", buttonStyle) with Change
@@ -86,6 +92,7 @@ class GameResult(style: Style)(implicit processor: ParallelProcessor) extends An
       //defaults().space(style.space).pad(0,style.space,0,style.space).fill().expand()
       defaults().fill().expand()
       //setBackground(skin.getDrawable("black_transparent"))
+      add(testButton).height(200).width(200).row()
       add(replayButton).row()
       add(dashBoardButton).row()
       add(titleButton).row()

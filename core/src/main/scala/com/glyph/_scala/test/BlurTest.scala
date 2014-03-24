@@ -27,7 +27,7 @@ class BlurTest extends ConfiguredScreen {
   import Builders._
   implicit val assetManager = new AssetManager
   var blurStep = 5f
-  val PINGPONG_STEP = 0
+  val PINGPONG_STEP = 2
   val puzzle = new ComboPuzzle
   val root2 = new Layered {}
   val table = new ActionPuzzleTable(puzzle)(
@@ -67,15 +67,15 @@ class BlurTest extends ConfiguredScreen {
         while ( i < PINGPONG_STEP){
           s.setUniformi("u_horizontal", 1)
           pingpong(0).begin()
-          Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
-          rect.render(s, GL10.GL_TRIANGLE_STRIP)
+          Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+          rect.render(s, GL20.GL_TRIANGLE_STRIP)
           pingpong(0).end()
           pingpong(0).getColorBufferTexture.bind(0)
 
           s.setUniformi("u_horizontal", 0)
           pingpong(1).begin()
-          Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
-          rect.render(s, GL10.GL_TRIANGLE_STRIP)
+          Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+          rect.render(s, GL20.GL_TRIANGLE_STRIP)
           pingpong(1).end()
           pingpong(1).getColorBufferTexture.bind(0)
           i += 1
@@ -136,15 +136,15 @@ object BlurUtil {
 
     s.setUniformi("u_horizontal", 1)
     pingpong(0).begin()
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
-    rect.render(s, GL10.GL_TRIANGLE_STRIP)
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+    rect.render(s, GL20.GL_TRIANGLE_STRIP)
     pingpong(0).end()
     pingpong(0).getColorBufferTexture.bind(0)
 
     s.setUniformi("u_horizontal", 0)
     pingpong(1).begin()
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
-    rect.render(s, GL10.GL_TRIANGLE_STRIP)
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+    rect.render(s, GL20.GL_TRIANGLE_STRIP)
     pingpong(1).end()
     shader.dispose()
     pingpong(0).dispose()
@@ -190,7 +190,7 @@ trait FrameCapture extends Actor with Disposable {
     batch.setProjectionMatrix(camera.combined)
     Scissor.push(scissorInfo)
     buffer.begin()
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT)
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
     super.draw(batch, parentAlpha)
     batch.flush()
     buffer.end()

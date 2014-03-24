@@ -1,7 +1,7 @@
 package com.glyph._scala.game.action_puzzle
 
 import com.glyph._scala.lib.libgdx.gl.{UVTrail, BaseStripBatch, ShaderHandler, BaseTrail}
-import com.badlogic.gdx.graphics.{Color, GL10, Texture}
+import com.badlogic.gdx.graphics.{GL20, Color, Texture}
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.glyph._scala.lib.libgdx.actor.{SBDrawableObject, Tasking, SpriteBatchRenderer}
 import com.glyph._scala.lib.libgdx.actor.blend.AdditiveBlend
@@ -17,6 +17,7 @@ import com.glyph._scala.lib.util.ColorUtil
 import com.glyph._scala.game.Glyphs
 import Glyphs._
 import com.glyph._scala.lib.libgdx.GLFuture
+import com.glyph._scala.lib.injection.GLExecutionContext
 
 
 /**
@@ -39,12 +40,12 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
   implicit val iftPool = Pool[InterpolatedFunctionTask](1000)
   implicit val spritePool = Pool[Sprite](10000)
   implicit val bufPool = Pool[ArrayBuffer[Sprite]](() => ArrayBuffer[Sprite]())((buf: ArrayBuffer[Sprite]) => buf.clear())(1000)
-  velBufPool.preAlloc(6*6)
-  trailPool.preAlloc(6*6*20)
-  tftPool.preAlloc(6*6)
-  iftPool.preAlloc(6*6)
-  spritePool.preAlloc(6*6*20)
-  bufPool.preAlloc(6*6)
+  velBufPool.preAlloc(6 * 6)
+  trailPool.preAlloc(6 * 6 * 20)
+  tftPool.preAlloc(6 * 6)
+  iftPool.preAlloc(6 * 6)
+  spritePool.preAlloc(6 * 6 * 20)
+  bufPool.preAlloc(6 * 6)
 
   //preAlloc[GivenTrail](1000)
   //preAlloc[Sprite](1000)
@@ -61,8 +62,8 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
     s => {
       val seqRenderer = tupleRenderer(s)
       () => {
-        Gdx.gl.glEnable(GL10.GL_TEXTURE_2D)
-        Gdx.gl.glEnable(GL10.GL_BLEND)
+        Gdx.gl.glEnable(GL20.GL_TEXTURE_2D)
+        Gdx.gl.glEnable(GL20.GL_BLEND)
         Gdx.gl.glBlendFunc(SRC_FUNC, DST_FUNC)
         s.begin()
         s.setUniformMatrix("u_projTrans", combined.set(getStage.getSpriteBatch.getProjectionMatrix).mul(computeTransform()))
@@ -110,7 +111,7 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
             p.setColor(givenColor)
             buf += p
         }
-        Explosion.init(() => random(PI2), () => random(65,4000), velBuf, buf.length)
+        Explosion.init(() => random(PI2), () => random(65, 4000), velBuf, buf.length)
         addDrawable(buf)
         setBuf = buf map (sp => sp -> manual[GivenTrail])
         spriteTrailArray.add(setBuf)
@@ -142,13 +143,12 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
 }
 
 object ParticleRenderer {
-  import scala.concurrent.ExecutionContext.Implicits.global
-
+  implicit val context = GLExecutionContext
   def futureShader = GLFuture(ShaderHandler("shader/rotate2.vert", "shader/default.frag"))
 
   def futureBatch = GLFuture(new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES))
 
-  def futureRenderer[GivenTrail <: BaseTrail:Class](texture: Texture) = for {
+  def futureRenderer[GivenTrail <: BaseTrail : Class](texture: Texture) = for {
     shader <- futureShader
     batch <- futureBatch
   } yield new ParticleRenderer[GivenTrail](texture)(shader, batch)

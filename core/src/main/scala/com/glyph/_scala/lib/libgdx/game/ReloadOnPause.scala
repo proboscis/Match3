@@ -3,7 +3,7 @@ package com.glyph._scala.lib.libgdx.game
 import com.badlogic.gdx._
 import com.glyph._scala.lib.libgdx.screen.LoadingScreen
 import com.glyph._scala.lib.util.Logging
-import com.badlogic.gdx.graphics.GL10
+import com.badlogic.gdx.graphics.GL20
 import scala.Some
 import com.badlogic.gdx.assets.AssetManager
 
@@ -46,7 +46,7 @@ trait ReloadOnPause extends Game with Logging {
 
   override def render() {
     Gdx.gl.glClearColor(0, 0, 0, 0)
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT)
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT)
     super.render()
   }
 

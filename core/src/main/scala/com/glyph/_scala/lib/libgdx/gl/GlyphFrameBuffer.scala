@@ -26,8 +26,6 @@ class GlyphFrameBuffer(val colorTexture: GLTexture, val hasDepth: Boolean) exten
   }
 
   def build() {
-    if (!Gdx.graphics.isGL20Available) throw new GdxRuntimeException("GL2 is required.")
-
     val gl = Gdx.graphics.getGL20
 
     // iOS uses a different framebuffer handle! (not necessarily 0)

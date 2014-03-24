@@ -1,7 +1,7 @@
 package com.glyph._scala.lib.libgdx.gl
 
 import java.nio.FloatBuffer
-import com.badlogic.gdx.graphics.{GL10, GLTexture}
+import com.badlogic.gdx.graphics.{GL20, GLTexture}
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.BufferUtils
 import com.glyph._scala.test.GLTextureWrapper
@@ -9,7 +9,7 @@ import com.glyph._scala.test.GLTextureWrapper
 /**
  * @author glyph
  */
-class FloatTexture(val width: Int, val height: Int, buffer: FloatBuffer) extends GLTexture(GL10.GL_TEXTURE_2D, GLTextureWrapper.createGLHandle()) {
+class FloatTexture(val width: Int, val height: Int, buffer: FloatBuffer) extends GLTexture(GL20.GL_TEXTURE_2D, GLTextureWrapper.createGLHandle()) {
   load()
 
   def load() {
@@ -19,9 +19,9 @@ class FloatTexture(val width: Int, val height: Int, buffer: FloatBuffer) extends
     //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_HALF_FLOAT_OES, NULL) <= this seem to work on ios
     Gdx.gl.glTexImage2D(
       // target, level, internal format, width, height
-      GL10.GL_TEXTURE_2D, /*RGBA32F_ARB 0x8814*/ 0, 0x8814, width, height,
+      GL20.GL_TEXTURE_2D, /*RGBA32F_ARB 0x8814*/ 0, 0x8814, width, height,
       // border, data format, data type, pixels
-      0, GL10.GL_RGBA, GL10.GL_FLOAT, buffer
+      0, GL20.GL_RGBA, GL20.GL_FLOAT, buffer
     )
     setFilter(minFilter, magFilter)
     setWrap(uWrap, vWrap)

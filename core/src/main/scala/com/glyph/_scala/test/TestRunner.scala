@@ -22,7 +22,7 @@ import com.glyph._scala.game.Glyphs
 /**
  * @author glyph
  */
-class TestRunner(className: String)
+class TestRunner(className: String)(glContextInitializer:()=>Unit)
   extends ScreenBuilderSupport
   with DrawFPS
   with Popped
@@ -32,7 +32,7 @@ class TestRunner(className: String)
 
   def debugFont: BitmapFont = font
 
-  def this() = this("")
+  def this() = this("")(()=>{})
 
   //typeOf[Int] <:< typeOf[String]
   //TODO this function cannot be done without a class tag.
@@ -67,6 +67,7 @@ class TestRunner(className: String)
   }
 
   override def create() {
+    glContextInitializer()
     super.create()
     Gdx.input.setCatchBackKey(true)
     className match {

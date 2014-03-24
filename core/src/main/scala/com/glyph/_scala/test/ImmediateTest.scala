@@ -4,7 +4,7 @@ import com.glyph._scala.lib.libgdx.screen.{ConfiguredScreen, ScreenBuilder}
 import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import com.glyph._scala.lib.util.screen.{GlyphScreen => GScreen}
 import com.badlogic.gdx.graphics.glutils.{ShapeRenderer, ImmediateModeRenderer20}
-import com.badlogic.gdx.graphics.{GL10, Texture, Color, GL20}
+import com.badlogic.gdx.graphics.{ Texture, Color, GL20}
 import com.badlogic.gdx.scenes.scene2d.{InputEvent, InputListener}
 import scala.collection.mutable.ArrayBuffer
 import com.glyph._scala.lib.util.{Threading, Logging}
@@ -291,9 +291,9 @@ class ImmediateTest extends ScreenBuilder {
 
     val DST_FUNC: Int = GL10.GL_ONE
 */
-    val SRC_FUNC: Int = GL10.GL_SRC_ALPHA
+    val SRC_FUNC: Int = GL20.GL_SRC_ALPHA
 
-    val DST_FUNC: Int = GL10.GL_ONE_MINUS_SRC_ALPHA
+    val DST_FUNC: Int = GL20.GL_ONE_MINUS_SRC_ALPHA
     var pos = 0f
     var theta = 0f
     val rad = 300f
@@ -308,10 +308,10 @@ class ImmediateTest extends ScreenBuilder {
       records += cos(theta)*rad + STAGE_HEIGHT/2
 */
 
-      Gdx.gl.glEnable(GL10.GL_TEXTURE_2D)
+      Gdx.gl.glEnable(GL20.GL_TEXTURE_2D)
       texture.bind()
       // texture2.bind()
-      Gdx.gl.glEnable(GL10.GL_BLEND)
+      Gdx.gl.glEnable(GL20.GL_BLEND)
       Gdx.gl.glBlendFunc(SRC_FUNC, DST_FUNC)
 
 

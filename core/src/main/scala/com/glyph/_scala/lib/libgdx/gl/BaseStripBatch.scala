@@ -1,6 +1,6 @@
 package com.glyph._scala.lib.libgdx.gl
 
-import com.badlogic.gdx.graphics.{GL10, VertexAttributes, Mesh}
+import com.badlogic.gdx.graphics.{GL20, VertexAttributes, Mesh}
 import com.glyph._scala.lib.util.Logging
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import java.util
@@ -96,7 +96,7 @@ class BaseStripBatch(size: Int, attributes: VertexAttributes) extends Logging {
   def flush(shader: ShaderProgram) {
     //log("flush!")
     mesh.setVertices(vertices, 0, position)
-    mesh.render(shader, GL10.GL_TRIANGLE_STRIP)
+    mesh.render(shader, GL20.GL_TRIANGLE_STRIP)
     position = 0
   }
 

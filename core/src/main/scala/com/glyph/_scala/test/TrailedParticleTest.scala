@@ -26,7 +26,7 @@ class TrailedParticleTest extends ScreenBuilder {
     ShaderHandler("shader/rotate2.vert", "shader/default.frag"),
     new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES)) {
     implicit val spritePool = Pool[Sprite](1000)
-    val texture: Texture = "data/particle.png".fromAssets
+    val texture: Texture = "data/particle.png".internal
     val pairs = TrailOps.createManualParticles(
       () => new UVTrail(10))(texture)(
         100)

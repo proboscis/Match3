@@ -41,19 +41,6 @@ trait ReactiveSize extends Actor{
     this.rWidth() = width
     this.rHeight() = height
   }
-
-  override def size(size: Float) {
-    super.size(size)
-    this.rWidth() = getWidth
-    this.rHeight() = getHeight
-  }
-
-  override def size(width: Float, height: Float) {
-    super.size(width, height)
-    this.rWidth() = getWidth
-    this.rHeight() = getHeight
-  }
-
   override def setPosition(x: Float, y: Float) {
     super.setPosition(x, y)
     this.rX() = x

@@ -72,7 +72,7 @@ class WindowTest2 extends ConfiguredScreen {
   stage.addActor(window)
   //Gdx.input.setInputProcessor(stage)
   val dialog = new Dialog("dialog", skin)
-  dialog.size(300, 300)
+  dialog.sizeBy(300, 300)
   dialog.padTop(30)
   dialog.debug()
   dialog.pack()
