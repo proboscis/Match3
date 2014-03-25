@@ -3,7 +3,7 @@ package com.glyph._scala.lib.libgdx
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.glyph._scala.lib.libgdx.drawable.CanBeDrawable
-
+import scala.language.implicitConversions
 trait CanBe[-Self,+Target]{
   def apply(self:Self):Target
 }

@@ -11,8 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.game.builders.Builders
 import scalaz.Success
 import com.glyph._scala.lib.libgdx.actor.table.AnimatedBuilderHolder2
-import com.glyph._scala.test.GameResultMockTest
-
 /**
  * @author glyph
  */

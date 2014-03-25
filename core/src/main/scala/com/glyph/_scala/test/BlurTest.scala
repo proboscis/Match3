@@ -8,7 +8,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.glyph._scala.lib.libgdx.actor.{SpriteActor, Scissor}
 import com.badlogic.gdx.graphics.glutils._
 import com.badlogic.gdx.graphics._
-import com.badlogic.gdx.scenes.scene2d.{Touchable, Actor}
+import com.badlogic.gdx.scenes.scene2d.{Group, Touchable, Actor}
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.{Vector2, MathUtils, Rectangle, Matrix4}
 import com.badlogic.gdx.Gdx
@@ -176,7 +176,9 @@ trait FrameCapture extends Actor with Disposable with Logging{
   val projection = new Matrix4
   val transform = new Matrix4()
   val idt = new Matrix4()
-
+  val prevPosition = new Vector2()
+  val dummyGroup = new Group
+  dummyGroup.setTransform(true)
   override def sizeChanged(): Unit = {
     super.sizeChanged()
     camera.setToOrtho(true, getWidth, getHeight) //this must be updated whenever the size changes.
@@ -185,14 +187,14 @@ trait FrameCapture extends Actor with Disposable with Logging{
     batch.flush()
     projection.set(batch.getProjectionMatrix)
     transform.set(batch.getTransformMatrix)
-    //camera.translate(tmpVec)
     camera.update()
-    val vp = getStage.getViewport
-    val trans = batch.getTransformMatrix.cpy().scale(bufferWidth.toFloat/vp.getViewportWidth.toFloat,bufferHeight/vp.getViewportHeight,1f)
-    batch.setTransformMatrix(trans)// you have to recalculate the transformation in camera's viewport!!!! but how?
+    batch.setTransformMatrix(idt)
     batch.setProjectionMatrix(camera.combined)
-    //Scissor.push(scissorInfo)//Scissor is causing positional bug? no, the transform matrix is.
-    //no, batch's coordinates is causing it
+    Scissor.push(scissorInfo)
+    //I guess this can be solved by temporally moving this actor to the origin of coordinates.
+    val parent = getParent
+    val zIndex = getZIndex
+    dummyGroup.addActor(this)
     buffer.begin()
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
     super.draw(batch, parentAlpha)
@@ -200,13 +202,16 @@ trait FrameCapture extends Actor with Disposable with Logging{
     buffer.end()
     batch.setTransformMatrix(transform)
     batch.setProjectionMatrix(projection)
-    //Scissor.pop()
+    dummyGroup.removeActor(this)
+    if(parent != null){
+      parent.addActorAt(zIndex,this)
+    }
+    Scissor.pop()
     if (shouldRenderer) {
       super.draw(batch, parentAlpha)
       //batch.draw(buffer.getColorBufferTexture,getX,getY,getWidth,getHeight)
     }
   }
-
   override def dispose(): Unit = {
     buffer.dispose()
   }

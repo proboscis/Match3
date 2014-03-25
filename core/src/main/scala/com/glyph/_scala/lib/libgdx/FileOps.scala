@@ -1,5 +1,5 @@
 package com.glyph._scala.lib.libgdx
-
+import scala.language.implicitConversions
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.Gdx
 import com.glyph._scala.lib.libgdx.FileOps.{FileHandleOpsImpl, FileStringOpsImpl}
