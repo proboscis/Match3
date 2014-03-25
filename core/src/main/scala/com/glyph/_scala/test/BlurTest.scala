@@ -10,9 +10,9 @@ import com.badlogic.gdx.graphics.glutils._
 import com.badlogic.gdx.graphics._
 import com.badlogic.gdx.scenes.scene2d.{Touchable, Actor}
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.math.{MathUtils, Rectangle, Matrix4}
+import com.badlogic.gdx.math.{Vector2, MathUtils, Rectangle, Matrix4}
 import com.badlogic.gdx.Gdx
-import com.glyph._scala.lib.util.Disposable
+import com.glyph._scala.lib.util.{Logging, Disposable}
 import com.glyph._scala.lib.libgdx.gl.ShaderHandler
 import com.badlogic.gdx.graphics.VertexAttributes.Usage
 import com.glyph._scala.lib.libgdx.actor.widgets.Layered
@@ -55,6 +55,7 @@ class BlurTest extends ConfiguredScreen {
     s =>
       val camera = new OrthographicCamera(1, 1)
       () => {
+        puzzle.time()= 60
         camera.update()
         table.buffer.getColorBufferTexture.bind(0)
         //sword.bind(0)
@@ -160,7 +161,7 @@ object BlurUtil {
   )
 }
 
-trait FrameCapture extends Actor with Disposable {
+trait FrameCapture extends Actor with Disposable with Logging{
   def bufferWidth: Int
 
   def bufferHeight: Int
@@ -180,15 +181,18 @@ trait FrameCapture extends Actor with Disposable {
     super.sizeChanged()
     camera.setToOrtho(true, getWidth, getHeight) //this must be updated whenever the size changes.
   }
-
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     batch.flush()
     projection.set(batch.getProjectionMatrix)
     transform.set(batch.getTransformMatrix)
+    //camera.translate(tmpVec)
     camera.update()
-    batch.setTransformMatrix(idt)
+    val vp = getStage.getViewport
+    val trans = batch.getTransformMatrix.cpy().scale(bufferWidth.toFloat/vp.getViewportWidth.toFloat,bufferHeight/vp.getViewportHeight,1f)
+    batch.setTransformMatrix(trans)// you have to recalculate the transformation in camera's viewport!!!! but how?
     batch.setProjectionMatrix(camera.combined)
-    Scissor.push(scissorInfo)
+    //Scissor.push(scissorInfo)//Scissor is causing positional bug? no, the transform matrix is.
+    //no, batch's coordinates is causing it
     buffer.begin()
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
     super.draw(batch, parentAlpha)
@@ -196,7 +200,7 @@ trait FrameCapture extends Actor with Disposable {
     buffer.end()
     batch.setTransformMatrix(transform)
     batch.setProjectionMatrix(projection)
-    Scissor.pop()
+    //Scissor.pop()
     if (shouldRenderer) {
       super.draw(batch, parentAlpha)
       //batch.draw(buffer.getColorBufferTexture,getX,getY,getWidth,getHeight)

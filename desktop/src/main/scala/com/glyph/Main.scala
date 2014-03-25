@@ -3,7 +3,6 @@ package com.glyph
 import _root_.java.io.File
 import _root_.scala.util.Try
 import com.badlogic.gdx.backends.lwjgl._
-import com.badlogic.gdx.tools.imagepacker.ImagePacker
 import com.glyph._scala.lib.util.reactive.RFile
 import com.glyph._scala.lib.libgdx.reactive.GdxFile
 import scalaz._

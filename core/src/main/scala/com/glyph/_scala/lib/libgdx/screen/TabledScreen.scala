@@ -14,9 +14,16 @@ trait TabledScreen extends StagedScreenBase with Reactor{
   root.setSize(STAGE_WIDTH,STAGE_HEIGHT)
   log("root size:",STAGE_WIDTH,STAGE_HEIGHT)
   if(drawDebugTable)root.debug()
-  stage.addActor(root)
+  stage.addActor(new Table()<|(t=>{
+    t.setFillParent(true)
+    t.add(root).size(STAGE_WIDTH,STAGE_HEIGHT)
+  }))
   override def render(delta: Float) {
     super.render(delta)
     if (drawDebugTable)Table.drawDebug(stage)
+  }
+
+  override def resize(w: Int, h: Int): Unit = {
+    super.resize(w, h)
   }
 }

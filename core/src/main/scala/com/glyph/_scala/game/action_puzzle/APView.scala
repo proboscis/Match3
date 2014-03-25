@@ -27,14 +27,14 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   with Logging
   with Tasking
   with Layered
-  with Scissor
+  //with Scissor
   with Paneled2 {
 
   //TODO i want to remove all those drawing specific codes such as sprite,token,anything..
   //TODO this class must be a layouting class!
   //TODO there is 1mb of allocation when the panel is removed,added
   implicit val spriteActorPool = Pool[A](100)
-  //this pool can never be made global since the target uses an inner class
+  //!!!this pool can never be made global since the target uses an inner class
   implicit val tokenPool = Pool[Token[T,A]](
     () => new Token[T,A](null, null.asInstanceOf[A]))(
       (tgt: Token[T,A]) => tgt.resetForPool())(row * column * 2)
@@ -140,7 +140,4 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
     updateTokenPosition(delta)
   }
 
-  override def draw(batch: Batch, parentAlpha: Float): Unit = {
-    super.draw(batch, parentAlpha)
-  }
 }
