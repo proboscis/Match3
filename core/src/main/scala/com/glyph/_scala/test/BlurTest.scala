@@ -8,7 +8,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.glyph._scala.lib.libgdx.actor.{SpriteActor, Scissor}
 import com.badlogic.gdx.graphics.glutils._
 import com.badlogic.gdx.graphics._
-import com.badlogic.gdx.scenes.scene2d.{Group, Touchable, Actor}
+import com.badlogic.gdx.scenes.scene2d.{Stage, Group, Touchable, Actor}
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.{Vector2, MathUtils, Rectangle, Matrix4}
 import com.badlogic.gdx.Gdx
@@ -24,6 +24,7 @@ import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
  * @author glyph
  */
 class BlurTest extends ConfiguredScreen {
+  //you can achieve 30~60fps with blurring 256px*256px texture
   import Builders._
   implicit val assetManager = new AssetManager
   var blurStep = 5f
@@ -36,15 +37,12 @@ class BlurTest extends ConfiguredScreen {
     dummyTexture.forceCreate,
     flat.forceCreate
   ) with FrameCapture {
-    override def bufferWidth: Int = 256
-
-    override def bufferHeight: Int = 256
-
+    override def bufferWidth: Int = STAGE_WIDTH //256
+    override def bufferHeight: Int = STAGE_HEIGHT
     override def shouldRenderer: Boolean = true
   }
   val sword = swordTexture.forceCreate
   ShaderProgram.pedantic = true
-
   //the blurring of this resolution ends within 50ms, and this can be done at back ground.
   val pingpong = Array(0, 0).map(_ => new FrameBuffer(Pixmap.Format.RGB565, 256, 256, false))
   val a_position = new VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE)
@@ -55,6 +53,8 @@ class BlurTest extends ConfiguredScreen {
     s =>
       val camera = new OrthographicCamera(1, 1)
       () => {
+        import Gdx.gl
+        import GL20._
         puzzle.time()= 60
         camera.update()
         table.buffer.getColorBufferTexture.bind(0)
@@ -68,16 +68,18 @@ class BlurTest extends ConfiguredScreen {
         while ( i < PINGPONG_STEP){
           s.setUniformi("u_horizontal", 1)
           pingpong(0).begin()
-          Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-          rect.render(s, GL20.GL_TRIANGLE_STRIP)
+          gl.glClear(GL_COLOR_BUFFER_BIT)
+          rect.render(s,GL_TRIANGLE_STRIP)
           pingpong(0).end()
+          gl.glClear(0)//does this fix the frame rate drop?
           pingpong(0).getColorBufferTexture.bind(0)
 
           s.setUniformi("u_horizontal", 0)
           pingpong(1).begin()
-          Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-          rect.render(s, GL20.GL_TRIANGLE_STRIP)
+          gl.glClear(GL_COLOR_BUFFER_BIT)
+          rect.render(s, GL_TRIANGLE_STRIP)
           pingpong(1).end()
+          gl.glClear(0)//does this fix the framerate drop?
           pingpong(1).getColorBufferTexture.bind(0)
           i += 1
         }
@@ -179,11 +181,21 @@ trait FrameCapture extends Actor with Disposable with Logging{
   val prevPosition = new Vector2()
   val dummyGroup = new Group
   dummyGroup.setTransform(true)
+
+  override def setStage(stage: Stage): Unit = {
+    super.setStage(stage)
+    if(stage != null && !stage.getActors.contains(dummyGroup,true)){
+      stage.addActor(dummyGroup)
+    }
+  }
+
   override def sizeChanged(): Unit = {
     super.sizeChanged()
     camera.setToOrtho(true, getWidth, getHeight) //this must be updated whenever the size changes.
   }
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
+    import GL20._
+    import Gdx.gl
     batch.flush()
     projection.set(batch.getProjectionMatrix)
     transform.set(batch.getTransformMatrix)
@@ -196,10 +208,11 @@ trait FrameCapture extends Actor with Disposable with Logging{
     val zIndex = getZIndex
     dummyGroup.addActor(this)
     buffer.begin()
-    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+    gl.glClear(GL_COLOR_BUFFER_BIT)
     super.draw(batch, parentAlpha)
     batch.flush()
     buffer.end()
+    gl.glClear(0)//does this fix the framerate drop?
     batch.setTransformMatrix(transform)
     batch.setProjectionMatrix(projection)
     dummyGroup.removeActor(this)
@@ -208,8 +221,8 @@ trait FrameCapture extends Actor with Disposable with Logging{
     }
     Scissor.pop()
     if (shouldRenderer) {
-      super.draw(batch, parentAlpha)
-      //batch.draw(buffer.getColorBufferTexture,getX,getY,getWidth,getHeight)
+      //super.draw(batch, parentAlpha)//when i render here, the particles don't get rendered somehow
+      batch.draw(buffer.getColorBufferTexture,getX,getY,getWidth,getHeight)
     }
   }
   override def dispose(): Unit = {

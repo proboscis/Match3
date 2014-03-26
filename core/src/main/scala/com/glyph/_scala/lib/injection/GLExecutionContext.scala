@@ -8,6 +8,7 @@ trait GLExecutionContext extends ExecutionContext
 
 object GLExecutionContext extends ExecutionContext with Logging{
   private var _context: GLExecutionContext = new DefaultGLExecutionContext
+  def context = _context
   def context_=(c:GLExecutionContext) = _context.synchronized {
     log("replacing gl execution context:")
     log("previous",_context,"next",c)

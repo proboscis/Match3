@@ -26,7 +26,6 @@ class Main
     config.useAccelerometer = true
     config.useCompass = false
     config.useWakelock = true
-    config.useGL20 = true
 
     new Thread(Thread.currentThread().getThreadGroup, new Runnable {
       def run() {

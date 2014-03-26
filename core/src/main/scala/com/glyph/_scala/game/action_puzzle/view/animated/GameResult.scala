@@ -29,6 +29,7 @@ import com.glyph._scala.lib.libgdx.actor.widgets.Center
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
 import com.badlogic.gdx.Gdx
 import com.glyph._scala.lib.libgdx.drawable.{Tint, DrawableCopy}
+import com.badlogic.gdx.utils.Scaling
 
 /**
  * @author glyph
@@ -46,13 +47,15 @@ class GameResult(style: Style)(implicit processor: ParallelProcessor) extends An
     val capture = tinted("data/capture.png")
     //underlying operation is
     //new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("fileName"))))
-    val next : Drawable = "data/icons/next.png"
-    val prev : Drawable = "data/icons/previous.png"
+    val next : Image = "data/icons/next.png"
+    val prev : Image = "data/icons/previous.png"
+    val plus : Image = "data/icons/add.png"
+    next::prev::plus::Nil foreach (_.setScaling(Scaling.fillX))
     import style._
 
-    //setBackground(skin.getDrawable("peter_river"))
+    setBackground(skin.getDrawable("peter_river"))
     //setBackground(sky)
-    capture |> setBackground
+    //capture |> setBackground
     debug(BaseTableLayout.Debug.all)
     log("creating game result view")
     val score = info.lift("score").getOrElse(0).asInstanceOf[Int]
@@ -70,8 +73,6 @@ class GameResult(style: Style)(implicit processor: ParallelProcessor) extends An
       s.fontColor = Color.BLACK
       s.up = skin.getDrawable("white_transparent")
     })
-    val testButton = new ImageButton(next,prev)
-    testButton.setScale(2)
     val replayButton = new TextButton("Replay", buttonStyle) with Change
     val titleButton = new TextButton("Back to Title", buttonStyle) with Change
     val dashBoardButton = new TextButton("Dash Board", buttonStyle) with Change
@@ -90,12 +91,16 @@ class GameResult(style: Style)(implicit processor: ParallelProcessor) extends An
 
     val menuTable = new AnimatedTable() {
       //defaults().space(style.space).pad(0,style.space,0,style.space).fill().expand()
-      defaults().fill().expand()
+      defaults().pad(40).fill().expand()
       //setBackground(skin.getDrawable("black_transparent"))
-      add(testButton).height(200).width(200).row()
+      add(prev)
+      add(plus)
+      add(next)
+      /*
       add(replayButton).row()
       add(dashBoardButton).row()
       add(titleButton).row()
+      */
     }
     add(menuTable).height((0.618f / 1.618f).height).fill.expand
     log("highscore:==============>")

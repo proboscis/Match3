@@ -16,6 +16,7 @@ import Scalaz._
 import com.glyph._scala.lib.libgdx.Builder
 
 class MenuScreen[E](skin:Skin,elements:Seq[(String,E)],onLaunch:E=>Unit = (e:E)=>{}) extends ConfiguredScreen{
+  backgroundColor.set(Color.WHITE)
   root.add(new MenuTable(skin,elements.toMap,onLaunch)).fill.expand
 }
 
