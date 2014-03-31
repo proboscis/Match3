@@ -29,6 +29,9 @@ import com.badlogic.gdx.assets.loaders.BitmapFontLoader.BitmapFontParameter
 import com.badlogic.gdx.graphics.Texture.TextureFilter
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter
 import Glyphs._
+import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
+import com.glyph._scala.lib.libgdx.drawable.{Tint, DrawableCopy}
+
 /**
 "Mock" -> AnimatedHolder2Test.builder
   * @author proboscis
@@ -83,7 +86,4 @@ object Builders {
     }
 
   val screenBuilders = Map("Mock" -> AnimatedHolder2Test.builder)
-}
-object FlatSkin{
-  def default(font:BitmapFont,drawable:Drawable)=new FlatSkin(ColorTheme.varyingColorMap(),drawable,font)
 }

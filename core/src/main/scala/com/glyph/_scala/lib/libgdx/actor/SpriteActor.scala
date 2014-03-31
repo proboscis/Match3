@@ -12,6 +12,10 @@ class SpriteActor extends DrawSprite{
     this()
     setup(texture)
   }
+  def this(region:TextureRegion) = {
+    this()
+    setup(region)
+  }
   def reset() {
     sprite.setTexture(null)
     clear()
@@ -20,6 +24,11 @@ class SpriteActor extends DrawSprite{
   override def draw(batch: Batch, parentAlpha: Float) {
     super.draw(batch, parentAlpha)
     drawSprite(batch, sprite, parentAlpha)
+  }
+  def setup(region:TextureRegion):this.type = {
+    setSize(region.getRegionWidth,region.getRegionHeight)
+    this.sprite.setRegion(region)
+    this
   }
   def setup(sprite:Sprite):this.type = {
     setSize(sprite.getWidth,sprite.getHeight)

@@ -94,17 +94,19 @@ trait AnimatedConstructors extends DefaultExtractors with Logging {
   val styleJson = GdxJSON("comboPuzzle/style.json")
   val menuStyle = styleJson.map {
     json => for {
-      padding <- json.padding.as[Float]
-      space <- json.space.as[Float]
+      padding <- json.padX.as[Float]
+      space <- json.marginX.as[Float]
     } yield flat map (skin => Menu.Style(padding = padding, space = space, skin = skin))
   }
   val resultStyle = for (json <- styleJson) yield for {
-    padding <- json.padding.as[Float]
-    space <- json.space.as[Float]
-  } yield for (skin <- flat) yield GameResult.Style(padding, space, skin)
+    padX <- json.padX.as[Float]
+    padY <- json.padY.as[Float]
+    marginX <- json.marginX.as[Float]
+    marginY <- json.marginY.as[Float]
+  } yield for (skin <- flat) yield GameResult.Style(padX,padY,marginX,marginY,skin)
   val titleStyle = for (json <- styleJson) yield for {
-    padding <- json.padding.as[Float]
-    space <- json.space.as[Float]
+    padding <- json.padX.as[Float]
+    space <- json.marginX.as[Float]
   } yield (flat & roundRectTexture) map {
       case skin & roundTex => TitleStyle(margin = padding, space = space, titleFont = skin.getFont("default-font"), roundTex, skin)
     }

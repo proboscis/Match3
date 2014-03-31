@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.{SpriteDrawable, Drawable}
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
 import com.badlogic.gdx.graphics.g2d.{Batch, Sprite, BitmapFont}
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.{ImageButton, Label, Table, Skin}
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.glyph._scala.lib.util.Logging
 import com.glyph._scala.game.action_puzzle.ColorTheme
@@ -16,17 +16,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle
 import com.glyph._scala.lib.libgdx.drawable.{Tint, DrawableCopy}
 import scalaz._
 import Scalaz._
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle
+import com.glyph._scala.game.action_puzzle.view.animated.Change
+
 /**
  * @author glyph
  */
 class FlatSkin(val colors: Map[String, Color], tint: Drawable, font: BitmapFont) extends Skin with Logging{
-
-  private implicit def colorToDrawable(c: Color): Drawable = new DrawableCopy(tint) with Tint <| (_.color.set(c))
+  import FlatSkin._
 
   def up(c: Color): Color = c.cpy.add(0.1f, 0.1f, 0.1f, 0.1f)
-
   def down(c: Color): Color = c.cpy.sub(0.1f, 0.1f, 0.1f, 0.1f)
-
+  implicit def colorToDrawable(c:Color) = FlatSkin.tint(tint,c)
   val drawables = colors mapValues colorToDrawable
   val buttonStyles = colors.mapValues(buttonStyle)
   val textButtonStyles = colors.mapValues(textButtonStyle)
@@ -73,11 +74,38 @@ class FlatSkin(val colors: Map[String, Color], tint: Drawable, font: BitmapFont)
   val defaultStyles = defaults map {
     style => "default"->style
   }
-  val res = inversedTextButtonStyles.toSeq ++ labelStyles.toSeq ++ buttonStyles.toSeq ++ textButtonStyles.toSeq ++ defaultStyles :+ ("default-font"->font)
-  res foreach {
+
+  colors.toSeq ++
+    inversedTextButtonStyles.toSeq ++
+    labelStyles.toSeq ++
+    buttonStyles.toSeq ++
+    textButtonStyles.toSeq ++
+    defaultStyles :+ ("default-font"->font) foreach {
     case (name, style) => add(name, style)
   }
   drawables foreach{
     case (name,style)=>add(name,style,classOf[Drawable])
   }
+}
+object FlatSkin{
+  import scalaz._
+  import Scalaz._
+  def tint(drawable:Drawable,c: Color): Drawable = new DrawableCopy(drawable) with Tint <| (_.color.set(c))
+  def default(font:BitmapFont,drawable:Drawable)=new FlatSkin(ColorTheme.varyingColorMap(),drawable,font)
+  def lighter(c:Color) = c.cpy.add(0.2f,0.2f,0.2f,0.2f)
+  def darker(c:Color) = c.cpy.sub(0.1f,0.1f,0.1f,0.1f)
+  def createImageButtonStyle(drawable:Drawable,color:Color):ImageButtonStyle = {
+    val style = new ImageButtonStyle()
+    style.imageUp = tint(drawable,color)
+    style.imageDown = tint(drawable,lighter(color))
+    style
+  }
+  def createButtonStyle(drawable:Drawable,color:Color,light:Boolean):ButtonStyle = {
+    val style = new ButtonStyle
+    style.up   = drawable
+    style.down = tint(drawable,light ? darker(color) | lighter(color))
+    style
+  }
+  def createLightButtonStyle(drawable:Drawable,color:Color) = createButtonStyle(drawable,color,true)
+  def createDarkButtonStyle(drawable:Drawable,color:Color) = createButtonStyle(drawable,color,false)
 }

@@ -55,7 +55,6 @@ class BlurTest extends ConfiguredScreen {
       () => {
         import Gdx.gl
         import GL20._
-        puzzle.time()= 60
         camera.update()
         table.buffer.getColorBufferTexture.bind(0)
         //sword.bind(0)

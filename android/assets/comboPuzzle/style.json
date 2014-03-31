@@ -1,4 +1,6 @@
 json = {
-    padding:40,
-    space:20
+    padX:100,
+    padY:100,
+    marginX:40,
+    marginY:40
 }

@@ -1,19 +1,19 @@
 import java.io.File
 
-val targets = 16::32::48::64::128::256::Nil map(n => n+"x"+n)
-val srcDir = "C:/Users/glyph/Desktop/png"
-targets.map(s=>new File(srcDir+"/"+s)).par foreach convertFilesInFolder
-def listFiles(file: File): Seq[String] = file match {
+implicit def stringIsFile(str:String) = new File(str)
+def listFiles(file: File): Seq[File] = file match {
   case f if f.isDirectory => f.listFiles().flatMap(listFiles)
-  case f => f.toString :: Nil
+  case f => f :: Nil
 }
-def convertFilesInFolder(folder:File){
-  val files = listFiles(folder).view.filter(_.endsWith(".png")).map(new File(_)).map(_.getName).force
-  val suffix = "-white"
-  new File(folder.getAbsolutePath+suffix).mkdirs()
+def convertFilesInFolder(src:File){
+  val srcPath = src.getAbsolutePath
+  val suffixed = srcPath + "-white"
+  val files = listFiles(src).filter(_.getName.endsWith(".png"))
+  println(files)
   for(file <- files.par){
-    val in = folder.getAbsolutePath+"\\"+file
-    val out = folder.getAbsolutePath+suffix+"\\"+file
+    val in = file.getAbsolutePath
+    val out = file.getAbsolutePath.replace(srcPath,suffixed)
+    new File(out).getParentFile.mkdirs()
     println("converting ",file)
     println(in)
     println(out)
@@ -24,3 +24,5 @@ def convertFilesInFolder(folder:File){
     //println("finished converting "+file)
   }
 }
+
+convertFilesInFolder("C:/Users/glyph/Documents/GitHub/Match3/arts/cc")

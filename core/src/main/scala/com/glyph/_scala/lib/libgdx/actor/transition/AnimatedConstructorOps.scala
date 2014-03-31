@@ -16,11 +16,12 @@ import scalaz._
 import Scalaz._
 import com.badlogic.gdx.scenes.scene2d.ui.{ScrollPane, Label}
 import com.glyph._scala.lib.libgdx.font.FontUtil
-import com.glyph._scala.game.builders.{FlatSkin, Builders}
+import com.glyph._scala.game.builders.Builders
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
 import com.glyph._scala.game.Glyphs
 import Glyphs._
+import com.glyph._scala.lib.libgdx.skin.FlatSkin
 
 /**
  * @author glyph

@@ -8,28 +8,29 @@ import com.glyph._scala.lib.util.reactive.{Reactor, Var}
 import com.badlogic.gdx.math.Interpolation
 import com.glyph._scala.lib.libgdx.actor.ui.RLabel
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.utils.{TextureRegionDrawable, Drawable, ChangeListener}
+import com.badlogic.gdx.scenes.scene2d.utils.{Drawable, ChangeListener}
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent
 import com.esotericsoftware.tablelayout.{Value, BaseTableLayout}
-import com.glyph._scala.social.SocialManager
-import com.glyph._scala.game.action_puzzle.{ColorTheme, ComboPuzzle, LocalLeaderBoard}
+import com.glyph._scala.game.action_puzzle.{ComboPuzzle, LocalLeaderBoard}
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager
 import com.glyph._scala.lib.util.Animated
-import GameResult._
 import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
-import com.badlogic.gdx.graphics.{Texture, Color}
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import scalaz._
 import Scalaz._
 import com.glyph._scala.game.Glyphs
 import Glyphs._
 import com.glyph._scala.lib.libgdx.font.FontUtil
-import com.glyph._scala.game.action_puzzle.view.animated.GameResult.Style
-import com.glyph._scala.lib.libgdx.actor.widgets.Center
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
-import com.badlogic.gdx.Gdx
-import com.glyph._scala.lib.libgdx.drawable.{Tint, DrawableCopy}
+import com.glyph._scala.lib.libgdx.drawable.DrawableCopy
 import com.badlogic.gdx.utils.Scaling
+import com.glyph._scala.lib.util.layout.GridLayout.Cell
+import GameResult._
+import com.glyph._scala.lib.libgdx.skin.FlatSkin
+import com.glyph._scala.social.SocialManager
+import com.glyph._scala.lib.libgdx.actor.widgets.Center
+import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle
 
 /**
  * @author glyph
@@ -38,24 +39,40 @@ class GameResult(style: Style)(implicit processor: ParallelProcessor) extends An
   override def apply(info: AnimatedManager.Info): (AnimatedManager.Callbacks) => Actor with Animated = callbacks => new AnimatedTable
     with Updating
     with Reactor {
-    val emphasisFont = FontUtil.internalFont("font/code_light.otf", 300)
-    val labelFont = FontUtil.internalFont("font/corbert.ttf", 100)
-    val tinted = (texture:String)=>new DrawableCopy(new Texture(Gdx.files.internal(texture))) with Tint {
-      color.set(Color.GRAY)
-    }
-    val sky = tinted("data/sky.jpg")
-    val capture = tinted("data/capture.png")
-    //underlying operation is
-    //new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("fileName"))))
-    val next : Image = "data/icons/next.png"
-    val prev : Image = "data/icons/previous.png"
-    val plus : Image = "data/icons/add.png"
-    next::prev::plus::Nil foreach (_.setScaling(Scaling.fillX))
+
     import style._
 
+    val emphasisFont = FontUtil.internalFont("font/code_light.otf", 300)
+    emphasisFont.getData.descent = 0
+    val labelFont = FontUtil.internalFont("font/corbert.ttf", 100)
+    val buttonFont = FontUtil.internalFont("font/corbert.ttf",50)
+    buttonFont.getData.descent = 0
+    val wetAsphalt: Color = "wet_asphalt"
+    val clouds:Color = "clouds"
+    val descStyle = new LabelStyle(labelFont, clouds)
+    val emphasisStyle = new LabelStyle(emphasisFont, clouds)
+    val buttonLabelStyle = new LabelStyle(buttonFont,wetAsphalt)
+    import FlatSkin._
+
+    implicit def str2SkinColor[T <: String](str: T): Color = skin.getColor(str)
+    val exit = new TintedButton("data/noun/exit.png",wetAsphalt) with Change
+    val replay = new TintedButton("data/noun/refresh.png", wetAsphalt) with Change
+    val podium = new TintedButton("data/noun/podium.png", wetAsphalt) with Change
+    exit.onChange = (e,a) => callbacks("title")(Map())
+    replay.onChange = (e,a) => callbacks("replay")(Map())
+    podium.onChange = (e,a) => SocialManager.manager.showGlobalHighScore()
+    val exitTable = new Table
+    exitTable.debug()
+    exitTable.add(exit).fill.expand.bottom.row
+    exitTable.add(Center(new Label("exit",buttonLabelStyle))).fill
+    val podiumTable = new Table
+    val replayTable = new Table
+    podiumTable.add(podium).fill.expand.bottom.row
+    podiumTable.add(Center(new Label("ranking",buttonLabelStyle))).fill
+    replayTable.add(replay).fill.expand.bottom.row
+    replayTable.add(Center(new Label("replay",buttonLabelStyle))).fill
+
     setBackground(skin.getDrawable("peter_river"))
-    //setBackground(sky)
-    //capture |> setBackground
     debug(BaseTableLayout.Debug.all)
     log("creating game result view")
     val score = info.lift("score").getOrElse(0).asInstanceOf[Int]
@@ -63,49 +80,52 @@ class GameResult(style: Style)(implicit processor: ParallelProcessor) extends An
     val shownScore = Var(0f)
     val ease = Eased(shownScore, Interpolation.exp10Out.apply, t => 2f)
     shownScore := score
-    val scoreLabel = new Label("Score:", new LabelStyle(labelFont, Color.WHITE))
-    val scoreValueLabel = Center(new RLabel(skin, ease.map(s => "%.0f".format(s))) {
-      setStyle(new LabelStyle(skin.get(classOf[LabelStyle])) <| (_.font = labelFont))
-    }).right
-    val buttonStyle = new TextButtonStyle() <| (s => {
-      s.font = labelFont
-      s.fontColor = ColorTheme.varyingColorMap()("peter_river")
-      s.fontColor = Color.BLACK
-      s.up = skin.getDrawable("white_transparent")
-    })
-    val replayButton = new TextButton("Replay", buttonStyle) with Change
-    val titleButton = new TextButton("Back to Title", buttonStyle) with Change
-    val dashBoardButton = new TextButton("Dash Board", buttonStyle) with Change
-    replayButton.onChange = (e, a) => callbacks("replay")(Map())
-    titleButton.onChange = (e, a) => callbacks("title")(Map())
-    dashBoardButton.onChange = (e, a) => SocialManager.manager.showGlobalHighScore()
     add(ease)
-    shownScore() = score
-    defaults().fill.expandX.height(160)
-    setSkin(skin)
-    val scoreTable = new AnimatedTable()
-    scoreTable.add(Center(new Label("RESULT", new LabelStyle(emphasisFont, Color.WHITE)))).height(300).colspan(2).row()
-    scoreTable.add(scoreLabel).fill.expand
-    scoreTable.add(scoreValueLabel).fill.expand
-    add(scoreTable).height((1f / 1.618f).height).pad(style.pad).row()
-
-    val menuTable = new AnimatedTable() {
-      //defaults().space(style.space).pad(0,style.space,0,style.space).fill().expand()
-      defaults().pad(40).fill().expand()
-      //setBackground(skin.getDrawable("black_transparent"))
-      add(prev)
-      add(plus)
-      add(next)
-      /*
-      add(replayButton).row()
-      add(dashBoardButton).row()
-      add(titleButton).row()
-      */
+    val scoreLabel = new Label("Score", descStyle)
+    val heatLabel = new Label("Heat", descStyle)
+    val heatValueLabel = new Label("Alot", descStyle)
+    val scoreValueLabel = new RLabel(skin, ease.map(s => "%.0f".format(s))) {
+      setStyle(new LabelStyle(skin.get(classOf[LabelStyle])) <| (_.font = labelFont))
     }
-    add(menuTable).height((0.618f / 1.618f).height).fill.expand
-    log("highscore:==============>")
-    LocalLeaderBoard.load(ComboPuzzle.LOCAL_LEADERBOARD).foreach(log)
-    log("highscore:<==============")
+    val resultLabel = new Label("RESULT", emphasisStyle)
+    err("textBounds", resultLabel.getTextBounds.height, resultLabel.getHeight, resultLabel.getPrefHeight)
+    val scoreTable = new Table
+    val menuTable = new Table
+    scoreTable.debug()
+    menuTable.debug()
+    scoreTable.pad(padY, padX, padY, padX).top()
+    scoreTable.defaults().space(marginY, marginX, marginY, marginX)
+    scoreTable.add(resultLabel).colspan(2).row()
+    scoreTable.add(scoreLabel).left
+    scoreTable.add(scoreValueLabel).right.row()
+    scoreTable.add(heatLabel).left
+    scoreTable.add(heatValueLabel).right
+    menuTable.setBackground(skin.getDrawable("clouds"))
+    menuTable.defaults.fill.expand.pad(padY, padX, padY-buttonFont.getCapHeight, padX).space(marginY, marginX, marginY, marginX)
+    menuTable.add(replayTable).width(1f.width).padLeft(padX)
+    menuTable.add(podiumTable).width(1f.width)
+    menuTable.add(exitTable).width(1f.width).padRight(padX)
+    add(scoreTable).height((1.309f / 1.618f).height).fill.expand.row
+    add(menuTable).height((0.309f / 1.618f).height).fill.expandX
+  }
+}
+import FlatSkin._
+class TintedButton(drawable:Drawable,color:Color) extends Imaged(tint(drawable,color),tint(drawable,lighter(color)))
+class Imaged(up:Drawable,down:Drawable) extends Button(new ButtonStyle){
+  val image = new Image(up)
+  image.setScaling(Scaling.fit)
+  add(image).fill.expand
+
+  private def updateImage(){
+    if(isPressed){
+      image.setDrawable(down)
+    }else{
+      image.setDrawable(up)
+    }
+  }
+  override def draw(batch: Batch, parentAlpha: Float): Unit = {
+    updateImage()
+    super.draw(batch, parentAlpha)
   }
 }
 
@@ -116,9 +136,7 @@ object GameResult {
 
     def width = Value.percentWidth(percent)
   }
-
-  case class Style(pad: Float = 20, space: Float = 20, skin: Skin)
-
+  case class Style(padX: Float = 20, padY: Float = 20, marginX: Float = 20, marginY: Float = 20, skin: Skin)
 }
 
 trait Change {
