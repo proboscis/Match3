@@ -44,8 +44,8 @@ class EffectTest extends ConfiguredScreen {
   val easedY = eased(y)
   token.reactVar(easedX)(token.setWidth)
   token.reactVar(easedY)(token.setHeight)
-  view.add(easedX)
-  view.add(easedY)
+  view.addUpdatable(easedX)
+  view.addUpdatable(easedY)
   new Thread(new Runnable {
     def run() {
       1 :: 3 :: (-4) :: 0 :: 1 :: Nil foreach {

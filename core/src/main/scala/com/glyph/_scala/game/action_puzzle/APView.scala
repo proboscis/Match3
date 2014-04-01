@@ -65,6 +65,7 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   private val tokenInitializer = (p: ActionPuzzle[T]#AP) => {
     val token = manual[Token[T,A]]
     token.init(p, manual[A])
+    p.extra = token// store token as extra info so that there is no need to search
     tokens add token
     panelLayer.addActor(token)
   }
@@ -127,7 +128,7 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
     var i = 0
     val size = removed.size
     while (i < size) {
-      val token = findTokenByPanel(removed(i))
+      val token = removed(i).extra.asInstanceOf[Token[T,A]]
       if (token != null) {
         removeToken(token)
       }
@@ -139,5 +140,4 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
     super.act(delta) //this call causes Some allocation!
     updateTokenPosition(delta)
   }
-
 }

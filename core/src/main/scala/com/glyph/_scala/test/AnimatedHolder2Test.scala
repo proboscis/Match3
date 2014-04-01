@@ -113,11 +113,11 @@ trait AnimatedConstructors extends DefaultExtractors with Logging {
   val menu: AnimatedConstructor = menuStyle.map(_.map(_.map(Menu.constructor)))
   val title: AnimatedConstructor = titleStyle.map(_.map(_.map(Title.third)))
   val result: AnimatedConstructor = resultStyle.map(_.map(_.map(style => VClass[AnimatedConstructor, GameResult].newInstance(Typed(style),Typed(processor)))))
-  val puzzle: AnimatedConstructor = (roundRectTexture & particleTexture & dummyTexture & flat).map {
-    case a & b & c & d => (() => {
+  val puzzle: AnimatedConstructor = apResource.map {
+    case res=> (() => {
       // why the hell is this called twice!?
       err("called puzzle constructor")
-      GLFuture(ActionPuzzleTable.animated(new ComboPuzzle)(a, b, c, d))
+      GLFuture(ActionPuzzleTable.animated(new ComboPuzzle)(res))
     }): FF[AnimatedConstructor]
   }
 

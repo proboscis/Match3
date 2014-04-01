@@ -12,9 +12,7 @@ trait Scoring[A,B<:Actor]{
   def font:BitmapFont
   val scorePopper = new ScorePopper(font)
   addActor(scorePopper)
-  def score:Int
-  override protected def onTokenRemove(token: Token[A, B]): Unit = {
-    self.onTokenRemove(token)
+  def popScore(token:Token[A,B],score:Int){
     scorePopper.showScoreParticle(token.getX + token.getWidth/2,token.getY,token.getHeight/2,score)
   }
 }

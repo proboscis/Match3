@@ -493,6 +493,11 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
    */
 
   class AP {
+    /**
+     * information that is directly connected to this instance
+     * can be stored in here
+     */
+    var extra:AnyRef = null
     var debugState = 0
     //TODO make this poolable
     var value: T = null.asInstanceOf[T]
@@ -595,6 +600,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     val canceler = (t: Task) => t.cancel()
 
     def reset() {
+      extra = null
       debugState = 0
       value = null.asInstanceOf[T]
       x() = 0f

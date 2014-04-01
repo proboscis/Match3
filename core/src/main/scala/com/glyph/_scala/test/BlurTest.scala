@@ -31,12 +31,7 @@ class BlurTest extends ConfiguredScreen {
   val PINGPONG_STEP = 2
   val puzzle = new ComboPuzzle
   val root2 = new Layered {}
-  val table = new ActionPuzzleTable(puzzle)(
-    roundRectTexture.forceCreate,
-    particleTexture.forceCreate,
-    dummyTexture.forceCreate,
-    flat.forceCreate
-  ) with FrameCapture {
+  val table = new ActionPuzzleTable(puzzle)(apResource.forceCreate) with FrameCapture {
     override def bufferWidth: Int = STAGE_WIDTH //256
     override def bufferHeight: Int = STAGE_HEIGHT
     override def shouldRenderer: Boolean = true

@@ -9,11 +9,11 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram
  */
 class UVTrail(size: Int) extends BaseTrail(size) {
   def vertexSize: Int = UVTrail.VERTEX_SIZE
-
+  val color = Color.WHITE.cpy()
   def setupMesh() {
     // these assignments are required for optimization
     val _records = records
-    val color = Color.WHITE.toFloatBits
+    val c = color.toFloatBits
     val recordLength = count / 2 //records.length/2
     var i = 0
     val v = meshVertices
@@ -28,7 +28,7 @@ class UVTrail(size: Int) extends BaseTrail(size) {
       val ny = _records(ri + 3)
       v(vi) = x
       v(vi + 1) = y
-      v(vi + 2) = color
+      v(vi + 2) = c
       v(vi + 3) = nx - x
       v(vi + 4) = ny - y
       v(vi + 5) = -1
@@ -36,7 +36,7 @@ class UVTrail(size: Int) extends BaseTrail(size) {
       if (i == 0) {
         v(0) = x
         v(1) = y
-        v(2) = color
+        v(2) = c
         v(3) = nx - x
         v(4) = ny - y //u
         v(5) = -1 //v
@@ -45,7 +45,7 @@ class UVTrail(size: Int) extends BaseTrail(size) {
       vi += VERTEX_SIZE
       v(vi) = x
       v(vi + 1) = y
-      v(vi + 2) = color
+      v(vi + 2) = c
       v(vi + 3) = nx - x
       v(vi + 4) = ny - y
       v(vi + 5) = 1
@@ -53,7 +53,7 @@ class UVTrail(size: Int) extends BaseTrail(size) {
       if (i == 0) {
         v(VERTEX_SIZE) = x
         v(VERTEX_SIZE + 1) = y
-        v(VERTEX_SIZE + 2) = color
+        v(VERTEX_SIZE + 2) = c
         v(VERTEX_SIZE + 3) = nx - x
         v(VERTEX_SIZE + 4) = ny - y
         v(VERTEX_SIZE + 5) = 1

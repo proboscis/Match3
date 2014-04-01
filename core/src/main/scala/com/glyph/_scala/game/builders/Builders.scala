@@ -5,7 +5,7 @@ import com.badlogic.gdx.assets.{AssetDescriptor, AssetManager}
 import scala.reflect.ClassTag
 import com.badlogic.gdx.scenes.scene2d.ui.{Label, Skin}
 import com.badlogic.gdx.graphics.{Color, Texture}
-import com.glyph._scala.game.action_puzzle.view.ActionPuzzleTable
+import com.glyph._scala.game.action_puzzle.view.{APResource, ActionPuzzleTable}
 import com.badlogic.gdx.{Gdx, Screen}
 import scala.language.implicitConversions
 import com.glyph._scala.test.MenuScreen
@@ -62,12 +62,18 @@ object Builders {
   val dummyTexture: Builder[Texture] = "data/dummy.png".builder[Texture]
   val swordTexture: Builder[Texture] = "data/sword.png".builder[Texture]
   val roundRectTexture: Builder[Texture] = "data/rr160.png".builder[Texture]
+  val stopWatchTexture = "data/noun/stopwatch2.png".builder[Texture]
+  val fireTexture = "data/noun/fire.png".builder[Texture]
+
   val roundRectNP = roundRectTexture.map {
     tex => val w = tex.getWidth / 3
       new NinePatch(tex, w, w, w, w)
   }
   val flat = (corbert & code &dummyTexture).map{
     case cor&cod&tex => new FlatSkin(ColorTheme.varyingColorMap(),tex.drawable,cor) <| (_.add("emphasis",cod))
+  }
+  val apResource = roundRectTexture & particleTexture & dummyTexture & flat & fireTexture & stopWatchTexture map {
+    case rr&p&d&fl&fire&st => APResource(rr,p,d,fl,fire,st)
   }
   /*
     roundRectNP.map {
@@ -81,9 +87,10 @@ object Builders {
   }
 
   def actionPuzzleFunctionBuilder(game: () => ComboPuzzle)(implicit processor:ParallelProcessor): Builder[() => Future[AnimatedConstructor]] =
-    (roundRectTexture & particleTexture & dummyTexture & flat) map {
-      case a & b & c & d => () => GLFuture(ActionPuzzleTable.animated(game())(a, b, c, d))
+    apResource map {
+      case res => () => GLFuture(ActionPuzzleTable.animated(game())(res))
     }
 
   val screenBuilders = Map("Mock" -> AnimatedHolder2Test.builder)
+
 }

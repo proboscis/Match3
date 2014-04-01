@@ -9,7 +9,7 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 trait Updatables extends Updatable {
   val children = new ArrayBuffer[Updatable]
 
-  def add(u: Updatable) {
+  def addUpdatable(u: Updatable) {
     children += u
   }
 

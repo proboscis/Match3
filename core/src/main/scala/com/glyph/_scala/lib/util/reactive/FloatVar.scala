@@ -6,8 +6,9 @@ import com.glyph._scala.lib.util.Logging
  * @author glyph
  */
 class FloatVar extends Logging{
-  var variable:Float =0f
-  val listeners = new com.badlogic.gdx.utils.Array[Float=>Unit]()
+  self =>
+  private var variable:Float =0f
+  val listeners = new com.badlogic.gdx.utils.SnapshotArray[Object]()
   def apply():Float = variable
   def update(nv:Float){
     variable = nv
@@ -15,9 +16,12 @@ class FloatVar extends Logging{
   }
   def notifyObservers(){
     val local = variable
-    val itr =listeners.iterator()
-    while(itr.hasNext){
-      itr.next()(local)
+    val elements = listeners.begin()
+    val size = listeners.size
+    var i = 0
+    while(i < size){
+      elements(i).asInstanceOf[Float=>Unit](local)
+      i+=1
     }
   }
   def +=(f:Float=>Unit):Float=>Unit = {
@@ -34,6 +38,14 @@ class FloatVar extends Logging{
       float => mapped()=f(float)
     }
     mapped
+  }
+  def mapTo[R](f:Float=>R):Varying[R] = new Varying[R]{
+    var value = f(self.variable)
+    override def current: R = value
+    self += (nv =>{
+      value = f(nv)
+      notifyObservers(value)
+    })
   }
 }
 

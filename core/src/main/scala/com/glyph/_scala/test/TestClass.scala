@@ -29,6 +29,7 @@ object TestClass {
     classOf[BlurTest]::
     classOf[GameResultMockTest]::
     classOf[GameResultTest] ::
+    classOf[PuzzleTest]::
       classOf[ShaderRotationTest] ::
       classOf[ExplosionTest] ::
       classOf[MeshTest] ::

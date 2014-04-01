@@ -23,7 +23,7 @@ import com.glyph._scala.lib.injection.GLExecutionContext
 /**
  * @author glyph
  */
-class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture)(shader: ShaderHandler, batch: BaseStripBatch)
+class ParticleRenderer[GivenTrail <: UVTrail : Class](particleTexture: Texture)(shader: ShaderHandler, batch: BaseStripBatch)
   extends Group
   with Tasking
   with SpriteBatchRenderer
@@ -87,7 +87,7 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
     super.draw(batch, parentAlpha)
   }
 
-  def addParticles(x: Float, y: Float, givenColor: Color) {
+  def addParticles(x: Float, y: Float, givenColor: Color,number:Int) {
     implicit val bufCls = classOf[ArrayBuffer[Sprite]]
     val duration = 1f
     val buf = manual[ArrayBuffer[Sprite]]
@@ -100,7 +100,7 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
       () => {
         //TextureUtil.split(token.sprite)(8)(8)(buf)
         val texture = particleTexture
-        0 to 10 foreach {
+        1 to number foreach {
           _ => val p = manual[Sprite]
             p.setTexture(texture)
             p.setRegion(0f, 0f, 1f, 1f)
@@ -113,7 +113,12 @@ class ParticleRenderer[GivenTrail <: BaseTrail : Class](particleTexture: Texture
         }
         Explosion.init(() => random(PI2), () => random(65, 4000), velBuf, buf.length)
         addDrawable(buf)
-        setBuf = buf map (sp => sp -> manual[GivenTrail])
+        setBuf = buf map {
+          sp =>
+            val trail = manual[GivenTrail]
+            trail.color.set(givenColor)
+            sp -> trail
+        }
         spriteTrailArray.add(setBuf)
       },
       Explosion.update(0, -500, 5f)(buf, velBuf),
@@ -148,7 +153,7 @@ object ParticleRenderer {
 
   def futureBatch = GLFuture(new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES))
 
-  def futureRenderer[GivenTrail <: BaseTrail : Class](texture: Texture) = for {
+  def futureRenderer[GivenTrail <: UVTrail : Class](texture: Texture) = for {
     shader <- futureShader
     batch <- futureBatch
   } yield new ParticleRenderer[GivenTrail](texture)(shader, batch)

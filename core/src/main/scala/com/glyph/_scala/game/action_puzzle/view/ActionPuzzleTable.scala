@@ -1,7 +1,7 @@
 package com.glyph._scala.game.action_puzzle.view
 
 import com.badlogic.gdx.graphics.{Texture, Color}
-import com.badlogic.gdx.scenes.scene2d.ui.{Label, Table, Skin}
+import com.badlogic.gdx.scenes.scene2d.ui.{Image, Label, Table, Skin}
 import com.glyph._scala.game.action_puzzle._
 import com.glyph._scala.lib.util.updatable.reactive.Eased
 import com.badlogic.gdx.math.Interpolation
@@ -29,23 +29,28 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
 import com.glyph._scala.lib.libgdx.actor.widgets.Center
 import com.glyph._scala.lib.util.updatable.task.ParallelProcessor
+import com.glyph._scala.game.action_puzzle.view.animated.TableValueOps
+import com.glyph._scala.game.builders.Builders
+import com.glyph._scala.lib.libgdx.Builder
+import scala.concurrent.Future
+import com.badlogic.gdx.utils.Scaling
 
-class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin)
+case class APResource(roundTex:Texture,particleTex:Texture,dummyTex:Texture,skin:Skin,fireTex:Texture,stopWatchTex:Texture)
+class ActionPuzzleTable(game: ComboPuzzle)(resource:APResource)
   extends Table
   with Reactor
   with Logging
+  with Updating
   with Threading {
+  import TableValueOps._
   var gameOverCallback: () => Unit = () => {}
-
   import game._
-
+  import resource._
   val renderer = new ParticleRenderer[MyTrail](particleTex)(ShaderHandler("shader/rotate2.vert", "shader/default.frag"), new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES))
   // you must regenerate this after context loss...
   val corbert = FontUtil.internalFont("font/corbert.ttf", 100)
-
   val apView = new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor] {
     override def newInstance: SpriteActor = new SpriteActor()
-
     override def reset(tgt: SpriteActor): Unit = {
       tgt.reset()
       tgt.sprite.setTexture(roundTex)
@@ -56,15 +61,13 @@ class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Textu
     with Trailed[Int, SpriteActor]
     with Updating {
     def score: Int = game.score()
-
     override def font: BitmapFont = corbert
-
     override def trailRenderer: ParticleRenderer[MyTrail] = renderer
   }
 
-  val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply, _ / 10f)
+  val easedScore = Eased(score map (_.toFloat), Interpolation.exp10Out.apply,_=>2f )
   log("initializing a table")
-  apView.add(easedScore)
+  apView.addUpdatable(easedScore)
   val scoreLabel = new RLabel(skin, easedScore.map("%.0f".format(_)))
   scoreLabel.setColor(Color.DARK_GRAY)
 
@@ -82,25 +85,54 @@ class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Textu
       scoreLabel.addAction(prevAction)
     }
   }
-  val comboLabel = new RLabel(skin, combo map (_.toString))
+  val comboLabel = new RLabel(skin,heat.mapTo("%.1f".format(_)))
+  val easedHeat = Eased(heat.mapTo(identity),Interpolation.exp10Out.apply,_=>1f)
+  addUpdatable(easedHeat)
+  val heatGauge = new Table{
+    val back = SpriteActor(dummyTex)
+    add(back).fill.expand
+    override def act(delta: Float): Unit ={
+      super.act(delta)
+      back.setWidth(easedHeat()/requiredHeat()*getWidth)
+    }
+  }
+  val timerGauge = new Table {
+    val back = SpriteActor(new Sprite(dummyTex))
+    add(back).fill.expand
+    time map (_ / 60f * getWidth) += back.setWidth
+  }
   val inner = new Table()
   inner.debug
   inner.add(scoreLabel).expand
   inner.add(comboLabel).expand
-  this.add(inner).fill.expand.row
-  val apViewCell = this.add(apView).fill().expand()
-  apViewCell.left.row
-  val gaugeCell = this.add(new Table {
-    val back = SpriteActor(new Sprite(dummyTex))
-    add(back).fill.expand
-    time map (_ / 60f * getWidth) += back.setWidth
-  })
-  gaugeCell.fill().expand()
+  val tableSetup = (t:Table) =>  {
+    t.defaults().fill.expand
+    t.debug()
+  }
+  val heatTable = new Table() <| tableSetup
+  val heatImage = (fireTex:Image) <| (_.setScaling(Scaling.fit))
+  val levelLabel = new RLabel(skin,level.map(_.toString))
+  heatTable.add(heatImage).width(0.1f.width)
+  heatTable.add(Center(levelLabel)).width(0.1f.width)
+  heatTable.add(heatGauge).width(0.8f.width)
+  val timerTable = new Table() <| tableSetup
+  val stopWatchImage = (stopWatchTex:Image) <| (_.setScaling(Scaling.fit))
+  timerTable.add(stopWatchImage).width(0.1f.width)
+  timerTable.add(timerGauge).width(0.9f.width)
+  add(inner).fill.expandX.height((4f/15f).height).row//.height(4f.height).row
+  add(heatTable).fill.padLeft((0.01f).width).padRight((0.01f).width).expandX.height((1f/15f).height).row
+  add(apView).fill.expandX.height((9f/15f).height).row//.height(9.0f.height).row
+  add(timerTable).fill.pad(0f.height,0.01f.width,0f.height,0.01f.width).expandX.height((1f/15f).height)
   game.onPanelAdd = apView.panelAdd
   game.onPanelRemove = seq => {
     apView.panelRemove(seq)
   }
-  game.onGameOver = () => {
+  game.onPanelScore = (p,s)=>{
+    val token = p.extra.asInstanceOf[Token[Int,SpriteActor]]
+    apView.popScore(token,s)
+    apView.explodeToken(token,s/10)
+  }
+  game.onGameOverCallback = () => {
     val label = Center(new Label("Time Up", skin)) <| (_.setBackground(skin.getDrawable("emerald")))
     import Actions._
     import Interpolation._
@@ -141,13 +173,14 @@ class ActionPuzzleTable(game: ComboPuzzle)(roundTex: Texture, particleTex: Textu
   }
 
   override def layout(): Unit = {
-    apViewCell.size(getWidth, getWidth)
-    gaugeCell.size(getWidth, getWidth / 10)
+    //apViewCell.size(getWidth, getWidth)
+    //gaugeCell.size(getWidth, getWidth / 10)
     super.layout()
   }
 }
 
 object ActionPuzzleTable extends Logging with Threading {
+  import Builders._
   val requiredAssets: Set[(Class[_], Seq[String])] = Set(
     classOf[Texture] -> Seq("data/dummy.png", "data/particle.png", "data/sword.png", "data/round_rect.png"),
     classOf[Skin] -> Seq("skin/holo/Holo-dark-xhdpi.json")
@@ -163,9 +196,8 @@ object ActionPuzzleTable extends Logging with Threading {
     root.add(table).size(STAGE_WIDTH, STAGE_HEIGHT)
     root.debug()
   }
-
-  def animated(game: ComboPuzzle)(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin)(implicit processor:ParallelProcessor): AnimatedConstructor = {
-    val view = new ActionPuzzleTable(game)(roundTex, particleTex, dummyTex, skin)
+  def animated(game: ComboPuzzle)(resources:APResource)(implicit processor:ParallelProcessor): AnimatedConstructor = {
+    val view = new ActionPuzzleTable(game)(resources)
     info => callbacks =>
       val t = new AnimatedTable()
       t.add(view).fill.expand
