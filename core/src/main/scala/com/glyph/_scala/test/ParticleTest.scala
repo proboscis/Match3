@@ -66,10 +66,10 @@ class ParticleTest extends ScreenBuilder {
       val trail = manual[PTrail]
       val mod = auto[PColorMod]
       mod.loop = true
-      mod.interpolation = f => f
-      mod.duration = 0.5f
-      mod.start.set(Color.RED)
-      mod.end.set(Color.GREEN)
+      mod.interpolation = f => 1f - Math.abs(1f-2f*f)
+      mod.duration = 0.8f
+      mod.start.set(Color.BLUE)
+      mod.end.set(Color.CYAN)
       trails += trail
       system += new PTrailHolder[PTrail](trail,t=>trails-=t)
       system += mod
