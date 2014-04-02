@@ -4,7 +4,7 @@ This can be used by an Android project to use the API's provided
 by Google Play services.
 
 There is technically no source, but the src folder is necessary
-to ensure that the build system works. The content is actually
+to ensure that the build entity works. The content is actually
 located in the libs/ directory.
 
 

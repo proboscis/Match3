@@ -68,6 +68,6 @@ class EffectTest extends ConfiguredScreen {
   root.add(new RLabel(skin,easedX.map("%.0f".format(_))))
   token.addAction(repeat(100,sequence(color(Color.WHITE,1),color(Color.BLACK,1))))
   //TODO flushing action..
-  //so you need a task system for colors...
+  //so you need a task entity for colors...
 
 }

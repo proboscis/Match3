@@ -2,10 +2,11 @@ package com.glyph._scala.lib.util.pool
 
 import com.glyph._scala.lib.util.Logging
 import com.glyph._scala.lib.util.pool.Pool.PooledAny
+import scala.annotation.implicitNotFound
 
+@implicitNotFound("you must provide an evidence that this type is pooling")
 trait Pooling[T] {
   def newInstance: T
-
   def reset(tgt: T)
 }
 

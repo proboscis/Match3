@@ -26,6 +26,7 @@ abstract class BaseTrail(val MAX: Int) extends Logging with Trail{
     val l = _records.length
 
     if (_count >= l) {
+      //TODO avoid this copying by making this ring buffer.
       System.arraycopy(_records, 2, _records, 0, l - 2)
       _records(l - 2) = x
       _records(l - 1) = y

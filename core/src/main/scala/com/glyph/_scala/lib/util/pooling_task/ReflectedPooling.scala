@@ -21,9 +21,8 @@ object ReflectedPooling extends Logging {
 }
 
 trait PoolingOps extends Logging{
-  val poolingCache = mutable.HashMap[Class[_], Pooling[_]]()
   implicit def genPooling[T <: {def reset()} : Class]: Pooling[T] =
-    poolingCache.getOrElseUpdate(implicitly[Class[T]],
+    PoolingOps.poolingCache.getOrElseUpdate(implicitly[Class[T]],
       new Pooling[T] {
         val clazz = implicitly[Class[T]]
         log("generating pooling evidence via reflection for:" + clazz)
@@ -33,4 +32,7 @@ trait PoolingOps extends Logging{
         def newInstance: T = constructor.newInstance()
         def reset(tgt: T): Unit = tgt.reset()
       }).asInstanceOf[Pooling[T]]
+}
+object PoolingOps extends PoolingOps{
+  val poolingCache = mutable.HashMap[Class[_], Pooling[_]]()
 }

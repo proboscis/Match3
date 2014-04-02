@@ -70,7 +70,8 @@ object LibgdxBuild extends Build {
   lazy val toolsSettings = commonSettings ++ Seq(
       fork in run := true,
       hieroTask,
-      distanceFieldTask
+      distanceFieldTask,
+      particleEditorTask
     )
 }
 object ToolTasks{
@@ -78,4 +79,7 @@ object ToolTasks{
     lazy val hieroTask = fullRunTask(hieroKey,Test,"com.badlogic.gdx.tools.hiero.Hiero","")
     lazy val distanceFieldKey = InputKey[Unit]("distanceField")
     lazy val distanceFieldTask = fullRunInputTask(distanceFieldKey,Test,"com.badlogic.gdx.tools.distancefield.DistanceFieldGenerator")
+    lazy val particleEditorKey = InputKey[Unit]("particle")
+    lazy val particleEditorTask = fullRunInputTask(particleEditorKey,Test,"com.badlogic.gdx.tools.particleeditor.ParticleEditor")
+
 }
