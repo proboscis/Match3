@@ -24,9 +24,29 @@ class ShaderHandler(vFile: String, fFile: String) extends Logging {
   import ShaderUtil._
 
   val shader = load(vFile, fFile).map {
-    case Some(util.Success(sp)) => Some(sp)
+    case Some(util.Success(sp)) =>log("compiled shader."); Some(sp)
     case Some(util.Failure(f))=>errE("shader compilation failed")(f);None
     case None => err("shader is not yet compiled"); None
+  }
+  def applier3(f:ShaderProgram => Unit) = new (()=>Unit) with Reactor{
+    var currentShader: Option[ShaderProgram] = None
+    var failed = false
+    reactSome(shader) {
+      sp =>
+          failed = false
+          currentShader foreach (_.dispose())
+          currentShader = Some(sp)
+    }
+
+    override def apply(): Unit = {
+      if (!failed && currentShader.isDefined) {
+        try {
+          f(currentShader.get)
+        } catch {
+          case e: Throwable => errE("error while rendering with shader")(e); failed = true
+        }
+      }
+    }
   }
 
   def applier2(f: ShaderProgram => () => Unit) = new (() => Unit) with Reactor {
@@ -65,7 +85,10 @@ object ShaderUtil {
         fs <- ft
       } yield Try {
           val result = new ShaderProgram(vs, fs)
-          if (!result.isCompiled) throw new RuntimeException("shader compilation failed\n" + result.getLog + "\n" + vs + "\n" + fs)
+          if (!result.isCompiled) {
+            result.dispose()
+            throw new RuntimeException("shader compilation failed\n" + result.getLog + "\n" + vs + "\n" + fs)
+          }
           result
         }
     }.map(_.map(_.flatten.flatten))

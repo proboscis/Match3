@@ -5,48 +5,91 @@ import com.glyph._scala.lib.util.Logging
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import java.util
 import com.badlogic.gdx.math.Matrix4
-import com.glyph._scala.lib.util.reactive.Reactor
+import com.glyph._scala.lib.util.reactive.{Varying, Reactor}
+import com.glyph._scala.lib.libgdx.GdxUtil
 
-trait DrawableStrip[T, A] {
-  def vertices(tgt: T): Array[Float]
+object TypedBatch {
 
-  def length(tgt: T): Int
-}
+  implicit object UVTrailIsBatchedTrail extends BatchedTrail[UVTrail] {
+    override def attributes: VertexAttributes = UVTrail.ATTRIBUTES
 
-trait DrawableAttribute[T <: VertexAttributes]
+    override def createShader: Varying[Option[ShaderProgram]] = ShaderHandler("shader/rotate2.vert", "shader/default.frag").shader
 
-trait VertexAttributeHolder {
-  def attributes: VertexAttributes
-}
+    override def vertices(tgt: UVTrail): Array[Float] = tgt.meshVertices
 
-class TypedStripBatch[A <: VertexAttributeHolder](size: Int, attributes: A, shader: ShaderProgram) extends Reactor {
-  val batch = new BaseStripBatch(size, attributes.attributes)
-  val combined = new Matrix4
-  var started = false
-
-  def begin() {
-    assert(!started)
-    started = true
-    shader.begin()
-    batch.begin()
-    shader.setUniformMatrix("u_projTrans", combined)
-    shader.setUniformi("u_texture", 0)
+    override def verticesLength(tgt: UVTrail): Int = tgt.count
   }
 
-  def draw[T](tgt: T)(implicit ev: DrawableStrip[T, A]) {
-    batch.draw(shader, ev.vertices(tgt), ev.length(tgt))
+}
+
+trait BatchedTrail[T] {
+  def attributes: VertexAttributes
+
+  def createShader: Varying[Option[ShaderProgram]]
+
+  def vertices(tgt: T): Array[Float]
+
+  def verticesLength(tgt: T): Int
+}
+
+class TypedBatch[T: BatchedTrail](size: Int) extends Reactor with Logging {
+  val evidence = implicitly[BatchedTrail[T]]
+  val batch = new BaseStripBatch(size, evidence.attributes)
+  val combined = new Matrix4()
+  val varyingShader = evidence.createShader
+  var started = false
+  var currentShader: Option[ShaderProgram] = None
+  var failed = false
+  reactSome(varyingShader) {
+    sp => GdxUtil.post {
+      //trying to avoid concurrent switching of the shader while rendering
+      failed = false
+      currentShader.foreach(_.dispose())
+      currentShader = Some(sp)
+    }
+  }
+
+  def begin() {
+    if (currentShader.isDefined && !failed) {
+      assert(!started)
+      try {
+        started = true
+        val shader = currentShader.get
+        shader.begin()
+        batch.begin()
+        shader.setUniformMatrix("u_projTrans", combined)
+        shader.setUniformi("u_texture", 0)
+      }catch{
+        case e:Throwable =>errE("error at the beginning of this batch")(e) ;failed = true
+      }
+    }
+  }
+
+  def draw(tgt: T) {
+    if (currentShader.isDefined && !failed) {
+      try{
+        batch.draw(currentShader.get, evidence.vertices(tgt), evidence.verticesLength(tgt))
+      } catch{
+        case e:Throwable => errE("error while drawing target")(e);failed = true
+      }
+    }else{
+      log("failed to draw with shader")
+    }
   }
 
   def end() {
-    batch.end(shader)
-    shader.end()
-    assert(started)
-    started = false
+    if (currentShader.isDefined && !failed) {
+      assert(started)
+      try{
+      val shader = currentShader.get
+      batch.end(shader)
+      shader.end()
+      started = false
+      } catch{
+        case e:Throwable => errE("error at the end of this batch")(e);failed = true
+      }
+    }
   }
-}
-
-object TypedStripBatch {
-  def defaultShader = ShaderHandler("shader/rotate2.vert", "shader/default.frag")
 }
 
 /**

@@ -31,22 +31,8 @@ class ParticleTest extends ScreenBuilder {
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
     autoClearScreen = false
     val particleTex = assetManager.get[Texture]("data/particle.png")
-    trait UVTrailAttributes extends VertexAttributeHolder{
-      def attributes: VertexAttributes = UVTrail.ATTRIBUTES
-    }
-    implicit object UVTrailDrawable extends DrawableStrip[UVTrail,UVTrailAttributes]{
-      def vertices(tgt: UVTrail): Array[Float] = tgt.meshVertices
-      def length(tgt: UVTrail): Int = tgt.count
-    }
-    val handler = ShaderHandler("shader/rotate2.vert", "shader/default.frag")
-    val batch = handler.shader.map(_.map(new TypedStripBatch(1000*10*2,new UVTrailAttributes{},_)))
-    object trailPosAccessor extends Accessor[UVTrail]{
-      override def size: Int = 2
-      override def get(tgt: UVTrail, values: Array[Float]): Unit = {
-        System.arraycopy(tgt.records,0,values,0,2)
-      }
-      override def set(tgt: UVTrail, values: Array[Float]): Unit = tgt.addTrail(values(0),values(1))
-    }
+    import TypedBatch._
+    val batch = new TypedBatch[UVTrail](1000*10*2)
     val trails = new ArrayBuffer[UVTrail]
     //everything is working nice except the rendering engine.
     //i think i need to collect the rendering methods by scanning trees.
@@ -88,6 +74,7 @@ class ParticleTest extends ScreenBuilder {
       Gdx.gl.glEnable(GL20.GL_TEXTURE_2D)
       Gdx.gl.glEnable(GL20.GL_BLEND)
       Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+      /*
       if(batch().isDefined){
         val b = batch().get
         particleTex.bind(0)
@@ -97,7 +84,12 @@ class ParticleTest extends ScreenBuilder {
           t => b.draw(t)
         }
         b.end()
-      }
+      }*/
+      particleTex.bind(0)
+      batch.combined.set(stage.getCamera.combined)
+      batch.begin()
+      trails foreach batch.draw
+      batch.end()
     }
   }
 }
