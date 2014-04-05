@@ -63,6 +63,7 @@ trait StagedScreenBase extends GlyphScreen with Logging{
     super.resize(w, h)
     stage.getViewport.update(w,h,true)
     import viewport._
+    /*
     log("viewport=>")
     "bottomGutterHeight"::getBottomGutterHeight::
       "topGutterHeight"::getTopGutterHeight::
@@ -73,5 +74,6 @@ trait StagedScreenBase extends GlyphScreen with Logging{
     log("viewport<=")
     log("w,h,sw,sh",w,h,STAGE_WIDTH,STAGE_HEIGHT)
     log("stageSize",stage.getWidth)
+    */
   }
 }

@@ -8,6 +8,6 @@ import scala.collection.mutable
 object GlobalPool{
   val poolMap = new mutable.HashMap[Class[_],Pool[_]]()
   implicit def globals[T:Pooling:Class]:Pool[T] = {
-    poolMap.getOrElseUpdate(implicitly[Class[T]],new Pool(1000)).asInstanceOf[Pool[T]]
+    poolMap.getOrElseUpdate(implicitly[Class[T]],new Pool(2000)).asInstanceOf[Pool[T]]
   }
 }

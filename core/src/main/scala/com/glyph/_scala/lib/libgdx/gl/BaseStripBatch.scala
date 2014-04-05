@@ -137,7 +137,6 @@ class BaseStripBatch(size: Int, attributes: VertexAttributes) extends Logging {
   }
 
   def flush(shader: ShaderProgram) {
-    //log("flush!")
     mesh.setVertices(vertices, 0, position)
     mesh.render(shader, GL20.GL_TRIANGLE_STRIP)
     position = 0

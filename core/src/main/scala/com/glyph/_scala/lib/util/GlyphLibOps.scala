@@ -19,3 +19,4 @@ trait GlyphLibOps
   with PoolingOps
   with PoolingTask
   with ClassMacro
+  with ProfilingOps

@@ -13,11 +13,6 @@ import com.badlogic.gdx.files.FileHandle
  * @author glyph
  */
 trait GdxStringOps {
-  trait Loadable[T]
-  implicit object LoadableTexture extends Loadable[Texture]
-  implicit object LoadableSkin extends Loadable[Skin]
-  implicit object LoadableTextureAtlas extends Loadable[TextureAtlas]
-  implicit def strToAsset[T](str:String)(implicit assets:AssetManager,ev:Loadable[T]):T =assets.get[T](str)
   implicit object stringCanBeInternalFileHandle extends CanBeFileHandle[String]{
     override def apply(self: String): FileHandle = Gdx.files.internal(self)
   }

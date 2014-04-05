@@ -30,3 +30,4 @@ trait GdxOps
   with DrawableOps
   with FileOps
   with ImageOps
+  with GdxUtilOps

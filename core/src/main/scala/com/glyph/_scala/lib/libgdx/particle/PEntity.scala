@@ -32,6 +32,7 @@ final class PEntity extends Updatable with Logging with Poolable{
   val transform = new Matrix3
   val vel = new Vector2
   val acc = new Vector2
+  var parent:PEntity = null
   var weight = 0f
   var viscosity = 0f
   var elapsedTime = 0f
@@ -53,7 +54,14 @@ final class PEntity extends Updatable with Logging with Poolable{
   def -=(c:PEntity) = removeChildrenQueue += c
   private def processChildrenModification(){
     if(!addChildrenQueue.isEmpty){
-      mChildren ++= addChildrenQueue
+      var i = 0
+      val l = addChildrenQueue.size
+      while(i < l){
+        val child = addChildrenQueue(i)
+        child.parent = this
+        mChildren += child
+        i += 1
+      }
       addChildrenQueue.clear()
     }
     if(!removeChildrenQueue.isEmpty){
@@ -62,7 +70,8 @@ final class PEntity extends Updatable with Logging with Poolable{
       while(i < l){
         val child = removeChildrenQueue(i)
         mChildren -= child
-        child.freeToPool()
+        child.parent = null
+        child.freeToPool()//beware that any removed child is freed to the pool
         i += 1
       }
       removeChildrenQueue.clear()
@@ -79,7 +88,7 @@ final class PEntity extends Updatable with Logging with Poolable{
       while(i < l){
         val c = removeModifierQueue(i)
         mModifiers -= c
-        c.freeToPool()
+        c.freeToPool()// should i free?? yes, for now...
         i += 1
       }
       removeModifierQueue.clear()
@@ -103,9 +112,9 @@ final class PEntity extends Updatable with Logging with Poolable{
     acc.set(0,0)
     val size = mChildren.size
     @tailrec
-    def loop(i:Int):Unit = if(i < size){
-      mChildren(i).update(delta)
-      loop(i+1)
+    def loop(ii:Int):Unit = if(ii < size){
+      mChildren(ii).update(delta)
+      loop(ii+1)
     }
     loop(0)
   }
@@ -131,6 +140,8 @@ final class PEntity extends Updatable with Logging with Poolable{
    * @param world
    */
   def onWorldTransform(world:Matrix3){
+    //err(world)
+
     var i = 0
     val l = mModifiers.length
     while(i < l){
@@ -139,6 +150,7 @@ final class PEntity extends Updatable with Logging with Poolable{
     }
   }
   def reset(){
+    parent = null
     //notify components of disposal
     val componentSize = mModifiers.size
     var i= 0

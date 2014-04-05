@@ -18,7 +18,12 @@ import ClassMacro._
 import com.glyph._scala.lib.util.Logging
 import scala.collection.mutable
 import com.glyph._scala.lib.libgdx.particle._
-
+import scalaz._
+import Scalaz._
+import com.glyph._scala.lib.util.pool.GlobalPool._
+import PoolOps._
+import com.glyph._scala.lib.util.pooling_task.PoolingOps._
+import MathUtils._
 /**
  * @author proboscis
  */
@@ -37,14 +42,31 @@ class ParticleTest extends ScreenBuilder {
     //everything is working nice except the rendering engine.
     //i think i need to collect the rendering methods by scanning trees.
     //well, should i actually?
-    /**
-     * fields and receivers affects the systems under attached systems.
-     */
-    import com.glyph._scala.lib.util.pool.GlobalPool._
-    import PoolOps._
-    import com.glyph._scala.lib.util.pooling_task.PoolingOps._
+    preAlloc[PTrail](1000)
+    preAlloc[PEntity](1000)
+    preAlloc[PTrailHolder[PTrail]](1000)
+    preAlloc[PInvoker](1000)
+    val trailEntity = ()=>{
+      val trail = manual[PTrail]
+      val entity = auto[PEntity]
+      val holder = auto[PTrailHolder[PTrail]]
+      trails += trail
+      holder.setup(trail,trails -= _)
+      entity += holder
+      entity
+    }
+    val explosion = (e:PEntity)=>{
+      var i = 0
+       while ( i < 50 ){
+        val te = trailEntity()
+        val rad = i/50f * PI2
+        val v = 100f
+        te.vel.set(sin(rad)*v,cos(rad)*v)
+        e += te
+        i += 1
+      }
+    }:Unit
     val pRoot = new PEntity
-    import MathUtils._
     //well, this is how it works
     pRoot.transform.translate(STAGE_WIDTH/2,STAGE_HEIGHT/2)
     pRoot += new PEmitter(()=>{
@@ -57,13 +79,15 @@ class ParticleTest extends ScreenBuilder {
       mod.start.set(Color.BLUE)
       mod.end.set(Color.CYAN)
       trails += trail
-      system += new PTrailHolder[PTrail](trail,t=>trails-=t)
+      system += auto[PTrailHolder[PTrail]].setup(trail,trails -= _)
       system += mod
+      system.vel.set(random(-1f,1f)*300,random(-1f,1f)*300)
+      system += auto[PInvoker].setTarget(explosion)
       system
-    },_.set(random(-100,100),random(-100,100)))
+    })
     pRoot += new PRotation
     pRoot += new PGravity
-    pRoot += new Absorber(new Rectangle(0,0,0,0))
+    //pRoot += new Absorber(new Rectangle(-10,-10,20,20))
 
     override def render(delta: Float){
       clearScreen()
@@ -74,17 +98,6 @@ class ParticleTest extends ScreenBuilder {
       Gdx.gl.glEnable(GL20.GL_TEXTURE_2D)
       Gdx.gl.glEnable(GL20.GL_BLEND)
       Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
-      /*
-      if(batch().isDefined){
-        val b = batch().get
-        particleTex.bind(0)
-        b.combined.set(stage.getCamera.combined)
-        b.begin()
-        trails foreach{
-          t => b.draw(t)
-        }
-        b.end()
-      }*/
       particleTex.bind(0)
       batch.combined.set(stage.getCamera.combined)
       batch.begin()
@@ -93,11 +106,19 @@ class ParticleTest extends ScreenBuilder {
     }
   }
 }
-class PTrail extends UVTrail(100)
+class PTrail extends UVTrail(10)
 
-class PTrailHolder[T<:UVTrail:Pool](var trail:T,var remover:T => Unit) extends PModifier{
+class PTrailHolder[T<:UVTrail] private (var trail:T,var remover:T => Unit) extends PModifier{
   val tmp = new Vector2
+  private implicit var trailPool : Pool[T] = null
   import PoolOps._
+  def setup(trail:T,remover:T=>Unit)(implicit trailPool:Pool[T]):this.type = {
+    this.trail = trail
+    this.remover = remover
+    this.trailPool = trailPool
+    this
+  }
+  def this() = this(null.asInstanceOf[T],null)
   override def onWorldTransform(world: Matrix3): Unit = {
     super.onWorldTransform(world)
     world.getTranslation(tmp)
@@ -120,5 +141,6 @@ class PTrailHolder[T<:UVTrail:Pool](var trail:T,var remover:T => Unit) extends P
     log("reset")
     trail = null.asInstanceOf[T]
     remover = null
+    trailPool = null
   }
 }
