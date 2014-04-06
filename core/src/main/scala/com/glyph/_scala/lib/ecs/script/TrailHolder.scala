@@ -10,14 +10,14 @@ import com.glyph.ClassMacro._
  */
 class TrailHolder extends Script{
   var renderer:TrailRenderer = null
-  val trail = new UVTrail(5)
+  val trail = new UVTrail(20)
   val tmp = new Vector2
   var transform:Transform = null
 
   override def initialize(self: Entity): Unit = {
     super.initialize(self)
     renderer = self.scene.getSystem[TrailRenderer]
-    transform = self.getScript[Transform]
+    transform = self.component[Transform]
     renderer += trail
   }
 

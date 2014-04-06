@@ -17,7 +17,7 @@ class PhysicsBody(var bodyGenerator:()=>Body) extends Script{
   override def initialize(self: Entity): Unit = {
     super.initialize(self)
     body = bodyGenerator()
-    transform = self.getScript[Transform]
+    transform = self.component[Transform]
   }
 
   override def update(delta: Float): Unit = {

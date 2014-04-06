@@ -27,16 +27,59 @@ case class RemoveScript(var script:Script) extends EntityEvent{
 }
 import Glyphs._
 import com.glyph._scala.lib.util.pool.GlobalPool._
+
+trait Component extends Poolable
+trait IsComponent[T<:Poolable]{
+  var scene:Scene = null
+  var componentId = 0
+  private def ensureComponentID(e:Entity){
+    if(scene == null || scene.isDisposed){
+      val eScene = e.scene
+      if( eScene != scene) e.scene.setOrRegisterComponentId(this)
+    }
+  }
+  def getComponent(e:Entity):T = {
+    ensureComponentID(e)
+    e.getComponentUnSafe(componentId).asInstanceOf[T]
+  }
+  def setComponent(e:Entity,c:T):Unit = {
+    ensureComponentID(e)
+    e.setComponentUnSafe(componentId,c)
+  }
+}
+
 final class Entity extends Poolable {
   var parent :Entity = null
   var _scene :Scene = null
   private [ecs] def setScene(scene:Scene) = _scene = scene
-  def scene: Scene = if(_scene == null) if(parent == null) null else parent.scene else _scene
-  private val mComponents = new com.badlogic.gdx.utils.ArrayMap[Class[_],Any]()
+  def scene: Scene = if(_scene == null) throw new IllegalStateException("entity must be created by Scene so that it has proper scene set.") else _scene
+  private val mComponents = new com.badlogic.gdx.utils.Array[Poolable]()
   private val mScripts = new DelayedRemovalArray[Script]()
   private val mScriptMap = new ObjectMap[Class[_], Script]()
   private val mModificationListeners = new DelayedRemovalArray[EntityEvent=>Unit]()
   val children = new DelayedRemovalArray[Entity]()
+
+  def getComponentUnSafe(id:Int) = if(mComponents.size <= id) null else mComponents.get(id)
+  def setComponentUnSafe(id:Int,c:Poolable) = {
+    val required = id +1 - mComponents.size
+    if(required > 0){
+      mComponents.ensureCapacity(required)
+      var i = 0
+      while(i <= required){
+        mComponents.add(null)
+        i += 1
+      }
+    }
+    mComponents.set(id,c)
+  }
+  def +=[T<:Component:IsComponent](c:T){
+    implicitly[IsComponent[T]].setComponent(this,c)
+  }
+  def -=[T<:Component:IsComponent](){
+    implicitly[IsComponent[T]].getComponent(this).freeToPool()
+    implicitly[IsComponent[T]].setComponent(this,null.asInstanceOf[T])
+  }
+  def component[T<:Component:IsComponent]:T = implicitly[IsComponent[T]].getComponent(this)
 
   /**
    * the listener will be notified of the modification even before the listener is added.
@@ -119,7 +162,7 @@ final class Entity extends Poolable {
     script.freeToPool()
   }
 
-  def getScript[T<:Script:Class]:T = mScriptMap.get(implicitly[Class[T]]).asInstanceOf[T]
+  def script[T<:Script:Class]:T = mScriptMap.get(implicitly[Class[T]]).asInstanceOf[T]
 
   def updateScripts(delta:Float){
     mScripts.begin()
@@ -159,6 +202,15 @@ final class Entity extends Poolable {
       children.end()
       children.clear()
     }
+    {// clear components
+     val it = mComponents.iterator()
+      while(it.hasNext){
+        val c = it.next()
+        if(c != null)c.freeToPool()
+      }
+      mComponents.clear()
+    }
+
     mModificationListeners.clear()
     _scene = null
     parent = null
