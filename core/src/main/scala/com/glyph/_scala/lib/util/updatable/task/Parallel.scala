@@ -20,7 +20,7 @@ object Parallel {
   def apply(tasks: Task*): Parallel = {
     val par = auto[Parallel]
     tasks foreach {
-      par.add
+      par.addTask
     }
     par
   }

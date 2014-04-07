@@ -6,6 +6,7 @@ import com.glyph._scala.lib.ecs.Entity
 import com.glyph.ClassMacro
 import ClassMacro._
 import com.badlogic.gdx.math.Vector2
+import com.glyph._scala.lib.ecs.component.Transform
 
 /**
  * @author glyph

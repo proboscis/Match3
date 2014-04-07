@@ -6,6 +6,7 @@ import com.glyph._scala.lib.util.Logging
 import com.glyph._scala.lib.util.json.JSON
 import com.glyph._scala.lib.util.reactive.{Var, Reactor, FloatVar}
 import com.glyph._scala.social.SocialManager
+import com.glyph._scala.lib.ecs.Scene
 
 /**
  * Heat gaugeの実装を行う

@@ -22,7 +22,7 @@ object Title {
   def third(style: TitleStyle)(implicit processor:ParallelProcessor): AnimatedConstructor = info => callbacks => new AnimatedTable with Tasking {
     setSkin(style.skin)
     add(new Label("this is title", style.skin)).fill.expand
-    add(Sequence(Delay(1f), Block {
+    addTask(Sequence(Delay(1f), Block {
       callbacks lift "dummy" foreach (_(Map()))
     }))
   }

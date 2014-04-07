@@ -30,7 +30,7 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
   val animatedActors = collection.mutable.ArrayBuffer[AnimatedActor]()
 
   private def setupBGHolder() {
-    log("setupBGHolder", getX, getY, getWidth, getHeight)
+    //log("setupBGHolder", getX, getY, getWidth, getHeight)
     bgHolder.setBounds(getX, getY, getWidth, getHeight)
   }
 
@@ -94,7 +94,7 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
       import Interpolation._
       val (x, y) = f(holder)
       val offset = duration / size * i
-      par.add(Sequence(Delay(offset), Interpolate(actor) of ActorAccessor.XY to(x, y) in (duration - offset) using exp10Out))
+      par.addTask(Sequence(Delay(offset), Interpolate(actor) of ActorAccessor.XY to(x, y) in (duration - offset) using exp10Out))
       i += 1
     }
     //somehow, out is called first...!!?
@@ -111,7 +111,7 @@ class AnimatedTable(implicit processor: ParallelProcessor) extends Table with An
         cb()
         log("called back:" + cb.hashString)
       }))
-    processor.add(task)
+    processor.addTask(task)
     log("moveToPositions:Task:" + task.hashString)
     log("moveToPositions:" + cb.hashString)
   }

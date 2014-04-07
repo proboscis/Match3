@@ -96,7 +96,7 @@ class AssetTask(assets:Seq[AssetDescriptor[_]])(progress:Float=>Unit)(implicit a
 
 trait TaskWaiter extends Tasking{
   def wait(task:Task)(f:()=>Unit){
-    add(Sequence(task,Do(f)))
+    addTask(Sequence(task,Do(f)))
   }
 }
 
@@ -107,7 +107,7 @@ trait TaskSupport extends StackActor with Tasking{
     } else {
       callRemoveOfTop()
       addActor(view)
-      add(Sequence(task,Block{
+      addTask(Sequence(task,Block{
         view.remove()
         callback()
       }))

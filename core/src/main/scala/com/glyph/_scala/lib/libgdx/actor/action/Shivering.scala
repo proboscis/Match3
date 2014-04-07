@@ -39,7 +39,7 @@ trait Shivering extends Updatable with Logging with Threading{
         shiver.reset()
       })
       started = true
-      shiverProcessor.add(shiver)
+      shiverProcessor.addTask(shiver)
     }
   }
   def stopShivering() {

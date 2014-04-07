@@ -217,6 +217,8 @@ final class Entity extends Poolable {
   }
 
   def remove() {
-    scene -= this
+    if(parent != null) parent -= this else{
+      scene -= this
+    }
   }
 }

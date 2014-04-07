@@ -11,7 +11,7 @@ import com.badlogic.gdx.Gdx
 /**
  * @author glyph
  */
-class TrailRenderer(camera:Camera,texture:Texture) extends EntitySystem{
+class TrailRenderer(combined:Matrix4,texture:Texture) extends EntitySystem{
   val batch = new TypedBatch[UVTrail](1000*10*2)
   private val trails = new DelayedRemovalArray[UVTrail]()
   def +=(t:UVTrail) = trails.add(t)
@@ -20,9 +20,9 @@ class TrailRenderer(camera:Camera,texture:Texture) extends EntitySystem{
   override def draw(scene: Scene): Unit = {
     Gdx.gl.glEnable(GL20.GL_TEXTURE_2D)
     Gdx.gl.glEnable(GL20.GL_BLEND)
-    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
     texture.bind()
-    batch.combined.set(camera.combined)
+    batch.combined.set(combined)
     batch.begin()
     trails.begin()
     val it = trails.iterator()

@@ -155,31 +155,31 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       val pb = future(nx)(ny)
       val taskA = swipeAnimation(nx, ny, pa)
       val seqA = auto[Sequence]
-      seqA.add(taskA)
-      seqA.add(Block {
+      seqA.addTask(taskA)
+      seqA.addTask(Block {
         //TODO fix ALLOCATION!!!
         pa.swipeAnimation -= taskA
       })
       val taskB = swipeAnimation(x, y, pb)
       val seqB = auto[Sequence]
-      seqB.add(taskB)
-      seqB.add(Block {
+      seqB.addTask(taskB)
+      seqB.addTask(Block {
         //TODO fix ALLOCATION!!!
         pb.swipeAnimation -= taskB
       })
       pa.swipeAnimation += taskA
       pb.swipeAnimation += taskB
-      par.add(seqA)
-      par.add(seqB)
-      seq.add(par)
-      seq.add(Block {
+      par.addTask(seqA)
+      par.addTask(seqB)
+      seq.addTask(par)
+      seq.addTask(Block {
         //TODO ALLOCATION!
         if (verified(x)(y)(nx)(ny)) {
           GMatch3.swap(fixed, x, y, nx, ny)
           scanAndMark()
         }
       })
-      processor.add(seq)
+      processor.addTask(seq)
       GMatch3.swap(future, x, y, nx, ny)
       updateTargetPosition()
     }

@@ -96,7 +96,7 @@ class ParticleRenderer[GivenTrail <: UVTrail : Class](particleTexture: Texture)(
     val it = auto[InterpolatedFunctionTask]
     //make this particle specific code into trait's code
     var setBuf: Seq[(Sprite, GivenTrail)] = null
-    add(ft.setFunctions(
+    addTask(ft.setFunctions(
       () => {
         //TextureUtil.split(token.sprite)(8)(8)(buf)
         val texture = particleTexture
@@ -137,7 +137,7 @@ class ParticleRenderer[GivenTrail <: UVTrail : Class](particleTexture: Texture)(
     hsv.v = 1f
     hsv.s = 0.7f
     color.set(hsv.toColor)
-    add(it setUpdater (alpha => {
+    addTask(it setUpdater (alpha => {
       val a = Interpolation.exp10Out.apply(0.8f, 0, alpha)
       color.a = a
       buf.foreach {

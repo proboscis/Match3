@@ -2,6 +2,7 @@ package com.glyph._scala.lib.util.updatable.task
 
 import com.glyph._scala.game.Glyphs
 import com.glyph._scala.lib.util.pool.GlobalPool._
+import com.glyph._scala.lib.util.pool.Poolable
 
 /**
  * @author glyph
@@ -16,6 +17,7 @@ class Do(var block: ()=>Unit) extends Task with AutoFree{
     if(!invoked){
       block()
       invoked = true
+      if(block.isInstanceOf[Poolable])block.asInstanceOf[Poolable].freeToPool()
     }
   }
 

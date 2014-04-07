@@ -13,7 +13,7 @@ trait ParallelProcessor extends TaskProcessor with Logging{
   val canceledTasks = new GdxArray[Task]()
   var updating = false
 
-  val queuedStarter = (t: Task) => {
+  def  queuedStarter(t: Task){
     t.onStart()
     startedTasks add t
   }
@@ -65,8 +65,8 @@ trait ParallelProcessor extends TaskProcessor with Logging{
   }
 
 
-  override def add(task: Task): TaskProcessor = {
-    super.add(task)
+  override def addTask(task: Task): TaskProcessor = {
+    super.addTask(task)
     queuedTasks add task
     this
   }
@@ -91,6 +91,10 @@ trait ParallelProcessor extends TaskProcessor with Logging{
 
   val canceller = (t: Task) => t.onCancel()
 
+  /**
+   * clears attached tasks
+   * and cancels tasks that are already attached
+   */
   def clearTasks() {
     queuedTasks.clear()
 

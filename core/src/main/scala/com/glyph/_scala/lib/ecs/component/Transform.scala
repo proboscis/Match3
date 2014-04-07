@@ -1,7 +1,6 @@
-package com.glyph._scala.lib.ecs.script
+package com.glyph._scala.lib.ecs.component
 
 import com.badlogic.gdx.math.Matrix3
-import com.glyph._scala.lib.util.pool.Poolable
 import com.glyph._scala.lib.ecs.{Component, IsComponent}
 
 /**

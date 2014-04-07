@@ -1,25 +1,34 @@
-package com.glyph._scala.lib.ecs.script
+package com.glyph._scala.lib.ecs.component
 
 import com.badlogic.gdx.math.Vector2
 import com.glyph._scala.lib.ecs.{Component, IsComponent, Entity}
-import com.glyph.ClassMacro._
-import com.glyph._scala.lib.util.pool.Poolable
+import com.glyph._scala.lib.ecs.script.Script
 
 /**
  * @author glyph
  */
 class Velocities extends Component{
-  val acc = new Vector2
+  val force = new Vector2
   val vel = new Vector2()
+  var ignoreGravity = false
+  var friction = 0f
+  var viscosity = 0f
+  var weight = 0f
   def reset(): Unit = {
-    acc.set(0,0)
+    force.set(0,0)
     vel.set(0,0)
+    friction = 0f
+    weight = 1f
+    viscosity = 0f
+    ignoreGravity = false
   }
 }
 object Velocities{
   implicit object spIsComponent extends IsComponent[Velocities]
 }
 class SimplePhysics extends Script{
+
+  val tmp = new Vector2
   var sp:Velocities = null
   var tr:Transform = null
   override def initialize(self: Entity): Unit = {
@@ -32,10 +41,18 @@ class SimplePhysics extends Script{
     super.update(delta)
     //for fast access
     val vel = sp.vel
-    val acc = sp.acc
-    vel.add(acc.scl(delta))
-    tr.matrix.translate(acc.set(vel).scl(delta))
-    acc.set(0f,0f)
+    val force = sp.force
+    val friction = sp.friction
+    val viscosity = sp.viscosity
+    if(friction != 0f) force.add(tmp.set(vel).scl(-1 * friction))
+    if(viscosity != 0f) {
+      val p = tmp.set(vel).len2
+      tmp.nor().scl(-p * viscosity)
+      force.add(tmp)
+    }
+    vel.add(force.scl(delta/sp.weight))
+    entity.component[Transform].matrix.translate(tmp.set(vel).scl(delta))
+    force.set(0f,0f)
   }
 
   override def reset(): Unit = {

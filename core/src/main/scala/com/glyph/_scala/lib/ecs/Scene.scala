@@ -39,7 +39,7 @@ class Scene {
   }
 
   def -=(ent: Entity) {
-    objects.removeValue(ent, true)
+    if(!objects.removeValue(ent, true)){throw new RuntimeException("entity is not in the scene! may be trying to remove a child  from @a")}
     ent.freeToPool()
   }
 
@@ -68,6 +68,22 @@ class Scene {
     val it = systemList.iterator()
     while (it.hasNext) {
       it.next().draw(this)
+    }
+  }
+  def dispose(){
+    isDisposed = true
+    objects.begin()
+    var i = 0
+    val size = objects.size
+    while(i < size){
+      objects.get(i).freeToPool()
+      i += 1
+    }
+    objects.end()
+    objects.clear()
+    val it = componentIdMap.keys().iterator()
+    while(it.hasNext){
+      it.next.scene = null
     }
   }
 }

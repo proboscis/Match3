@@ -21,7 +21,7 @@ object Sequence {
   import Glyphs._
   def apply(tasks: Task*): Sequence = {
     val seq = auto[Sequence]
-    tasks foreach seq.add
+    tasks foreach seq.addTask
     seq
   }
 }

@@ -22,13 +22,13 @@ trait BuilderExtractor extends ParallelProcessor {
     Block {
       onComplete(builder.create)
     }
-  ) <| add
+  ) <| addTask
 }
 
 class BuilderExtractor2(implicit processor: TaskProcessor, am: AssetManager) extends Extractable[Builder] with Logging{
   override def extract[T](target: Builder[T])(callback: Try[T] => Unit){
     log("start extraction")
-    processor.add(
+    processor.addTask(
       Sequence(
         new AssetTask(
           target.requirements)(_ => {}),

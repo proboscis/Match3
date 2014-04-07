@@ -6,7 +6,7 @@ import com.glyph._scala.lib.util.updatable.{Updatable}
  * @author glyph
  */
 trait TaskProcessor extends Updatable{
-  def add(task:Task):TaskProcessor={
+  def addTask(task:Task):TaskProcessor={
     if(task.processor != null){
       task.cancel()
     }
