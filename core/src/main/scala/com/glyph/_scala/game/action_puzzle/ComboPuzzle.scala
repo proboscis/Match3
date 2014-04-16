@@ -10,6 +10,8 @@ import com.glyph._scala.lib.ecs.Scene
 
 /**
  * Heat gaugeの実装を行う
+ * I don't know what should be done next....
+ * I mean, what should I add to release this game?????
  * @author glyph
  */
 class ComboPuzzle extends Logging with Reactor {
@@ -19,7 +21,7 @@ class ComboPuzzle extends Logging with Reactor {
   val time = FloatVar(20f)
   reactSuccess(timeConfig)(time.update)
   val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 5), (a: Int, b: Int) => {
-    a == b
+    if(a == b) a else -1
   })
   val score = Var(0)
   val heat = FloatVar(0f)//レベルに応じたヒートが貯まると、レベルが上がる
@@ -52,6 +54,10 @@ class ComboPuzzle extends Logging with Reactor {
 
   var onPanelRemove = (seq: IndexedSeq[puzzle.AP]) => {}
   var onPanelAdd = (seq: IndexedSeq[IndexedSeq[puzzle.AP]]) => {}
+  /**
+   * panel is destroyed with heat and score
+   * heat varys according to some other variables such as heat gauge.
+   */
   var onPanelScore:(puzzle.AP,Int) => Unit = (_,_)=>{}
   puzzle.panelRemove = seq => {
     import MathUtils._

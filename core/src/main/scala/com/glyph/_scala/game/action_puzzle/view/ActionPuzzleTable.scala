@@ -48,10 +48,8 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   with Logging
   with Updating
   with Threading {
-
-
   var gameOverCallback: () => Unit = () => {}
-
+  //TODO パーティクルをもっとキラキラさせる必要があるようだ。
   import game._
   import resource._
 
@@ -144,7 +142,11 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   game.onPanelRemove = seq => {
     apView.panelRemove(seq)
   }
-  game.onPanelScore = (p, s) => {
+  //there are a few conditions when the panel is destroyed
+  /**
+   * 1:
+   */
+  game.onPanelScore = (p, s) => {//called when the panel is destroyed with score.
     val token = p.extra.asInstanceOf[Token[Int, SpriteActor]]
     apView.popScore(token, s)
     var i = 0

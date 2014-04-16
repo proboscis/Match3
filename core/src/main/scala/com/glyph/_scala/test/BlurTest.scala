@@ -36,6 +36,7 @@ class BlurTest extends ConfiguredScreen {
     override def bufferHeight: Int = STAGE_HEIGHT
     override def shouldRenderer: Boolean = true
   }
+
   val sword = swordTexture.forceCreate
   ShaderProgram.pedantic = true
   //the blurring of this resolution ends within 50ms, and this can be done at back ground.

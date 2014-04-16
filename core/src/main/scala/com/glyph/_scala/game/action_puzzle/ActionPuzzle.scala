@@ -10,42 +10,20 @@ import com.glyph._scala.game.Glyphs
 import Glyphs._
 
 /**
+ * 役割を減らす。
+ * 落とす、消す、時限消滅
+ * filter function must return -1 if its not matching, and should return group id if it's matching
  * @author glyph
  */
-class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFunction: (T, T) => Boolean)
+class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFunction: (T, T) => Int)
   extends Logging
   with Timing
   with HeapMeasure {
-  //TODO reactiveのautoBoxingと　
-  //memory analyzerのString生成のみまで落とし込めた！！！
-  //TODO table.debug allocates debugrectangle
-  //TODO reactive.map is occuring while swiping
-  //TODO avoid freeing Parallel twice.
+  //TODO reactiveのautoBoxing
   log("new ActionPuzzle")
-  //TODO where is allocation?????
-  //TODO システムを決めなければ、素材を作ることができない。
-  //TODO
-  //TODO マクロについて、ログ関数へ対応させる
-  //TODO
-  //TODO モードの実装とアップロードの準備\
-  //TODO スコアとゲージの実装
-  //TODO パズルの表示位置がずれる問題を修正(再出現時にずれる)
-  //TODO 初回起動時に中断し再度開始するとfalling状態のパネルが戻らなくなり、パズルを再生成しても改善されない問題=>
+  //NOTE 初回起動時に中断し再度開始するとfalling状態のパネルが戻らなくなり、パズルを再生成しても改善されない問題=>
   //Poolingを判別するタグがインナークラス同士で共有されてしまい、違うパズルで同じfutureを参照していたために発生した
-  /**
-   * リリースまでの道のり
-   * ゲーム性を持たせる
-   * 演出を加える
-   * パフォーマンスチューニングを行う
-   */
-  /**
-   * why can't you release yet?
-   * 1:the game is not fun
-   * 2:a bit slow
-   * 3:there is no start/gameover/loading screen
-   * 4:there is no ads
-   * 5:
-   */
+
 
   //TODO Particleの実装
   /**
@@ -88,12 +66,12 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   implicit val interpolatorPool = Pool[Interpolator[AP]](100)
   implicit val arrayBufferAPPool = Pool(() => ArrayBuffer[AP]())(_.clear())(100)
   val matcher = new Matcher[AP]
-  val MATCHING_TIME = 1f
+  val initialMatchingTime = Var(1f)
   val gravity = -10f
   val processor = new ParallelProcessor {}
 
   val APSeed: () => AP = () => {
-    val np = manual[AP]
+    val np = manual[AP]//freed in panel resetter
     np.value = seed()
     np
   }
@@ -106,7 +84,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
       filterFunction(a.value, b.value)
     } else {
-      false
+      -1
     }
   }
 
@@ -117,7 +95,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     buf ++= matches
     matchBuffer += buf
     if (matches.size > 2) {
-      var chmp = MATCHING_TIME
+      var chmp = initialMatchingTime()
       for (p <- matches) {
         val t = p.matchTimer()
         if (t > 0 && t < chmp) chmp = t
@@ -129,14 +107,15 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
           p.matchTimer() = minimum
       }
     }
-
   }
 
   def scanAndMark() {
     val buf = manual[PuzzleBuffer]
     GMatch3.fixedFuture(fixed, future, buf)
+    //ここでスキャン結果を貯めてコールバック出来るようにしているが・・・
+    //時間で消滅する操作も外に出してしまったほうがいいかもしれない.
     matcher.scanAll(buf, ROW, COLUMN, APFilter, timerUpdater)
-    panelScan(matchBuffer)
+    panelScan(matchBuffer)//まだ使われていない。
     matchBuffer foreach arrayBufferResetter
     matchBuffer.clear()
     buf.free
@@ -207,7 +186,6 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
 
   val fallingSetter = (ap: AP) => ap.isFalling() = true
   val seqFallingSetter = (seq: Seq[AP]) => seq foreach fallingSetter
-
   def setFallingFlag() {
     falling foreach seqFallingSetter
   }
@@ -275,8 +253,12 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   }
   private val bufCanceller = (buf: ArrayBuffer[AP]) => buf.foreach(cancelSwipingAnimation)
 
+  /**
+   * removes panels and update all the falling and fixed and future buffer of this puzzle.
+   * @param panels fixed panels to be removed
+   * @param fallings falling panels to be removed
+   */
   def removeFillUpdateTargetPosition(panels: IndexedSeq[AP], fallings: IndexedSeq[AP]) {
-    //log("remove")
     if (!panels.isEmpty || !fallings.isEmpty) {
       {
         val fixedTemp = manual[PuzzleBuffer]
@@ -356,7 +338,6 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   val fallingRemoveBuf = ArrayBuffer.empty[AP]
 
   def updateMatches(delta: Float) {
-    //fallingについてもタイマーを考慮するようにしたい
     {
       var x = 0
       val width = fixed.size
@@ -394,7 +375,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       }
     }
     if (!matchRemoveBuf.isEmpty || !fallingRemoveBuf.isEmpty) {
-      removeFillUpdateTargetPosition(matchRemoveBuf, fallingRemoveBuf) //TODO this is causing memory allocation!
+      removeFillUpdateTargetPosition(matchRemoveBuf, fallingRemoveBuf)
     }
     fallingRemoveBuf.clear()
     matchRemoveBuf.clear()
@@ -615,8 +596,6 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
       isFalling() = false
       matchTimer() = 0f
     }
-
     override def toString: String = value.toString
   }
-
 }

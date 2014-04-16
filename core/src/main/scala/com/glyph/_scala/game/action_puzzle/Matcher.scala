@@ -4,6 +4,7 @@ import scala.collection.mutable.ArrayBuffer
 import com.badlogic.gdx.math.MathUtils
 import com.glyph.hello
 
+
 /**
  * @author proboscis
  */
@@ -11,7 +12,14 @@ class Matcher[T] {
   type Puzzle = IndexedSeq[IndexedSeq[T]]
   val scanBuf = ArrayBuffer[T]()
 
-  def scanAll(puzzle: Puzzle, width: Int, height: Int, filter: (T, T) => Boolean, callback: Seq[T] => Unit) {
+  /**
+   * @param puzzle
+   * @param width
+   * @param height
+   * @param filter filter must return matching group id or -1 if it's not matching
+   * @param callback
+   */
+  def scanAll(puzzle: Puzzle, width: Int, height: Int, filter: (T, T) => Int, callback: Seq[T] => Unit) {
     var i = 0
     while (i < width) {
       scanVertical(puzzle, i, height, filter, callback)
@@ -24,7 +32,7 @@ class Matcher[T] {
     }
   }
 
-  def scanHorizontal(puzzle: Puzzle, y: Int, width: Int, filter: (T, T) => Boolean, callback: Seq[T] => Unit) {
+  def scanHorizontal(puzzle: Puzzle, y: Int, width: Int, filter: (T, T) => Int, callback: Seq[T] => Unit) {
     scanBuf.clear()
     var i = 0
     while (i < width) {
@@ -35,7 +43,7 @@ class Matcher[T] {
       while (j < width && {
         val nextRow = puzzle(j)
         val next = if (y < nextRow.size) nextRow(y) else null.asInstanceOf[T]
-        if (filter(current, next)) {
+        if (filter(current, next) != -1) {
           scanBuf += next
           j+=1
           true
@@ -47,7 +55,7 @@ class Matcher[T] {
     }
   }
 
-  def scanVertical(puzzle: Puzzle, x: Int, height: Int, filter: (T, T) => Boolean, callback: Seq[T] => Unit) {
+  def scanVertical(puzzle: Puzzle, x: Int, height: Int, filter: (T, T) => Int, callback: Seq[T] => Unit) {
     scanBuf.clear()
     var i = 0
     val row = puzzle(x)
@@ -58,8 +66,8 @@ class Matcher[T] {
       var j = i + 1
       while (j < height && {
         val next = if (j < size) row(j) else null.asInstanceOf[T]
-        if (filter(current, next)) {
-          scanBuf += next;
+        if (filter(current, next) != -1) {
+          scanBuf += next
           j += 1
           true
         } else false
@@ -70,6 +78,9 @@ class Matcher[T] {
     }
   }
 }
+object Matcher {
+  val NO_MATCH = -1
+}
 object Main {
   def main(args: Array[String]) {
     import GMatch3._
@@ -77,7 +88,6 @@ object Main {
     val matcher = new Matcher[Int]
     val filling = puzzle.createFillingPuzzle(()=>MathUtils.random(6),6)
     println(filling.text)
-    val filter = (a:Int,b:Int) => a==b
-    matcher.scanAll(filling, 6, 6, (a, b) => a == b,seq=>if(seq.size>1)println(seq))
+    matcher.scanAll(filling, 6, 6, (a, b) => if(a == b) a else -1,seq=>if(seq.size>1)println(seq))
   }
 }
