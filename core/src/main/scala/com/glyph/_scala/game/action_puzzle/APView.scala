@@ -29,7 +29,6 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   with Layered
   with Scissor
   with Paneled2 {
-
   //TODO i want to remove all those drawing specific codes such as sprite,token,anything..
   //TODO this class must be a layouting class!
   //TODO there is 1mb of allocation when the panel is removed,added
@@ -124,6 +123,10 @@ class APView[T, A <: Actor : Pooling:Class](puzzle: ActionPuzzle[T])
   }
 
   protected def onTokenRemove(token:Token[T,A]){}
+
+  /**
+   * must be called when the panel is removed.
+   */
   val panelRemove = (removed: IndexedSeq[ActionPuzzle[T]#AP]) => {
     var i = 0
     val size = removed.size

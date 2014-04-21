@@ -23,6 +23,17 @@ class ComboPuzzle extends Logging with Reactor {
   val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 5), (a: Int, b: Int) => {
     if(a == b) a else -1
   })
+  val crossPattern = Array((0,0),(-1,0),(1,0),(0,-1),(0,1))
+  val patternMatcher = new PatternMatcher[Int](Array(crossPattern))
+  val patternCallback:patternMatcher.Callback = (pattern,panels)=>{
+    println("matched pattern!" + pattern)
+    println(panels)
+    //WORKING!!!
+    //next thing to do is to consider
+    //that the user already know that matching or not
+  }
+  patternMatcher.callbacks += patternCallback
+  puzzle.matchers += patternMatcher
   val score = Var(0)
   val heat = FloatVar(0f)//レベルに応じたヒートが貯まると、レベルが上がる
   val level = Var(1)
@@ -56,7 +67,7 @@ class ComboPuzzle extends Logging with Reactor {
   var onPanelAdd = (seq: IndexedSeq[IndexedSeq[puzzle.AP]]) => {}
   /**
    * panel is destroyed with heat and score
-   * heat varys according to some other variables such as heat gauge.
+   * heat varies according to some other variables such as heat gauge.
    */
   var onPanelScore:(puzzle.AP,Int) => Unit = (_,_)=>{}
   puzzle.panelRemove = seq => {
