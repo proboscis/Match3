@@ -7,6 +7,7 @@ import java.util
 import com.badlogic.gdx.math.Matrix4
 import com.glyph._scala.lib.util.reactive.{Varying, Reactor}
 import com.glyph._scala.lib.libgdx.GdxUtil
+import com.badlogic.gdx.Gdx
 
 object TypedBatch {
 

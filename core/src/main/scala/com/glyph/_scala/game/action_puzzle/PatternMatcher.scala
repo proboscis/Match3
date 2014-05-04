@@ -4,23 +4,47 @@ import scala.collection.mutable.ArrayBuffer
 import com.glyph._scala.lib.util.pool.{Poolable, Pooling}
 import com.glyph._scala.game.Glyphs
 import com.glyph._scala.lib.util.Logging
+import ActionPuzzle._
+import com.glyph._scala.lib.puzzle.Match3
 
 /**
  * how should this callback when matched?
  * @author glyph
  */
-class PatternMatcher[T](patterns:IndexedSeq[Array[(Int,Int)]])
-  extends Matcher[ActionPuzzle[T]#AP]
-  with Logging{
-  //TODO consider boundary of the pattern and optimize matching.
+class PatternMatcher[T](patterns:IndexedSeq[Array[(Int,Int)]],filter:(T,T)=>Boolean)
+  extends Logging
+  with Marker[T]{
+  val evaluatingBuffer = ArrayBuffer[T]()
+  def evaluate(panels:IndexedSeq[T]):Boolean = panels.forall(p => filter(p,panels.head))
   /**
-   * callbacks with the same instance of patterns, and matched panel sequences
+   * fills dst, return false if failed. the dst will be cleared if failed.
+   * @param puzzle
+   * @param row
+   * @param col
+   * @param pattern
+   * @param dst
+   * @return
    */
-  type Callback = (IndexedSeq[(Int,Int)],IndexedSeq[ActionPuzzle[T]#AP])=>Unit
-  val callbacks = ArrayBuffer[Callback]()
-  private val callbackBuf = ArrayBuffer[ActionPuzzle[T]#AP]()
-  def patternMatch(puzzle: IndexedSeq[IndexedSeq[ActionPuzzle[T]#AP]], row: Int, col: Int): Unit = {
-    //log("begin patten match")
+  def fillEvaluatingBuffer(puzzle:Puzzle[T],row:Int,col:Int,ox:Int,oy:Int,pattern:Array[(Int,Int)],dst:PanelBuffer[T]):Boolean = {
+    //log("fill")
+    var pi = 0
+    val pSize = pattern.size
+    var success = true
+    while(pi < pSize && success){
+      val pos = pattern(pi)
+      val x = pos._1 + ox; val y = pos._2 + oy
+      //log(x,y)
+      if(0 <= x && x < puzzle.size && 0 <= y && y < puzzle(x).size) dst += puzzle(x)(y) else {
+        success = false
+        dst.clear()
+      }
+      pi += 1
+    }
+    success
+  }
+  def mark(puzzle:Puzzle[T], row: Int, col: Int, dst:PatternBuffer[T], allocator: () => PanelBuffer[T]): Unit = {
+    //log("marking:")
+    //log(puzzle.mkString("\n"))
     var x = 0
     while (x < col) {
       //log("for each column")
@@ -31,21 +55,12 @@ class PatternMatcher[T](patterns:IndexedSeq[Array[(Int,Int)]])
         val pSize = patterns.size
         while(pi < pSize){
           val pattern = patterns(pi)
-          val it = PanelIterator(puzzle, row, col, pattern, x, y)
-          if(it != null) {
-            while(it.hasNext) callbackBuf += it.next
-            it.freeToPool()
-            val head = callbackBuf.head
-            if(callbackBuf.forall(_.value == head.value)){
-              var ci = 0
-              val cSize = callbacks.size
-              while(ci < cSize){
-                callbacks(ci)(pattern,callbackBuf)
-                ci += 1
-              }
+          if(fillEvaluatingBuffer(puzzle,row,col,x,y,pattern,evaluatingBuffer)){
+            if(evaluate(evaluatingBuffer)){
+              dst += (allocator() ++= evaluatingBuffer)
             }
-            callbackBuf.clear()
           }
+          evaluatingBuffer.clear()
           pi += 1
         }
         y += 1
@@ -79,7 +94,6 @@ class PanelIterator[T] extends Iterator[T] with Poolable {
     index += 1
     puzzle(n._1 + offsetX)(n._2 + offsetY)
   }
-
 }
 
 object PanelIterator {
@@ -129,68 +143,3 @@ object PanelIterator {
     } else null
   }
 }
-/*
-class LineMatcher[T] extends Matcher[ActionPuzzle[T]#AP] {
-  type Puzzle = IndexedSeq[IndexedSeq[T]]
-  val scanBuf = ArrayBuffer[T]()
-
-  def scanAll(puzzle: Puzzle, width: Int, height: Int, filter: (T, T) => Int, callback: Seq[T] => Unit) {
-    var i = 0
-    while (i < width) {
-      scanVertical(puzzle, i, height, filter, callback)
-      i += 1
-    }
-    i = 0
-    while (i < height) {
-      scanHorizontal(puzzle, i, width, filter, callback)
-      i += 1
-    }
-  }
-
-  def scanHorizontal(puzzle: Puzzle, y: Int, width: Int, filter: (T, T) => Int, callback: Seq[T] => Unit) {
-    scanBuf.clear()
-    var i = 0
-    while (i < width) {
-      val row = puzzle(i)
-      val current = if (y < row.size) row(y) else null.asInstanceOf[T]
-      scanBuf += current
-      var j = i + 1
-      while (j < width && {
-        val nextRow = puzzle(j)
-        val next = if (y < nextRow.size) nextRow(y) else null.asInstanceOf[T]
-        if (filter(current, next) != -1) {
-          scanBuf += next
-          j += 1
-          true
-        } else false
-      }) {}
-      callback(scanBuf)
-      scanBuf.clear()
-      i = j
-    }
-  }
-
-  def scanVertical(puzzle: Puzzle, x: Int, height: Int, filter: (T, T) => Int, callback: Seq[T] => Unit) {
-    scanBuf.clear()
-    var i = 0
-    val row = puzzle(x)
-    val size = row.size
-    while (i < height) {
-      val current = if (i < size) row(i) else null.asInstanceOf[T]
-      scanBuf += current
-      var j = i + 1
-      while (j < height && {
-        val next = if (j < size) row(j) else null.asInstanceOf[T]
-        if (filter(current, next) != -1) {
-          scanBuf += next
-          j += 1
-          true
-        } else false
-      }) {}
-      callback(scanBuf)
-      scanBuf.clear()
-      i = j
-    }
-  }
-}
-*/

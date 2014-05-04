@@ -8,9 +8,39 @@ import scala.collection.mutable.ArrayBuffer
 import com.glyph._scala.lib.util.pool.{Pool, Pooling}
 import com.glyph._scala.game.Glyphs
 import Glyphs._
-trait Matcher[-T]{
-  def patternMatch(puzzle:IndexedSeq[IndexedSeq[T]],row:Int,column:Int)
+
+trait Marker[T]{
+  import ActionPuzzle._
+  def mark(puzzle:Puzzle[T],row:Int,col:Int,dst:PatternBuffer[T],allocator:()=>PanelBuffer[T])
 }
+
+/**
+ * removedされたパネルのパターンを計算する。
+ * （同時計算された物のみ考える）
+ * puzzle全体からパターンを探すクラスと、
+ * 与えられたパネル達の中にパターンが存在するかをチェックするクラスが必要。
+ * このためには、合体したパターンのタイマーが確実に同期されている必要もある。
+ * したがって、preMatch()でマッチした場合はタイマーの同期を行う。
+ * Sync!等の　エフェクトや、パネルの大きさや明度で残り時間を表現するい必要がある。
+ * つまり、流れとしては
+ * swipe->
+ * preMatch->sync(double check)
+ * preRemoveMatch->effect
+ * remove
+ * もちろん、全ての動作の間にユーザーの操作が入り、状況が変化する可能姓もあるため慎重に。
+ * どうやってsyncする？
+ * 新たなマッチのタイマーがが前のマッチよりも短いことが無い限り、同期は保たれている。
+ * 追加されるとすれば上からなので、縦にsyncしてから横にsyncすれば大丈夫
+ * だが、もしパターンが３マッチに囚われていなかった場合、
+ * これでは上手くいかない
+ * 完璧にするには、マッチした瞬間にsyncを取る?
+ * つまり、３という制限を排除し、外部に委譲する必要があるということ。
+ * 同時に消えるべきか否か、これが暗黙のルールだった。
+ * そして、同時に消えるべきということがわかった今、どうするか？
+ * そう、往復してsyncをとる必要がある。
+ * マッチした履歴をとり、その履歴を往復してsyncする。
+ * right! problem solved. isn't it?
+ */
 
 /**
  * 役割を減らす。
@@ -22,12 +52,18 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   extends Logging
   with Timing
   with HeapMeasure {
+  //why does AP have to be an inner class?
+  //You cannot define an outer class inside of this class!! ofcourse, ofcourse...
+  type PanelBuffer = ActionPuzzle.PanelBuffer[AP]//since this is inner class, making things difficult....
+  type PuzzleBuffer = ActionPuzzle.PuzzleBuffer[AP]
+  type PatternBuffer = ActionPuzzle.PatternBuffer[AP]
+  type Puzzle = ActionPuzzle.Puzzle[AP]
+  type Panels = ActionPuzzle.Panels[AP]
   //TODO reactiveのautoBoxing
   log("new ActionPuzzle")
   //NOTE 初回起動時に中断し再度開始するとfalling状態のパネルが戻らなくなり、パズルを再生成しても改善されない問題=>
   //Poolingを判別するタグがインナークラス同士で共有されてしまい、違うパズルで同じfutureを参照していたために発生した
-
-  //TODO Particleの実装
+  //TODO trailではなく、terrariaのmolten armor のようなパーティクルエフェクトを軌跡に使うべき
   /**
    * 時間差でマッチ
    * 時間で敵が攻撃してくる
@@ -38,19 +74,22 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   /**
    * invoked when the panel is added
    */
-  var panelAdd = (panels: IndexedSeq[IndexedSeq[AP]]) => {}
+  var panelAdd = (panels: Puzzle) => {}
   /**
    * invoked when the panels are removed
+   * panels are valid until this function returns.
+   * so do the final pattern match at this callback.
    */
-  var panelRemove = (panels: IndexedSeq[AP]) => {}
+  var panelRemove = (panels: Panels) => {}
   /**
-   * add matcher to be invoked when the scanning should be invoked
+   * the result of this function will be regarded as patterns and
+   * will be synchronized of their timer
+   * this function is supposed to concat the marked panels set to given buffer.
    */
-  var matchers = ArrayBuffer[Matcher[AP]]()
+  val markers = ArrayBuffer[Marker[AP]]()
 
   import GMatch3._
 
-  type PuzzleBuffer = ArrayBuffer[ArrayBuffer[AP]]
 
   private implicit object PoolingPuzzle extends Pooling[PuzzleBuffer] {
     val generator = new IndexedSeqGen[ArrayBuffer] {
@@ -76,7 +115,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   private implicit val sequencePool = Pool[Sequence](100)
   private implicit val interpolatorPool = Pool[Interpolator[AP]](100)
   private implicit val arrayBufferAPPool = Pool(() => ArrayBuffer[AP]())(_.clear())(100)
-  private val matcher = new LineMatcher[AP]
+
   val initialMatchingTime = Var(1f)
   val gravity = -10f
   private val processor = new ParallelProcessor {}
@@ -90,7 +129,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
   private val falling = manual[PuzzleBuffer]
   private val future = manual[PuzzleBuffer]
 
-  private val APFilter = (a: AP, b: AP) => {
+  val APFilter = (a: AP, b: AP) => {
     if (a != null && b != null && !a.isSwiping() && !b.isSwiping()) {
       filterFunction(a.value, b.value)
     } else {
@@ -98,45 +137,55 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     }
   }
 
-  private val arrayBufferResetter = (buf: ArrayBuffer[AP]) => buf.free
-  private val matchBuffer = ArrayBuffer[ArrayBuffer[AP]]()
-  private val timerUpdater = (matches: Seq[AP]) => {
-    val buf = manual[ArrayBuffer[AP]]
-    buf ++= matches
-    matchBuffer += buf
-    if (matches.size > 2) {
-      var chmp = initialMatchingTime()
-      for (p <- matches) {
-        val t = p.matchTimer()
-        if (t > 0 && t < chmp) chmp = t
-      }
-      val minimum = chmp
-      matches foreach {
-        p =>
-          if (p.matchTimer() > 0f && minimum == 0f) throw new RuntimeException("what!!???")
-          p.matchTimer() = minimum
-      }
+  private val freePanelBuffer = (buf:PanelBuffer) => buf.free
+  private val obtainPanelBuffer = ()=>manual[PanelBuffer]
+  private val synchronizeTimer = (panels:IndexedSeq[AP])=>{
+    //is initial matching time required? yes, it is...
+    var chmp = initialMatchingTime()
+    var i = 0
+    val size = panels.size
+    while(i < size){
+      val p = panels(i)
+      val t = p.matchTimer()
+      if(0 < t && t < chmp) chmp = t
+      i += 1
+    }
+    i = 0
+    while(i < size){
+      val p = panels(i)
+      assert(!(0f < p.matchTimer() && chmp == 0f))
+      p.matchTimer()= chmp//should matchTimer be varying?
+      //or floatVar? i think this can be just a float
+      i+=1
     }
   }
-
   //this is called when the panels is swiped or any panel finished falling
-  //should be called wheneber the fixed buffer changes.
+  //should be called whenever the fixed buffer changes.
+  
+  private val markBuffer = ArrayBuffer[ArrayBuffer[AP]]()
   private def scanAndMark() {
     val buf = manual[PuzzleBuffer]
     GMatch3.fixedFuture(fixed, future, buf)
-    matcher.scanAll(buf, ROW, COLUMN, APFilter, timerUpdater)
+    //TODO change the scanner(i mean marker)
+    //TODO if you want to make the marker out of class, you have to make the type of Marker out of this class or it'll get very complicated
+    // and it won't be able to make it without knowing the existence of this class
+    //matcher.scanAll(buf, ROW, COLUMN, APFilter, synchronizeTimer)
+    //matcher should return the set of matched patterns
 
-    {//call all the matchers
+    {//call all the markers
       var i = 0
-      val size = matchers.size
+      val size = markers.size
       while(i < size){
-        matchers(i).patternMatch(buf,ROW,COLUMN)
+        //add marked patterns to the markBuffer
+        markers(i).mark(buf,ROW,COLUMN,markBuffer,obtainPanelBuffer)
         i+=1
       }
+      //sync twice to fully sync
+      markBuffer foreach synchronizeTimer
+      markBuffer foreach synchronizeTimer
+      markBuffer foreach freePanelBuffer // free allocated panelBuffer
+      markBuffer.clear()//clear marked buffer
     }
-
-    matchBuffer foreach arrayBufferResetter
-    matchBuffer.clear()
     buf.free
   }
 
@@ -295,7 +344,7 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
         append(falling)(fallingTemp)
         copy(fallingTemp)(falling)
         setFallingFlag()
-        panelRemove(panels)
+        panelRemove(panels)//calling back!
         panelRemove(fallings)
         panels.foreach(panelResetter)
         copy(fixedTemp)(fixed)
@@ -490,6 +539,9 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
 
   /**
    * container of the actual panel
+   * why does this class have to be the inner class even while the
+   * other classes are accessing this class's parameters?
+   * It's because it has access to the fixed/falling buffers of the puzzle
    */
   class AP {
     /**
@@ -610,4 +662,11 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
     }
     override def toString: String = value.toString
   }
+}
+object ActionPuzzle{
+  type Panels[T] = IndexedSeq[T]
+  type PanelBuffer[T] = ArrayBuffer[T]
+  type PuzzleBuffer[T] = ArrayBuffer[PanelBuffer[T]]
+  type PatternBuffer[T] = PuzzleBuffer[T]
+  type Puzzle[T] = IndexedSeq[IndexedSeq[T]]
 }
