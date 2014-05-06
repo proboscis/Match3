@@ -25,7 +25,6 @@ class TrailHolder extends Script{
     renderer += trail
   }
 
-
   override def update(delta: Float): Unit = {
     super.update(delta)
     transform.matrix.getTranslation(tmp)

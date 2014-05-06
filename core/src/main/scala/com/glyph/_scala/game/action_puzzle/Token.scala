@@ -13,6 +13,8 @@ import com.glyph._scala.lib.libgdx.reactive.GdxFile
 import scala.collection.mutable
 import scala.util.{Failure, Success}
 import scala.language.implicitConversions
+import scala.collection.immutable.HashMap
+
 /**
  * use table as a layout manager! and don't ever let them use drawing method.
  * @author glyph
@@ -90,7 +92,7 @@ object Token {
   colorMap.put(1,thunder)
   colorMap.put(2,water)
   colorMap.put(3,life)*/
-  def colorMap(key:Any):Color = vColorMap()(key.asInstanceOf[Int])
+  def colorMap(key:Any):Color = vColorMap().get(key.asInstanceOf[Int])
 }
 
 object ColorTheme {
@@ -100,16 +102,25 @@ object ColorTheme {
   val varyingColorMap:Varying[String Map Color]= scheme.map(_.asMapTry.map(_.mapValues(_.asOpt[String].map(Color.valueOf).getOrElse(Color.WHITE)))).map{
     case Success(s) => s
     case Failure(e) => e.printStackTrace();Map()
-  }
+  }.map(_.toSet.toMap)//this is required to avoid the inner usage of MappedValues!
+  //ok,eliminated excessive allocation of Some instances.
+  //do not ever call "apply" of scala map since it uses pattern match internally and
+  //allocates an Option for each call.
 
   val colorNames = "turquoise"::"peter_river"::"amethyst"::"sun_flower"::"carrot"::"alizarin"::Nil
   val intToColorName = colorNames.zipWithIndex.map{
     case (str,i)=>(i,str)
   }.toMap
-  val vColorMap = varyingColorMap map {
-    case map => intToColorName mapValues map
-  }
-
+  val vColorMap = varyingColorMap.map {
+    case map =>
+      intToColorName mapValues map
+  }.map(map =>{
+    val nm =  new com.badlogic.gdx.utils.ObjectMap[Int,Color]()
+    for((k,v)<-map){
+      nm.put(k,v)
+    }
+    nm
+  })//now every thing is fine!!!
   implicit def json2Str(json: RJSON): Varying[Color] = json.as[String] map {
     str => Color.valueOf(str getOrElse "ffffff")
   }

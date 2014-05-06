@@ -7,8 +7,12 @@ import com.glyph._scala.lib.util.json.JSON
 import com.glyph._scala.lib.util.reactive.{Var, Reactor, FloatVar}
 import com.glyph._scala.social.SocialManager
 import com.glyph._scala.lib.ecs.Scene
+import com.glyph.ClassMacro._
+import com.glyph._scala.lib.event.EventManager
+case class PanelRemove(var removed:Seq[ActionPuzzle[_]#AP])
 class ComboPuzzle extends Logging with Reactor {
   import ComboPuzzle._
+  val events = new EventManager
   val config = GdxFile("comboPuzzle/config.json").map(_.map(JSON(_)))
   val timeConfig = config.map(_.map(_.time.as[Float]).flatten)
   val time = FloatVar(20f)
@@ -54,25 +58,14 @@ class ComboPuzzle extends Logging with Reactor {
    * heat varies according to some other variables such as heat gauge.
    */
   var onPanelScore:(puzzle.AP,Int) => Unit = (_,_)=>{}
-  /**
-   * this is called every frame that has panels being removed
-   * and is called twice for each fixed/falling part of the puzzle.
-   * what if the pattern was partially falling?
-   * when should the matched effects be applied?
-   * pattern won't be removed at the same time, so its so hard to determine
-   * that the pattern is removed...
-   * solution is to stop removing falling panels.
-   * 落下中に消えるべきか否か、これが問題だ。
-   * 消えなかった場合、パターンの一部のみが消え、残りが発生する。
-   * 残りがあってもいいものか？
-   * 残りを無くすにはどうする必要があるか？
-   * マッチ後の移動を不可能にする、もしくは落下中でも消える様にする。
-   * 落下中に消えた場合、どのような問題があるか？
-   * あるパターンが落下している場合、落下中はパターンとして認識しないようにし、
-   * 落下終了後に消えた場合に初めてパターン認識とその結果を使うようにすればいいか
-   * つまり、止まった状態で消えた場合のみパターンとして認識する様にすればいいか。
-   */
   puzzle.panelRemove = seq => {
+    /**
+     * エフェクトはプレイヤの状態によって変更されるし、
+     * 形状の認識も変更される可能性がある・・・
+     * どのように実装すべきか？
+     * 移譲してイベントシステムに任せる！
+     */
+    events << PanelRemove(seq)//throw global event
     val size = seq.size
     heat() += size*size
     var i = 0

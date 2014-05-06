@@ -12,7 +12,7 @@ trait Task extends Updatable with Logging{
   def isCompleted:Boolean
   def onStart(){}
   def onFinish(){}
-  def onCancel(){err("canceled!")}
+  def onCancel(){/*err("canceled!")*/}
   def reset(){
     processor = null
   }
