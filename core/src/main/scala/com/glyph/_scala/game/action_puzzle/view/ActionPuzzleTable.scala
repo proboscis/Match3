@@ -5,8 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.{Image, Label, Table, Skin}
 import com.glyph._scala.game.action_puzzle._
 import com.glyph._scala.lib.util.updatable.reactive.Eased
 import com.badlogic.gdx.math._
-import com.glyph._scala.lib.libgdx.actor.{AnimatedTable, SpriteActor, Updating}
-import com.glyph._scala.lib.libgdx.actor.ui.RLabel
+import com.glyph._scala.lib.libgdx.actor.{Scissor, AnimatedTable, SpriteActor, Updating}
+import com.glyph._scala.lib.libgdx.actor.ui.{Log, LogView, RLabel}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.graphics.g2d.{Batch, BitmapFont, TextureRegion, Sprite}
@@ -41,7 +41,6 @@ import com.glyph._scala.lib.util.pool.GlobalPool._
 import MathUtils._
 import Tint._
 case class APResource(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin, fireTex: Texture, stopWatchTex: Texture)
-
 class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   extends Table
   with Reactor
@@ -111,6 +110,7 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
       back.setWidth(easedHeat() / requiredHeat() * getWidth)
     }
   }
+
   val timerGauge = new Table {
     val back = SpriteActor(new Sprite(dummyTex))
     add(back).fill.expand
@@ -120,10 +120,19 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   inner.debug
   inner.add(scoreLabel).expand
   inner.add(comboLabel).expand
+
   val tableSetup = (t: Table) => {
     t.defaults().fill.expand
     t.debug()
   }
+  val logger = new LogView with Scissor{
+    events += ((e:PanelRemove)=>{this << new Label(""+e.removed,skin) with Log{
+      override def dispose(): Unit = {}
+    }})
+  }
+  val upperTable = new Table <| tableSetup
+  upperTable.add(logger)
+  upperTable.add(inner)
   val heatTable = new Table() <| tableSetup
   val heatImage = (fireTex: Image) <| (_.setScaling(Scaling.fit))
   val levelLabel = new RLabel(skin, level.map(_.toString))
@@ -134,7 +143,7 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   val stopWatchImage = (stopWatchTex: Image) <| (_.setScaling(Scaling.fit))
   timerTable.add(stopWatchImage).width(0.1f.width)
   timerTable.add(timerGauge).width(0.9f.width)
-  add(inner).fill.expandX.height((4f / 15f).height).row //.height(4f.height).row
+  add(upperTable/*inner*/).fill.expandX.height((4f / 15f).height).row //.height(4f.height).row
   add(heatTable).fill.padLeft((0.01f).width).padRight((0.01f).width).expandX.height((1f / 15f).height).row
   add(apView).fill.expandX.height((9f / 15f).height).row //.height(9.0f.height).row
   add(timerTable).fill.pad(0f.height, 0.01f.width, 0f.height, 0.01f.width).expandX.height((1f / 15f).height)

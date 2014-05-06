@@ -344,8 +344,8 @@ class ActionPuzzle[T](val ROW: Int, val COLUMN: Int, seed: () => T, filterFuncti
         append(falling)(fallingTemp)
         copy(fallingTemp)(falling)
         setFallingFlag()
-        panelRemove(panels)//calling back!
-        panelRemove(fallings)
+        if(!panels.isEmpty)panelRemove(panels)//calling back!
+        if(!fallings.isEmpty)panelRemove(fallings)
         panels.foreach(panelResetter)
         copy(fixedTemp)(fixed)
         fixedTemp.free
