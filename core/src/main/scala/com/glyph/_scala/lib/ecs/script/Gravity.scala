@@ -15,8 +15,7 @@ class Gravity extends Script {
   override def update(delta: Float): Unit = {
     super.update(delta)
     val children = entity.children
-    children.begin()
-    val it = children.iterator()
+    val it = children.begin()
     while (it.hasNext) {
       val child = it.next()
       val transform = child.component[Transform]

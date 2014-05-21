@@ -2,11 +2,30 @@ package com.glyph._scala.lib.util.updatable.task
 
 import com.glyph._scala.lib.util.Logging
 import com.glyph._scala.game.Glyphs
+import com.badlogic.gdx.graphics.Color
 
 trait Accessor[T] {
   def size: Int
   def get(tgt: T, values: Array[Float])
   def set(tgt: T, values: Array[Float])
+}
+object Accessors{
+  object Color extends Accessor[Color]{
+    def size: Int = 4
+    def get(tgt: Color, values: Array[Float]): Unit = {
+      values(0) = tgt.r
+      values(1) = tgt.g
+      values(2) = tgt.b
+      values(3) = tgt.a
+    }
+
+    def set(tgt: Color, values: Array[Float]): Unit = {
+      tgt.r = values(0)
+      tgt.g = values(1)
+      tgt.b = values(2)
+      tgt.a = values(3)
+    }
+  }
 }
 
 class Interpolator[T] extends InterpolationTask with AutoFree with Logging {
@@ -48,6 +67,13 @@ class Interpolator[T] extends InterpolationTask with AutoFree with Logging {
     end(2) = z
     this
   }
+  def to(x:Float,y:Float,z:Float,w:Float):this.type = {
+    end(0) = x
+    end(1) = y
+    end(2) = z
+    end(3) = w
+    this
+  }
 
   def apply(alpha: Float) {
     var i = 0
@@ -61,13 +87,6 @@ class Interpolator[T] extends InterpolationTask with AutoFree with Logging {
     }
     accessor.set(target, v)
   }
-
-
-  override def onCancel(){
-    super.onCancel()
-    log("canceled!")
-  }
-
   override def reset() {
     super.reset()
     target = null.asInstanceOf[T]

@@ -5,6 +5,7 @@ import com.glyph._scala.lib.util.pool.{PoolOps, Poolable}
 import com.glyph._scala.lib.ecs.script.Script
 import org.w3c.dom.Entity
 import com.glyph._scala.game.Glyphs
+import com.glyph._scala.lib.util.DelayedArray
 
 trait EntityEvent extends Poolable{
   def reset()
@@ -48,16 +49,29 @@ trait IsComponent[T<:Poolable]{
   }
 }
 
-final class Entity extends Poolable {
-  var parent :Entity = null
-  var _scene :Scene = null
+final class Entity extends Poolable with ECSNode{
+  var parent :ECSNode = null
+  private var _scene :Scene = null
   private [ecs] def setScene(scene:Scene) = _scene = scene
   def scene: Scene = if(_scene == null) throw new IllegalStateException("entity must be created by Scene so that it has proper scene set.") else _scene
   private val mComponents = new com.badlogic.gdx.utils.Array[Poolable]()
-  private val mScripts = new DelayedRemovalArray[Script]()
   private val mScriptMap = new ObjectMap[Class[_], Script]()
+  private val mScripts = new DelayedArray[Script](script=>{
+    mScriptMap.remove(script.getClass)
+    val event = manual[RemoveScript]
+    event.script = script
+    fireModificationEvent(event)
+    event.free
+    script.freeToPool()
+  })
   private val mModificationListeners = new DelayedRemovalArray[EntityEvent=>Unit]()
-  val children = new DelayedRemovalArray[Entity]()
+  val children = new DelayedArray[Entity](e=>{
+    val event = manual[RemoveChild]
+    event.child = e
+    fireModificationEvent(event)
+    event.free
+    e.freeToPool()
+  })
 
   def getComponentUnSafe(id:Int) = if(mComponents.size <= id) null else mComponents.get(id)
   def setComponentUnSafe(id:Int,c:Poolable) = {
@@ -88,28 +102,22 @@ final class Entity extends Poolable {
   def addModificationListener(listener:EntityEvent=>Unit){
     mModificationListeners.add(listener)
     if(mScripts.size > 0){
-      mScripts.begin()
-      var i = 0
-      val size = mScripts.size
-      while(i<size){
+      val it = mScripts.begin()
+      while(it.hasNext){
         val e = manual[AddScript]
-        e.script = mScripts.get(i)
+        e.script = it.next
         listener(e)
         e.free
-        i += 1
       }
       mScripts.end()
     }
     if(children.size > 0){
-      children.begin()
-      var i = 0
-      val size = children.size
-      while(i < size){
+      val it = children.begin()
+      while(it.hasNext){
         val e = manual[AddChild]
-        e.child = children.get(i)
+        e.child = it.next()
         listener(e)
         e.free
-        i+=1
       }
       children.end()
     }
@@ -125,66 +133,55 @@ final class Entity extends Poolable {
     }
     mModificationListeners.end()
   }
-  def +=(child: Entity) = {
-    children.add(child)
+  def +=(child: Entity):Entity = {
+    children += child
     child.parent = this
     val event = manual[AddChild]
     event.child = child
     fireModificationEvent(event)
     event.free
+    child
   }
 
-  def -=(child: Entity) = {
-    children.removeValue(child, true)
-    val event = manual[RemoveChild]
-    event.child = child
-    fireModificationEvent(event)
-    event.free
-    child.freeToPool()
-  }
+  //TODO can this method be called while updating script? no!
+  //TODO make this method accept invokation while updating script
+  def -=(child: Entity) = children -= child
 
-  def +=(script: Script) = {
-    mScripts.add(script)
+  def +=[T<:Script](script: T):T = {
+    mScripts += script
     mScriptMap.put(script.getClass, script)
     val event = manual[AddScript]
     event.script = script
     fireModificationEvent(event)
     event.free
+    script
   }
 
-  def -=(script: Script) {
-    mScripts.removeValue(script, true)
-    mScriptMap.remove(script.getClass)
-    val event = manual[RemoveScript]
-    event.script = script
-    fireModificationEvent(event)
-    event.free
-    script.freeToPool()
-  }
+  def -=(script: Script) = mScripts -= script
 
   def script[T<:Script:Class]:T = mScriptMap.get(implicitly[Class[T]]).asInstanceOf[T]
 
   def updateScripts(delta:Float){
-    mScripts.begin()
-    val it = mScripts.iterator()
+    //log("updateScript")
+    val it = mScripts.begin()
     while(it.hasNext){
       val script = it.next()
       if(!script.isInitialized)script.initialize(this)
       script.update(delta)
     }
     mScripts.end()
-    children.begin()
-    val it2 = children.iterator()
+    val it2 = children.begin()
     while(it2.hasNext){
-      it2.next().updateScripts(delta)
+      val next = it2.next()
+      assert(next != this)
+      next.updateScripts(delta)
     }
     children.end()
   }
 
   def reset() {
     {//clear scripts
-      mScripts.begin()
-      val it = mScripts.iterator()
+      val it = mScripts.begin()
       while (it.hasNext) {
         it.next.freeToPool()
       }
@@ -194,8 +191,7 @@ final class Entity extends Poolable {
     }
     
     {//clear children
-      children.begin()
-      val it = children.iterator()
+      val it = children.begin()
       while(it.hasNext){
         it.next().freeToPool()
       }
@@ -217,8 +213,6 @@ final class Entity extends Poolable {
   }
 
   def remove() {
-    if(parent != null) parent -= this else{
-      scene -= this
-    }
+    parent -= this
   }
 }

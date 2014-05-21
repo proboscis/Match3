@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.{Rectangle, MathUtils, Vector2}
 import scalaz._
 import Scalaz._
 import com.glyph._scala.lib.util.pool.GlobalPool._
-import com.glyph._scala.lib.ecs.component.{SimplePhysics, Velocities, Transform}
+import com.glyph._scala.lib.ecs.component.{Tint, SimplePhysics, Velocities, Transform}
 
 /**
  * @author glyph
@@ -54,6 +54,7 @@ class ECSTest extends ConfiguredScreen {
     e += auto[SimplePhysics]
     e += trans
     e += trail
+    e += auto[Tint]
     e += body
     if (parent != null) {
       trans.matrix.set(parent.component[Transform].matrix)

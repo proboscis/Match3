@@ -8,7 +8,7 @@ import com.badlogic.gdx.math._
 import com.glyph._scala.lib.libgdx.actor.{Scissor, AnimatedTable, SpriteActor, Updating}
 import com.glyph._scala.lib.libgdx.actor.ui.{Log, LogView, RLabel}
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.scenes.scene2d.Action
+import com.badlogic.gdx.scenes.scene2d.{Actor, Touchable, Action}
 import com.badlogic.gdx.graphics.g2d.{Batch, BitmapFont, TextureRegion, Sprite}
 import com.glyph._scala.lib.util.reactive.Reactor
 import com.glyph._scala.lib.util.{Threading, Logging}
@@ -26,21 +26,25 @@ import com.glyph._scala.lib.libgdx.font.FontUtil
 import com.glyph._scala.lib.libgdx.actor.action.ActionOps
 import com.glyph._scala.lib.libgdx.gl.ShaderHandler
 import com.glyph._scala.lib.libgdx.actor.transition.AnimatedManager.AnimatedConstructor
-import com.glyph._scala.lib.libgdx.actor.widgets.Center
-import com.glyph._scala.lib.util.updatable.task.{Do, Delay, Sequence, ParallelProcessor}
+import com.glyph._scala.lib.libgdx.actor.widgets.{Layered, Center}
+import com.glyph._scala.lib.util.updatable.task._
 import com.badlogic.gdx.utils.Scaling
-import com.glyph._scala.lib.ecs.{Template, Scene}
+import com.glyph._scala.lib.ecs.{Entity, Template, Scene}
 import com.glyph._scala.lib.ecs.system.{SpriteRenderer, TrailRenderer}
 import com.glyph._scala.lib.ecs.component.{Tint, Velocities, Transform}
-import com.glyph._scala.lib.libgdx.actor.widgets.Center
-import com.glyph._scala.lib.ecs.script.{SpriteHolder, Gravity, AreaSensor}
+import com.glyph._scala.lib.ecs.script._
 import com.glyph._scala.game.action_puzzle.view.animated.TableValueOps._
 import com.glyph._scala.lib.ecs.script.task.{EntityTaskProcessor}
 import com.glyph._scala.game.action_puzzle.ecs.task.EntityFunction
 import com.glyph._scala.lib.util.pool.GlobalPool._
 import MathUtils._
 import Tint._
-case class APResource(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin, fireTex: Texture, stopWatchTex: Texture)
+import com.glyph._scala.game.action_puzzle.view.APResource
+import com.glyph._scala.lib.libgdx.actor.widgets.Center
+import com.glyph._scala.game.action_puzzle.view.APResource
+import com.glyph._scala.lib.libgdx.actor.widgets.Center
+
+case class APResource(roundTex: Texture, particleTex: Texture, dummyTex: Texture, skin: Skin, fireTex: Texture, stopWatchTex: Texture,flareTex:Texture)
 class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   extends Table
   with Reactor
@@ -51,14 +55,15 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   //TODO パーティクルをもっとキラキラさせる必要があるようだ。
   import game._
   import resource._
-
   val sceneMatrix = new Matrix4
   implicit val scene = new Scene
   val particleHolder = scene.createEntity()
   particleHolder += new Gravity <| (_.power = 1400)
   particleHolder += new AreaSensor(new Rectangle, e => e.remove())
-  scene += new TrailRenderer(sceneMatrix, particleTex)
-  scene += new SpriteRenderer(sceneMatrix)
+  val trailRenderer = scene += new TrailRenderer(sceneMatrix, particleTex)
+  val spriteRenderer = scene += new SpriteRenderer(sceneMatrix)
+  val registerSprite:Sprite=>Unit = s => spriteRenderer.sprites += s
+  val unregisterSprite:Sprite=>Unit = s=>spriteRenderer.sprites -= s
   scene += particleHolder
   val tmp = new Vector2
   // val renderer = new ParticleRenderer[MyTrail](particleTex)(ShaderHandler("shader/rotate2.vert", "shader/default.frag"), new BaseStripBatch(1000 * 10 * 2, UVTrail.ATTRIBUTES))
@@ -66,7 +71,6 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   val corbert = FontUtil.internalFont("font/corbert.ttf", 100)
   val apView = new APView[Int, SpriteActor](game.puzzle)(new Pooling[SpriteActor] {
     override def newInstance: SpriteActor = new SpriteActor()
-
     override def reset(tgt: SpriteActor): Unit = {
       tgt.reset()
       tgt.sprite.setTexture(roundTex)
@@ -104,13 +108,11 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   val heatGauge = new Table {
     val back = SpriteActor(dummyTex)
     add(back).fill.expand
-
     override def act(delta: Float): Unit = {
       super.act(delta)
       back.setWidth(easedHeat() / requiredHeat() * getWidth)
     }
   }
-
   val timerGauge = new Table {
     val back = SpriteActor(new Sprite(dummyTex))
     add(back).fill.expand
@@ -126,13 +128,19 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
     t.debug()
   }
   val logger = new LogView with Scissor{
-    events += ((e:PanelRemove)=>{this << new Label(""+e.removed,skin) with Log{
-      override def dispose(): Unit = {}
-    }})
+    def addString(e:String){
+      this << new Label(""+e,skin) with Log{
+        override def dispose(): Unit = {}
+      }
+    }
+    //events += ((e:PanelRemove)=>{addString(e.removed+"")})
+    events += ((e:PanelPattern)=>{addString(e.kind)})
+    events += addString
+    setTouchable(Touchable.disabled)
   }
-  val upperTable = new Table <| tableSetup
-  upperTable.add(logger)
-  upperTable.add(inner)
+  val mainLayer = new Layered {}
+  mainLayer.addActor(apView)
+  mainLayer.addActor(logger)
   val heatTable = new Table() <| tableSetup
   val heatImage = (fireTex: Image) <| (_.setScaling(Scaling.fit))
   val levelLabel = new RLabel(skin, level.map(_.toString))
@@ -143,48 +151,81 @@ class ActionPuzzleTable(game: ComboPuzzle)(resource: APResource)
   val stopWatchImage = (stopWatchTex: Image) <| (_.setScaling(Scaling.fit))
   timerTable.add(stopWatchImage).width(0.1f.width)
   timerTable.add(timerGauge).width(0.9f.width)
-  add(upperTable/*inner*/).fill.expandX.height((4f / 15f).height).row //.height(4f.height).row
+  add(inner).fill.expandX.height((4f / 15f).height).row //.height(4f.height).row
   add(heatTable).fill.padLeft((0.01f).width).padRight((0.01f).width).expandX.height((1f / 15f).height).row
-  add(apView).fill.expandX.height((9f / 15f).height).row //.height(9.0f.height).row
+  add(mainLayer/*apView*/).fill.expandX.height((9f / 15f).height).row //.height(9.0f.height).row
   add(timerTable).fill.pad(0f.height, 0.01f.width, 0f.height, 0.01f.width).expandX.height((1f / 15f).height)
   game.onPanelAdd = apView.panelAdd
   game.onPanelRemove = seq => {
     apView.panelRemove(seq)
   }
-  //there are a few conditions when the panel is destroyed
-  /**
-   * 1:
-   */
+  import MathUtils._
+  preAlloc[Transform](1000)
+  preAlloc[SpriteHolder](1000)
+  preAlloc[Tint](1000)
+  preAlloc[Velocities](1000)
+  preAlloc[Expire](1000)
+  preAlloc[EntityTaskProcessor](1000)
+  val particleEmitter:Entity=>Entity = e => {
+    val p = Template.particle(e.scene)
+    val trans = e.component[Transform]
+    val sprite = auto[SpriteHolder].setRegisters(registerSprite,unregisterSprite)
+    val pTrans = p.component[Transform]
+    val pTint = p.component[Tint]
+    val pVel = p.component[Velocities]
+    val duration = 1f
+    pTint.color.set(e.component[Tint].color)
+    pVel.ignoreGravity = true
+    pVel.vel.set(0,random(500f)).rotate(random(360f))
+    val processor = auto[EntityTaskProcessor]
+    p += processor
+    processor.addTask(Parallel(Interpolate(pTint.color) of Accessors.Color to (1,1,1,0) in duration using Interpolation.exp10Out))
+    pTrans.matrix.set(trans.matrix)
+    pTrans.matrix.rotate(random(360f))
+    sprite.sprite.setTexture(flareTex)
+    sprite.sprite.setRegion(0f,0f,1f,1f)
+    val size = random(200f)
+    sprite.sprite.setSize(size,size)
+    p += sprite
+    val expire = p += auto[Expire]
+    expire.duration = duration
+    p
+  }
   game.onPanelScore = (p, s) => {//called when the panel is destroyed with score.
     val token = p.extra.asInstanceOf[Token[Int, SpriteActor]]
+    //TODO why the hell is the effect not showing up?
     apView.popScore(token, s)
     var i = 0
     while (i < s ) {
       val trail = Template.trail
       tmp.set(token.getX + token.getWidth / 2, token.getY + token.getHeight / 2)
-      //err("tokenLocal", tmp)
       apView.localToStageCoordinates(tmp)
-      //err("tokenStage", tmp, trail.component[Velocities].vel)
+      //init position and velocities
       trail.component[Transform].matrix.setToTranslation(tmp)
       val vels = trail.component[Velocities]
       vels.vel.set(1, 0).rotate(random(360f)).scl(random(500f,2000f))
       vels.viscosity = 0.002f
       vels.weight = 1f
       vels.ignoreGravity = true
+      //gravity timer
       val processor = auto[EntityTaskProcessor]
       trail += processor
-      trail.component[Tint].color.set(Color.WHITE).a = 0.3f
+      trail.component[Tint].color.set(token.tgtActor.getColor)
       processor.addTask(Sequence(Delay(0.3f),Do(EntityFunction(trail,_.component[Velocities].ignoreGravity = false))))
-      particleHolder += trail
-      val sprite = auto[SpriteHolder]
+      //sprite
+      val sprite = auto[SpriteHolder].setRegisters(registerSprite,unregisterSprite)
       sprite.sprite.setTexture(particleTex)
       sprite.sprite.setRegion(0f,0f,1f,1f)
-      sprite.sprite.setSize(50,50)
-
+      sprite.sprite.setSize(20,20)
       trail += sprite
+      //add emitter
+      val pEmitter = auto[ParticleEmitter]
+      pEmitter.setup(particleEmitter,0.016f)
+      trail += pEmitter
+      //add trail to the root entity
+      particleHolder += trail
       i += 1
     }
-
     //apView.explodeToken(token,s/10)
   }
   game.onGameOverCallback = () => {

@@ -16,8 +16,7 @@ class AreaSensor(val area:Rectangle,var callback:Entity=>Unit) extends Script {
   override def update(delta: Float): Unit = {
     super.update(delta)
     val children = entity.children
-    children.begin()
-    val it = children.iterator()
+    val it = children.begin()
     while(it.hasNext){
       val e = it.next()
       val trans = e.component[Transform]

@@ -1,5 +1,4 @@
 package com.glyph._scala.lib.ecs.system
-
 import com.glyph._scala.lib.ecs.Scene
 import com.badlogic.gdx.math.Matrix4
 import com.glyph._scala.lib.libgdx.gl.{Trail, UVTrail, TypedBatch}

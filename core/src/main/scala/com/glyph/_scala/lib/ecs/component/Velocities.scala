@@ -27,7 +27,6 @@ object Velocities{
   implicit object spIsComponent extends IsComponent[Velocities]
 }
 class SimplePhysics extends Script{
-
   val tmp = new Vector2
   var sp:Velocities = null
   var tr:Transform = null

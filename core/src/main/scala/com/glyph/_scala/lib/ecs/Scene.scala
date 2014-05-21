@@ -8,7 +8,7 @@ import Glyphs._
 /**
  * @author glyph
  */
-class Scene {
+class Scene extends ECSNode{
   //TODO you must invalidate the scene before switching to next scene.
   var isDisposed = false
   val objects = new DelayedRemovalArray[Entity]()
@@ -34,8 +34,10 @@ class Scene {
     }
   }
 
-  def +=(ent: Entity) {
+  def +=(ent: Entity):Entity= {
     objects.add(ent)
+    ent.parent = this
+    ent
   }
 
   def -=(ent: Entity) {
@@ -45,9 +47,10 @@ class Scene {
 
   def getSystem[T<:EntitySystem : Class] = systemMap.get(implicitly[Class[T]]).asInstanceOf[T]
 
-  def +=(system: EntitySystem) = {
+  def +=[T<:EntitySystem](system: T):T = {
     systemMap.put(system.getClass, system)
     systemList.add(system)
+    system
   }
 
   //TODO implement removal of system
@@ -86,4 +89,9 @@ class Scene {
       it.next.scene = null
     }
   }
+}
+
+trait ECSNode{
+  def +=(child:Entity):Entity
+  def -=(child:Entity)
 }

@@ -14,7 +14,9 @@ trait Script extends Poolable{
     entity = self
     _initialized = true
   }
-  def update(delta:Float){}
+  def update(delta:Float){
+    //log("update")
+  }
   def reset(){
     entity = null
     _initialized = false

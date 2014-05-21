@@ -9,7 +9,8 @@ import scalaz._
 import Scalaz._
 import com.glyph._scala.lib.util.reactive.{Varying, Var}
 import com.glyph._scala.lib.util.Logging
-import com.badlogic.gdx.utils.viewport.ExtendViewport
+import com.badlogic.gdx.utils.viewport.{Viewport, ExtendViewport}
+import com.badlogic.gdx.graphics.g2d.{SpriteBatch, Batch}
 
 /**
  * @author glyph
@@ -24,6 +25,7 @@ trait JSONStagedScreen extends StagedScreenBase {
 }
 
 trait StagedScreenBase extends GlyphScreen with Logging{
+  def createBatch:Batch = new SpriteBatch(1000)
   def STAGE_WIDTH:Int
   def STAGE_HEIGHT:Int
   /**
@@ -35,7 +37,7 @@ trait StagedScreenBase extends GlyphScreen with Logging{
    */
   var autoClearScreen = true
   val viewport = new ExtendViewport(STAGE_WIDTH,STAGE_HEIGHT)
-  val stage = new Stage(viewport)
+  val stage = new Stage(viewport,createBatch)
   log("created stage:",STAGE_WIDTH,STAGE_HEIGHT)
   override def show() {
     log("show StagedScreen")

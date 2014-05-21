@@ -20,9 +20,9 @@ class ComboPuzzle extends Logging with Reactor {
   val puzzle = new ActionPuzzle(6, 6, () => MathUtils.random(0, 5), (a: Int, b: Int) => {
     if(a == b) a else -1
   })
-  val cross = Array((0,0),(1,0),(-1,0),(0,1),(0,-1))
   puzzle.markers += new Line3Matcher(puzzle.APFilter)
-  puzzle.markers += new PatternMatcher[puzzle.AP](Array(cross),(a,b)=>puzzle.APFilter(a,b) != -1)
+  puzzle.markers += new PatternMatcher[puzzle.AP](Array(PanelPattern.distinctPatterns:_*),(a,b)=>puzzle.APFilter(a,b) != -1)
+  val decoder = new PanelPatternDecoder(events)
   val score = Var(0)
   val heat = FloatVar(0f)//レベルに応じたヒートが貯まると、レベルが上がる
   val level = Var(1)

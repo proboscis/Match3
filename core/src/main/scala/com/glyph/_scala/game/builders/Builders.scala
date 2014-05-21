@@ -64,7 +64,8 @@ object Builders {
   val roundRectTexture: Builder[Texture] = "data/rr160.png".builder[Texture]
   val stopWatchTexture = "data/noun/stopwatch2.png".builder[Texture]
   val fireTexture = "data/noun/fire.png".builder[Texture]
-
+  val flareTexture = "data/flare.png".builder[Texture]
+  //the resources should be defined in text file so that you don't have to recompile again and again.
   val roundRectNP = roundRectTexture.map {
     tex => val w = tex.getWidth / 3
       new NinePatch(tex, w, w, w, w)
@@ -72,8 +73,8 @@ object Builders {
   val flat = (corbert & code &dummyTexture).map{
     case cor&cod&tex => new FlatSkin(ColorTheme.varyingColorMap(),tex.drawable,cor) <| (_.add("emphasis",cod))
   }
-  val apResource = roundRectTexture & particleTexture & dummyTexture & flat & fireTexture & stopWatchTexture map {
-    case rr&p&d&fl&fire&st => APResource(rr,p,d,fl,fire,st)
+  val apResource = roundRectTexture & particleTexture & dummyTexture & flat & fireTexture & stopWatchTexture & flareTexture map {
+    case rr&p&d&fl&fire&st&flare => APResource(rr,p,d,fl,fire,st,flare)
   }
   /*
     roundRectNP.map {

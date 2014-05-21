@@ -28,7 +28,7 @@ trait Poolable extends Logging {
   }
 }
 
-class Pool[P: Pooling : Class](val max: Int) extends Logging {
+class Pool[P: Pooling : Class](var max: Int) extends Logging {
   log("created a pool for:" + implicitly[Class[P]])
   private val pool = new com.badlogic.gdx.utils.Array[P]()
 
@@ -50,14 +50,23 @@ class Pool[P: Pooling : Class](val max: Int) extends Logging {
     result
   }
 
+  /**
+   * reset the given parameter and add it to the pool if possible
+   * @param tgt
+   */
   def reset(tgt: P) {
     implicitly[Pooling[P]].reset(tgt)
+    pool add tgt
+    /*
     if (pool.size < max) {
-      pool add tgt
+
       //log("freed "+tgt.getClass)
+      pool add tgt
     } else {
+
       log("warning: this pool reached its max capacity!" + tgt.getClass)
     }
+    */
   }
 
   def preAlloc(size: Int) {

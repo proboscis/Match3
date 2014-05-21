@@ -28,13 +28,13 @@ trait Log extends Actor with Disposable
  */
 class LogView extends WidgetGroup{
   val logs = mutable.Queue[Log]()
-  val ROW = 5
+  val ROW = 20
   val slideDuration=0.1f
   def cellHeight = getHeight/ROW
   def <<(log:Log){
     logs.enqueue(log)
     addActor(log)
-    if(logs.size > 6){
+    if(logs.size > ROW){
       val removing = logs.dequeue()
       removing.remove()
       removing.dispose()

@@ -17,11 +17,10 @@ class SpriteRenderer(combined:Matrix4) extends EntitySystem{
     s.draw(batch)
   }
   override def update(scene: Scene, delta: Float): Unit = {}
-
   override def draw(scene: Scene): Unit ={
-    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
     batch.setProjectionMatrix(combined)
     batch.begin()
+    Gdx.gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE)
     sprites foreach render
     batch.end()
   }
