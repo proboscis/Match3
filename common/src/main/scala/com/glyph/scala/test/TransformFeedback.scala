@@ -99,8 +99,8 @@ class TransformFeedback extends ScreenBuilder with Logging {
       actor => rightTable.add(actor).fill.expand.row
     }
 
-    //root.add(leftTable).fill.expand(130, 90)
-    //root.add(rightTable).fill.expand(30, 90)
+    root.add(leftTable).fill.expand(130, 90)
+    root.add(rightTable).fill.expand(30, 90)
 
     var mouseX = 0f
     var mouseY = 0f
