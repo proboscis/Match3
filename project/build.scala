@@ -20,7 +20,7 @@ object LibgdxBuild extends Build {
     javacOptions ++= Seq("-encoding","utf8")//this is required to avoid encoding issues with japanese comments in Windows
     )
   lazy val androidSettings = commonSettings ++ android.Plugin.androidBuild(core) ++ Seq(
-    platformTarget in Android := "android-11",
+    platformTarget in Android := "android-15",
     dexMaxHeap in Android := "1408m",
     /* //ProguardCache is disabled in my plugin!!!
     proguardCache in Android ++= Seq(
