@@ -13,7 +13,7 @@ void main(){
     gl_Position = u_projModelView * vec4(t.z,t.w,0,1);
     //v_color = vec4(t.xy,t.zw*0.001);
     float age = texture2D(u_sampler2,a_position);
-    v_color = texture2D(u_sampler1,vec2(a_position.x,1-a_position.y))*(10.0-u_et)/10.0;
+    v_color = texture2D(u_sampler1,vec2(a_position.x,1-a_position.y));
     //v_color=vec4(a_position,0,1);
     gl_PointSize = u_pointSize;
 }
