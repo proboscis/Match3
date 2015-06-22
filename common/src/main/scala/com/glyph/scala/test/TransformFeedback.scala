@@ -24,7 +24,7 @@ import Scalaz._
  */
 class TransformFeedback extends ScreenBuilder with Logging {
   def requirements: Set[(Class[_], Seq[String])] = Set(
-    classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png","data/penmark.jpg")
+    classOf[Texture] -> Seq("data/sword.png", "data/dummy.png", "data/particle.png","data/penmark.jpeg")
   )
 
   def create(implicit assetManager: AssetManager): Screen = new ConfiguredScreen {
@@ -88,7 +88,7 @@ class TransformFeedback extends ScreenBuilder with Logging {
     val texture: Texture = "data/sword.png".fromAssets
     val dummyTexture: Texture = "data/dummy.png".fromAssets
     val particleTexture: Texture = "data/particle.png".fromAssets
-    val penmark:Texture = "data/penmark.jpg".fromAssets
+    val penmark:Texture = "data/penmark.jpeg".fromAssets
     import Noise._
 
     val RESOLUTION = 400

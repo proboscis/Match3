@@ -1,8 +1,8 @@
 import sbt._
 
 import Keys._
-import org.scalasbt.androidplugin._
-import org.scalasbt.androidplugin.AndroidKeys._
+
+
 import sbtassembly.Plugin._
 import AssemblyKeys._
 object Constants{
@@ -40,19 +40,7 @@ object Settings {
   lazy val desktop = Settings.common ++  Seq (
     fork in Compile := true
     ) 
-  lazy val android = Settings.common ++
-  AndroidProject.androidSettings ++
-  AndroidMarketPublish.settings ++ Seq (
-    platformName in Android := "android-10",
-    keyalias in Android := "change-me",
-    mainAssetsPath in Android := file("common/src/main/resources"),
-    unmanagedBase <<= baseDirectory( _ /"src/main/libs" ),
-    proguardOption in Android := {
-      import scala.io.Source
-      val options = Source.fromFile("./proguardOptions.txt").getLines.mkString(" ")
-      options
-    }
-    )
+
   val updateLibgdx = TaskKey[Unit]("update-gdx", "Updates libgdx")
 
   val updateLibgdxTask = updateLibgdx <<= streams map { (s: TaskStreams) =>
@@ -133,10 +121,4 @@ object LibgdxBuild extends Build {
         )
       )
     ) dependsOn common 
-
-  lazy val android = Project (
-    "android",
-    file("android"),
-    settings = Settings.android
-    ) dependsOn common
 }

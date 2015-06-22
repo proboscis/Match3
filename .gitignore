@@ -17,3 +17,6 @@ target/
 
 #generated
 .changed/
+
+*.history
+*.DS_STORE

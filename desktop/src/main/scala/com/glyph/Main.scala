@@ -31,6 +31,7 @@ object Main {
   }
 
   def main(args: Array[String]) {
+    println("working dir: " + new File("").getAbsolutePath())
     val parser = new scopt.OptionParser[Config]("game") {
       head("game", " currently in beta")
       opt[Unit]('f', "file_check") action {
